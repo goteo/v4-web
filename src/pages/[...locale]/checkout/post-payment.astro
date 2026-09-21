@@ -146,9 +146,11 @@ try {
 }
 ---
 
+<!-- GOTEO-OC-DONATION-CERTIFICATE: meta description is a placeholder; replace with a neutral
+     post-payment copy (it previously reused the removed certificate copy). -->
 <Layout
     title={t("pages.checkout.postPayment.title")}
-    description={t("pages.checkout.postPayment.certificate.description")}
+    description={t("pages.checkout.postPayment.title")}
 >
     <App client:load locale={lang} session={session}>
         <section class="wrapper flex flex-col items-start gap-6 pb-16 md:gap-10 md:pb-20">
@@ -169,6 +171,9 @@ try {
             </div>
 
             <div class="flex w-full flex-col items-start gap-12 pb-20 md:gap-18">
+                <!-- GOTEO-OC-DONATION-CERTIFICATE: certificate info card, exclusive to the donation-certificate
+                 feature of Goteo under Fundación Platoniq, hidden in the open-core. Re-enable with the
+                 feature toggle when it exists. Do not delete.
                 <div
                     class="flex flex-col items-start gap-6 self-stretch rounded-4xl bg-white md:flex-row md:items-center md:gap-10"
                 >
@@ -193,6 +198,7 @@ try {
                         </p>
                     </div>
                 </div>
+            -->
 
                 {
                     donatedProjects.length > 0 && (

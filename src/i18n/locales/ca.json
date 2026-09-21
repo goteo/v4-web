@@ -365,7 +365,6 @@
         "forUsers": {
           "title": "Per a usuàries",
           "rechargeWallet": "Recarrega el teu moneder",
-          "downloadCertificate": "Descarrega certificat",
           "accessComplementaryFunds": "Accedeix a fons complementaris",
           "designFundingProgram": "Dissenya un programa de finançament"
         }
@@ -508,10 +507,6 @@
       "postPayment": {
         "title": "Enhorabona! Gràcies per la teva donació",
         "emailSent": "T'hem enviat un resum a:",
-        "certificate": {
-          "title": "Com sol·licito el meu certificat?",
-          "description": "El certificat es genera de forma automàtica al final de l'any fiscal (desembre). T'enviarem un correu un cop hàgim presentat la documentació a Hisenda. En cas que trobem algun problema, contactarem amb tu per correu."
-        },
         "donatedProjects": {
           "title": "Has donat als projectes següents"
         },
@@ -1104,9 +1099,6 @@
         "banner": {
           "donator": {
             "description": "Goteo pertany a la Fundació Platoniq. En col·laborar en una campanya, els teus diners seran custodiats per Platoniq i donats a {{owner}} en cas d'arribar als objectius d'èxit marcats."
-          },
-          "certificate": {
-            "description": "En col·laborar amb un projecte impulsat a Goteo pots sol·licitar un certificat de donació. Així, et dedueixes fins a un 80% del que hagis aportat en la teva pròxima declaració de la renda."
           }
         },
         "langNotAvailable": "L'idioma seleccionat \"{{lang}}\" no està disponible per a aquest projecte. Es mostra contingut en l'idioma disponible.",
@@ -1607,7 +1599,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Descarrega certificats",
           "pdf": "Descarrega PDF"
         },
         "lastEdited": "Última modificació: {{date}} {{time}}",
@@ -1739,7 +1730,6 @@
                 "contributions": "Aportacions",
                 "donors": "Donants de campanya",
                 "financialReport": "Informe de finançament",
-                "certificates": "Certificats",
                 "annotations": "Anotacions"
               }
             },
@@ -1973,8 +1963,7 @@
         "count": "Donacions",
         "total": "Total donat",
         "recent": "Últimes donacions",
-        "viewAll": "Veure totes",
-        "certificate": "Sol·licitar certificat"
+        "viewAll": "Veure totes"
       },
       "projects": {
         "title": "Projectes impulsats",

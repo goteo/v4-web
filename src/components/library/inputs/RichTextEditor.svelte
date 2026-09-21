@@ -33,6 +33,7 @@
         onChange: (value: RichTextValue<F>) => void;
         format?: F;
         placeholder?: string;
+        labelText?: string;
         error?: string;
         ariaDescribedBy?: string;
         class?: ClassNameValue;
@@ -57,6 +58,7 @@
         onChange,
         format = "json" as F,
         placeholder = "",
+        labelText,
         error,
         ariaDescribedBy,
         class: className = "",
@@ -271,14 +273,27 @@
         {/if}
     </div>
 
-    <div
-        {id}
-        bind:this={editorElement}
-        class={twJoin(
-            "max-h-100 overflow-y-auto rounded-lg border",
-            error ? "border-tertiary" : "border-secondary",
-        )}
-    ></div>
+    <div class="relative">
+        {#if labelText}
+            <label
+                for={id}
+                class={twJoin(
+                    "text-secondary absolute top-0 left-4 -translate-y-1/2 transform bg-white px-1 text-sm font-medium transition-all",
+                    error && "text-tertiary",
+                )}
+            >
+                {labelText}
+            </label>
+        {/if}
+        <div
+            {id}
+            bind:this={editorElement}
+            class={twJoin(
+                "max-h-100 overflow-y-auto rounded-lg border",
+                error ? "border-tertiary" : "border-secondary",
+            )}
+        ></div>
+    </div>
 
     {#if maxLength !== undefined}
         <p class={twJoin("text-right text-sm", isCountOutOfRange ? "text-tertiary" : "text-black")}>

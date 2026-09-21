@@ -97,6 +97,7 @@
         }
         try {
             const { data, error } = await apiProjectSupportsmoneyTotalGetCollection({
+                baseUrl: "/api/relay",
                 query: {
                     "project[]": ids.map((id) =>
                         apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(id)),
@@ -167,6 +168,7 @@
             );
 
             return apiProjectsGetCollection({
+                baseUrl: "/api/relay",
                 query,
                 headers: {
                     Accept: "application/ld+json",
@@ -210,7 +212,10 @@
                     missingAccountingIris.map(async (iri) => {
                         const accId = extractId(iri);
                         if (!accId) return null;
-                        const { data } = await apiAccountingsIdGet({ path: { id: accId } });
+                        const { data } = await apiAccountingsIdGet({
+                            baseUrl: "/api/relay",
+                            path: { id: accId },
+                        });
                         return data ? ([iri, data] as const) : null;
                     }),
                 ),
@@ -219,6 +224,7 @@
                         const ownerId = extractId(iri);
                         if (!ownerId) return null;
                         const { data } = await apiUsersIdOrHandleGet({
+                            baseUrl: "/api/relay",
                             path: { idOrHandle: ownerId },
                         });
                         return data ? ([iri, data] as const) : null;

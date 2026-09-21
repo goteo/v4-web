@@ -1,5 +1,6 @@
 import BudgetStep from "./BudgetStep.svelte";
 import CampaignInfoStep from "./CampaignInfoStep.svelte";
+import CollaborationsStep from "./CollaborationsStep.svelte";
 import ConfigurationStep from "./ConfigurationStep.svelte";
 import RewardsStep from "./RewardsStep.svelte";
 
@@ -26,7 +27,7 @@ export const steps: ProjectEditorStep[] = [
     toStep("1", ConfigurationStep),
     toStep("2", CampaignInfoStep),
     toStep("3", RewardsStep),
-    // toStep("4", CollaborationsStep),
+    toStep("4", CollaborationsStep),
     toStep("5", BudgetStep),
     // toStep("6", OwnerInfoStep),
 ];
