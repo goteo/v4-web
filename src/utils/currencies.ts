@@ -162,7 +162,4 @@ export function formatAmountWithSymbol(
     return formatCurrency(amount, currency, { asLocaleString: true, locale });
 }
 
-export function defaultCurrency(): string {
-    const defaultCurrency = getDefaultCurrency();
-    return defaultCurrency;
-}
+export const DEFAULT_CURRENCY = getDefaultCurrency();

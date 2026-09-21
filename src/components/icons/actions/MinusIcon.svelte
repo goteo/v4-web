@@ -1,4 +1,15 @@
-<svg width="27" height="26" viewBox="0 0 27 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+<script lang="ts">
+    let { class: classes = "" }: { class?: string } = $props();
+</script>
+
+<svg
+    class={classes}
+    width="27"
+    height="26"
+    viewBox="0 0 27 26"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+>
     <path
         fill-rule="evenodd"
         clip-rule="evenodd"

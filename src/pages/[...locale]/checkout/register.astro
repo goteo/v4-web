@@ -1,0 +1,49 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../layouts/App.svelte";
+import ContinueButton from "../../../components/checkout/ContinueButton.svelte";
+import Register from "../../../components/checkout/Register.svelte";
+import Summary from "../../../components/checkout/Summary.svelte";
+import Steps from "../../../components/checkout/Steps.svelte";
+import BackButton from "../../../components/library/buttons/BackButton.svelte";
+import Card from "../../../components/library/cards/Card.svelte";
+
+const { t, lang, session } = Astro.locals;
+
+if (session) {
+    return Astro.redirect("/checkout/payment");
+}
+---
+
+<Layout
+    title={t("pages.checkout.register.title")}
+    description={t("pages.checkout.register.description")}
+>
+    <App client:load locale={lang} session={session} class="mb-20">
+        <div class="wrapper max-md:px-0">
+            <BackButton client:idle />
+            <div class="flex flex-col gap-8 pt-6 lg:flex-row">
+                <div class="flex w-full flex-col gap-10 px-4 lg:w-1/2 lg:px-0">
+                    <Register client:load />
+                </div>
+
+                <Card
+                    class="lg: sticky -bottom-6 flex h-fit w-full flex-col items-start gap-6 rounded-3xl border-black pr-4 pb-10 pl-4 lg:top-(--sticky-top) lg:bottom-auto lg:w-1/2 lg:gap-6 lg:rounded-[40px] lg:p-6"
+                >
+                    <Summary client:load />
+                    <div class="w-full lg:block" id="checkout-details">
+                        <div class="w-full">
+                            <Steps step={2} hasError={false} client:idle />
+                        </div>
+                        <div class="flex flex-col">
+                            <p class="text-content text-sm">{t("pages.checkout.summary.deduct")}</p>
+                        </div>
+                    </div>
+                    <div class="flex w-full flex-col items-start">
+                        <ContinueButton client:load form="register" />
+                    </div>
+                </Card>
+            </div>
+        </div>
+    </App>
+</Layout>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CartItem from "./CartItem.svelte";
+    import CheckoutCartItem from "./CheckoutCartItem.svelte";
     import Tipjar from "./Tipjar.svelte";
     import { cart, cartByRecipient } from "../../stores/checkoutsStore";
     import * as tipping from "../../utils/tipping";
@@ -38,7 +38,7 @@
             </Title>
 
             {#each items as item (item.key)}
-                <CartItem
+                <CheckoutCartItem
                     {item}
                     onIncrement={() => increment(item)}
                     onDecrement={() => decrement(item)}

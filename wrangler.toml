@@ -1,4 +1,4 @@
-name = "goteo-v4-frontend"
+name = "goteov4web-app"
 main = "@astrojs/cloudflare/entrypoints/server"
 compatibility_date = "2025-06-26"
 compatibility_flags = ["nodejs_compat"]
@@ -12,8 +12,8 @@ keep_vars = true
 
 [[d1_databases]]
 binding = "DB"
-database_name = "goteo-db"
-database_id = "4821e336-e0cf-4660-b8e9-0ea34019546c"
+database_name = "goteov4web-db"
+database_id = "1f119ee7-358a-4eba-b076-40248d4f28f6"
 migrations_dir = "db/migrations"
 
 
@@ -31,6 +31,7 @@ enabled = true
 # ============================================================================
 
 [env.testing]
+name = "goteov4web-app-testing"
 
 routes = [
     { pattern = "testing.v4.goteo.org", zone_name = "goteo.org", custom_domain = true },
@@ -38,8 +39,8 @@ routes = [
 
 [[env.testing.d1_databases]]
 binding = "DB"
-database_name = "goteo-db-testing"
-database_id = "TESTING-DATABASE-UUID"
+database_name = "goteov4web-db-testing"
+database_id = "5f54dc4e-811b-438b-b83e-9acee224f250"
 migrations_dir = "db/migrations"
 
 
@@ -48,6 +49,7 @@ migrations_dir = "db/migrations"
 # ============================================================================
 
 [env.staging]
+name = "goteov4web-app-staging"
 
 routes = [
     { pattern = "staging.v4.goteo.org", zone_name = "goteo.org", custom_domain = true },
@@ -55,25 +57,8 @@ routes = [
 
 [[env.staging.d1_databases]]
 binding = "DB"
-database_name = "goteo-db-staging"
-database_id = "STAGING-DATABASE-UUID"
-migrations_dir = "db/migrations"
-
-
-# ============================================================================
-# BETA
-# ============================================================================
-
-[env.beta]
-
-routes = [
-    { pattern = "new.goteo.org", zone_name = "goteo.org", custom_domain = true },
-]
-
-[[env.beta.d1_databases]]
-binding = "DB"
-database_name = "goteo-db-beta"
-database_id = "BETA-DATABASE-UUID"
+database_name = "goteov4web-db-staging"
+database_id = "b6afee51-6e91-4e25-b7c0-fb9b166b4cda"
 migrations_dir = "db/migrations"
 
 
@@ -82,6 +67,7 @@ migrations_dir = "db/migrations"
 # ============================================================================
 
 [env.prod]
+name = "goteov4web-app-prod"
 
 routes = [
     { pattern = "v4.goteo.org", zone_name = "goteo.org", custom_domain = true },
@@ -89,21 +75,6 @@ routes = [
 
 [[env.prod.d1_databases]]
 binding = "DB"
-database_name = "goteo-db-prod"
-database_id = "PROD-DATABASE-UUID"
-migrations_dir = "db/migrations"
-
-
-# ============================================================================
-# PREVIEW
-# ============================================================================
-
-[env.preview]
-
-workers_dev = true
-
-[[env.preview.d1_databases]]
-binding = "DB"
-database_name = "goteo-db-preview"
-database_id = "PREVIEW-DATABASE-UUID"
+database_name = "goteov4web-db-prod"
+database_id = "65fe9b71-9263-400e-ae7f-7d899493ee99"
 migrations_dir = "db/migrations"

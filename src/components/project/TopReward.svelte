@@ -2,9 +2,8 @@
     import RewardModal from "./RewardModal.svelte";
     import { t } from "../../i18n/store";
     import { formatCurrency } from "../../utils/currencies";
-    import { renderMarkdown } from "../../utils/renderMarkdown";
     import Button from "../library/buttons/Button.svelte";
-    import Title from "../library/typography/Title.svelte";
+    import Reward from "../library/cards/Reward.svelte";
 
     import type { Project, ProjectReward } from "../../openapi/client";
 
@@ -32,34 +31,7 @@
     }
 </script>
 
-<li
-    class="border-grey flex basis-1/3 flex-col items-center justify-between gap-4 rounded-4xl border bg-[#FFF] p-6 shadow-[0px_1px_3px_0px_#0000001A]"
-    class:opacity-50={!isAvailable}
-    class:cursor-not-allowed={!isAvailable}
->
-    <div class="flex flex-col gap-4">
-        <Title
-            level={3}
-            variant="subsection"
-            color="secondary"
-            weight="bold"
-            truncate={2}
-            class="w-full text-left"
-        >
-            {reward.title}
-        </Title>
-
-        {#if reward.description}
-            <div
-                class="marked-content line-clamp-6 max-h-[11.2em] overflow-hidden mask-[linear-gradient(to_bottom,black_80%,transparent)] text-sm whitespace-pre-line text-gray-800"
-            >
-                {#await renderMarkdown(reward.description) then description}
-                    {@html description}
-                {/await}
-            </div>
-        {/if}
-    </div>
-
+<Reward variant="compact" {reward} disabled={!isAvailable}>
     <Button
         kind="secondary"
         class="w-full"
@@ -70,5 +42,5 @@
             amount: formatCurrency(reward.money.amount, reward.money.currency),
         })}
     </Button>
-</li>
-<RewardModal {reward} {project} bind:open={openModal} />
+    <RewardModal {reward} {project} bind:open={openModal} />
+</Reward>

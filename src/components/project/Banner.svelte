@@ -18,6 +18,9 @@
             </a>
         </div>
     </div>
+    <!-- GOTEO-OC-DONATION-CERTIFICATE: certificate block is exclusive to the donation-certificate
+         feature of Goteo under Fundación Platoniq, hidden in the open-core. Re-enable with the
+         feature toggle when it exists. Do not delete.
     <div class="flex flex-row items-center justify-center gap-4">
         <div><img src="/images/project/certificate.svg" alt="" width="65" height="67" /></div>
         <div>
@@ -28,5 +31,5 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> -->
 </section>

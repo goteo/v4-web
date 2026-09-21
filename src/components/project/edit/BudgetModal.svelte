@@ -3,44 +3,44 @@
     import { untrack } from "svelte";
 
     import { t } from "../../../i18n/store";
-    import { validationErrors } from "../../../stores/drafts/projectDraft";
-    import { defaultCurrency, getUnit } from "../../../utils/currencies";
+    import { apiProjectsIdOrSlugGetUrl, type ProjectBudgetItem } from "../../../openapi/client";
+    import { client } from "../../../openapi/client/client.gen";
+    import { DEFAULT_CURRENCY, getUnit } from "../../../utils/currencies";
     import { toUnitsNumber } from "../../../utils/money";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
-    import Toast from "../../library/feedback/Toast.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TextArea from "../../library/inputs/TextArea.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { ProjectBudgetItem } from "../../../openapi/client";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
     let {
         open = $bindable(false),
-        showToast = $bindable(false),
-        budgetItem,
-        defaultDeadline,
+        draft,
+        item,
+        deadline,
         onSave,
         onDelete,
     }: {
         open: boolean;
-        showToast: boolean;
-        budgetItem: ProjectBudgetItem | null;
-        defaultDeadline?: "minimum" | "optimum";
-        onSave: (data: ProjectBudgetItem | null) => void;
-        onDelete?: (deadline: "minimum" | "optimum") => void;
+        draft: ProjectDraftStore;
+        item?: ProjectBudgetItem;
+        deadline?: "minimum" | "optimum";
+        onSave?: (newItem: ProjectBudgetItem) => void;
+        onDelete?: (item: ProjectBudgetItem) => void;
     } = $props();
 
-    let selectedBudgetTitle = $state(untrack(() => budgetItem?.title ?? ""));
+    let selectedBudgetTitle = $state(untrack(() => item?.title ?? ""));
     let selectedBudgetType: "infrastructure" | "material" | "task" | undefined = $state(
-        untrack(() => budgetItem?.type),
+        untrack(() => item?.type),
     );
-    let amount = $state(untrack(() => (budgetItem?.money ? toUnitsNumber(budgetItem.money) : 0)));
+    let amount = $state(untrack(() => (item?.money ? toUnitsNumber(item.money) : 0)));
     let selectedBudgetDeadline: "minimum" | "optimum" | undefined = $state(
-        untrack(() => budgetItem?.deadline || defaultDeadline),
+        untrack(() => item?.deadline || deadline),
     );
-    let selectedBudgetDescription = $state(untrack(() => budgetItem?.description ?? ""));
+    let selectedBudgetDescription = $state(untrack(() => item?.description ?? ""));
 
     let openDeleteModal = $state(false);
 
@@ -76,21 +76,27 @@
     );
 
     function handleSaveOrCreate() {
-        onSave({
+        const project = client.buildUrl({
+            url: apiProjectsIdOrSlugGetUrl,
+            path: { idOrSlug: $draft.actual.id },
+        });
+
+        onSave?.({
+            project: project,
             title: selectedBudgetTitle,
             description: selectedBudgetDescription,
             deadline: selectedBudgetDeadline!,
             money: {
-                amount: Number(amount) * getUnit(defaultCurrency()),
-                currency: defaultCurrency(),
+                amount: Number(amount) * getUnit(DEFAULT_CURRENCY),
+                currency: DEFAULT_CURRENCY,
             },
             type: selectedBudgetType!,
         });
     }
 
     function handleDeleteClick() {
-        if (budgetItem) {
-            onDelete?.(budgetItem.deadline);
+        if (item) {
+            onDelete?.(item);
             openDeleteModal = false;
             open = false;
         }
@@ -100,7 +106,7 @@
 <Modal
     bind:open
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:bg-[#878282B2] backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
     bodyClass="p-0"
 >
     <div
@@ -115,17 +121,6 @@
         aria-label={$t("pages.project.edit.budget.modal.title")}
         tabindex="-1"
     >
-        {#if Object.keys($validationErrors).length === 1}
-            {#each Object.values($validationErrors) as validationError}
-                <Toast class="absolute z-999 self-center" variant="error" bind:showToast>
-                    {$t(validationError)}
-                </Toast>
-            {/each}
-        {:else if Object.keys($validationErrors).length >= 2}
-            <Toast class="absolute z-999 self-end" variant="error" bind:showToast>
-                {$t("system.validation.missingRequiredFields")}
-            </Toast>
-        {/if}
         <Title level={2} variant="subsection">
             {$t("pages.project.edit.budget.modal.title")}
         </Title>
@@ -170,7 +165,7 @@
             />
         </div>
         <div class="flex items-center justify-end gap-4">
-            {#if budgetItem !== null && onDelete}
+            {#if item !== null && onDelete}
                 <Button kind="secondary" onclick={() => (openDeleteModal = true)} class="w-fit">
                     {$t("common.remove")}
                 </Button>

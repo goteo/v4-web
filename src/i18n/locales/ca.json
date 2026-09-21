@@ -38,14 +38,15 @@
       "_invalid_type": "",
       "_too_big": "",
       "too_small": "\"{{ value }}\" és massa curt: s'esperen {{ min }} caràcters o més.",
-      "invalid_format": "\"{{ value }}\" té un format incorrecte: no s'ajusta al patró regex `{{ pattern }}`.",
+      "invalid_format": "\"{{ value }}\" té un format incorrecte: no s'ajusta al format `{{ format }}`.",
       "_not_multiple_of": "",
       "_unrecognized_keys": "",
       "_invalid_union": "",
       "_invalid_key": "",
       "_invalid_element": "",
       "_invalid_value": "",
-      "missingRequiredFields": "Un o més camps obligatoris estan buits",
+      "requiredField": "Aquest camp és obligatori",
+      "requiredFields": "Un o més camps obligatoris estan buits",
       "project": {
         "terms": {
           "required": "Has d'acceptar les condicions de l'impulsor i les bases de la convocatòria"
@@ -180,6 +181,7 @@
       "reward": {
         "byAtLeast": "Per {{ amount }}",
         "byAtLeastOrMore": "Per {{ amount }} o més",
+        "donation": "Donació",
         "unitsTotal": {
           "single": "Hi ha una unitat",
           "multiple": "Hi ha {{ units }} unitats"
@@ -332,7 +334,8 @@
     "header": {
       "search": "Cercar",
       "createProject": "Crea el teu projecte",
-      "goToProfile": "Anar al perfil"
+      "goToProfile": "Anar al perfil",
+      "admin": "Administració"
     },
     "footer": {
       "funding": {
@@ -362,7 +365,6 @@
         "forUsers": {
           "title": "Per a usuàries",
           "rechargeWallet": "Recarrega el teu moneder",
-          "downloadCertificate": "Descarrega certificat",
           "accessComplementaryFunds": "Accedeix a fons complementaris",
           "designFundingProgram": "Dissenya un programa de finançament"
         }
@@ -411,6 +413,9 @@
         "description": "Pàgina de checkout"
       },
       "subtitle": "Et mostrem les que has seleccionat, prem el botó \"continuar\" per pagar.",
+      "decrement": "Redueix la quantitat",
+      "increment": "Augmenta la quantitat",
+      "remove": "Elimina del carretó",
       "reward": {
         "claimed": "{{ units }} persones ja han reclamat aquesta recompensa",
         "unclaimed": "Encara ningú ha reclamat aquesta recompensa. Fes-ho tu primer!"
@@ -502,10 +507,6 @@
       "postPayment": {
         "title": "Enhorabona! Gràcies per la teva donació",
         "emailSent": "T'hem enviat un resum a:",
-        "certificate": {
-          "title": "Com sol·licito el meu certificat?",
-          "description": "El certificat es genera de forma automàtica al final de l'any fiscal (desembre). T'enviarem un correu un cop hàgim presentat la documentació a Hisenda. En cas que trobem algun problema, contactarem amb tu per correu."
-        },
         "donatedProjects": {
           "title": "Has donat als projectes següents"
         },
@@ -537,6 +538,61 @@
           "unexpectedLogin": "Error en iniciar sessió. Si us plau, intenta-ho de nou més tard.",
           "invalidEmail": "El correu electrònic no és vàlid."
         }
+      },
+      "register": {
+        "form": {
+          "userType": {
+            "individual": "Persona física",
+            "organization": "Persona jurídica (empreses)"
+          },
+          "termsCheckbox": "Accepto els {{ privacy }}termes de privacitat{{ _privacy }} i la {{ terms }}política de cookies{{ _terms }}",
+          "policiesCheckbox": "En registrar-me confirmo la meva acceptació dels vostres {{ terms }}termes d'ús{{ _terms }}, {{ privacy }}política de privacitat{{ _privacy }} i {{ cookies }}política de cookies{{ _cookies }}",
+          "validation": {
+            "password": {
+              "minLength": "*Requisits de la contrasenya: ha de tenir 8 caràcters"
+            },
+            "required": "Aquest camp és obligatori",
+            "emailInvalid": "L'adreça electrònica introduïda no és vàlida",
+            "taxIdInvalid": "El número no té un format vàlid per al país seleccionat"
+          },
+          "emailHelper": "Adreça electrònica que faràs servir per accedir",
+          "taxIdCountry": "País emissor del document",
+          "taxIdCountryHelper": "País que va emetre la teva identificació fiscal"
+        },
+        "individual": {
+          "firstName": "Nom",
+          "lastName": "Cognoms",
+          "email": "Correu electrònic",
+          "password": "Contrasenya",
+          "taxId": {
+            "msgDeduction": "Vull desgravar aquesta donació. Proporciona el NIF per a l'Agència Tributària. Només s'aplica dins d'Espanya.",
+            "label": "NIF*"
+          },
+          "firstNameHelper": "El teu nom",
+          "lastNameHelper": "Els teus cognoms",
+          "taxIdHelper": "Requerit per a la desgravació fiscal"
+        },
+        "organization": {
+          "legalName": "Raó social",
+          "taxId": "CIF*",
+          "description": "Digues-nos qui ets perquè puguis assumir la responsabilitat",
+          "loginBtnLabel": "Inicia sessió amb el teu compte",
+          "representative": {
+            "title": "Dades del representant de l'empresa."
+          },
+          "taxIdHelper": "*Amb el CIF avisarem l'Agència Tributària per a la teva declaració de la renda.",
+          "legalNameHelper": "Nom de l'empresa"
+        },
+        "error": {
+          "unexpectedRegistration": "Error en crear el compte. Si us plau, torna-ho a intentar més tard.",
+          "requireTerms": "Has d'acceptar les condicions per continuar."
+        },
+        "title": "Indica'ns les teves dades personals",
+        "description": "Necessitem saber qui ets abans de pagar.",
+        "registerOr": "Registra't o",
+        "loginBtnLabel": "Entra amb el teu compte",
+        "existUserInfo": "Si ja ets usuari de Goteo, identifica't. Podràs fer servir el teu moneder per realitzar aquestes donacions.",
+        "otherAccessMethods": "o accedeix amb"
       }
     },
     "home": {
@@ -773,16 +829,18 @@
             "title": "Afegeix recompenses",
             "description": "Descriu la recompensa que ofereixes",
             "unitsExisting": "Nombre d'unitats existents",
-            "placeholders": {
-              "title": "Títol de la recompensa",
-              "description": "Descripció de la recompensa",
-              "moneyAmount": "Preu",
-              "files": "Fes clic o arrossega aquí el teu fitxer per pujar-lo"
-            },
-            "validation": {
-              "title": "El títol no pot estar buit",
-              "description": "La descripció no pot estar buida",
-              "amount": "L'import ha de ser superior a zero"
+            "form": {
+              "titleLabel": "Títol de la recompensa",
+              "titlePlaceholder": "Samarreta personalitzada",
+              "titleHelper": "El títol es mostrarà a totes les targetes d'aquesta recompensa",
+              "descriptionLabel": "Descripció de la recompensa",
+              "descriptionPlaceholder": "Una samarreta de cotó amb el logotip del projecte sublimat al pit.",
+              "descriptionHelper": "La descripció pot contenir text enriquit, però es retallarà en targetes petites",
+              "moneyLabel": "Preu",
+              "moneyHelper": "Indica la donació mínima que cal fer per reclamar aquesta recompensa",
+              "coverLabel": "Portada",
+              "coverPlaceholder": "Fes clic o arrossega aquí el teu fitxer per pujar-lo",
+              "coverHelper": "Aquest fitxer serà la portada de la teva recompensa"
             }
           },
           "deleteModal": {
@@ -1024,14 +1082,14 @@
           "title": "Selecciona les teves recompenses",
           "headline": "Selecciona la teva recompensa",
           "thanksMessage": "Gràcies per cooperar",
-          "ivaMessage": "Recorda que cada aportació té una desgravació fiscal entre el 35 i el 80%! Calcula-ho aquí: {{link}}",
           "addToCart": "Afegir al carro i continuar",
           "unavailable": "No hi ha recompenses disponibles.",
           "loading": "Carregant recompenses...",
           "donationFree": {
             "title": "Renuncio a una recompensa individual, només vull ajudar el projecte",
             "description": "En aquest espai pots donar la quantitat que consideris sense obtenir recompensa a canvi. Cada aportació, gran o petita, marca la diferència i ens acosta a la meta.",
-            "placeholder": "Selecciona l'aportació  Ex. 20 €"
+            "placeholder": "Selecciona l'aportació  Ex. 20 €",
+            "additionalDonation": "Pots afegir més diners a la teva donació per a aquesta recompensa"
           },
           "error": {
             "amount": "Si us plau, introdueix un import vàlid",
@@ -1041,9 +1099,6 @@
         "banner": {
           "donator": {
             "description": "Goteo pertany a la Fundació Platoniq. En col·laborar en una campanya, els teus diners seran custodiats per Platoniq i donats a {{owner}} en cas d'arribar als objectius d'èxit marcats."
-          },
-          "certificate": {
-            "description": "En col·laborar amb un projecte impulsat a Goteo pots sol·licitar un certificat de donació. Així, et dedueixes fins a un 80% del que hagis aportat en la teva pròxima declaració de la renda."
           }
         },
         "langNotAvailable": "L'idioma seleccionat \"{{lang}}\" no està disponible per a aquest projecte. Es mostra contingut en l'idioma disponible.",
@@ -1313,12 +1368,78 @@
         "charges": "Cobraments",
         "projects": "Projectes",
         "users": "Usuaris",
-        "comm": "Comunicació"
+        "comm": "Comunicació",
+        "home": "Inici"
       },
       "sidebar": {
         "aria": {
           "close": "Tanca el menú",
           "open": "Obre el menú d'administració"
+        }
+      },
+      "landing": {
+        "title": "Administració",
+        "subtitle": "Accedeix ràpidament a les diferents seccions de gestió de la plataforma."
+      },
+      "home": {
+        "description": "Tria què es mostra a la portada.",
+        "tabs": {
+          "hero": "Heroi",
+          "highlights": "P. destacats"
+        },
+        "hero": {
+          "title": "Heroi",
+          "description": "L'inici de la portada, el més important.",
+          "errors": {
+            "forbidden": "No tens permisos per gestionar el bloc hero de la portada",
+            "invalidUrl": "L'URL de l'enllaç no és vàlid",
+            "invalidDateRange": "La data de fi no pot ser anterior a la d'inici"
+          },
+          "fields": {
+            "textsTitle": "Textos del bloc",
+            "titlePlaceholder": "Titular del bloc",
+            "contentPlaceholder": "Text introductori breu",
+            "primaryCtaPlaceholder": "Crida a l'acció primària",
+            "secondaryCtaPlaceholder": "Crida a l'acció secundària",
+            "urlPlaceholder": "URL",
+            "scheduleTitle": "Programa la pujada del bloc",
+            "startDatePlaceholder": "Indica la data d'inici",
+            "endDatePlaceholder": "Indica la data de fi",
+            "mediaTitle": "Hora de pujar les imatges",
+            "mediaLabel": "Imatge 01",
+            "mediaHint": "Puja una imatge o un vídeo",
+            "mediaAdd": "Afegeix una imatge"
+          }
+        },
+        "highlights": {
+          "title": "Projectes destacats",
+          "description": "Tria quins projectes es mostren destacats a la portada.",
+          "type": {
+            "title": "Tipus de projectes destacats",
+            "label": "Tipus de projectes",
+            "recent": "Més recents"
+          },
+          "grid": {
+            "title": "Selecciona la quadrícula",
+            "option": "Quadrícula de {{ layout }}"
+          },
+          "projects": {
+            "title": "Selecciona els projectes",
+            "description": "Recorda que els projectes s'aniran col·locant de dalt a baix i d'esquerra a dreta.",
+            "slot": "Projecte {{ number }}",
+            "empty": "Cerca un projecte i destaca'l a la portada",
+            "add": "Afegeix un projecte",
+            "replace": "Canvia el projecte",
+            "remove": "Treu",
+            "change": "Canvia a un altre projecte",
+            "position": "Aquest projecte a la posició {{ number }}",
+            "modal": {
+              "title": "Afegeix un projecte",
+              "description": "Cerca i afegeix el projecte que vols destacar",
+              "search": "Cerca un projecte",
+              "submit": "Afegir"
+            }
+          }
         }
       },
       "charges": {
@@ -1478,7 +1599,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Descarrega certificats",
           "pdf": "Descarrega PDF"
         },
         "lastEdited": "Última modificació: {{date}} {{time}}",
@@ -1610,7 +1730,6 @@
                 "contributions": "Aportacions",
                 "donors": "Donants de campanya",
                 "financialReport": "Informe de finançament",
-                "certificates": "Certificats",
                 "annotations": "Anotacions"
               }
             },
@@ -1828,14 +1947,6 @@
     "metadata": {
       "description": "Pàgina d'inici"
     },
-    "hero": {
-      "title": "Finança el canvi que el món necessita",
-      "description": "Comencem una nova etapa amb la mateixa brúixola que ens ha guiat des del principi: impulsar projectes que transformin el món des de la justícia social, la participació democràtica i la defensa dels drets humans i dels ecosistemes. Uneix-te a una comunitat que transforma realitats. Sigues part de la solució!",
-      "buttons": {
-        "discover": "Descobreix campanyes",
-        "impulse": "Impulsa un projecte"
-      }
-    },
     "me": {
       "page": {
         "title": "Activitat",
@@ -1852,8 +1963,7 @@
         "count": "Donacions",
         "total": "Total donat",
         "recent": "Últimes donacions",
-        "viewAll": "Veure totes",
-        "certificate": "Sol·licitar certificat"
+        "viewAll": "Veure totes"
       },
       "projects": {
         "title": "Projectes impulsats",
@@ -1866,9 +1976,45 @@
         "createNew": "Crear un projecte"
       },
       "ownedProjects": {
-        "title": "Els teus projectes actius",
+        "title": "Els teus projectes",
+        "tabs": {
+          "draft": "Esborranys",
+          "inReview": "En revisió",
+          "funding": "En finançament",
+          "active": "Actius",
+          "archived": "Arxivats"
+        },
         "messageToDonatorsButton": "Missatge a donants",
-        "uploadNewsButton": "Pujar novetat"
+        "uploadNewsButton": "Pujar novetat",
+        "card": {
+          "tags": {
+            "draft": "Esborrany",
+            "readyToPublish": "A punt per publicar",
+            "reviewing": "En revisió",
+            "pendingReview": "Pendent de revisió",
+            "needsChanges": "Requereix canvis",
+            "rejected": "Rebutjat",
+            "campaignFailed": "Campanya fallida",
+            "campaignCancelled": "Campanya cancel·lada",
+            "fundingPaid": "Finançament conclòs"
+          },
+          "actions": {
+            "manage": "Gestiona el projecte",
+            "edit": "Edita el projecte",
+            "advisory": "Ves a assessorament",
+            "publish": "Publica el teu projecte",
+            "view": "Veure el projecte",
+            "sendToReview": "Enviar a revisió",
+            "viewReview": "Veure la revisió"
+          }
+        },
+        "emptyTab": {
+          "active": "No hi ha projectes actius",
+          "review": "No hi ha projectes en revisió",
+          "funding": "No hi ha projectes en finançament",
+          "draft": "No hi ha projectes en esborrany",
+          "archived": "No hi ha projectes arxivats"
+        }
       },
       "donatedProjects": {
         "title": "Projectes actius on has donat"

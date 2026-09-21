@@ -36,7 +36,7 @@
 <Modal
     bind:open={iframeModal}
     closeBtnClass="top-7 end-7 bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent cursor-pointer"
-    class="left-1/2! max-w-150 p-4 backdrop:bg-[#878282B2] backdrop:backdrop-blur-[5px]"
+    class="backdrop:bg-overlay left-1/2! max-w-150 p-4 backdrop:backdrop-blur-[5px]"
     title={$t("pages.project.view.share.iframe-modal.title")}
     headerClass="py-2 text-secondary text-2xl"
 >

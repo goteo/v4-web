@@ -23,8 +23,6 @@
         filters: any;
         onCloseFilter: (filters: any) => void;
         resource: FilterResource;
-        accountingsMap?: Map<string, any>;
-        ownersMap?: Map<string, any>;
     }
 
     interface CsvConfig {
@@ -95,8 +93,6 @@
                     filters={filterTags.filters}
                     onCloseFilter={filterTags.onCloseFilter}
                     resource={filterTags.resource}
-                    accountingsMap={filterTags.accountingsMap}
-                    ownersMap={filterTags.ownersMap}
                 />
                 <ExportCsv
                     endpoint={csv.endpoint}

@@ -59,7 +59,7 @@
     bind:open
     title={$t("pages.checkout.verify.approved.formReview.commentModal.title")}
     closeBtnClass="top-7 end-7 bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="fixed top-1/2 left-1/2 w-full max-w-225 -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-6 shadow-lg backdrop:bg-[#878282B2] backdrop:backdrop-blur-[5px]"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 w-full max-w-225 -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-6 shadow-lg backdrop:backdrop-blur-[5px]"
     headerClass="self-start md:px-0 p-0 text-2xl font-bold text-content text-ellipsis border-none"
     bodyClass="p-0 md:p-0 md:pt-1 border-none"
 >

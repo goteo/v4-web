@@ -84,6 +84,16 @@ export const apiProjectCollaborationsIdGetUrl = '/v4/project_collaborations/{id}
 
 export const apiProjectCollaborationsIdPatchUrl = '/v4/project_collaborations/{id}';
 
+export const apiProjectCollaborationCandidaciesGetCollectionUrl = '/v4/project_collaboration_candidacies';
+
+export const apiProjectCollaborationCandidaciesPostUrl = '/v4/project_collaboration_candidacies';
+
+export const apiProjectCollaborationCandidaciesIdDeleteUrl = '/v4/project_collaboration_candidacies/{id}';
+
+export const apiProjectCollaborationCandidaciesIdGetUrl = '/v4/project_collaboration_candidacies/{id}';
+
+export const apiProjectCollaborationCandidaciesIdPatchUrl = '/v4/project_collaboration_candidacies/{id}';
+
 export const apiProjectRewardsGetCollectionUrl = '/v4/project_rewards';
 
 export const apiProjectRewardsPostUrl = '/v4/project_rewards';

@@ -7,8 +7,10 @@
     import SearchIcon from "../../icons/actions/Search.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Close from "../../icons/navigation/Close.svelte";
+    import Tag from "../tags/Tag.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
+    import type { Snippet } from "svelte";
 
     interface Props {
         class?: ClassNameValue;
@@ -29,6 +31,10 @@
         label?: string;
         selectedFirst?: boolean;
         isOpen?: boolean;
+        /** Collapsed trigger shows the current selection as removable pills. */
+        chips?: boolean;
+        /** Renders the body of one pill; defaults to the option label. */
+        chip?: Snippet<[DropdownOption]>;
     }
 
     let {
@@ -49,9 +55,14 @@
         label = undefined,
         selectedFirst = false,
         isOpen = $bindable(false),
+        chips = false,
+        chip = undefined,
     }: Props = $props();
 
+    const listId = $props.id();
+
     const hasHeader = $derived(hasSearch || !!label);
+    const showChips = $derived(chips && selected.length > 0 && !isOpen);
 
     const renderedItems = $derived.by(() => {
         const selectedIds = new Set(selected.map((s) => s.id));
@@ -109,8 +120,41 @@
 <div
     class={twMerge("relative flex w-full flex-col border-none", classes)}
     use:clickOutside={() => (isOpen = false)}
+    onkeydown={(e) => e.key === "Escape" && (isOpen = false)}
+    role="presentation"
 >
-    {#if hasSearch}
+    {#if showChips}
+        <div
+            class="border-secondary flex min-h-14 cursor-pointer flex-wrap items-center gap-2 rounded-lg border bg-white p-3"
+            role="button"
+            tabindex="0"
+            aria-expanded={isOpen}
+            aria-controls={listId}
+            onclick={() => (isOpen = true)}
+            onkeydown={(e) => (e.key === "Enter" || e.key === " ") && (isOpen = true)}
+        >
+            {#each selected as option}
+                <Tag variant="bold">
+                    {#if chip}
+                        {@render chip(option)}
+                    {:else}
+                        {@html option.label}
+                    {/if}
+                    <button
+                        type="button"
+                        class="text-tertiary hover:text-tertiary/80 cursor-pointer"
+                        aria-label={$t("common.remove")}
+                        onclick={(e) => {
+                            e.stopPropagation();
+                            handleItemChange({ ...option, selected: false });
+                        }}
+                    >
+                        <Close width="12" height="12" />
+                    </button>
+                </Tag>
+            {/each}
+        </div>
+    {:else if hasSearch}
         <div
             class={twMerge(
                 "group flex w-full items-center justify-between rounded-lg border border-gray-100 bg-white p-4 shadow-sm outline-none focus:outline-none",
@@ -121,6 +165,8 @@
                 class="max-h-6 w-full border-0 bg-white p-0 text-base/6 font-normal text-black ring-0 placeholder:opacity-48"
                 type="text"
                 placeholder={searchPlaceholder}
+                aria-expanded={isOpen}
+                aria-controls={listId}
                 bind:value={searchValue}
                 oninput={(e) => onSearch?.(e.currentTarget.value)}
                 onblur={onInputBlur}
@@ -145,6 +191,8 @@
         <button
             type="button"
             class="group flex w-full items-center justify-between rounded-lg border border-gray-100 bg-white p-4 text-base/6 font-normal text-black shadow-sm outline-none focus:outline-none"
+            aria-expanded={isOpen}
+            aria-controls={listId}
             onclick={() => (isOpen = !isOpen)}
         >
             {chevronLabel}
@@ -161,7 +209,12 @@
         <div
             class="absolute top-full left-0 z-100 mt-2 w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
         >
-            <div class="flex max-h-72 w-full flex-col overflow-y-auto">
+            <div
+                id={listId}
+                role="listbox"
+                aria-multiselectable={!singleSelect}
+                class="flex max-h-72 w-full flex-col overflow-y-auto"
+            >
                 {#each renderedItems as item}
                     <DropdownItem
                         {variant}

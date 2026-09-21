@@ -65,10 +65,17 @@ const routeRules = Object.fromEntries(
 export default defineConfig({
     integrations: [svelte()],
     output: "server",
+    session: false,
 
     adapter: cloudflare({
         imageService: "passthrough",
         platformProxy: { enabled: true },
+
+        /**
+         * Port the workerd inspector listens on in `astro dev`, and what
+         * `.vscode/launch.json` attaches to.
+         */
+        inspectorPort: 9229,
     }),
 
     cache: {

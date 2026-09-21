@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import App from "../../layouts/App.svelte";
-import Hero from "../../components/hero/Hero.astro";
+import Hero from "../../components/hero/Hero.svelte";
 import Campaigns from "../../components/home/Campaigns.astro";
 import CampaignsTabs from "../../components/home/CampaignsTabs.astro";
 import Stats from "../../components/home/Stats.astro";
@@ -14,6 +14,8 @@ import Banners from "../../components/home/HomeBanners.svelte";
 // import Resources from "../../components/home/Resources.astro";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
+import { homeHeroRepository } from "../../repositories/homeHero";
+import { renderMarkdown } from "../../utils/renderMarkdown";
 
 const { locale } = Astro.params;
 
@@ -24,12 +26,15 @@ if (locale && !isSupportedLocale(locale)) {
 const { t, lang } = Astro.locals;
 
 const activeBanners = await bannerRepository.getActive();
+const hero = await homeHeroRepository.getActive();
+// Authored in the admin as Markdown. Only ROLE_ADMIN can write it.
+const heroContent = hero ? await renderMarkdown(hero.content) : null;
 ---
 
 <Layout title={t("pages.index.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} class="mb-20 gap-18">
-        <Hero />
-        <Banners banners={activeBanners} client:load />
+        <Hero {hero} content={heroContent} />
+        <Banners banners={activeBanners} client:visible />
         <Campaigns />
         <Blog />
         <Stats />

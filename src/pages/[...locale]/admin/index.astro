@@ -1,0 +1,76 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../layouts/App.svelte";
+import Arrow from "../../../components/icons/navigation/Arrow.svelte";
+import Title from "../../../components/library/typography/Title.svelte";
+import { ADMIN_SECTIONS } from "../../../components/admin/adminSections";
+import { twMerge } from "tailwind-merge";
+
+const { lang, t, session } = Astro.locals;
+
+const sections = ADMIN_SECTIONS.map((section) => ({
+    title: t(section.labelKey),
+    description: section.descriptionKey ? t(section.descriptionKey) : undefined,
+    href: `/${lang}${section.href}`,
+    subLinks: section.subSections?.map((link) => ({
+        label: t(link.labelKey),
+        href: `/${lang}${link.href}`,
+    })),
+}));
+---
+
+<Layout title={t("pages.admin.landing.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <div class="wrapper">
+            <div class="flex w-full flex-col gap-10 py-10">
+                <header class="flex flex-col gap-4">
+                    <Title level={2} variant="headline" weight="bold" color="default">
+                        {t("pages.admin.landing.title")}
+                    </Title>
+                    <p class="text-content font-body text-base leading-6">
+                        {t("pages.admin.landing.subtitle")}
+                    </p>
+                </header>
+
+                <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {
+                        sections.map((section) => (
+                            <li class="border-grey flex flex-col rounded-4xl border bg-white shadow-sm transition-shadow hover:shadow-md">
+                                <a
+                                    href={section.href}
+                                    class={twMerge(
+                                        "group cursor-pointer space-y-2 p-6",
+                                        section.subLinks && section.subLinks.length > 0
+                                            ? "pb-4"
+                                            : "",
+                                    )}
+                                >
+                                    <div class="text-secondary inline-flex w-full items-center justify-between gap-4 text-xl font-bold transition duration-300 group-hover:opacity-70">
+                                        {section.title}
+                                        <Arrow class="size-5 transition-all duration-300 group-hover:-rotate-45" />
+                                    </div>
+                                    <p class="text-content text-sm leading-relaxed">
+                                        {section.description}
+                                    </p>
+                                </a>
+                                {section.subLinks && section.subLinks.length > 0 && (
+                                    <div class="border-grey mt-auto flex flex-col gap-1 border-t p-6 pt-3">
+                                        {section.subLinks.map((subLink) => (
+                                            <a
+                                                href={subLink.href}
+                                                class="text-secondary flex w-full items-center gap-0.5 text-base font-medium transition hover:opacity-70"
+                                            >
+                                                {subLink.label}
+                                                <Arrow class="size-3 -rotate-45" />
+                                            </a>
+                                        ))}
+                                    </div>
+                                )}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </div>
+        </div>
+    </App>
+</Layout>

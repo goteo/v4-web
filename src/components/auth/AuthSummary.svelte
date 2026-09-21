@@ -13,7 +13,7 @@
     >
         {#snippet header()}
             <Title level={2} variant="subsection" color="secondary" class="flex items-center gap-2">
-                {$t("pages.login.sheet.welcome.title")}
+                {$t("pages.checkout.login.welcome.title")}
             </Title>
         {/snippet}
     </CollapsibleBox>
@@ -22,10 +22,10 @@
 <div class="hidden flex-col gap-6 pt-6 pb-0 lg:flex">
     <div>
         <Title level={2} variant="display" color="secondary" weight="bold" class="leading-tight">
-            {$t("pages.login.sheet.welcome.title")}
+            {$t("pages.checkout.login.welcome.title")}
         </Title>
         <p class="text-content font-light">
-            {$t("pages.login.sheet.welcome.subtitle")}
+            {$t("pages.checkout.login.welcome.subtitle")}
         </p>
     </div>
     <hr class="bg-secondary" />

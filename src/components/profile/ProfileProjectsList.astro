@@ -10,6 +10,6 @@ export interface Props {
 const { campaigns } = Astro.props;
 ---
 
-<Grid class="grid-cols-1 gap-6 md:grid-cols-2" client:load>
+<Grid class="grid-cols-1 gap-6 md:grid-cols-2">
     {campaigns.map((campaign) => <CampaignCard size="small" campaign={campaign} />)}
 </Grid>

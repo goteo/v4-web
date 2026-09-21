@@ -9,7 +9,7 @@
         tags: ["autodocs"],
         args: {
             placeholder: "email@example.com",
-            errorMessage: "Invalid email address",
+            error: "Invalid email address",
         },
         argTypes: {
             validate: { control: "boolean" },

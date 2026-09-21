@@ -58,15 +58,15 @@ const displayCampaigns = campaigns.slice(0, 4); // Show first 4 campaigns
 
     <!-- Tab Navigation using shared Tabs component -->
     <div class="mx-auto">
-        <CampaignsTabsNav client:load />
+        <CampaignsTabsNav client:visible />
     </div>
 
     <!-- Campaigns Carousel -->
     <div>
-        <Carousel client:load itemsPerGroup={3} gap={24} showDots={false}>
+        <Carousel client:visible itemsPerGroup={3} gap={24} showDots={false}>
             {
                 displayCampaigns.map((campaign) => (
-                    <CampaignCard size="small" campaign={campaign} client:load />
+                    <CampaignCard size="small" campaign={campaign} client:visible />
                 ))
             }
         </Carousel>

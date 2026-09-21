@@ -1,5 +1,4 @@
 import { ActionError, defineAction } from "astro:actions";
-import { z } from "zod";
 
 import { passwordGrant } from "../auth/grant.ts";
 import { buildSession, setSession } from "../auth/session.ts";
@@ -8,58 +7,36 @@ import {
     apiUsersIdpersonPatch,
     apiUsersIdorganizationPatch,
 } from "../openapi/client/index.ts";
+import { zRegisterForm } from "../validation/registerValidation.ts";
 
 export const register = defineAction({
     accept: "form",
-    input: z.object({
-        type: z.enum(["individual", "organization"]),
-        identifier: z.string(),
-        password: z.string().min(8),
-        firstname: z.string(),
-        lastname: z.string(),
-        dni: z.string().optional(),
-        razonSocial: z.string().optional(),
-        cif: z.string().optional(),
-    }),
+    input: zRegisterForm,
     handler: async (input, context) => {
         const { t } = context.locals;
 
         try {
-            const { identifier, password, firstname, lastname, dni, razonSocial, cif } = input;
+            const { identifier, password, firstname, lastname, taxId, legalName } = input;
 
-            if (input.type === "individual") {
-                if (!firstname.trim() || !lastname.trim()) {
-                    throw new ActionError({
-                        code: "BAD_REQUEST",
-                        message: t("pages.register.error.incompletePersonFields"),
-                    });
-                }
-            }
-
-            if (input.type === "organization") {
-                if (!razonSocial?.trim() || !cif?.trim() || !firstname.trim() || !lastname.trim()) {
-                    throw new ActionError({
-                        code: "BAD_REQUEST",
-                        message: t("pages.register.error.incompleteOrgFields"),
-                    });
-                }
-            }
-
-            const createUserResponse = await apiUsersPost({
+            const { data: user, error } = await apiUsersPost({
                 body: {
                     email: identifier,
                     password,
                     type: input.type,
                 },
             });
-            const userId = String(createUserResponse.data?.id ?? "");
 
+            if (error) {
+                throw error;
+            }
+
+            const userId = String(user.id);
             const auth = await passwordGrant({ identifier, password });
 
             if (!auth.access_token) {
                 throw new ActionError({
                     code: "BAD_REQUEST",
-                    message: t("pages.login.error.invalidCredentials"),
+                    message: t("pages.checkout.login.error.invalidCredentials"),
                 });
             }
 
@@ -68,7 +45,7 @@ export const register = defineAction({
                     path: { id: userId },
                     headers: auth.asHttpHeaders,
                     body: {
-                        taxId: dni ?? "",
+                        taxId: taxId,
                         firstName: firstname,
                         lastName: lastname,
                     },
@@ -87,8 +64,8 @@ export const register = defineAction({
                     path: { id: userId },
                     headers: auth.asHttpHeaders,
                     body: {
-                        taxId: cif ?? "",
-                        legalName: razonSocial ?? "",
+                        taxId: taxId!,
+                        legalName: legalName!,
                     },
                 });
             }
@@ -98,10 +75,11 @@ export const register = defineAction({
 
             return { success: true };
         } catch (error) {
-            console.error("🚨 Error al registrar:", JSON.stringify(error, null, 2));
+            console.error("User register error:", error);
+
             throw new ActionError({
                 code: "BAD_REQUEST",
-                message: t("pages.register.error.unexpectedRegistration"),
+                message: t("pages.checkout.register.error.unexpectedRegistration"),
             });
         }
     },

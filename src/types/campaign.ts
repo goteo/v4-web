@@ -33,7 +33,7 @@ export interface Campaign extends Project {
     /** Current funding amount — optional when fetched client-side per card */
     obtained?: Money;
     /** Minimum funding goal */
-    minimum: Money;
+    minimum?: Money;
     /** Optional optimum funding goal */
     optimum?: Money;
     /** Optional sizing for component layout */

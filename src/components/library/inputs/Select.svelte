@@ -101,7 +101,7 @@
     }
 </script>
 
-<div class="relative">
+<div class={twMerge("relative", disabled && "opacity-50")}>
     <!-- Floating Label -->
     {#if labelText}
         <label
@@ -130,7 +130,7 @@
         onblur={handleBlur}
         onkeydown={(e) => e.key === "Escape" && (isOpen = false)}
         class={twMerge(
-            "w-full appearance-none rounded-lg border bg-white px-4 py-4 pr-10 text-base leading-6 transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "w-full appearance-none rounded-lg border bg-white px-4 py-4 pr-10 text-base leading-6 transition-colors focus:outline-none disabled:cursor-not-allowed",
             error ? "border-tertiary text-tertiary focus:ring-0" : "border-secondary focus:ring-0",
             className,
         )}

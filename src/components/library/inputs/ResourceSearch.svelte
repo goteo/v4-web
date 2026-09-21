@@ -49,6 +49,8 @@
         highlight?: boolean;
         /** Rendered above the results, e.g. a "N results found" line. */
         header?: Snippet<[SearchResultItem[], string]>;
+        /** Replaces the label inside a selected chip (multiple mode). */
+        chip?: Snippet<[SearchResultItem]>;
         onSelect?: (item: SearchResultItem) => void;
         onChange?: (items: SearchResultItem[]) => void;
         onClear?: () => void;
@@ -70,6 +72,7 @@
         debounceMs = 300,
         highlight = true,
         header = undefined,
+        chip = undefined,
         onSelect = undefined,
         onChange = undefined,
         onClear = undefined,
@@ -193,16 +196,20 @@
 >
     {#if multiple && selected.length > 0}
         <div class="flex flex-wrap gap-2">
-            {#each selected as chip (chip.id)}
+            {#each selected as item (item.id)}
                 <span
                     class="bg-tertiary/10 border-secondary inline-flex items-center gap-1 rounded-lg border px-3 py-1 text-sm"
                 >
-                    {@html chip.label}
+                    {#if chip}
+                        {@render chip(item)}
+                    {:else}
+                        {@html item.label}
+                    {/if}
                     <button
                         type="button"
                         class="text-tertiary hover:text-tertiary/80 cursor-pointer"
-                        aria-label={$t("domain.search.removeItem", { label: chip.label })}
-                        onclick={() => removeSelected(chip)}
+                        aria-label={$t("domain.search.removeItem", { label: item.label })}
+                        onclick={() => removeSelected(item)}
                     >
                         <Close width="12" height="12" />
                     </button>

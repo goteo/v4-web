@@ -3,12 +3,17 @@
 
     import DropdownMenu from "./DropdownMenu.svelte";
 
-    const items = [
-        { id: "tech", label: "Technology" },
-        { id: "health", label: "Health" },
-        { id: "energy", label: "Energy" },
-        { id: "finance", label: "Finance" },
-        { id: "real-estate", label: "Real Estate" },
+    const options = [
+        { id: "tech", label: "Technology", selected: false },
+        { id: "health", label: "Health", selected: false },
+        { id: "energy", label: "Energy", selected: false },
+        { id: "finance", label: "Finance", selected: false },
+        { id: "real-estate", label: "Real Estate", selected: false },
+    ];
+
+    const preselected = [
+        { id: "tech", label: "Technology", selected: true },
+        { id: "energy", label: "Energy", selected: true },
     ];
 
     const { Story } = defineMeta({
@@ -16,14 +21,15 @@
         title: "Library/Dropdown/DropdownMenu",
         tags: ["autodocs"],
         args: {
-            items,
+            options,
             variant: "basic",
             hasSearch: false,
-            selectedIds: [],
+            selected: [],
         },
         argTypes: {
             variant: { control: "select", options: ["basic", "multiselect"] },
             hasSearch: { control: "boolean" },
+            chips: { control: "boolean" },
         },
     });
 </script>
@@ -32,11 +38,10 @@
 
 <Story name="Multiselect" args={{ variant: "multiselect" }} />
 
-<Story
-    name="MultiselectWithPreselected"
-    args={{ variant: "multiselect", selectedIds: ["tech", "energy"] }}
-/>
+<Story name="MultiselectWithPreselected" args={{ variant: "multiselect", selected: preselected }} />
 
 <Story name="WithSearch" args={{ variant: "basic", hasSearch: true }} />
 
 <Story name="MultiselectWithSearch" args={{ variant: "multiselect", hasSearch: true }} />
+
+<Story name="Chips" args={{ variant: "multiselect", chips: true, selected: preselected }} />

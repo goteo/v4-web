@@ -1,7 +1,6 @@
 ---
 import WalletInfo from "./WalletInfo.svelte";
 
-const { t } = Astro.locals;
 const { accounting } = Astro.props;
 ---
 
@@ -16,15 +15,6 @@ const { accounting } = Astro.props;
     >
         <input type="hidden" name="paymentMethod" value="wallet" />
         <input type="hidden" name="cartData" id="cartData" />
-
-        <!-- TODO: Merge with Btn "Continuar" -->
-        <button
-            id="submit-button"
-            class="bg-primary text-secondary cursor-pointer rounded-3xl px-6 py-4 font-bold"
-            type="submit"
-        >
-            {t("common.continue")}
-        </button>
     </form>
 
     <div id="payment-error-content" class="mt-4 text-center text-red-500"></div>
@@ -62,10 +52,11 @@ const { accounting } = Astro.props;
                 }
 
                 console.log("No returnUrl found in the response");
-                return;
             }
 
-            if (errorContent) {
+            form.dispatchEvent(new Event("checkout:settled"));
+
+            if (error && errorContent) {
                 errorContent.innerHTML = "";
 
                 if (isInputError(error)) {

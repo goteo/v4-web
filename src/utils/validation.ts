@@ -31,7 +31,7 @@ export function getValidationParams(
         case "too_small":
             return { min: Number(issue.minimum) };
         case "invalid_format":
-            return { pattern: issue.pattern! };
+            return { format: issue.pattern || issue.format };
         default:
             break;
     }

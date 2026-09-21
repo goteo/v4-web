@@ -151,6 +151,8 @@ const defaultGateway =
                 }
             }
 
+            if (error) form.dispatchEvent(new Event("checkout:settled"));
+
             if (error && errorContent instanceof HTMLElement) {
                 errorContent.innerHTML = "";
 

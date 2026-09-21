@@ -1,14 +1,12 @@
 <script lang="ts">
-    import { clickOutside } from "flowbite-svelte";
-
     import { t } from "../../../i18n/store";
     import Close from "../../icons/navigation/Close.svelte";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
     import DateInput from "../inputs/DateInput.svelte";
     import ResourceSearch from "../inputs/ResourceSearch.svelte";
     import Select from "../inputs/Select.svelte";
-    import TerritoryInput from "../inputs/TerritoryInput.svelte";
     import TextInput from "../inputs/TextInput.svelte";
+    import AccountingOwnerBadge from "../tags/AccountingOwnerBadge.svelte";
 
     import type { FilterSubject, FilterOperator } from "../../../utils/filterComposer";
     import type { SearchResultItem } from "../../../utils/resourceSearch";
@@ -30,86 +28,42 @@
         onremove,
     }: Props = $props();
 
-    let compatibleOperators = $derived(
-        subjects.find((s) => s.key === subjectKey)?.compatibleOperators ?? [],
-    );
-
     let currentSubject = $derived(subjects.find((s) => s.key === subjectKey));
+    let compatibleOperators = $derived(currentSubject?.compatibleOperators ?? []);
 
-    let dropdownOptions = $state<DropdownOption[]>([]);
+    /** `equals` on a subject that takes a single value — the dropdown closes on pick. */
+    let singleSelect = $derived(operator === "equals" && !currentSubject?.allowsMultipleEquals);
+
     let dropdownSelected = $state<DropdownOption[]>([]);
     let suggestSelected = $state<SearchResultItem[]>([]);
-    let showStaticDropdown = $state(false);
 
-    /** The suggest control is multi unless the subject only allows a single "equals". */
-    const suggestIsMultiple = $derived(
-        operator !== "equals" || !!currentSubject?.allowsMultipleEquals,
+    let dropdownOptions = $derived(
+        currentSubject?.options?.map((option) => ({
+            id: option.value,
+            label: $t(option.label),
+            selected: false,
+        })) ?? [],
     );
 
     let previousSubjectKey = $state("");
-    let territoryInit = $state<{
-        countries: string[];
-        subLvl1: string[];
-        subLvl2: string[];
-    }>({ countries: [], subLvl1: [], subLvl2: [] });
 
     $effect(() => {
         if (subjectKey === previousSubjectKey) return;
         previousSubjectKey = subjectKey;
         operator = "";
         referent = "";
-
-        suggestSelected = [];
-
-        const subject = subjects.find((s) => s.key === subjectKey);
-        if (!subject) {
-            dropdownOptions = [];
-            dropdownSelected = [];
-            territoryInit = { countries: [], subLvl1: [], subLvl2: [] };
-            return;
-        }
-
-        if (subject.serialize) {
-            territoryInit = parseTerritoryRef(referent as string);
-            dropdownOptions = [];
-            dropdownSelected = [];
-            return;
-        }
-
-        if (!subject.options) {
-            dropdownOptions = [];
-            dropdownSelected = [];
-            return;
-        }
-        dropdownOptions = subject.options.map((o) => ({
-            id: o.value,
-            label: $t(o.label),
-            selected: false,
-        }));
         dropdownSelected = [];
+        suggestSelected = [];
     });
 
-    function handleStaticChange(option: DropdownOption) {
-        const current = Array.isArray(referent) ? referent : [];
-        const updated = option.selected
-            ? [...current, option.id]
-            : current.filter((id) => id !== option.id);
-        referent = updated;
-        if (updated.length === 0) {
-            showStaticDropdown = true;
-        }
+    function syncReferent() {
+        referent = singleSelect
+            ? (dropdownSelected[0]?.id ?? "")
+            : dropdownSelected.map((option) => option.id);
     }
 
     function handleSuggestChange(items: SearchResultItem[]) {
-        referent = suggestIsMultiple ? items.map((item) => item.value) : (items[0]?.value ?? "");
-    }
-
-    function handleRemoveTag(item: DropdownOption) {
-        dropdownSelected = dropdownSelected.filter((s) => s.id !== item.id);
-        referent = (referent as string[]).filter((id) => id !== item.id);
-        if (dropdownSelected.length === 0) {
-            showStaticDropdown = true;
-        }
+        referent = singleSelect ? (items[0]?.value ?? "") : items.map((item) => item.value);
     }
 
     function subjectLabel(key: string): string {
@@ -119,32 +73,11 @@
     function operatorLabel(op: FilterOperator): string {
         return $t(`domain.filterComposer.operator.${op}`);
     }
-
-    function handleTerritoryChange(t: {
-        countries: string[];
-        subLvl1: string[];
-        subLvl2: string[];
-    }) {
-        referent = JSON.stringify(t);
-    }
-
-    function parseTerritoryRef(raw: string): {
-        countries: string[];
-        subLvl1: string[];
-        subLvl2: string[];
-    } {
-        try {
-            const parsed = JSON.parse(raw);
-            return {
-                countries: parsed.countries || [],
-                subLvl1: parsed.subLvl1 || [],
-                subLvl2: parsed.subLvl2 || [],
-            };
-        } catch {
-            return { countries: [], subLvl1: [], subLvl2: [] };
-        }
-    }
 </script>
+
+{#snippet accountingChip(item: SearchResultItem)}
+    <AccountingOwnerBadge accountingIri={item.value} class="text-xs" />
+{/snippet}
 
 <div class="flex items-center gap-3">
     <div class="flex-1">
@@ -170,52 +103,25 @@
     </div>
 
     <div class="flex-1">
-        {#if currentSubject?.options && operator && subjectKey && (operator === "is_any_of" || (operator === "equals" && currentSubject.allowsMultipleEquals))}
-            {#if !showStaticDropdown && dropdownSelected.length > 0}
-                <div
-                    class="border-secondary flex min-h-14 cursor-pointer flex-wrap items-center gap-2 rounded-lg border bg-white p-3"
-                    onclick={() => {
-                        setTimeout(() => (showStaticDropdown = true));
-                    }}
-                    role="button"
-                    tabindex="0"
-                    onkeydown={(e) => e.key === "Enter" && (showStaticDropdown = true)}
-                >
-                    {#each dropdownSelected as item}
-                        <span
-                            class="bg-tertiary/10 border-secondary inline-flex items-center gap-1 rounded-lg border px-3 py-1 text-sm"
-                        >
-                            {@html item.label}
-                            <button
-                                type="button"
-                                class="text-tertiary hover:text-tertiary/80 cursor-pointer"
-                                onclick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveTag(item);
-                                }}
-                            >
-                                <Close width="12" height="12" />
-                            </button>
-                        </span>
-                    {/each}
-                </div>
-            {:else}
-                <div use:clickOutside={() => (showStaticDropdown = false)}>
-                    <DropdownMenu
-                        searchClasses="border-secondary"
-                        variant="multiselect"
-                        options={dropdownOptions}
-                        bind:selected={dropdownSelected}
-                        onChange={handleStaticChange}
-                        label={$t("domain.filterComposer.referentPlaceholder")}
-                        bind:isOpen={showStaticDropdown}
-                    />
-                </div>
-            {/if}
-        {:else if currentSubject?.options && operator === "equals" && subjectKey}
+        {#if currentSubject?.component && operator}
+            <currentSubject.component
+                value={referent as string}
+                onChange={(value: string) => (referent = value)}
+                labelText={$t("domain.filterComposer.referentPlaceholder")}
+            />
+        {:else if currentSubject?.options && operator && !singleSelect}
+            <DropdownMenu
+                chips
+                searchClasses="border-secondary"
+                variant="multiselect"
+                options={dropdownOptions}
+                bind:selected={dropdownSelected}
+                onChange={syncReferent}
+                label={$t("domain.filterComposer.referentPlaceholder")}
+            />
+        {:else if currentSubject?.options && operator === "equals"}
             <Select
                 bind:value={referent as string}
-                disabled={!operator}
                 labelText={$t("domain.filterComposer.referentPlaceholder")}
             >
                 <option value="">{$t("domain.filterComposer.referentPlaceholder")}</option>
@@ -223,22 +129,16 @@
                     <option value={opt.value}>{$t(opt.label)}</option>
                 {/each}
             </Select>
-        {:else if currentSubject?.suggest && subjectKey && operator}
+        {:else if currentSubject?.suggest && operator}
             <ResourceSearch
                 search={currentSubject.suggest}
-                multiple={suggestIsMultiple}
+                multiple={!singleSelect}
                 bind:selected={suggestSelected}
                 label={$t("domain.filterComposer.referentPlaceholder")}
                 placeholder={$t("domain.filterComposer.referentPlaceholder")}
                 highlight={false}
                 onChange={handleSuggestChange}
-                onClear={() => (referent = suggestIsMultiple ? [] : "")}
-            />
-        {:else if currentSubject?.serialize && subjectKey && operator}
-            <TerritoryInput
-                multiple
-                selectedTerritory={territoryInit}
-                onTerritoryChange={handleTerritoryChange}
+                chip={currentSubject.display === "accountingOwner" ? accountingChip : undefined}
             />
         {:else if currentSubject?.type === "date"}
             <DateInput

@@ -3,17 +3,14 @@
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
 
-    let {
-        option,
-        variant,
-        onChange,
-        class: classes,
-    } = $props<{
+    interface Props {
         option: DropdownOption;
         variant: DropdownVariant;
         onChange?: (option: DropdownOption) => void;
         class?: ClassNameValue;
-    }>();
+    }
+
+    let { option, variant, onChange, class: classes }: Props = $props();
 
     function handleChange(o: DropdownOption) {
         option = { ...o, selected: !o.selected };
@@ -27,6 +24,8 @@
         "border-grey hover:bg-purple-soft hover:border-variant1 cursor-pointer border bg-white text-start",
         classes,
     )}
+    role="option"
+    aria-selected={option.selected}
 >
     {#if variant === "multiselect"}
         <label class="flex cursor-pointer justify-between p-4">

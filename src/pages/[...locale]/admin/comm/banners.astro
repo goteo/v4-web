@@ -14,7 +14,7 @@ const banners = await bannerRepository.getAll();
 
 <Layout title={t("pages.admin.comm.banners.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:load navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
             <Banners client:load {banners} />
         </WithSidebar>
     </App>

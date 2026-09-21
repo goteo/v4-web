@@ -18,8 +18,12 @@
     const handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault();
 
+        const form = e.currentTarget as HTMLFormElement;
+        const settle = () => form.dispatchEvent(new Event("checkout:settled"));
+
         if (!acceptTerms) {
-            errorMessage = $t("system.validation.missingRequiredFields");
+            errorMessage = $t("system.validation.requiredFields");
+            settle();
             return;
         }
 
@@ -46,6 +50,7 @@
             navigate(targetUrl);
         } catch (err: any) {
             errorMessage = $t(`system.OAuth.${err.message.trim().replace(/\.$/, "")}`);
+            settle();
         } finally {
             isSubmitting = false;
         }
@@ -84,7 +89,7 @@
         </p>
     </div>
 
-    <form onsubmit={handleSubmit} class="flex w-full flex-col gap-8">
+    <form id="login" onsubmit={handleSubmit} class="flex w-full flex-col gap-8">
         <div class="flex max-w-121 flex-initial flex-col items-start gap-5 self-stretch">
             <div class="grid w-full grid-cols-1 gap-4">
                 <TextInput

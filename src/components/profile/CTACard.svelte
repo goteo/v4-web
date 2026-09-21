@@ -15,24 +15,27 @@
      *         {
      *             label: "Dona a un proyecto",
      *             href: "/projects",
-     *             variant: "primary",
+     *             kind: "primary",
      *         },
      *     ]}
      * />
      * ```
      */
 
+    import Button from "../library/buttons/Button.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    interface Button {
+    import type { HTMLAnchorAttributes } from "svelte/elements";
+
+    interface ButtonConfig {
         label: string;
-        href: string;
-        variant: "primary" | "secondary";
+        href: HTMLAnchorAttributes["href"];
+        kind: "primary" | "secondary" | "ghost" | "invert";
     }
 
     interface Props {
         /**
-         * Visual variant (dark = purple bg, light = soft purple bg)
+         * Visual variant (dark = secondary bg, light = soft purple bg)
          */
         variant: "dark" | "light";
 
@@ -49,7 +52,7 @@
         /**
          * Action buttons (1-2 buttons supported)
          */
-        buttons: Button[];
+        buttons: ButtonConfig[];
     }
 
     let { variant, title, description, buttons }: Props = $props();
@@ -60,17 +63,12 @@
 
 <div
     class="flex flex-col justify-between gap-10 rounded-4xl border p-6 transition-shadow duration-200 {isDark
-        ? 'border-grey bg-secondary text-background'
+        ? 'border-grey bg-secondary text-white'
         : 'border-variant1 bg-purple-soft text-content'}"
 >
     <!-- Content -->
     <div class="flex flex-col gap-4">
-        <Title
-            level={2}
-            variant="section"
-            class="leading-tight"
-            style="display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;"
-        >
+        <Title level={2} variant="section" class="leading-tight text-inherit">
             {title}
         </Title>
         <p class="text-sm leading-tight md:text-base md:leading-normal">
@@ -81,17 +79,9 @@
     <!-- Actions -->
     <div class="flex flex-col flex-wrap gap-4 md:flex-row">
         {#each buttons as button}
-            <a
-                href={button.href}
-                class="inline-flex w-full items-center justify-center rounded-3xl px-6 py-4 text-base leading-normal font-bold no-underline transition-all duration-200 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none md:w-auto {button.variant ===
-                'primary'
-                    ? 'bg-purple-soft text-secondary focus-visible:ring-secondary hover:opacity-90'
-                    : isDark
-                      ? 'hover:text-secondary focus-visible:ring-offset-secondary border border-white bg-transparent text-white hover:bg-white focus-visible:ring-white'
-                      : 'border-secondary text-secondary hover:bg-secondary focus-visible:ring-secondary border bg-transparent hover:text-white'}"
-            >
+            <Button kind={button.kind} href={button.href}>
                 {button.label}
-            </a>
+            </Button>
         {/each}
     </div>
 </div>

@@ -2,8 +2,8 @@
     import { actions } from "astro:actions";
     import { Modal } from "flowbite-svelte";
 
-    import { apiProjectsGetCollection } from "../../../openapi/client/sdk.gen";
     import { t } from "../../../i18n/store";
+    import { apiProjectsGetCollection } from "../../../openapi/client/sdk.gen";
     import Button from "../../library/buttons/Button.svelte";
     import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
     import RadioButton from "../../library/inputs/RadioButton.svelte";

@@ -27,6 +27,9 @@
     --color-purple-soft: #faf9ff;
     --color-purple-med: #f6f5ff;
 
+    /* Scrim tras diálogos y modales: gris cálido al 70% */
+    --color-overlay: #878282b2;
+
     --color-variant1: #e6e5f7;
     --color-variant2: #99ffcc;
     --color-variant3: #72d8ff;

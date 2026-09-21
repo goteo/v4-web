@@ -33,11 +33,14 @@
         onChange: (value: RichTextValue<F>) => void;
         format?: F;
         placeholder?: string;
+        labelText?: string;
         error?: string;
         ariaDescribedBy?: string;
         class?: ClassNameValue;
         minLength?: number;
         maxLength?: number;
+        showFontSize?: boolean;
+        showAlignment?: boolean;
     }
 
     interface ToolbarButton {
@@ -55,11 +58,14 @@
         onChange,
         format = "json" as F,
         placeholder = "",
+        labelText,
         error,
         ariaDescribedBy,
         class: className = "",
         minLength,
         maxLength,
+        showFontSize = true,
+        showAlignment = true,
     }: RichTextEditorProps = $props();
 
     const ALIGNMENT_LABEL_KEYS: Record<Alignment, string> = {
@@ -230,47 +236,64 @@
         aria-label={$t("domain.richTextEditor.toolbar")}
     >
         <div class="flex items-center gap-2">
-            <div class="relative flex">
-                <select
-                    value={toolbar.fontSize}
-                    onchange={(event) =>
-                        editor?.chain().focus().setFontSize(event.currentTarget.value).run()}
-                    aria-label={$t("domain.richTextEditor.fontSize")}
-                    title={$t("domain.richTextEditor.fontSize")}
-                    class="border-grey text-secondary flex h-10 w-auto max-w-27.5 cursor-pointer appearance-none items-center justify-center rounded-lg border bg-white bg-none px-2 py-1 pr-8 text-sm shadow-sm ring-0"
-                >
-                    {#each FONT_SIZES as size (size)}
-                        <option value={size}>{size}</option>
-                    {/each}
-                </select>
-                <Chevron
-                    direction="down"
-                    width="16"
-                    height="16"
-                    class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2"
-                />
-            </div>
+            {#if showFontSize}
+                <div class="relative flex">
+                    <select
+                        value={toolbar.fontSize}
+                        onchange={(event) =>
+                            editor?.chain().focus().setFontSize(event.currentTarget.value).run()}
+                        aria-label={$t("domain.richTextEditor.fontSize")}
+                        title={$t("domain.richTextEditor.fontSize")}
+                        class="border-grey text-secondary flex h-10 w-auto max-w-27.5 cursor-pointer appearance-none items-center justify-center rounded-lg border bg-white bg-none px-2 py-1 pr-8 text-sm shadow-sm ring-0"
+                    >
+                        {#each FONT_SIZES as size (size)}
+                            <option value={size}>{size}</option>
+                        {/each}
+                    </select>
+                    <Chevron
+                        direction="down"
+                        width="16"
+                        height="16"
+                        class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2"
+                    />
+                </div>
+            {/if}
 
             {#each markButtons as button (button.id)}
                 {@render toolbarButton(button)}
             {/each}
         </div>
 
-        <div class="flex items-center gap-2">
-            {#each alignButtons as button (button.id)}
-                {@render toolbarButton(button)}
-            {/each}
-        </div>
+        {#if showAlignment}
+            <div class="flex items-center gap-2">
+                {#each alignButtons as button (button.id)}
+                    {@render toolbarButton(button)}
+                {/each}
+            </div>
+        {/if}
     </div>
 
-    <div
-        {id}
-        bind:this={editorElement}
-        class={twJoin(
-            "max-h-100 overflow-y-auto rounded-lg border",
-            error ? "border-tertiary" : "border-secondary",
-        )}
-    ></div>
+    <div class="relative">
+        {#if labelText}
+            <label
+                for={id}
+                class={twJoin(
+                    "text-secondary absolute top-0 left-4 -translate-y-1/2 transform bg-white px-1 text-sm font-medium transition-all",
+                    error && "text-tertiary",
+                )}
+            >
+                {labelText}
+            </label>
+        {/if}
+        <div
+            {id}
+            bind:this={editorElement}
+            class={twJoin(
+                "max-h-100 overflow-y-auto rounded-lg border",
+                error ? "border-tertiary" : "border-secondary",
+            )}
+        ></div>
+    </div>
 
     {#if maxLength !== undefined}
         <p class={twJoin("text-right text-sm", isCountOutOfRange ? "text-tertiary" : "text-black")}>

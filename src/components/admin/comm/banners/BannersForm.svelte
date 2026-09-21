@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { actions } from "astro:actions";
+    import { actions, isInputError } from "astro:actions";
 
     import { locale, t } from "../../../../i18n/store";
     import { endOfDay, formatDate, startOfDay } from "../../../../utils/dates";
@@ -55,11 +55,12 @@
         const { error } = await actions.createBanner(new FormData(formElement));
 
         if (error) {
-            // @ts-expect-error fields does exist but astro typing sucks
-            const errors: Record<string, string[]> = error.fields;
+            // Only validation errors carry fields; FORBIDDEN and BAD_REQUEST
+            // come back as a bare message and are not reported here.
+            const errors = isInputError(error) ? error.fields : {};
 
             fieldErrors = Object.fromEntries(
-                Object.entries(errors ?? {}).map(([field, issues]) => [field, issues?.[0]]),
+                Object.entries(errors).map(([field, issues]) => [field, issues?.[0]]),
             ) as FieldErrors;
 
             return;

@@ -542,7 +542,7 @@ export const zPingJsonld = z.object({
  */
 export const zProjectBudgetItem = z.object({
     id: z.int().readonly().optional(),
-    project: z.string().optional(),
+    project: z.string(),
     type: z.enum([
         'infrastructure',
         'material',
@@ -571,7 +571,7 @@ export const zProjectBudgetItemJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     id: z.int().readonly().optional(),
-    project: z.string().optional(),
+    project: z.string(),
     type: z.enum([
         'infrastructure',
         'material',
@@ -638,6 +638,51 @@ export const zProjectCollaborationJsonld = z.object({
     description: z.string(),
     isFulfilled: z.boolean().default(false),
     locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export const zProjectCollaborationCandidacy = z.object({
+    id: z.int().readonly().optional(),
+    collaboration: z.string(),
+    user: z.string(),
+    description: z.string(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'rejected',
+        'approved'
+    ]).default('to_review'),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export const zProjectCollaborationCandidacyJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    collaboration: z.string(),
+    user: z.string(),
+    description: z.string(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'rejected',
+        'approved'
+    ]).default('to_review'),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
@@ -2096,7 +2141,11 @@ export const zApiProjectBudgetItemsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
     itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
     project: z.string().optional(),
-    'project[]': z.array(z.string()).optional()
+    'project[]': z.array(z.string()).optional(),
+    type: z.string().optional(),
+    'type[]': z.array(z.string()).optional(),
+    deadline: z.string().optional(),
+    'deadline[]': z.array(z.string()).optional()
 });
 
 /**
@@ -2210,6 +2259,75 @@ export const zApiProjectCollaborationsIdPatchPath = z.object({
  * ProjectCollaboration resource updated
  */
 export const zApiProjectCollaborationsIdPatchResponse = zProjectCollaboration;
+
+export const zApiProjectCollaborationCandidaciesGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    collaboration: z.string().optional(),
+    'collaboration[]': z.array(z.string()).optional(),
+    user: z.string().optional(),
+    'user[]': z.array(z.string()).optional(),
+    description: z.string().optional(),
+    status: z.string().optional(),
+    'status[]': z.array(z.string()).optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * ProjectCollaborationCandidacy collection
+ */
+export const zApiProjectCollaborationCandidaciesGetCollectionResponse = z.array(zProjectCollaborationCandidacy);
+
+/**
+ * The new ProjectCollaborationCandidacy resource
+ */
+export const zApiProjectCollaborationCandidaciesPostBody = zProjectCollaborationCandidacy;
+
+/**
+ * ProjectCollaborationCandidacy resource created
+ */
+export const zApiProjectCollaborationCandidaciesPostResponse = zProjectCollaborationCandidacy;
+
+export const zApiProjectCollaborationCandidaciesIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectCollaborationCandidacy resource deleted
+ */
+export const zApiProjectCollaborationCandidaciesIdDeleteResponse = z.void();
+
+export const zApiProjectCollaborationCandidaciesIdGetPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectCollaborationCandidacy resource
+ */
+export const zApiProjectCollaborationCandidaciesIdGetResponse = zProjectCollaborationCandidacy;
+
+/**
+ * The updated ProjectCollaborationCandidacy resource
+ */
+export const zApiProjectCollaborationCandidaciesIdPatchBody = zProjectCollaborationCandidacy;
+
+export const zApiProjectCollaborationCandidaciesIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectCollaborationCandidacy resource updated
+ */
+export const zApiProjectCollaborationCandidaciesIdPatchResponse = zProjectCollaborationCandidacy;
 
 export const zApiProjectRewardsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),

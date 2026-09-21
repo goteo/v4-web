@@ -1,89 +1,89 @@
 <script lang="ts">
-    import AdminBudgetCard from "./AdminBudgetCard.svelte";
+    import BudgetCard from "./BudgetCard.svelte";
+    import CreateCard from "./CreateCard.svelte";
     import { t } from "../../../i18n/store";
-    import { type Project, type ProjectBudgetItem } from "../../../openapi/client";
-    import { validateBudgetAmount } from "../../../stores/drafts/draftValidation";
-    import {
-        currentDraft,
-        navigateToStep,
-        validationErrors,
-    } from "../../../stores/drafts/projectDraft";
+    import { withoutCache } from "../../../openapi/cacheInterceptor";
+    import { apiProjectBudgetItemsGetCollection, type MoneyInput } from "../../../openapi/client";
     import { formatCurrency } from "../../../utils/currencies";
+    import { addMoney } from "../../../utils/money";
     import Button from "../../library/buttons/Button.svelte";
-    import Toast from "../../library/feedback/Toast.svelte";
     import Grid from "../../library/layout/Grid.svelte";
     import Title from "../../library/typography/Title.svelte";
     import LoadingSpinner from "../../search/LoadingSpinner.svelte";
 
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
+
     let {
-        project,
+        draft,
     }: {
-        project: Project;
+        draft: ProjectDraftStore;
     } = $props();
 
-    let minBudgetItems: ProjectBudgetItem[] = $state(
-        $currentDraft?.wizardForm.budgetItems.minimum || [],
-    );
-    let optBudgetItems: ProjectBudgetItem[] = $state(
-        $currentDraft?.wizardForm.budgetItems.optimum || [],
-    );
-    let loading = $state(false);
-    let showErrorToast = $state(false);
-    let hasMinimumItems = $derived(minBudgetItems.length > 0);
+    let minBudgetItems = $state(loadMinBudgetItems());
+    let minBudgetMoney = $derived.by(async () => {
+        return minBudgetItems.then((items) => {
+            let minTotal = items[0].money;
+            items.slice(1).forEach((item) => {
+                minTotal = addMoney(item.money, minTotal) as MoneyInput;
+            });
 
-    /**
-     * Handle Continue button
-     * Simple navigation to next step (6) - validation happens on save/submit
-     */
-    function handleContinue() {
-        if (!$currentDraft) return;
-
-        const errors = validateBudgetAmount($currentDraft);
-
-        if (Object.keys(errors).length > 0) {
-            validationErrors.set(errors);
-            return;
-        }
-
-        navigateToStep(6);
-    }
-
-    async function loadBudgetItems() {
-        loading = true;
-
-        minBudgetItems = Array.from(
-            new Set([
-                ...($currentDraft?.wizardForm.budgetItems.minimum || []),
-                ...($currentDraft?.apiSnapshot?.budgetItems.minimum || []),
-            ]),
-        );
-        optBudgetItems = Array.from(
-            new Set([
-                ...($currentDraft?.wizardForm.budgetItems.optimum || []),
-                ...($currentDraft?.apiSnapshot?.budgetItems.optimum || []),
-            ]),
-        );
-
-        loading = false;
-    }
-
-    $effect(() => {
-        if (Object.keys($validationErrors).length > 0)
-            console.log("Errores de validación:", $validationErrors);
-        if ($currentDraft) {
-            loadBudgetItems();
-        }
+            return minTotal;
+        });
     });
+
+    let optBudgetItems = $state(loadOptBudgetItems());
+    let optBudgetMoney = $derived.by(async () => {
+        return optBudgetItems.then((items) => {
+            let optTotal = items[0].money;
+            items.slice(1).forEach((item) => {
+                optTotal = addMoney(item.money, optTotal) as MoneyInput;
+            });
+
+            return optTotal;
+        });
+    });
+
+    async function loadMinBudgetItems() {
+        return withoutCache(() =>
+            apiProjectBudgetItemsGetCollection({
+                baseUrl: "/api/relay",
+                headers: { "Accept-Language": $draft.lang },
+                query: { project: String($draft.actual.id), deadline: "minimum" },
+            }).then(({ data, error }) => {
+                if (error || !data) {
+                    console.error(error);
+                    return [];
+                }
+
+                return data;
+            }),
+        );
+    }
+
+    async function loadOptBudgetItems() {
+        return withoutCache(() =>
+            apiProjectBudgetItemsGetCollection({
+                baseUrl: "/api/relay",
+                headers: { "Accept-Language": $draft.lang },
+                query: { project: String($draft.actual.id), deadline: "optimum" },
+            }).then(({ data, error }) => {
+                if (error || !data) {
+                    console.error(error);
+                    return [];
+                }
+
+                return data;
+            }),
+        );
+    }
+
+    function reloadBudgetItems() {
+        minBudgetItems = loadMinBudgetItems();
+        optBudgetItems = loadOptBudgetItems();
+    }
 </script>
 
 <div class="flex flex-col gap-10">
-    {#if Object.keys($validationErrors).length > 0}
-        {#each Object.entries($validationErrors) as [_key, message]}
-            <Toast class="absolute z-999 self-end" variant="error" bind:showToast={showErrorToast}>
-                {message}
-            </Toast>
-        {/each}
-    {/if}
     <div class="space-y-4">
         <Title level={1} variant="section">
             {$t("pages.project.edit.budget.title")}
@@ -100,40 +100,36 @@
             </span>
             <span class="text-secondary text-3xl font-bold">
                 {$t("domain.project.budget.minimum")}:
-                {formatCurrency(
-                    project.budget?.minimum?.money?.amount,
-                    project.budget?.minimum?.money?.currency,
-                )}
+                {#await minBudgetMoney then minBudgetMoney}
+                    {formatCurrency(minBudgetMoney)}
+                {/await}
             </span>
         </div>
         <p class="text-content -mt-2 text-sm">
             {$t("pages.project.edit.budget.minimumSubtitle")}
         </p>
-        {#if loading}
+        {#await minBudgetItems}
             <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
-        {:else}
+        {:then minBudgetItems}
             <Grid class="grid-cols-1 sm:grid-cols-2">
                 {#each minBudgetItems as item, index}
-                    <AdminBudgetCard
-                        {project}
+                    <BudgetCard
                         {item}
-                        {index}
-                        bind:loading
-                        {hasMinimumItems}
-                        defaultDeadline="minimum"
+                        {draft}
+                        onSave={reloadBudgetItems}
+                        onDelete={reloadBudgetItems}
                     />
                 {/each}
-
-                <AdminBudgetCard
-                    {project}
-                    isCreateCard={true}
-                    item={null}
-                    bind:loading
-                    {hasMinimumItems}
-                    defaultDeadline="minimum"
+                <CreateCard
+                    title={$t(`pages.project.edit.budget.add.minimum.title`)}
+                    description={$t(`pages.project.edit.budget.add.minimum.description`)}
+                    variant="budget"
+                    deadline="minimum"
+                    onSave={reloadBudgetItems}
+                    {draft}
                 />
             </Grid>
-        {/if}
+        {/await}
     </div>
     <div class="flex flex-col gap-6">
         <div class="flex items-center gap-3">
@@ -144,53 +140,41 @@
             </span>
             <span class="text-secondary text-3xl font-bold">
                 {$t("domain.project.budget.optimum")}:
-                {formatCurrency(
-                    project.budget?.optimum?.money?.amount,
-                    project.budget?.optimum?.money?.currency,
-                )}
+                {#await optBudgetMoney then optBudgetMoney}
+                    {formatCurrency(optBudgetMoney)}
+                {/await}
             </span>
         </div>
         <p class="text-content -mt-2 text-sm">
             {$t("pages.project.edit.budget.optimumSubtitle")}
         </p>
-        {#if loading}
+        {#await optBudgetItems}
             <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
-        {:else}
+        {:then optBudgetItems}
             <Grid class="grid-cols-1 sm:grid-cols-2">
                 {#each optBudgetItems as item, i}
-                    <AdminBudgetCard {project} {item} index={i} {loading} {hasMinimumItems} />
+                    <BudgetCard
+                        {item}
+                        {draft}
+                        onSave={reloadBudgetItems}
+                        onDelete={reloadBudgetItems}
+                    />
                 {/each}
-
-                {#if hasMinimumItems}
-                    <AdminBudgetCard
-                        {project}
-                        isCreateCard={true}
-                        item={null}
-                        {loading}
-                        {hasMinimumItems}
-                        defaultDeadline="optimum"
-                    />
-                {:else}
-                    <AdminBudgetCard
-                        {project}
-                        isCreateCard={true}
-                        item={null}
-                        {loading}
-                        {hasMinimumItems}
-                        disabled={true}
-                        disabledMessage={$t(
-                            "pages.project.edit.budget.validation.minimumRequiredFirst",
-                        )}
-                        defaultDeadline="optimum"
-                    />
-                {/if}
+                <CreateCard
+                    title={$t(`pages.project.edit.budget.add.optimum.title`)}
+                    description={$t(`pages.project.edit.budget.add.optimum.description`)}
+                    variant="budget"
+                    deadline="optimum"
+                    onSave={reloadBudgetItems}
+                    {draft}
+                />
             </Grid>
-        {/if}
+        {/await}
     </div>
 </div>
 
 <div class="mt-10 flex">
-    <Button kind="secondary" size="md" onclick={handleContinue} class="min-w-50">
+    <Button kind="secondary" size="md" class="min-w-50">
         {$t("pages.project.edit.budget.continue")}
     </Button>
 </div>

@@ -4,10 +4,10 @@ import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Highlights from "../../../../components/admin/home/Highlights.svelte";
 import { highlightRepository } from "../../../../repositories/highlights";
+import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/highlights";
-const navItems = [{ label: "pages.admin.home.tabs.highlights", href: activePath }];
 
 const data = await highlightRepository.get();
 
@@ -27,7 +27,7 @@ const config = {
     description={t("pages.metadata.description")}
 >
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:load {navItems} {activePath}>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
             <Highlights client:load {config} />
         </WithSidebar>
     </App>

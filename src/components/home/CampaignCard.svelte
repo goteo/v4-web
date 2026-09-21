@@ -14,16 +14,31 @@ Converted from CampaignCard.astro to maintain exact functionality
     import { gte } from "../../utils/money";
     import CampaignStatusBadge from "../home/CampaignStatusBadge.svelte";
     import Flames from "../icons/status/Flames.svelte";
+    import Button from "../library/buttons/Button.svelte";
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
 
     import type { Campaign, CampaignSize } from "../../types/campaign";
+    import type { OwnedCardAction } from "../../utils/ownedProjectCards";
+
+    export interface OwnedCardActionView {
+        key: string;
+        label: string;
+        kind: OwnedCardAction["kind"];
+    }
+
+    export interface OwnedCardConfig {
+        tagLabel?: string;
+        showMoney?: boolean;
+        actions?: OwnedCardActionView[];
+    }
 
     interface Props {
         size: CampaignSize;
         campaign: Campaign;
         showUserDonations?: boolean;
         showOwnerActions?: boolean;
+        ownedConfig?: OwnedCardConfig;
         class?: string;
     }
 
@@ -32,6 +47,7 @@ Converted from CampaignCard.astro to maintain exact functionality
         campaign,
         showUserDonations = false,
         showOwnerActions = false,
+        ownedConfig,
         class: className = "",
     }: Props = $props();
 
@@ -97,7 +113,7 @@ Converted from CampaignCard.astro to maintain exact functionality
                 style="background-image: url('{campaign.image}')"
             >
                 <!-- Tags Overlay (top-left) -->
-                <div class="absolute top-4 left-4 flex gap-2">
+                <div class="absolute top-4 left-4 flex flex-wrap gap-2">
                     <!-- Matchfunding Tag (conditional) -->
                     {#if campaign.hasMatchfunding}
                         <Tag>
@@ -128,26 +144,32 @@ Converted from CampaignCard.astro to maintain exact functionality
             <div class="flex flex-col gap-4 md:gap-6">
                 <!-- Days Remaining & Category -->
                 <div class="flex items-center gap-2 md:gap-4">
+                    <!-- Status Tag (owned projects section) -->
+                    {#if ownedConfig?.tagLabel}
+                        <Tag>
+                            {ownedConfig.tagLabel}
+                        </Tag>
+                    {/if}
                     <!-- Days Remaining -->
                     {#if campaign.daysRemaining !== undefined}
-                        <div class="flex items-center gap-2">
+                        <Tag variant="bold">
                             <Clock />
                             <span class="text-sm text-black">
                                 {$t("pages.home.campaigns.daysRemaining", {
                                     days: campaign.daysRemaining,
                                 })}
                             </span>
-                        </div>
+                        </Tag>
                     {/if}
 
                     <!-- Category (display only first) -->
                     {#if firstCategory()}
-                        <div class="flex items-center gap-2">
+                        <Tag variant="bold">
                             <Clock />
                             <span class="text-sm text-black">
                                 {$t(`categories.${firstCategory()}`)}
                             </span>
-                        </div>
+                        </Tag>
                     {/if}
                 </div>
 
@@ -162,41 +184,45 @@ Converted from CampaignCard.astro to maintain exact functionality
                 </Title>
 
                 <!-- Funding Information -->
-                <div class="flex flex-col gap-2">
-                    <!-- Obtained Amount -->
-                    <div class="flex items-start justify-between">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-secondary text-base"
-                                >{$t("pages.home.campaigns.obtained")}</span
-                            >
-                            <span class="text-secondary text-2xl font-bold">
-                                {#if obtained}
-                                    {formatCurrency(obtained)}
+                {#if !ownedConfig || ownedConfig.showMoney !== false}
+                    <div class="flex flex-col gap-2">
+                        <!-- Obtained Amount -->
+                        <div class="flex items-start justify-between">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-base text-black"
+                                    >{$t("pages.home.campaigns.obtained")}</span
+                                >
+                                <span class="text-double leading-10 font-bold text-black">
+                                    {#if obtained}
+                                        {formatCurrency(obtained)}
+                                    {:else}
+                                        <span class="text-content text-sm"
+                                            >{$t("system.loading")}</span
+                                        >
+                                    {/if}
+                                </span>
+                            </div>
+                            <!-- Remaining to Goal -->
+                            <div class="flex flex-col gap-2 text-right">
+                                {#if campaign.optimum && hasReachedMinimum}
+                                    <span class="text-base text-black">
+                                        {$t("pages.home.campaigns.optimum")}
+                                    </span>
+                                    <span class="text-2xl font-bold text-black">
+                                        {formatCurrency(campaign.optimum)}
+                                    </span>
                                 {:else}
-                                    <span class="text-content text-sm">{$t("system.loading")}</span>
+                                    <span class="text-base text-black">
+                                        {$t("pages.home.campaigns.minimum")}
+                                    </span>
+                                    <span class="text-2xl font-bold text-black">
+                                        {formatCurrency(campaign.minimum)}
+                                    </span>
                                 {/if}
-                            </span>
-                        </div>
-                        <!-- Remaining to Goal -->
-                        <div class="flex flex-col gap-1 text-right">
-                            {#if campaign.optimum && hasReachedMinimum}
-                                <span class="text-secondary text-base">
-                                    {$t("pages.home.campaigns.optimum")}
-                                </span>
-                                <span class="text-secondary text-2xl font-bold">
-                                    {formatCurrency(campaign.optimum)}
-                                </span>
-                            {:else}
-                                <span class="text-secondary text-base">
-                                    {$t("pages.home.campaigns.minimum")}
-                                </span>
-                                <span class="text-secondary text-2xl font-bold">
-                                    {formatCurrency(campaign.minimum)}
-                                </span>
-                            {/if}
+                            </div>
                         </div>
                     </div>
-                </div>
+                {/if}
 
                 <!-- User Donations Footer -->
                 {#if showUserDonations && campaign.userDonations}
@@ -212,8 +238,16 @@ Converted from CampaignCard.astro to maintain exact functionality
                     </div>
                 {/if}
 
-                <!-- Owner Actions Footer -->
-                {#if showOwnerActions}
+                <!-- Owned project actions (status-based) -->
+                {#if ownedConfig?.actions}
+                    <div class="flex w-full flex-col gap-4 md:flex-row">
+                        {#each ownedConfig.actions as action}
+                            <Button kind={action.kind} class="flex-1">
+                                {action.label}
+                            </Button>
+                        {/each}
+                    </div>
+                {:else if showOwnerActions}
                     <div class="flex w-full gap-4">
                         <button
                             class="border-secondary text-secondary hover:bg-secondary flex-1 rounded-3xl border px-4 py-4 text-base font-bold transition-colors hover:text-white"

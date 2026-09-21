@@ -3,7 +3,7 @@
     import { apiGatewaysGetCollection, type Gateway } from "../../../../openapi/client";
     import { client } from "../../../../openapi/client/client.gen";
     import { apiGatewaysIdGetUrl } from "../../../../openapi/client/operation-paths.gen";
-    import { defaultCurrency, formatCurrency, parseCurrency } from "../../../../utils/currencies";
+    import { DEFAULT_CURRENCY, formatCurrency, parseCurrency } from "../../../../utils/currencies";
     import { toCollectionItems } from "../../../../utils/hydra";
     import { createAccountingSearcher } from "../../../../utils/searchers";
     import ResourceSearch from "../../../library/inputs/ResourceSearch.svelte";
@@ -32,7 +32,7 @@
             : "",
     );
 
-    const CURRENCIES = [defaultCurrency()];
+    const CURRENCIES = [DEFAULT_CURRENCY];
 
     async function loadGateways() {
         gatewaysLoading = true;

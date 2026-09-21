@@ -1,0 +1,18 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import Hero from "../../../../components/admin/home/hero/Hero.svelte";
+import { SUBSECTIONS } from "./subsections";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/home/hero";
+---
+
+<Layout title={t("pages.admin.home.hero.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+            <Hero client:load />
+        </WithSidebar>
+    </App>
+</Layout>

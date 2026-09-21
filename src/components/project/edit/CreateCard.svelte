@@ -5,37 +5,43 @@
     import CollabsModal from "./CollabsModal.svelte";
     import RewardsModal from "./RewardsModal.svelte";
     import { t } from "../../../i18n/store";
+    import {
+        apiProjectBudgetItemsPost,
+        apiProjectCollaborationsPost,
+        apiProjectRewardsPost,
+        type ProjectBudgetItem,
+        type ProjectCollaboration,
+        type ProjectReward,
+    } from "../../../openapi/client";
     import MoreAndLess from "../../icons/filters/MoreAndLess.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { Project } from "../../../openapi/client";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
     interface Props {
-        project: Project;
+        draft: ProjectDraftStore;
         title: string;
         description: string;
-        onclick: () => void;
         variant: "reward" | "collab" | "budget";
-        open: boolean;
-        showToast: boolean;
-        onSave: (data: any, files?: any) => void;
-        defaultDeadline?: "minimum" | "optimum";
+        open?: boolean;
+        onClick?: () => void;
+        onSave?: (data: ProjectCollaboration | ProjectBudgetItem | ProjectReward) => void;
+        deadline?: "minimum" | "optimum";
         disabled?: boolean;
         disabledMessage?: string;
     }
 
     let {
-        project,
+        draft,
         title,
         description,
-        onclick,
+        onClick,
+        onSave,
         variant,
         open = $bindable(false),
-        showToast = $bindable(false),
-        onSave,
-        defaultDeadline,
+        deadline,
         disabled = false,
         disabledMessage = "",
     }: Props = $props();
@@ -43,11 +49,57 @@
     let showDisabledToast = $state(false);
 
     function handleClick() {
-        if (disabled) {
-            showDisabledToast = true;
+        open = true;
+
+        onClick?.();
+    }
+
+    async function handleReward(newReward: ProjectReward) {
+        const { error } = await apiProjectRewardsPost({
+            baseUrl: "/api/relay",
+            headers: { "Content-Language": $draft.lang },
+            body: newReward,
+        });
+
+        if (!error) {
+            open = false;
+            onSave?.(newReward);
             return;
         }
-        onclick();
+
+        console.error(error);
+    }
+
+    async function handleCollab(newCollab: ProjectCollaboration) {
+        const { error } = await apiProjectCollaborationsPost({
+            baseUrl: "/api/relay",
+            headers: { "Content-Language": $draft.lang },
+            body: newCollab,
+        });
+
+        if (!error) {
+            open = false;
+            onSave?.(newCollab);
+            return;
+        }
+
+        console.error(error);
+    }
+
+    async function handleBudgetItem(newBudgetItem: ProjectBudgetItem) {
+        const { error } = await apiProjectBudgetItemsPost({
+            baseUrl: "/api/relay",
+            headers: { "Content-Language": $draft.lang },
+            body: newBudgetItem,
+        });
+
+        if (!error) {
+            open = false;
+            onSave?.(newBudgetItem);
+            return;
+        }
+
+        console.error(error);
     }
 </script>
 
@@ -81,8 +133,8 @@
         {:else if variant === "collab"}
             {$t("pages.project.edit.collaborations.add.button")}
         {:else if variant === "budget"}
-            {defaultDeadline
-                ? $t(`pages.project.edit.budget.add.${defaultDeadline}.button`)
+            {deadline
+                ? $t(`pages.project.edit.budget.add.${deadline}.button`)
                 : $t("pages.project.edit.budget.add.button")}
         {/if}
     </Button>
@@ -99,9 +151,9 @@
 {/if}
 
 {#if !disabled && variant === "reward"}
-    <RewardsModal bind:open bind:showToast {onSave} reward={null} {project} />
+    <RewardsModal bind:open {draft} onSave={handleReward} />
 {:else if !disabled && variant === "collab"}
-    <CollabsModal bind:open bind:showToast {onSave} collab={null} {project} />
+    <CollabsModal bind:open {draft} onSave={handleCollab} />
 {:else if !disabled && variant === "budget"}
-    <BudgetModal bind:open bind:showToast {onSave} budgetItem={null} {defaultDeadline} />
+    <BudgetModal bind:open {draft} {deadline} onSave={handleBudgetItem} />
 {/if}

@@ -1,36 +1,40 @@
 <script lang="ts">
+    import CreateCard from "./CreateCard.svelte";
     import RewardsCard from "./RewardsCard.svelte";
     import { t } from "../../../i18n/store";
-    import { currentDraft, navigateToStep } from "../../../stores/drafts/projectDraft";
+    import { withoutCache } from "../../../openapi/cacheInterceptor";
+    import { apiProjectRewardsGetCollection } from "../../../openapi/client";
     import Button from "../../library/buttons/Button.svelte";
     import Grid from "../../library/layout/Grid.svelte";
     import Title from "../../library/typography/Title.svelte";
     import LoadingSpinner from "../../search/LoadingSpinner.svelte";
 
-    import type { Project, ProjectReward } from "../../../openapi/client";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
-    let { project }: { project: Project } = $props();
+    let { draft }: { draft: ProjectDraftStore } = $props();
 
-    let rewards = $state<ProjectReward[]>($currentDraft?.wizardForm.rewards || []);
-    let loading = $state(false);
+    let rewards = $state(loadRewards());
 
-    /**
-     * Handle Continue button
-     * Simple navigation to next step (4) - validation happens on save/submit
-     */
-    function handleContinue() {
-        navigateToStep(4);
+    function loadRewards() {
+        return withoutCache(() =>
+            apiProjectRewardsGetCollection({
+                baseUrl: "/api/relay",
+                headers: { "Accept-Language": $draft.lang },
+                query: { project: String($draft.actual.id) },
+            }).then(({ data, error }) => {
+                if (error || !data) {
+                    console.error(error);
+                    return [];
+                }
+
+                return data;
+            }),
+        );
     }
 
-    async function loadRewards() {
-        loading = true;
-        rewards = $currentDraft?.wizardForm.rewards || [];
-        loading = false;
+    function reloadRewards() {
+        rewards = loadRewards();
     }
-
-    $effect(() => {
-        if ($currentDraft) loadRewards();
-    });
 </script>
 
 <div class="w-full space-y-10">
@@ -42,21 +46,26 @@
             {$t("pages.project.edit.rewards.subtitle")}
         </p>
     </div>
-    {#if loading}
-        <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
-    {:else}
-        <Grid>
+    <Grid>
+        {#await rewards}
+            <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
+        {:then rewards}
             {#each rewards as reward, index}
-                <RewardsCard {project} {index} {reward} bind:loading />
+                <RewardsCard {draft} {reward} onSave={reloadRewards} onDelete={reloadRewards} />
             {/each}
-
-            <RewardsCard isCreateCard={true} {project} reward={null} bind:loading />
-        </Grid>
-    {/if}
+        {/await}
+        <CreateCard
+            {draft}
+            variant="reward"
+            title={$t("pages.project.edit.rewards.add.title")}
+            description={$t("pages.project.edit.rewards.add.description")}
+            onSave={reloadRewards}
+        />
+    </Grid>
 
     <!-- Continue Button -->
     <div class="flex justify-start">
-        <Button kind="secondary" size="md" onclick={handleContinue}>
+        <Button kind="secondary" size="md">
             {$t("pages.project.edit.rewards.continue")}
         </Button>
     </div>
