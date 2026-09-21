@@ -87,9 +87,18 @@
         return claims;
     }
 
-    (async () => {
+    async function claimRewards() {
+        let allSucceeded = true;
+
         try {
-            const items = Object.values(get(cart).items);
+            // Guard: a finalised cart must never be re-claimed. The store's
+            // soft-delete keeps the items around (just flags `finalised:
+            // true`), so without this there would be nothing stopping the
+            // $effect below from re-submitting the same claims forever.
+            const currentCart = get(cart);
+            if (currentCart.finalised === true) return;
+
+            const items = Object.values(currentCart.items);
 
             const hasRewards = items.some(
                 (item) => item.kind === "reward" && item.reward?.id != null,
@@ -107,12 +116,33 @@
 
                 if (error) {
                     console.error("[RewardClaims] failed:", claim.reward, error);
+                    throw new Error(
+                        `[RewardClaims] claim for reward ${claim.reward} rejected`,
+                    );
                 }
             }
         } catch (err) {
+            allSucceeded = false;
             console.error("[RewardClaims] error:", err);
         } finally {
-            if (userId != null) clearForUser(userId);
+            // Only clear the user's cart once every claim succeeded. If any
+            // single claim was rejected mid-claim, the cart stays intact so
+            // the $effect above re-runs against the same charges/chart data
+            // once they change — never erasing the chance to re-try.
+            if (allSucceeded && userId != null) clearForUser(userId);
         }
-    })();
+    }
+
+    // Submit claims when the cart holds rewards (and re-submit if the
+    // charges/cart they pair against change). The `finally` above clears the
+    // user's cart, so later effect runs exit early on the `!hasRewards` guard.
+    $effect(() => {
+        if (
+            Object.values(get(cart).items).some(
+                (item) => item.kind === "reward" && item.reward?.id != null,
+            )
+        ) {
+            void claimRewards();
+        }
+    });
 </script>
