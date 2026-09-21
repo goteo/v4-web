@@ -188,7 +188,6 @@
     </label>
     <!-- Drop Zone -->
     <div
-        id={inputId}
         role="button"
         tabindex="0"
         class={twMerge(

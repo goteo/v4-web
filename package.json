@@ -39,6 +39,7 @@
     "@internationalized/date": "^3.12.2",
     "@tailwindcss/vite": "^4.3.3",
     "@tiptap/core": "^3.28.0",
+    "@tiptap/extension-image": "^3.28.0",
     "@tiptap/extension-text-align": "^3.28.0",
     "@tiptap/extension-text-style": "^3.28.0",
     "@tiptap/extensions": "^3.28.0",
