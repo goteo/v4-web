@@ -19,7 +19,6 @@ import { locale } from "../i18n/store";
 import type { ResourceSearcher } from "./resourceSearch";
 import type { Component } from "svelte";
 
-
 export interface FilterRow {
     id: string;
     subject: FilterSubject;
