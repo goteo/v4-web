@@ -49,11 +49,13 @@
     recentTitleKey="pages.me.donations.recent"
     illustrationPath="/images/profile/ilustration-donations.png"
     primaryActionLabel="pages.me.donations.viewAll"
-    primaryActionHref={lang === "es" ? "/me/donations" : `/${lang}/me/donations`}
+    primaryActionHref={lang === "es" ? "/me#donated-projects" : `/${lang}/me#donated-projects`}
     isEmpty={!hasData}
     emptyMessageKey="pages.me.donations.empty"
     emptyCtaLabel="pages.me.donations.explore"
-    emptyCtaLink={lang === "es" ? "/discover" : `/${lang}/discover`}
+    emptyCtaLink={lang === "es"
+        ? "/search?status[]=in_campaign"
+        : `/${lang}/search?status[]=in_campaign`}
 >
     {#if donationsData?.recentDonations}
         {#each donationsData.recentDonations.slice(0, 2) as donation}

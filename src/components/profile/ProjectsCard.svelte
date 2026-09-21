@@ -46,13 +46,13 @@
     recentTitleKey="pages.me.projects.recent"
     illustrationPath="/images/profile/ilustration-project.png"
     primaryActionLabel="pages.me.projects.viewAll"
-    primaryActionHref={lang === "es" ? "/me/projects" : `/${lang}/me/projects`}
+    primaryActionHref={lang === "es" ? "/me#owned-projects" : `/${lang}/me#owned-projects`}
     secondaryActionLabel="pages.me.projects.createNew"
-    secondaryActionHref={lang === "es" ? "/projects/new" : `/${lang}/projects/new`}
+    secondaryActionHref={lang === "es" ? "/create/project" : `/${lang}/create/project`}
     isEmpty={!hasData}
     emptyMessageKey="pages.me.projects.empty"
     emptyCtaLabel="pages.me.projects.create"
-    emptyCtaLink={lang === "es" ? "/projects/new" : `/${lang}/projects/new`}
+    emptyCtaLink={lang === "es" ? "/create/project" : `/${lang}/create/project`}
 >
     {#if projectsData?.recentProjects}
         {#each projectsData.recentProjects.slice(0, 2) as project}

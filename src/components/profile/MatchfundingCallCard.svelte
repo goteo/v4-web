@@ -25,9 +25,7 @@
             : "",
     );
 
-    const callUrl = $derived(
-        lang === "es" ? `/matchfunding/${call.slug}` : `/${lang}/matchfunding/${call.slug}`,
-    );
+    const callUrl = $derived(lang === "es" ? "/" : `/${lang}`);
 </script>
 
 <!-- Hero-style Matchfunding Card -->
