@@ -380,6 +380,22 @@
       },
       "platoniq": {
         "foundation": "Fundación"
+      },
+      "a11y": {
+        "footerHeading": "Pie de página",
+        "fundingPartners": "Organizaciones financiadoras",
+        "partnerOrganizations": "Organizaciones asociadas",
+        "footerNavigation": "Navegación del pie de página",
+        "legalNavigation": "Navegación legal",
+        "legalAndSocial": "Enlaces legales y redes sociales",
+        "socialLinks": "Enlaces a redes sociales",
+        "social": {
+          "email": "Envíanos un correo a info@goteo.org",
+          "instagram": "Síguenos en Instagram",
+          "facebook": "Síguenos en Facebook",
+          "x": "Síguenos en X (antes Twitter)",
+          "linkedin": "Conecta con nosotras en LinkedIn"
+        }
       }
     },
     "saved": "Guardado"
