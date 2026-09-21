@@ -116,9 +116,7 @@
 
                 if (error) {
                     console.error("[RewardClaims] failed:", claim.reward, error);
-                    throw new Error(
-                        `[RewardClaims] claim for reward ${claim.reward} rejected`,
-                    );
+                    throw new Error(`[RewardClaims] claim for reward ${claim.reward} rejected`);
                 }
             }
         } catch (err) {
