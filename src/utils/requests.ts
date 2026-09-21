@@ -17,5 +17,7 @@ export function isSameHost(request: Request): boolean {
         return new URL(referer).host === targetHost;
     }
 
-    throw new Error("Could not determine same-host of request because origin and referer headers are missing");
+    throw new Error(
+        "Could not determine same-host of request because origin and referer headers are missing",
+    );
 }

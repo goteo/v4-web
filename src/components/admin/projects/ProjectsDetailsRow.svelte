@@ -1,7 +1,7 @@
 <script lang="ts">
+    import Comments from "../../../components/icons/Comments.svelte";
     import { t, locale } from "../../../i18n/store";
     import { formatDate } from "../../../utils/dates";
-    import Comments from "../../../components/icons/Comments.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
     import type { ProjectRow } from "./ProjectsTable.svelte";
