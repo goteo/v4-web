@@ -280,7 +280,7 @@
     }
 
     onMount(async () => {
-        const { data: paymentGateways } = await apiGatewaysGetCollection();
+        const { data: paymentGateways } = await apiGatewaysGetCollection({ baseUrl: "/api/relay" });
 
         const map = new Map<string, string>();
         for (const g of paymentGateways ?? []) {
