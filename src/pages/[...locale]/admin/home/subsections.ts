@@ -1,4 +1,8 @@
-export const SUBSECTIONS: { label: string; href: string }[] = [
-    { label: "pages.admin.home.tabs.hero", href: "/admin/home/hero" },
-    { label: "pages.admin.home.tabs.highlights", href: "/admin/home/highlights" },
-];
+import { ADMIN_SECTIONS } from "../../../../components/admin/adminSections";
+
+export const SUBSECTIONS = ADMIN_SECTIONS.find(
+    (section) => section.href === "/admin/home",
+)!.subSections!.map((subSection) => ({
+    label: subSection.labelKey,
+    href: subSection.href,
+}));

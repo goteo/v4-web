@@ -46,7 +46,7 @@ src/
     └── drafts/       # Draft DB repository helpers
 ```
 
-Root config files: `astro.config.mjs`, `openapi-ts.config.ts`, `wrangler.toml`, `vitest.config.ts`, `cypress.config.ts` (+ `cypress.github.ts` for CI).
+Root config files: `astro.config.mjs`, `openapi-ts.config.ts`, `wrangler.toml`, `vitest.config.ts`.
 
 ## Conventions
 
@@ -474,7 +474,6 @@ throw new ActionError({
 
 ```bash
 pnpm format        # Run Prettier — fix formatting before committing
-pnpm cypress   # Run E2E tests headless — must pass before PR
 ```
 
 ## Testing
@@ -482,10 +481,6 @@ pnpm cypress   # Run E2E tests headless — must pass before PR
 ```bash
 pnpm test          # Vitest unit + component tests
 pnpm storybook     # Storybook visual tests (port 6006)
-pnpm cypress open  # Cypress E2E interactive
-pnpm cypress run   # Cypress E2E headless
-pnpm test:e2e      # Start dev server + run Cypress headless
-pnpm test:e2e:ci   # CI E2E against Workers preview build
 ```
 
 Stories live alongside their component (`ComponentName.stories.svelte`). Component tests use Vitest + `@storybook/addon-vitest`.

@@ -334,7 +334,8 @@
     "header": {
       "search": "Search",
       "createProject": "Create your project",
-      "goToProfile": "Go to Profile"
+      "goToProfile": "Go to Profile",
+      "admin": "Admin"
     },
     "footer": {
       "funding": {
@@ -364,7 +365,6 @@
         "forUsers": {
           "title": "For users",
           "rechargeWallet": "Top up your wallet",
-          "downloadCertificate": "Download certificate",
           "accessComplementaryFunds": "Access complementary funds",
           "designFundingProgram": "Design a funding program"
         }
@@ -507,10 +507,6 @@
       "postPayment": {
         "title": "Congratulations! Thank you for your donation",
         "emailSent": "We have sent a summary to:",
-        "certificate": {
-          "title": "How do I request my certificate?",
-          "description": "The certificate is generated automatically at the end of the fiscal year (December). We will send you an email once we have submitted the documentation to the tax authorities. If we encounter any issues, we will contact you by email."
-        },
         "donatedProjects": {
           "title": "You have donated to the following projects"
         },
@@ -556,9 +552,12 @@
               "minLength": "*Password must be at least 8 characters long"
             },
             "required": "This field is required",
-            "emailInvalid": "The email address entered is not valid"
+            "emailInvalid": "The email address entered is not valid",
+            "taxIdInvalid": "The number is not in a valid format for the selected country"
           },
-          "emailHelper": "Email address you will use to log in"
+          "emailHelper": "Email address you will use to log in",
+          "taxIdCountry": "Document issuing country",
+          "taxIdCountryHelper": "Country that issued your tax ID"
         },
         "individual": {
           "firstName": "First name",
@@ -1100,9 +1099,6 @@
         "banner": {
           "donator": {
             "description": "Goteo belongs to the Platoniq Foundation. When you contribute to a campaign, your money will be held by Platoniq and donated to {{owner}} if the stated success goals are reached."
-          },
-          "certificate": {
-            "description": "When you support a project promoted on Goteo, you can request a donation certificate. This way, you can deduct up to 80% of what you have contributed on your next income tax return."
           }
         },
         "langNotAvailable": "The selected language \"{{lang}}\" is not available for this project. Showing content in the available language.",
@@ -1381,7 +1377,12 @@
           "open": "Open admin menu"
         }
       },
+      "landing": {
+        "title": "Administration",
+        "subtitle": "Quickly access the platform's various management sections."
+      },
       "home": {
+        "description": "Choose what is displayed on the home page.",
         "tabs": {
           "hero": "Hero",
           "highlights": "Featured Projects"
@@ -1598,7 +1599,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Download certificates",
           "pdf": "Download PDF"
         },
         "lastEdited": "Last modified: {{date}} {{time}}",
@@ -1730,7 +1730,6 @@
                 "contributions": "Contributions",
                 "donors": "Campaign donors",
                 "financialReport": "Funding report",
-                "certificates": "Certificates",
                 "annotations": "Annotations"
               }
             },
@@ -1964,8 +1963,7 @@
         "count": "Donations",
         "total": "Total donated",
         "recent": "Latest donations",
-        "viewAll": "See all",
-        "certificate": "Request certificate"
+        "viewAll": "See all"
       },
       "projects": {
         "title": "Promoted projects",
@@ -1978,9 +1976,45 @@
         "createNew": "Create a project"
       },
       "ownedProjects": {
-        "title": "Your Active Projects",
+        "title": "Your Projects",
+        "tabs": {
+          "draft": "Drafts",
+          "inReview": "In Review",
+          "funding": "In Funding",
+          "active": "Active",
+          "archived": "Archived"
+        },
         "messageToDonatorsButton": "Message to donors",
-        "uploadNewsButton": "Upload update"
+        "uploadNewsButton": "Upload update",
+        "card": {
+          "tags": {
+            "draft": "Draft",
+            "readyToPublish": "Ready to Publish",
+            "reviewing": "Under Review",
+            "pendingReview": "Pending Review",
+            "needsChanges": "Requires Changes",
+            "rejected": "Rejected",
+            "campaignFailed": "Failed Campaign",
+            "campaignCancelled": "Cancelled Campaign",
+            "fundingPaid": "Funding Completed"
+          },
+          "actions": {
+            "manage": "Manage Project",
+            "edit": "Edit Project",
+            "advisory": "Go to Advisory",
+            "publish": "Publish Your Project",
+            "view": "View Project",
+            "sendToReview": "Send for Review",
+            "viewReview": "View Review"
+          }
+        },
+        "emptyTab": {
+          "active": "No active projects",
+          "review": "No projects in review",
+          "funding": "No projects in funding",
+          "draft": "No draft projects",
+          "archived": "No archived projects"
+        }
       },
       "donatedProjects": {
         "title": "Active projects you donated to"

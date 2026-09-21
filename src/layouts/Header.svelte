@@ -94,9 +94,17 @@
                                             >
                                                 {$t("common.header.goToProfile")}
                                             </a>
+                                            {#if $session.user.roles?.includes("ROLE_ADMIN")}
+                                                <a
+                                                    href="/admin"
+                                                    class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                                >
+                                                    {$t("common.header.admin")}
+                                                </a>
+                                            {/if}
                                             <a
                                                 href="/logout"
-                                                class="text-secondary hover:bg-grey block w-full cursor-pointer overflow-hidden px-4 py-2 font-bold text-ellipsis"
+                                                class="text-secondary hover:bg-grey block w-full cursor-pointer overflow-hidden rounded-b-lg px-4 py-2 font-bold text-ellipsis"
                                             >
                                                 {$t("pages.logout.label")}
                                             </a>

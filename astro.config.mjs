@@ -70,6 +70,12 @@ export default defineConfig({
     adapter: cloudflare({
         imageService: "passthrough",
         platformProxy: { enabled: true },
+
+        /**
+         * Port the workerd inspector listens on in `astro dev`, and what
+         * `.vscode/launch.json` attaches to.
+         */
+        inspectorPort: 9229,
     }),
 
     cache: {

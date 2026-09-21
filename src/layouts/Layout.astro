@@ -2,7 +2,7 @@
 import { Font } from "astro:assets";
 
 import "../styles/global.css";
-import Metatags from "./Metatags.svelte";
+import Metatags from "./Metatags.astro";
 
 import type { FontPreloadFilter } from "astro:assets";
 
@@ -24,7 +24,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
         <title>{title}</title>
         <Font cssVariable="--font-karla" preload={preloadedFaces} />
-        <Metatags client:load {title} {description} {keywords} />
+        <Metatags {title} {description} {keywords} />
     </head>
     <body>
         <slot />

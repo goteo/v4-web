@@ -11,7 +11,7 @@ const activePath = "/admin/comm/newsletter";
 
 <Layout title={t("pages.admin.newsletter.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:load navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
             <Newsletter client:load />
         </WithSidebar>
     </App>

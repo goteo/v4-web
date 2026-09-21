@@ -1,6 +1,7 @@
 <script lang="ts">
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
+    import { ADMIN_SECTIONS } from "./adminSections";
     import { locale, t } from "../../i18n/store";
 
     interface Props {
@@ -9,13 +10,10 @@
 
     let { class: classes = "" }: Props = $props();
 
-    const sections = [
-        { path: "/admin/charges", key: "pages.admin.nav.charges" },
-        { path: "/admin/projects", key: "pages.admin.nav.projects" },
-        { path: "/admin/users", key: "pages.admin.nav.users" },
-        { path: "/admin/comm", key: "pages.admin.nav.comm" },
-        { path: "/admin/home", key: "pages.admin.nav.home" },
-    ];
+    const sections = ADMIN_SECTIONS.map((section) => ({
+        path: section.href,
+        key: section.labelKey,
+    }));
 
     let pathname = $state("");
 

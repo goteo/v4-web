@@ -22,9 +22,9 @@ const Content = file.default;
 
 <Layout title={t("pages.static.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang}>
-        <ReturnHeader client:load />
+        <ReturnHeader client:idle />
 
-        <BodyText client:load>
+        <BodyText>
             <Content />
         </BodyText>
     </App>

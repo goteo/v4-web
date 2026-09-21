@@ -49,3 +49,7 @@ export function getDefaultCurrency(): string {
 export function getDefaultLanguage(): string {
     return getEnvVar("PUBLIC_DEFAULT_LANGUAGE");
 }
+
+export function getDefaultCountry(): string {
+    return runtimeEnv["PUBLIC_DEFAULT_COUNTRY"] || "ES";
+}

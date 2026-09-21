@@ -1,14 +1,17 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
     import { navigate } from "astro:transitions/client";
+    import iso3166 from "iso-3166-2";
 
-    import { t } from "../../i18n/store";
+    import { locale, t } from "../../i18n/store";
+    import { getDefaultCountry } from "../../utils/consts";
     import { getValidationParams } from "../../utils/validation";
     import { zRegisterForm } from "../../validation/registerValidation";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
     import PasswordInput from "../library/inputs/PasswordInput.svelte";
     import RadioButton from "../library/inputs/RadioButton.svelte";
+    import Select from "../library/inputs/Select.svelte";
     import TextInput from "../library/inputs/TextInput.svelte";
     import Thtml from "../library/typography/Thtml.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -24,6 +27,7 @@
         firstname: string;
         lastname: string;
         taxId: string;
+        taxIdCountry: string;
         legalName: string;
     }
 
@@ -44,7 +48,16 @@
         firstname: "",
         lastname: "",
         taxId: "",
+        taxIdCountry: getDefaultCountry(),
         legalName: "",
+    });
+
+    let countries = $derived.by(() => {
+        const names = new Intl.DisplayNames([$locale], { type: "region" });
+
+        return Object.keys(iso3166.data)
+            .map((code) => ({ code, name: names.of(code) ?? code }))
+            .sort((a, b) => a.name.localeCompare(b.name, $locale));
     });
 
     let showTaxIdField = $state(false);
@@ -70,6 +83,14 @@
     let showChecksToast = $state(false);
 
     function validate(field: FieldName) {
+        // taxId validity depends on country and type, so it is checked by the schema refinement
+        if (field === "taxId") {
+            const result = zRegisterForm.safeParse(form);
+
+            validation.taxId = result.error?.issues.filter((issue) => issue.path[0] === "taxId");
+            return;
+        }
+
         const result = zRegisterForm.shape[field].safeParse(form[field]);
 
         validation[field] = result.error?.issues;
@@ -123,6 +144,7 @@
             firstname: form.firstname,
             lastname: form.lastname,
             taxId: form.type === "organization" || showTaxIdField ? form.taxId : undefined,
+            taxIdCountry: form.taxIdCountry,
             legalName: form.type === "organization" ? form.legalName : undefined,
         });
 
@@ -210,6 +232,33 @@
             {$t("pages.checkout.register.existUserInfo")}
         </p>
     </div>
+
+    {#snippet taxIdFields(placeholder: string, helperText: string)}
+        <Select
+            name="taxIdCountry"
+            bind:value={form.taxIdCountry}
+            labelText={$t("pages.checkout.register.form.taxIdCountry")}
+            helperText={$t("pages.checkout.register.form.taxIdCountryHelper")}
+            onChange={() => validate("taxId")}
+            disabled={isSubmitting}
+        >
+            {#each countries as { code, name } (code)}
+                <option value={code}>{name}</option>
+            {/each}
+        </Select>
+        <TextInput
+            type="text"
+            name="taxId"
+            {placeholder}
+            {helperText}
+            error={getValidationMessage("taxId")}
+            class="h-14"
+            bind:value={form.taxId}
+            onInput={() => validate("taxId")}
+            disabled={isSubmitting}
+            required
+        />
+    {/snippet}
 
     <form onsubmit={handleSubmit} class="flex w-full flex-col gap-10" id="register" novalidate>
         <div class="flex items-center gap-8">
@@ -323,20 +372,10 @@
                         disabled={isSubmitting}
                         required
                     />
-                    <div class="md:col-span-2">
-                        <TextInput
-                            type="text"
-                            name="taxId"
-                            placeholder={$t("pages.checkout.register.organization.taxId")}
-                            helperText={$t("pages.checkout.register.organization.taxIdHelper")}
-                            error={getValidationMessage("taxId")}
-                            class="h-14"
-                            bind:value={form.taxId}
-                            onInput={() => validate("taxId")}
-                            disabled={isSubmitting}
-                            required
-                        />
-                    </div>
+                    {@render taxIdFields(
+                        $t("pages.checkout.register.organization.taxId"),
+                        $t("pages.checkout.register.organization.taxIdHelper"),
+                    )}
                     <div class="md:col-span-2">
                         <h3 class="text-secondary text-lg leading-6 font-bold">
                             {$t("pages.checkout.register.organization.representative.title")}
@@ -376,18 +415,11 @@
                         disabled={isSubmitting}
                     />
                     {#if showTaxIdField}
-                        <div class="w-full">
-                            <TextInput
-                                type="text"
-                                name="taxId"
-                                placeholder={$t("pages.checkout.register.individual.taxId.label")}
-                                helperText={$t("pages.checkout.register.individual.taxIdHelper")}
-                                error={getValidationMessage("taxId")}
-                                disabled={isSubmitting}
-                                required
-                                bind:value={form.taxId}
-                                onInput={() => validate("taxId")}
-                            />
+                        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+                            {@render taxIdFields(
+                                $t("pages.checkout.register.individual.taxId.label"),
+                                $t("pages.checkout.register.individual.taxIdHelper"),
+                            )}
                         </div>
                     {/if}
                 </div>

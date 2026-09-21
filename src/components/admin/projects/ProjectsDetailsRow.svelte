@@ -88,11 +88,15 @@
         >
             <div class="text-content min-h-5 text-sm"></div>
             <div class="flex flex-row flex-wrap items-center justify-start gap-8 md:justify-end">
+                <!-- GOTEO-OC-DONATION-CERTIFICATE: "Certificados" button is exclusive to the
+                     donation-certificate feature of Goteo under Fundación Platoniq, hidden in
+                     the open-core. Re-enable when a feature toggle exists. Do not delete.
                 <button
                     class="text-secondary cursor-pointer border-0 bg-transparent font-bold outline-none"
                 >
                     {$t("pages.admin.projects.table.rows.details.btns.certificates")}
                 </button>
+                -->
                 <button
                     onclick={onOpenAnnotationsModal}
                     class="text-secondary bg-variant1 flex min-h-10 cursor-pointer flex-row items-center gap-2 rounded-2xl px-4 py-2 font-bold"

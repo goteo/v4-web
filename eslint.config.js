@@ -5,7 +5,6 @@ import pluginJs from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import globals from "globals";
 import tseslint from "typescript-eslint";
-import cypressPlugin from "eslint-plugin-cypress";
 import sveltePlugin from "eslint-plugin-svelte";
 import unusedImportsPlugin from "eslint-plugin-unused-imports";
 import svelteConfig from "./svelte.config.js";
@@ -80,32 +79,6 @@ export default [
                     destructuredArrayIgnorePattern: "^_",
                 },
             ],
-        },
-    },
-    // Cypress configuration
-    {
-        files: ["cypress/**/*.{js,mjs,cjs,ts}"],
-        plugins: {
-            cypress: cypressPlugin,
-        },
-        languageOptions: {
-            globals: {
-                ...globals.browser,
-                cy: "readonly",
-                Cypress: "readonly",
-                describe: "readonly",
-                context: "readonly",
-                beforeEach: "readonly",
-                afterEach: "readonly",
-                it: "readonly",
-                expect: "readonly",
-                assert: "readonly",
-            },
-        },
-        rules: {
-            ...cypressPlugin.configs.recommended.rules,
-            "@typescript-eslint/no-unused-expressions": "off",
-            "cypress/no-unnecessary-waiting": "off",
         },
     },
     // Svelte module scripts

@@ -79,7 +79,7 @@ const campaigns = await Promise.all(
 
         <!-- "View All" Button -->
         <a href="/search" aria-label={t("pages.home.campaigns.viewAll")}>
-            <Button client:load kind="secondary" size="md">
+            <Button kind="secondary" size="md">
                 <Arrow />
                 <span class="text-secondary text-base font-bold">
                     {t("pages.home.campaigns.viewAll")}
@@ -89,10 +89,10 @@ const campaigns = await Promise.all(
     </div>
 
     <!-- Campaigns Grid: 3 columns max, 2 rows, large cards take 2 columns -->
-    <Grid class="auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" client:load>
+    <Grid class="auto-rows-fr grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {
             campaigns.map((campaign) => (
-                <CampaignCard size={campaign.size ?? "small"} campaign={campaign} client:load />
+                <CampaignCard size={campaign.size ?? "small"} campaign={campaign} client:visible />
             ))
         }
     </Grid>

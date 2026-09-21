@@ -34,7 +34,7 @@ const { data: paymentGateways } = await apiGatewaysGetCollection();
 >
     <App client:load locale={lang} session={session} class="mb-20">
         <div class="wrapper max-md:px-0">
-            <BackButton client:load />
+            <BackButton client:idle />
             <div class="flex flex-col gap-8 pt-6 lg:flex-row">
                 <div class="flex w-full flex-col gap-10 px-4 lg:w-1/2 lg:px-0">
                     <div class="flex flex-col gap-4">
@@ -58,7 +58,7 @@ const { data: paymentGateways } = await apiGatewaysGetCollection();
                     <Summary client:load />
                     <div class="w-full lg:block" id="checkout-details">
                         <div class="w-full">
-                            <Steps step={3} hasError={false} client:load />
+                            <Steps step={3} hasError={false} client:idle />
                         </div>
                         <div class="flex flex-col">
                             <p class="text-content text-sm">{t("pages.checkout.summary.deduct")}</p>

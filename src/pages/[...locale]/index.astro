@@ -33,8 +33,8 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
 
 <Layout title={t("pages.index.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} class="mb-20 gap-18">
-        <Hero {hero} content={heroContent} client:load />
-        <Banners banners={activeBanners} client:load />
+        <Hero {hero} content={heroContent} />
+        <Banners banners={activeBanners} client:visible />
         <Campaigns />
         <Blog />
         <Stats />

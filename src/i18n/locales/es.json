@@ -73,6 +73,9 @@
         "placeholder": "Buscar..."
       }
     },
+    "carousel": {
+      "empty": "No hay artículos para mostrar"
+    },
     "filterComposer": {
       "title": "Filtros personalizados",
       "addFilter": "Añadir filtro",
@@ -334,7 +337,8 @@
     "header": {
       "search": "Buscar",
       "createProject": "Crea tu proyecto",
-      "goToProfile": "Ir a Perfil"
+      "goToProfile": "Ir a Perfil",
+      "admin": "Administración"
     },
     "footer": {
       "funding": {
@@ -364,7 +368,6 @@
         "forUsers": {
           "title": "Para usuarias",
           "rechargeWallet": "Recarga tu monedero",
-          "downloadCertificate": "Descarga certificado",
           "accessComplementaryFunds": "Accede a fondos complementarios",
           "designFundingProgram": "Diseña un programa de financiación"
         }
@@ -507,10 +510,6 @@
       "postPayment": {
         "title": "¡Enhorabuena! Gracias por tu donación",
         "emailSent": "Te hemos enviado un resumen a:",
-        "certificate": {
-          "title": "¿Cómo solicito mi certificado?",
-          "description": "El certificado se genera de forma automática al final del año fiscal (diciembre). Te mandaremos un correo una vez hayamos presentado la documentación a Hacienda. En caso de que encontremos algún problema te contactaremos por correo."
-        },
         "donatedProjects": {
           "title": "Has donado a los siguientes proyectos"
         },
@@ -556,9 +555,12 @@
               "minLength": "*Requisitos de la contraseña: debe tener 8 caracteres"
             },
             "required": "Este campo es obligatorio",
-            "emailInvalid": "El email introducido no es válido"
+            "emailInvalid": "El email introducido no es válido",
+            "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado"
           },
-          "emailHelper": "Email que usarás para acceder"
+          "emailHelper": "Email que usarás para acceder",
+          "taxIdCountry": "País emisor del documento",
+          "taxIdCountryHelper": "País que emitió tu identificación fiscal"
         },
         "individual": {
           "firstName": "Nombre",
@@ -866,6 +868,14 @@
           "modal": {
             "title": "Añade colaboraciones",
             "description": "Indica el tipo de colaboración que necesitas",
+            "form": {
+              "titleLabel": "Título de la colaboración",
+              "titlePlaceholder": "Título de la colaboración",
+              "titleHelper": "El título se mostrará en todas las tarjetas de esta colaboración",
+              "descriptionLabel": "Descripción de la colaboración",
+              "descriptionPlaceholder": "Descripción de la colaboración",
+              "descriptionHelper": "La descripción puede contener texto enriquecido, pero se truncará en las tarjetas pequeñas"
+            },
             "placeholders": {
               "title": "Título de la colaboración",
               "description": "Descripción de la colaboración"
@@ -1100,9 +1110,6 @@
         "banner": {
           "donator": {
             "description": "Goteo pertenece a la Fundación Platoniq. Al colaborar en una campaña tu dinero será custodiado por Platoniq y donado a {{owner}} en caso de llegar a los objetivos de éxito marcados."
-          },
-          "certificate": {
-            "description": "Al colaborar con un proyecto impulsado en Goteo puedes solicitar un certificado de donación. Así, te deduces hasta un 80% de lo que hayas aportado en tu próxima declaración de la renta."
           }
         },
         "langNotAvailable": "El idioma seleccionado \"{{lang}}\" no está disponible para este proyecto. Mostrando contenido en el idioma disponible.",
@@ -1381,7 +1388,12 @@
           "open": "Abrir menú de administración"
         }
       },
+      "landing": {
+        "title": "Administración",
+        "subtitle": "Accede rápidamente a las distintas secciones de gestión de la plataforma."
+      },
       "home": {
+        "description": "Elige qué se muestra en la portada.",
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados"
@@ -1598,7 +1610,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Descarga certificados",
           "pdf": "Descarga PDF"
         },
         "lastEdited": "Última modificación: {{date}} {{time}}",
@@ -1730,7 +1741,6 @@
                 "contributions": "Aportes",
                 "donors": "Donantes de campaña",
                 "financialReport": "Informe financiación",
-                "certificates": "Certificados",
                 "annotations": "Anotaciones"
               }
             },
@@ -1964,8 +1974,7 @@
         "count": "Donaciones",
         "total": "Total donado",
         "recent": "Últimas donaciones",
-        "viewAll": "Ver todas",
-        "certificate": "Solicitar certificado"
+        "viewAll": "Ver todas"
       },
       "projects": {
         "title": "Proyectos impulsados",

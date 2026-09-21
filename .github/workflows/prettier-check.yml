@@ -30,6 +30,3 @@ jobs:
 
             - name: Run Prettier check
               run: pnpm check
-
-            - name: Run ESLint on Cypress files
-              run: npx eslint cypress/

@@ -34,23 +34,23 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                         {t("pages.me.page.subtitle")}
                     </p>
                 </div>
-                <PeriodDropdown selectedPeriod={period} client:load />
+                <PeriodDropdown selectedPeriod={period} client:idle />
             </div>
 
             <!-- Activity cards grid (client-side data fetching) -->
             <ActivitySection {lang} {period} {user} client:load />
 
             <!-- Matchfunding Section (client-side data fetching) -->
-            <MatchfundingSection {lang} {user} client:load />
+            <MatchfundingSection {lang} {user} client:visible />
 
             <!-- Owned Projects Section (client-side data fetching) -->
-            <OwnedProjectsSection {lang} {user} client:load />
+            <OwnedProjectsSection {lang} {user} client:visible />
 
             <!-- Donated Projects Section (client-side data fetching) -->
-            <DonatedProjectsSection {lang} client:load />
+            <DonatedProjectsSection {lang} client:visible />
 
             <!-- CTA cards -->
-            <Grid class="grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-[446px_1fr]" client:load>
+            <Grid class="grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-[446px_1fr]">
                 <CTACard
                     variant="dark"
                     title={t("pages.me.cta.discover.title")}
@@ -62,7 +62,6 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                             kind: "secondary",
                         },
                     ]}
-                    client:load
                 />
                 <CTACard
                     variant="light"
@@ -80,7 +79,6 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                             kind: "primary",
                         },
                     ]}
-                    client:load
                 />
             </Grid>
         </div>

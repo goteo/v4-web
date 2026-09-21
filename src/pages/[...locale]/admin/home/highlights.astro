@@ -27,7 +27,7 @@ const config = {
     description={t("pages.metadata.description")}
 >
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:load navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
             <Highlights client:load {config} />
         </WithSidebar>
     </App>
