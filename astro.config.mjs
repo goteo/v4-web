@@ -3,9 +3,10 @@ import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, fontProviders, logHandlers } from "astro/config";
-import dotenv from "dotenv";
+import { loadEnv } from "vite";
+import { labels } from "./src/i18n/locales";
 
-const locales = ["es", "en", "ca"];
+const locales = Object.keys(labels);
 
 /**
  * The API and the object storage live on their own hosts, and both change per deployment
@@ -17,10 +18,12 @@ const locales = ["es", "en", "ca"];
  * Parsing into a throwaway object rather than `process.env` keeps the rest of the build
  * looking at exactly the environment it was given.
  */
-const env = {
-    ...(dotenv.config({ processEnv: {}, quiet: true }).parsed ?? {}),
-    ...process.env,
-};
+const mode = process.argv.includes("--mode")
+    ? process.argv[process.argv.indexOf("--mode") + 1]
+    : "development";
+
+const env = loadEnv(mode, process.cwd(), "");
+console.log(`Targeting Goteo v4 API: '${env.PUBLIC_API_URL}'`);
 
 /** Only the origin matters to a CSP source: a path in the value would make it invalid. */
 const originOf = (url) => {
@@ -32,7 +35,6 @@ const originOf = (url) => {
 };
 
 const apiOrigins = [env.PUBLIC_API_URL, env.OBJECT_STORAGE_ENDPOINT].map(originOf).filter(Boolean);
-
 /**
  * Pages that render the very same HTML for every visitor and are therefore safe to
  * store at the edge.
@@ -282,7 +284,7 @@ export default defineConfig({
     },
 
     i18n: {
-        locales: ["es", "en"],
+        locales: locales,
         defaultLocale: "es",
         routing: "manual",
     },
