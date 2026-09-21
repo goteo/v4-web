@@ -1,8 +1,12 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { Modal } from "flowbite-svelte";
 
     import { locale, t } from "../../../../i18n/store";
     import { formatDate, startOfDay } from "../../../../utils/dates";
+    import { renderMarkdown } from "../../../../utils/renderMarkdown";
+    import Hero from "../../../hero/Hero.svelte";
+    import Eye from "../../../icons/media/Eye.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Button from "../../../library/buttons/Button.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
@@ -21,8 +25,6 @@
 
     let { hero = null }: Props = $props();
 
-    // Only what the preview and the hidden inputs need, so the stored hero can
-    // be shown without faking the rest of an upload result.
     type HeroMedia = Pick<UploadedObject, "url" | "type" | "name">;
 
     type FieldName =
@@ -45,13 +47,15 @@
     let errorMessage = $state("");
     let showError = $state(false);
 
-    // Hero content is scheduled, so the start date may not land before today.
     const today = startOfDay(new Date());
 
     let startsAt = $state(new Date());
 
     let media = $state<HeroMedia | undefined>(storedMedia(hero));
     let isUploadOpen = $state(false);
+
+    let isPreviewOpen = $state(false);
+    let previewHero = $state<HomeHeroRecord | null>(null);
 
     const isVideo = $derived(media?.type.startsWith("video/") ?? false);
 
@@ -65,6 +69,26 @@
             type: record.mediaType,
             name: record.mediaUrl.split("/").pop() ?? record.mediaUrl,
         };
+    }
+
+    function openPreview() {
+        const data = new FormData(formElement);
+        const field = (name: FieldName) => String(data.get(name) ?? "").trim() || null;
+
+        previewHero = {
+            id: 0,
+            title: field("title") ?? "",
+            content,
+            primaryCtaText: field("primaryCtaText"),
+            primaryCtaLink: field("primaryCtaLink"),
+            secondaryCtaText: field("secondaryCtaText"),
+            secondaryCtaLink: field("secondaryCtaLink"),
+            mediaUrl: media?.url ?? null,
+            mediaType: media?.type ?? null,
+            startsAt,
+            dateCreated: new Date(),
+        };
+        isPreviewOpen = true;
     }
 
     function handleUpload(files: UploadedObject[]) {
@@ -261,10 +285,30 @@
         />
     </div>
 
-    <ActionableButton action={submit} autoreset={2000} class="w-fit px-6">
-        {$t("common.save")}
-    </ActionableButton>
+    <div class="flex flex-wrap gap-4">
+        <ActionableButton action={submit} autoreset={2000} class="w-fit px-6">
+            {$t("common.save")}
+        </ActionableButton>
+
+        <Button kind="ghost" class="flex w-fit items-center gap-2 px-6" onclick={openPreview}>
+            <Eye class="size-5 text-current" />
+            {$t("common.preview")}
+        </Button>
+    </div>
 </form>
+
+<Modal
+    bind:open={isPreviewOpen}
+    closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-[90vw] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="p-0"
+>
+    {#if previewHero}
+        {#await renderMarkdown(previewHero.content) then html}
+            <Hero hero={previewHero} content={html} />
+        {/await}
+    {/if}
+</Modal>
 
 <Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
