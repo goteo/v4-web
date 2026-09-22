@@ -2,8 +2,10 @@
     import { actions } from "astro:actions";
     import { TableBodyCell } from "flowbite-svelte";
 
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
+    import Eye from "../../../icons/media/Eye.svelte";
     import Close from "../../../icons/navigation/Close.svelte";
     import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
     import ToggleSwitch from "../../../library/inputs/ToggleSwitch.svelte";
@@ -46,7 +48,7 @@
         { key: "pages.admin.home.hero.history.headers.content", sortable: false },
         { key: "pages.admin.home.hero.history.headers.startsAt", sortable: false },
         { key: "pages.admin.home.hero.history.headers.status", sortable: false },
-        { key: "", sortable: false, class: "w-16" },
+        { key: "", sortable: false, class: "w-24" },
     ];
 
     const itemsPerPage = 10;
@@ -58,6 +60,14 @@
 
     function handleFilterChange() {
         currentPage = 1;
+    }
+
+    let isPreviewOpen = $state(false);
+    let heroToPreview = $state<HomeHeroRecord | null>(null);
+
+    function openPreview(row: HomeHeroRecord) {
+        heroToPreview = row;
+        isPreviewOpen = true;
     }
 
     let isDeleteModalOpen = $state(false);
@@ -123,6 +133,7 @@
     {itemsPerPage}
     paginationPrefix="common.pagination"
     onPageChange={(page) => (currentPage = page)}
+    onRowClick={openPreview}
 >
     {#snippet children(row)}
         <TableBodyCell
@@ -149,17 +160,34 @@
                 {$t(`pages.admin.home.hero.history.status.${status}`)}
             </Tag>
         </TableBodyCell>
-        <TableBodyCell class="border-variant1 w-16 rounded-r-md border-t border-r border-b p-4">
-            <button
-                class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
-                aria-label={$t("common.delete")}
-                onclick={() => openDeleteModal(row)}
-            >
-                <Close class="size-5" />
-            </button>
+        <TableBodyCell class="border-variant1 w-24 rounded-r-md border-t border-r border-b p-4">
+            <div class="flex items-center gap-3">
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.preview")}
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openPreview(row);
+                    }}
+                >
+                    <Eye class="size-5" />
+                </button>
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.delete")}
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openDeleteModal(row);
+                    }}
+                >
+                    <Close class="size-5" />
+                </button>
+            </div>
         </TableBodyCell>
     {/snippet}
 </DataTable>
+
+<HeroPreviewModal bind:open={isPreviewOpen} hero={heroToPreview} />
 
 <DeleteModal
     bind:open={isDeleteModalOpen}
