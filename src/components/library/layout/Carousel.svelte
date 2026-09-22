@@ -4,6 +4,7 @@
 
     import { t } from "../../../i18n/store";
     import ArrowSliderIcon from "../../icons/navigation/ArrowSliderIcon.svelte";
+    import Loader from "../feedback/Loader.svelte";
 
     // Browser check for SSR compatibility
     const browser = typeof window !== "undefined";
@@ -23,7 +24,7 @@
         children = null,
         activeCard = $bindable(0),
         active,
-        emptyMessage = $t("common.noData"),
+        emptyMessage = $t("domain.carousel.empty"),
     }: {
         itemsPerGroup: number;
         gap: number;
@@ -57,9 +58,12 @@
     let isAtStart = $state(true);
     let isAtEnd = $state(false);
     let isScrollable = $state(false);
-    // Optimistically true so SSR renders the carousel; the real item count is
-    // known after mount via observeVisibility.
-    let hasItems = $state(true);
+    // Starts false so the empty state is correct when there are no items; the
+    // real item count is known after mount via observeVisibility.
+    let hasItems = $state(false);
+    // True until the real item count is measured after mount; prevents a flash
+    // of the empty message while items are still loading.
+    let isLoading = $state(true);
 
     let isDragging = $state(false);
     let startX = $state(0);
@@ -160,6 +164,7 @@
             totalGroups = Math.ceil(actualChildren.length / itemsPerGroup);
             totalItems = actualChildren.length;
             hasItems = actualChildren.length > 0;
+            isLoading = false;
             updateNavForShort();
         } catch (error) {
             console.warn("Carousel: Error observing visibility:", error);
@@ -264,7 +269,7 @@
     let intersectionObs: IntersectionObserver | undefined;
     let resizeObs: ResizeObserver | undefined;
     let mutationObs: MutationObserver | undefined;
-    let mounted = false;
+    let mounted = $state(false);
     let programmaticScroll = false;
     let programmaticScrollTimeout: ReturnType<typeof setTimeout> | undefined;
 
@@ -343,7 +348,11 @@
 </script>
 
 <div class={wrapperClasses}>
-    {#if emptyMessage && mounted && !hasItems}
+    {#if mounted && isLoading}
+        <div class="flex w-full flex-col items-center py-12">
+            <Loader />
+        </div>
+    {:else if emptyMessage && mounted && !hasItems}
         <div class="flex w-full flex-col items-center py-12 text-center">
             <span class="text-content text-base">{emptyMessage}</span>
         </div>

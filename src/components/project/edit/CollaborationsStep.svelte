@@ -1,38 +1,40 @@
 <script lang="ts">
     import CollabsCard from "./CollabsCard.svelte";
+    import CreateCard from "./CreateCard.svelte";
     import { t } from "../../../i18n/store";
-    import { currentDraft, navigateToStep } from "../../../stores/drafts/projectDraft";
+    import { withoutCache } from "../../../openapi/cacheInterceptor";
+    import { apiProjectCollaborationsGetCollection } from "../../../openapi/client";
     import Button from "../../library/buttons/Button.svelte";
     import Grid from "../../library/layout/Grid.svelte";
     import Title from "../../library/typography/Title.svelte";
     import LoadingSpinner from "../../search/LoadingSpinner.svelte";
 
-    import type { Project, ProjectCollaboration } from "../../../openapi/client";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
-    let { project }: { project: Project } = $props();
+    let { draft }: { draft: ProjectDraftStore } = $props();
 
-    let collabs = $state<ProjectCollaboration[]>($currentDraft?.wizardForm.collaborations || []);
-    let loading = $state(false);
+    let collabs = $state(loadCollabs());
 
-    /**
-     * Handle Continue button
-     * Simple navigation to next step (5) - validation happens on save/submit
-     */
-    function handleContinue() {
-        navigateToStep(5);
+    function loadCollabs() {
+        return withoutCache(() =>
+            apiProjectCollaborationsGetCollection({
+                baseUrl: "/api/relay",
+                headers: { "Accept-Language": $draft.lang },
+                query: { project: String($draft.actual.id) },
+            }).then(({ data, error }) => {
+                if (error || !data) {
+                    console.error(error);
+                    return [];
+                }
+
+                return data;
+            }),
+        );
     }
 
-    async function loadCollabs() {
-        loading = true;
-
-        collabs = $currentDraft?.wizardForm.collaborations || [];
-
-        loading = false;
+    function reloadCollabs() {
+        collabs = loadCollabs();
     }
-
-    $effect(() => {
-        if ($currentDraft) loadCollabs();
-    });
 </script>
 
 <div class="w-full space-y-10">
@@ -44,22 +46,26 @@
             {$t("pages.project.edit.collaborations.subtitle")}
         </p>
     </div>
-
-    {#if loading}
-        <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
-    {:else}
-        <Grid>
+    <Grid>
+        {#await collabs}
+            <LoadingSpinner size="lg" class="col-span-3 mx-auto my-10" />
+        {:then collabs}
             {#each collabs as collab, index}
-                <CollabsCard {project} {index} {collab} bind:loading />
+                <CollabsCard {draft} {collab} onSave={reloadCollabs} onDelete={reloadCollabs} />
             {/each}
-
-            <CollabsCard isCreateCard={true} {project} collab={null} bind:loading />
-        </Grid>
-    {/if}
+        {/await}
+        <CreateCard
+            {draft}
+            variant="collab"
+            title={$t("pages.project.edit.collaborations.add.title")}
+            description={$t("pages.project.edit.collaborations.add.description")}
+            onSave={reloadCollabs}
+        />
+    </Grid>
 
     <!-- Continue Button -->
     <div class="flex justify-start">
-        <Button kind="secondary" size="md" onclick={handleContinue}>
+        <Button kind="secondary" size="md">
             {$t("pages.project.edit.collaborations.continue")}
         </Button>
     </div>
