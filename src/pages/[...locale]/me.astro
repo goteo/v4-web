@@ -64,14 +64,14 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                     buttons={[
                         {
                             label: t("pages.me.cta.discover.button"),
-                            href:
-                                lang === "es"
-                                    ? "/search?status[]=in_campaign"
-                                    : `/${lang}/search?status[]=in_campaign`,
+                            href: "/search?status[]=in_campaign",
                             kind: "secondary",
                         },
                     ]}
                 />
+                <!-- GOTEO-MATCHFUNDING-CALL: the matchfunding layer exists in the API but neither
+                     /matchfunding nor /matcher is shipped in the front yet. Re-enable when those
+                     routes exist. Do not delete.
                 <CTACard
                     variant="light"
                     title={t("pages.me.cta.matchfunding.title")}
@@ -79,16 +79,17 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                     buttons={[
                         {
                             label: t("pages.me.cta.matchfunding.learnMore"),
-                            href: lang === "es" ? "/" : `/${lang}`,
+                            href: "/matchfunding",
                             kind: "secondary",
                         },
                         {
                             label: t("pages.me.cta.matchfunding.becomeMatcher"),
-                            href: lang === "es" ? "/" : `/${lang}`,
+                            href: "/matcher",
                             kind: "primary",
                         },
                     ]}
                 />
+                -->
             </Grid>
         </div>
     </App>
