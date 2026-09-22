@@ -25,6 +25,7 @@
 
     interface Props {
         class?: ClassNameValue;
+        searchClasses?: ClassNameValue;
         value?: string;
         placeholder?: string;
         helperText?: string;
@@ -38,6 +39,7 @@
 
     let {
         class: classes = undefined,
+        searchClasses = undefined,
         value = $bindable(""),
         placeholder,
         helperText,
@@ -168,7 +170,7 @@
         class={multiple ? "border" : undefined}
         variant={multiple ? "multiselect" : "basic"}
         hasSearch
-        searchClasses={error && "border-tertiary border"}
+        searchClasses={twMerge(searchClasses, error && "border-tertiary border")}
         singleSelect={!multiple}
         clearable={!multiple}
         bind:searchValue={value}
