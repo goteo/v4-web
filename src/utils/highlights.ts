@@ -1,4 +1,14 @@
 /**
+ * Lowercases `value` and strips diacritics (Unicode NFD), so "Á" matches "a".
+ */
+export function normalizeForMatch(value: string): string {
+    return value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+}
+
+/**
  * Highlights all matches of `query` inside `text` using a <mark> tag,
  * ignoring case and accent differences (diacritics).
  *
@@ -17,14 +27,8 @@ export function highlightMatch(
 ): string {
     if (!query.trim()) return text;
 
-    const normalizedText = text
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
-    const normalizedQuery = query
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
+    const normalizedText = normalizeForMatch(text);
+    const normalizedQuery = normalizeForMatch(query);
 
     const matchPositions: { start: number; end: number }[] = [];
     const regex = new RegExp(normalizedQuery, "gi");
