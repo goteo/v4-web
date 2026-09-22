@@ -1,7 +1,9 @@
 <script lang="ts">
     import { t } from "../../../i18n/store";
+    import { DEFAULT_CURRENCY } from "../../../utils/currencies";
     import Close from "../../icons/navigation/Close.svelte";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
+    import CurrencyInput from "../inputs/CurrencyInput.svelte";
     import DateInput from "../inputs/DateInput.svelte";
     import Select from "../inputs/Select.svelte";
     import TextInput from "../inputs/TextInput.svelte";
@@ -164,6 +166,14 @@
                 onInput={(date) => (referent = date)}
                 hasValue={!!(typeof referent === "string" && referent)}
                 labelText={$t("domain.filterComposer.referentPlaceholder")}
+            />
+        {:else if currentSubject?.type === "money"}
+            <CurrencyInput
+                amount={typeof referent === "number" ? referent : 0}
+                currency={DEFAULT_CURRENCY}
+                disabled={!subjectKey || !operator}
+                labelText={$t("domain.filterComposer.referentPlaceholder")}
+                onInput={(money) => (referent = money.amount)}
             />
         {:else if currentSubject?.type === "number"}
             <TextInput

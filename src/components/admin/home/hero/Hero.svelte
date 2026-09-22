@@ -109,6 +109,7 @@
                 format="markdown"
                 showFontSize={false}
                 showAlignment={false}
+                showImage={false}
                 placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}
                 error={fieldErrors.content && $t(fieldErrors.content)}
             />

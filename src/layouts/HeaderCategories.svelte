@@ -7,6 +7,7 @@
 
     async function getCategories(): Promise<Category[]> {
         const { data: categories } = await apiCategoriesGetCollection({
+            baseUrl: "/api/relay",
             headers: { "Accept-Language": $locale },
         });
 
