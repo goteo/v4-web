@@ -10,18 +10,14 @@
     }
 
     let { href, class: customClass = "", children }: Props = $props();
-
-    const defaultClasses =
-        "text-variant1 hover:text-purple-soft focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none";
-
-    const external = $derived(href.startsWith("http"));
 </script>
 
 <a
     {href}
-    class={twMerge(defaultClasses, customClass)}
-    target={external ? "_blank" : undefined}
-    rel={external ? "noopener noreferrer" : undefined}
+    class={twMerge(
+        "text-variant1 hover:text-purple-soft focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:outline-none",
+        customClass,
+    )}
 >
     {@render children()}
 </a>

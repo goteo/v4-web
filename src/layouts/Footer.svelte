@@ -157,13 +157,10 @@
                             aria-label={$t("common.footer.a11y.socialLinks")}
                         >
                             {#each config.social as link (link.href)}
-                                {@const external = link.href.startsWith("http")}
                                 <a
                                     href={link.href}
                                     class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
                                     aria-label={$t(link.ariaLabelKey)}
-                                    target={external ? "_blank" : undefined}
-                                    rel={external ? "noopener noreferrer" : undefined}
                                 >
                                     <link.icon width="24" height="24" />
                                 </a>
