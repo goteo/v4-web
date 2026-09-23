@@ -7,7 +7,10 @@ import { startOfDay } from "../utils/dates";
 // Astro turns any empty form field into null unless the validator is optional,
 // so every field the admin may leave blank has to be declared as such.
 const optionalText = z.string().optional();
-const optionalUrl = z.url("pages.admin.home.hero.errors.invalidUrl").optional();
+
+const optionalUrl = z
+    .union([z.url(), z.string().startsWith("/")], "pages.admin.home.hero.errors.invalidUrl")
+    .optional();
 
 const scheduledDate = z.coerce
     .date()

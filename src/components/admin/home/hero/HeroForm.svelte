@@ -131,7 +131,11 @@
             fieldErrors = Object.fromEntries(
                 Object.entries(error.fields).map(([field, issues]) => [field, issues?.[0]]),
             ) as FieldErrors;
+
+            return;
         }
+
+        location.reload();
     }
 
     async function handleSubmit(event: SubmitEvent) {
