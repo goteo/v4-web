@@ -110,6 +110,7 @@
             );
 
             return apiUsersGetCollection({
+                baseUrl: "/api/relay",
                 query,
                 headers: {
                     Accept: "application/ld+json",

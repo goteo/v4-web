@@ -1,4 +1,5 @@
 ---
+import App from "../../../layouts/App.svelte";
 import Layout from "../../../layouts/Layout.astro";
 import Table from "../../../components/about/Table.svelte";
 import Cell from "../../../components/about/Cell.svelte";
@@ -7,7 +8,7 @@ import handshakeImage from "./img/handshake.png";
 import meetingImage from "./img/meeting.png";
 import calendarImage from "./img/calendar.png";
 
-const { t } = Astro.locals;
+const { t, lang } = Astro.locals;
 
 const phases = [
     {
@@ -30,173 +31,175 @@ const phases = [
 ---
 
 <Layout title={t("pages.about.title")} description={t("pages.metadata.description")}>
-    <div class="flex flex-col gap-18 pb-20">
-        <!-- Hero section -->
-        <section class="py-20">
-            <div class="wrapper text-center">
-                <div class="mx-auto max-w-3xl space-y-8">
-                    <h1
-                        class="text-secondary bg-linear-to-r bg-clip-text text-4xl leading-tight font-bold lg:text-6xl"
-                    >
-                        {t("pages.about.hero.title")}
-                    </h1>
-                    <p class="text-secondary mx-auto max-w-2xl text-lg leading-relaxed">
-                        {t("pages.about.hero.description")}
-                    </p>
-                    <div class="flex justify-center">
-                        <a
-                            href="/create/project"
-                            class="bg-primary text-secondary inline-flex items-center justify-center rounded-3xl px-8 py-4 font-bold transition hover:opacity-90"
+    <App client:load locale={lang} class="mb-20 gap-18">
+        <div class="flex flex-col gap-18 pb-20">
+            <!-- Hero section -->
+            <section class="py-20">
+                <div class="wrapper text-center">
+                    <div class="mx-auto max-w-3xl space-y-8">
+                        <h1
+                            class="text-secondary bg-linear-to-r bg-clip-text text-4xl leading-tight font-bold lg:text-6xl"
                         >
-                            {t("pages.about.hero.cta")}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- What is crowdfunding -->
-        <section class="wrapper py-20">
-            <div class="grid items-center gap-12 lg:grid-cols-2">
-                <div class="space-y-4">
-                    <h2 class="text-secondary text-3xl font-bold lg:text-4xl">
-                        {t("pages.about.whatIs.title")}
-                    </h2>
-                    <p class="text-secondary text-xl font-bold">
-                        {t("pages.about.whatIs.subtitle")}
-                    </p>
-                    <p class="text-content leading-relaxed">
-                        {t("pages.about.whatIs.description")}
-                    </p>
-                </div>
-                <div class="relative h-112 w-160 self-stretch pr-5 pb-5">
-                    <div class="bg-variant1 absolute top-5 right-0 bottom-0 left-5 rounded-3xl">
-                    </div>
-                    <div
-                        class="absolute top-0 right-5 bottom-5 left-0 z-10 overflow-hidden rounded-3xl"
-                    >
-                        <img
-                            src={handshakeImage.src}
-                            alt="Handshake"
-                            class="h-full w-full object-cover"
-                        />
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Advisory and support -->
-        <section class="wrapper py-20">
-            <div class="grid items-center gap-12 lg:grid-cols-2">
-                <div class="relative h-112 w-160 self-stretch pb-5 pl-5">
-                    <div class="bg-variant1 absolute top-0 right-5 bottom-5 left-0 rounded-3xl">
-                    </div>
-                    <div
-                        class="absolute top-5 right-0 bottom-0 left-5 z-10 overflow-hidden rounded-3xl"
-                    >
-                        <img
-                            src={meetingImage.src}
-                            alt="Meeting"
-                            class="h-full w-full object-cover"
-                        />
-                    </div>
-                </div>
-                <div class="space-y-6 rounded-3xl p-8 lg:p-12">
-                    <h2 class="text-secondary text-2xl font-bold lg:text-3xl">
-                        {t("pages.about.advisory.title")}
-                    </h2>
-                    <p class="text-content leading-relaxed">
-                        {t("pages.about.advisory.description")}
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Phases and mechanics -->
-        <section class="wrapper py-20">
-            <h2 class="text-secondary mb-10 text-2xl font-bold lg:text-3xl">
-                {t("pages.about.phases.title")}
-            </h2>
-            <Carousel
-                client:visible
-                showDots={true}
-                itemsPerGroup={1}
-                desktopItemsToShow={3}
-                mobileItemsToShow={1}
-                gap={24}
-            >
-                {
-                    phases.map((phase, i) => (
-                        <div class="border-grey relative flex flex-col gap-4 overflow-hidden rounded-2xl border bg-white p-6 shadow-sm">
-                            <span class="text-grey pointer-events-none absolute bottom-16 left-4 text-[10.938rem] font-bold select-none">
-                                {i + 1}
-                            </span>
-                            <h3 class="text-secondary relative z-10 text-base font-bold lg:text-lg">
-                                {phase.title}
-                            </h3>
-                            <p class="text-content relative z-10 text-sm leading-relaxed">
-                                {phase.description}
-                            </p>
+                            {t("pages.about.hero.title")}
+                        </h1>
+                        <p class="text-secondary mx-auto max-w-2xl text-lg leading-relaxed">
+                            {t("pages.about.hero.description")}
+                        </p>
+                        <div class="flex justify-center">
+                            <a
+                                href="/create/project"
+                                class="bg-primary text-secondary inline-flex items-center justify-center rounded-3xl px-8 py-4 font-bold transition hover:opacity-90"
+                            >
+                                {t("pages.about.hero.cta")}
+                            </a>
                         </div>
-                    ))
-                }
-            </Carousel>
-        </section>
-
-        <!-- Training and events -->
-        <section class="wrapper py-20">
-            <div class="wrapper">
-                <h2 class="text-secondary mb-10 text-3xl font-bold lg:text-4xl">
-                    {t("pages.about.events.title")}
-                </h2>
-                <div class="grid items-center gap-12 lg:grid-cols-2">
-                    <div class="aspect-4/3 overflow-hidden rounded-2xl">
-                        <img
-                            src={calendarImage.src}
-                            alt="Calendar"
-                            class="h-full w-full object-cover"
-                        />
                     </div>
-                    <div class="space-y-6">
-                        <p class="text-secondary leading-relaxed">
-                            {t("pages.about.events.description")}
+                </div>
+            </section>
+
+            <!-- What is crowdfunding -->
+            <section class="wrapper py-20">
+                <div class="grid items-center gap-12 lg:grid-cols-2">
+                    <div class="space-y-4">
+                        <h2 class="text-secondary text-3xl font-bold lg:text-4xl">
+                            {t("pages.about.whatIs.title")}
+                        </h2>
+                        <p class="text-secondary text-xl font-bold">
+                            {t("pages.about.whatIs.subtitle")}
+                        </p>
+                        <p class="text-content leading-relaxed">
+                            {t("pages.about.whatIs.description")}
+                        </p>
+                    </div>
+                    <div class="relative h-112 w-160 self-stretch pr-5 pb-5">
+                        <div class="bg-variant1 absolute top-5 right-0 bottom-0 left-5 rounded-3xl">
+                        </div>
+                        <div
+                            class="absolute top-0 right-5 bottom-5 left-0 z-10 overflow-hidden rounded-3xl"
+                        >
+                            <img
+                                src={handshakeImage.src}
+                                alt="Handshake"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advisory and support -->
+            <section class="wrapper py-20">
+                <div class="grid items-center gap-12 lg:grid-cols-2">
+                    <div class="relative h-112 w-160 self-stretch pb-5 pl-5">
+                        <div class="bg-variant1 absolute top-0 right-5 bottom-5 left-0 rounded-3xl">
+                        </div>
+                        <div
+                            class="absolute top-5 right-0 bottom-0 left-5 z-10 overflow-hidden rounded-3xl"
+                        >
+                            <img
+                                src={meetingImage.src}
+                                alt="Meeting"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                    </div>
+                    <div class="space-y-6 rounded-3xl p-8 lg:p-12">
+                        <h2 class="text-secondary text-2xl font-bold lg:text-3xl">
+                            {t("pages.about.advisory.title")}
+                        </h2>
+                        <p class="text-content leading-relaxed">
+                            {t("pages.about.advisory.description")}
                         </p>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Goteo advantages -->
-        <section class="wrapper py-20">
-            <Table title={t("pages.about.advantages.title")} cols={2}>
-                <Cell title={t("pages.about.advantages.items.taxDeductions.title")}>
-                    {t("pages.about.advantages.items.taxDeductions.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.allOrNothing.title")}>
-                    {t("pages.about.advantages.items.allOrNothing.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.twoRounds.title")}>
-                    {t("pages.about.advantages.items.twoRounds.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.personalizedSupport.title")}>
-                    {t("pages.about.advantages.items.personalizedSupport.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.loyalCommunity.title")}>
-                    {t("pages.about.advantages.items.loyalCommunity.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.matchfunding.title")}>
-                    {t("pages.about.advantages.items.matchfunding.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.socialImpact.title")}>
-                    {t("pages.about.advantages.items.socialImpact.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.transparency.title")}>
-                    {t("pages.about.advantages.items.transparency.description")}
-                </Cell>
-                <Cell title={t("pages.about.advantages.items.provenMethodology.title")}>
-                    {t("pages.about.advantages.items.provenMethodology.description")}
-                </Cell>
-            </Table>
-        </section>
-    </div>
+            <!-- Phases and mechanics -->
+            <section class="wrapper py-20">
+                <h2 class="text-secondary mb-10 text-2xl font-bold lg:text-3xl">
+                    {t("pages.about.phases.title")}
+                </h2>
+                <Carousel
+                    client:visible
+                    showDots={true}
+                    itemsPerGroup={1}
+                    desktopItemsToShow={3}
+                    mobileItemsToShow={1}
+                    gap={24}
+                >
+                    {
+                        phases.map((phase, i) => (
+                            <div class="border-grey relative flex flex-col gap-4 overflow-hidden rounded-2xl border bg-white p-6 shadow-sm">
+                                <span class="text-grey pointer-events-none absolute bottom-16 left-4 text-[10.938rem] font-bold select-none">
+                                    {i + 1}
+                                </span>
+                                <h3 class="text-secondary relative z-10 text-base font-bold lg:text-lg">
+                                    {phase.title}
+                                </h3>
+                                <p class="text-content relative z-10 text-sm leading-relaxed">
+                                    {phase.description}
+                                </p>
+                            </div>
+                        ))
+                    }
+                </Carousel>
+            </section>
+
+            <!-- Training and events -->
+            <section class="wrapper py-20">
+                <div class="wrapper">
+                    <h2 class="text-secondary mb-10 text-3xl font-bold lg:text-4xl">
+                        {t("pages.about.events.title")}
+                    </h2>
+                    <div class="grid items-center gap-12 lg:grid-cols-2">
+                        <div class="aspect-4/3 overflow-hidden rounded-2xl">
+                            <img
+                                src={calendarImage.src}
+                                alt="Calendar"
+                                class="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div class="space-y-6">
+                            <p class="text-secondary leading-relaxed">
+                                {t("pages.about.events.description")}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Goteo advantages -->
+            <section class="wrapper py-20">
+                <Table title={t("pages.about.advantages.title")} cols={2}>
+                    <Cell title={t("pages.about.advantages.items.taxDeductions.title")}>
+                        {t("pages.about.advantages.items.taxDeductions.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.allOrNothing.title")}>
+                        {t("pages.about.advantages.items.allOrNothing.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.twoRounds.title")}>
+                        {t("pages.about.advantages.items.twoRounds.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.personalizedSupport.title")}>
+                        {t("pages.about.advantages.items.personalizedSupport.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.loyalCommunity.title")}>
+                        {t("pages.about.advantages.items.loyalCommunity.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.matchfunding.title")}>
+                        {t("pages.about.advantages.items.matchfunding.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.socialImpact.title")}>
+                        {t("pages.about.advantages.items.socialImpact.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.transparency.title")}>
+                        {t("pages.about.advantages.items.transparency.description")}
+                    </Cell>
+                    <Cell title={t("pages.about.advantages.items.provenMethodology.title")}>
+                        {t("pages.about.advantages.items.provenMethodology.description")}
+                    </Cell>
+                </Table>
+            </section>
+        </div>
+    </App>
 </Layout>
