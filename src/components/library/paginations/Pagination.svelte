@@ -22,7 +22,7 @@
     const firstItem = $derived(totalItemsProp === 0 ? 0 : (page - 1) * itemsPerPageProp + 1);
     const lastItem = $derived(Math.min(page * itemsPerPageProp, totalItemsProp));
     // TODO: borrar `shownItems` y el argumento `items` cuando Crowdin traduzca
-    // `common.pagination.showing` con los placeholders `from`/`to`.
+    // `domain.pagination.showing` con los placeholders `from`/`to`.
     const shownItems = $derived(Math.max(0, lastItem - firstItem + 1));
 
     function goToPage(p: number) {
@@ -57,13 +57,13 @@
         <div class="overflow-x-auto">
             <nav
                 class="flex w-max items-center gap-1"
-                aria-label={$t("common.pagination.label")}
+                aria-label={$t("domain.pagination.label")}
                 aria-busy={isLoading}
             >
                 <PaginationNavButton
                     onClick={() => goToPage(page - 1)}
                     disabled={isLoading || page === 1}
-                    ariaLabel={$t("common.pagination.previous")}
+                    ariaLabel={$t("domain.pagination.previous")}
                 >
                     <Chevron direction="left" width="16" height="16" />
                 </PaginationNavButton>
@@ -76,7 +76,7 @@
                             onclick={() => goToPage(p)}
                             disabled={isLoading}
                             aria-current={page === p ? "page" : undefined}
-                            aria-label={$t("common.pagination.page", { page: p })}
+                            aria-label={$t("domain.pagination.page", { page: p })}
                             class="disabled:border-content/24 disabled:text-content/24 flex h-10 w-fit min-w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border px-4 text-base leading-6 font-normal disabled:cursor-not-allowed hover:disabled:bg-transparent"
                             class:bg-secondary={page === p}
                             class:text-primary={page === p}
@@ -94,7 +94,7 @@
                 <PaginationNavButton
                     onClick={() => goToPage(page + 1)}
                     disabled={isLoading || page === totalPages}
-                    ariaLabel={$t("common.pagination.next")}
+                    ariaLabel={$t("domain.pagination.next")}
                 >
                     <Chevron direction="right" width="16" height="16" />
                 </PaginationNavButton>
@@ -103,7 +103,7 @@
     {/if}
     {#if totalItemsProp > 0}
         <span class="text-content text-sm font-bold">
-            {$t("common.pagination.showing", {
+            {$t("domain.pagination.showing", {
                 from: firstItem,
                 to: lastItem,
                 items: shownItems,
@@ -112,11 +112,11 @@
         </span>
     {:else if !isLoading}
         <span class="text-content text-sm font-bold">
-            {$t("common.pagination.noResults")}
+            {$t("domain.pagination.noResults")}
         </span>
     {:else}
         <span class="text-content text-sm font-bold">
-            {$t("common.pagination.unloaded")}
+            {$t("domain.pagination.unloaded")}
         </span>
     {/if}
 </section>
