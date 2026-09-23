@@ -46,7 +46,6 @@
     );
 
     let userRows = $state<UserRow[]>([]);
-    let lastQueryKey = $state("");
 
     let userSlides = $derived([
         { title: $t("pages.admin.users.totalizers.selected"), amount: table.totalItems },
@@ -154,22 +153,12 @@
     }
 
     function reloadUsers(bypassCache = false): void {
-        const queryKey = JSON.stringify({
-            filters,
-            selectedSort: table.selectedSort,
-            itemsPerPage: table.itemsPerPage,
-        });
-        if (queryKey !== lastQueryKey) {
-            lastQueryKey = queryKey;
-        }
         userRows = [];
         loadUsers(bypassCache);
     }
 
     $effect(() => {
-        if (table.isFirstLoad) {
-            reloadUsers();
-        }
+        reloadUsers();
     });
 
     $effect(() => {
@@ -187,28 +176,22 @@
         if (value.length >= 4 || value.length === 0) {
             if (value) {
                 filters = { ...filters, q: value };
-                table.currentPage = 1;
-                reloadUsers(true);
-                return;
             } else {
                 const { q, ...rest } = filters;
                 filters = rest;
             }
             table.currentPage = 1;
-            reloadUsers();
         }
     }
 
     async function handleApplyFilters(newFilters: UsersQuery): Promise<void> {
         filters = { ...filters, ...newFilters };
         table.currentPage = 1;
-        reloadUsers();
     }
 
     function handleCloseFilter(newFilters: any): void {
         filters = { ...newFilters };
         table.currentPage = 1;
-        reloadUsers();
     }
 </script>
 
@@ -223,7 +206,6 @@
         onSelectUser: (u: User) => {
             filters = { ...filters, q: u.handle };
             table.currentPage = 1;
-            reloadUsers();
         },
     }}
     filterTags={{
