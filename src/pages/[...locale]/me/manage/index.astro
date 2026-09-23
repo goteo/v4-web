@@ -2,6 +2,7 @@
 import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ManagePreferencesSection from "../../../../components/profile/ManagePreferencesSection.svelte";
 import { goto } from "../../../../utils/navigation";
 
 const { lang, t, session } = Astro.locals;
@@ -11,12 +12,22 @@ if (!session) {
 }
 
 const activePath = "/me/manage";
+
+const navItems = [
+    { label: t("pages.me.manage.nav.profile"), href: "/me/manage#profile" },
+    { label: t("pages.me.manage.nav.impulsor"), href: "/me/manage#impulsor" },
+    { label: t("pages.me.manage.nav.matchfunder"), href: "/me/manage#matchfunder" },
+    { label: t("pages.me.manage.nav.access"), href: "/me/manage#access" },
+    { label: t("pages.me.manage.nav.preferences"), href: "/me/manage#preferences" },
+];
 ---
 
 <Layout title={t("pages.me.manage.title")}>
     <App client:load locale={lang} session={session}>
-        <WithSidebar client:idle navItems={[]} {activePath}>
-            <div class="text-content font-body text-base leading-6"></div>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <section id="preferences" class="flex flex-col gap-10">
+                <ManagePreferencesSection userId={session.user.id} client:load />
+            </section>
         </WithSidebar>
     </App>
 </Layout>
