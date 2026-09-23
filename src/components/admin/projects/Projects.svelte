@@ -3,7 +3,6 @@
     import ProjectsModalPaid from "./ProjectsModalPaid.svelte";
     import ProjectsTable, { type ProjectRow, type ProjectSortKey } from "./ProjectsTable.svelte";
     import { t } from "../../../i18n/store";
-    import { withoutCache } from "../../../openapi/cacheInterceptor";
     import {
         apiProjectsGetCollection,
         apiProjectsIdPatch,
@@ -155,7 +154,7 @@
             : ((record["hydra:member"] as unknown[])?.length ?? 0);
     }
 
-    async function loadProjects(bypassCache = false): Promise<void> {
+    async function loadProjects(): Promise<void> {
         table.isLoading = true;
 
         async function fetchProjects() {
@@ -177,11 +176,7 @@
         }
 
         try {
-            const {
-                data: collection,
-                response,
-                error,
-            } = await (bypassCache ? withoutCache(fetchProjects) : fetchProjects());
+            const { data: collection, response, error } = await fetchProjects();
 
             if (error) {
                 console.error("Failed to fetch projects:", error);
@@ -275,11 +270,11 @@
         }
     }
 
-    function reloadProjects(bypassCache = false): void {
+    function reloadProjects(): void {
         accountingsCache = new Map();
         ownersCache = new Map();
         projectRows = [];
-        loadProjects(bypassCache);
+        loadProjects();
     }
 
     $effect(() => {
