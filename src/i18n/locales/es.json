@@ -324,9 +324,13 @@
     "goHome": "Ir a la página de inicio",
     "viewAll": "Ver todo",
     "pagination": {
-      "showing": "Mostrando {{ items }} de {{ total }}",
+      "showing": "Mostrando {{ from }}–{{ to }} de {{ total }}",
       "unloaded": "Mostrando...",
-      "noResults": "No hay resultados"
+      "noResults": "No hay resultados",
+      "label": "Paginación",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "page": "Página {{ page }}"
     },
     "viewMore": "Ver más",
     "viewLess": "Ver menos",

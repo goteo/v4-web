@@ -131,7 +131,6 @@
     {currentPage}
     totalItems={filtered.length}
     {itemsPerPage}
-    paginationPrefix="common.pagination"
     onPageChange={(page) => (currentPage = page)}
     onRowClick={openPreview}
 >
