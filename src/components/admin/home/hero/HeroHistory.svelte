@@ -1,14 +1,20 @@
 <script lang="ts">
     import { actions } from "astro:actions";
-    import { TableBodyCell } from "flowbite-svelte";
+    import { Modal, TableBodyCell } from "flowbite-svelte";
 
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
+    import { getLanguageDisplayName } from "../../../../utils/lang";
+    import { renderMarkdown } from "../../../../utils/renderMarkdown";
+    import Hero from "../../../hero/Hero.svelte";
+    import Edit from "../../../icons/actions/Edit.svelte";
+    import SearchIcon from "../../../icons/actions/Search.svelte";
     import Close from "../../../icons/navigation/Close.svelte";
+    import Eye from "../../../icons/media/Eye.svelte";
     import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
+    import Search from "../../../library/inputs/Search.svelte";
     import ToggleSwitch from "../../../library/inputs/ToggleSwitch.svelte";
     import DataTable from "../../../library/tables/DataTable.svelte";
-    import Tag from "../../../library/tags/Tag.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
     import type { HomeHeroRecord } from "../../../../repositories/homeHero";
@@ -17,11 +23,18 @@
     interface Props {
         rows: HomeHeroRecord[];
         onError?: (message: string) => void;
+        onEdit?: (row: HomeHeroRecord) => void;
     }
 
-    let { rows, onError }: Props = $props();
+    let { rows, onError, onEdit }: Props = $props();
 
     let list = $state(rows);
+
+    // rows is refreshed after a save; keep the local list in sync, while the
+    // local deletions below continue to apply on top of the incoming list.
+    $effect(() => {
+        list = rows;
+    });
 
     type Filter = "all" | "upcoming";
 
@@ -39,14 +52,42 @@
         return row.startsAt.getTime() > Date.now() ? "upcoming" : "past";
     }
 
-    const filtered = $derived(filter === "all" ? list : list.filter((h) => statusOf(h) !== "past"));
+    const STATUS_BADGES: Record<Status, string> = {
+        active: "bg-green-100 text-green-800",
+        upcoming: "bg-amber-100 text-amber-800",
+        past: "bg-gray-100 text-gray-500",
+    };
+
+    let searchQuery = $state("");
+
+    const filtered = $derived(
+        list.filter((h) => {
+            if (filter === "upcoming" && statusOf(h) === "past") {
+                return false;
+            }
+
+            const query = searchQuery.trim().toLowerCase();
+
+            if (!query) {
+                return true;
+            }
+
+            return (
+                String(h.id).includes(query) ||
+                h.title.toLowerCase().includes(query) ||
+                h.content.toLowerCase().includes(query)
+            );
+        }),
+    );
 
     const headers: DataTableHeader[] = [
+        { key: "pages.admin.home.hero.history.headers.id", sortable: false, class: "w-16" },
         { key: "pages.admin.home.hero.history.headers.title", sortable: false },
         { key: "pages.admin.home.hero.history.headers.content", sortable: false },
         { key: "pages.admin.home.hero.history.headers.startsAt", sortable: false },
+        { key: "pages.admin.home.hero.history.headers.languages", sortable: false },
         { key: "pages.admin.home.hero.history.headers.status", sortable: false },
-        { key: "", sortable: false, class: "w-16" },
+        { key: "", sortable: false, class: "w-36" },
     ];
 
     const itemsPerPage = 10;
@@ -57,6 +98,10 @@
     );
 
     function handleFilterChange() {
+        currentPage = 1;
+    }
+
+    function handleSearch() {
         currentPage = 1;
     }
 
@@ -93,6 +138,14 @@
             currentPage -= 1;
         }
     }
+
+    let isPreviewOpen = $state(false);
+    let previewRow = $state<HomeHeroRecord | null>(null);
+
+    function openPreview(row: HomeHeroRecord) {
+        previewRow = row;
+        isPreviewOpen = true;
+    }
 </script>
 
 <div class="flex flex-col gap-4">
@@ -102,16 +155,25 @@
     <p class="text-content">{$t("pages.admin.home.hero.history.description")}</p>
 </div>
 
-<ToggleSwitch
-    bind:value={filter}
-    class="w-fit"
-    btnClass="px-6 py-1.5 text-sm whitespace-nowrap"
-    options={[
-        { value: "all", label: $t("pages.admin.home.hero.history.filter.all") },
-        { value: "upcoming", label: $t("pages.admin.home.hero.history.filter.upcoming") },
-    ]}
-    onchange={handleFilterChange}
-/>
+<div class="flex flex-wrap items-center justify-between gap-4">
+    <ToggleSwitch
+        bind:value={filter}
+        class="w-fit"
+        btnClass="px-6 py-1.5 text-sm whitespace-nowrap"
+        options={[
+            { value: "all", label: $t("pages.admin.home.hero.history.filter.all") },
+            { value: "upcoming", label: $t("pages.admin.home.hero.history.filter.upcoming") },
+        ]}
+        onchange={handleFilterChange}
+    />
+
+    <Search
+        bind:value={searchQuery}
+        oninput={handleSearch}
+        class="sm:max-w-80"
+        placeholder={$t("pages.admin.home.hero.history.searchPlaceholder")}
+    />
+</div>
 
 <DataTable
     {headers}
@@ -125,41 +187,70 @@
     onPageChange={(page) => (currentPage = page)}
 >
     {#snippet children(row)}
-        <TableBodyCell
-            class="border-variant1 max-w-80 truncate rounded-l-md border-t border-b border-l p-4"
-        >
+        <TableBodyCell class="border-variant1 w-16 rounded-l-md border-t border-b border-l p-4">
+            {row.id}
+        </TableBodyCell>
+        <TableBodyCell class="border-variant1 max-w-80 truncate border-t border-b p-4">
             {row.title}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 max-w-80 truncate border-t border-b p-4">
             {row.content}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
-            {formatDate(row.startsAt, $locale)}
+            {row.startsAt.getTime() === 0 ? "—" : formatDate(row.startsAt, $locale)}
+        </TableBodyCell>
+        <TableBodyCell class="border-variant1 border-t border-b p-4">
+            {(row.languages ?? []).map((code: string) => getLanguageDisplayName(code) ?? code).join(", ")}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             {@const status = statusOf(row)}
-            <Tag
-                class="w-fit"
-                variant={status === "active"
-                    ? "success"
-                    : status === "upcoming"
-                      ? "warning"
-                      : undefined}
+            <span
+                class="flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap {STATUS_BADGES[status]}"
             >
+                <span class="size-1.5 rounded-full bg-current"></span>
                 {$t(`pages.admin.home.hero.history.status.${status}`)}
-            </Tag>
+            </span>
         </TableBodyCell>
-        <TableBodyCell class="border-variant1 w-16 rounded-r-md border-t border-r border-b p-4">
-            <button
-                class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
-                aria-label={$t("common.delete")}
-                onclick={() => openDeleteModal(row)}
-            >
-                <Close class="size-5" />
-            </button>
+        <TableBodyCell class="border-variant1 w-36 rounded-r-md border-t border-r border-b p-4">
+            <div class="flex items-center justify-end gap-3">
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.edit")}
+                    onclick={() => onEdit?.(row)}
+                >
+                    <Edit class="size-5" />
+                </button>
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.preview")}
+                    onclick={() => openPreview(row)}
+                >
+                    <Eye class="size-5" />
+                </button>
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.delete")}
+                    onclick={() => openDeleteModal(row)}
+                >
+                    <Close class="size-5" />
+                </button>
+            </div>
         </TableBodyCell>
     {/snippet}
 </DataTable>
+
+<Modal
+    bind:open={isPreviewOpen}
+    closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-[90vw] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="p-0"
+>
+    {#if previewRow}
+        {#await renderMarkdown(previewRow.content) then html}
+            <Hero hero={previewRow} content={html} />
+        {/await}
+    {/if}
+</Modal>
 
 <DeleteModal
     bind:open={isDeleteModalOpen}
