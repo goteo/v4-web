@@ -3,7 +3,6 @@
     import ProjectsModalPaid from "./ProjectsModalPaid.svelte";
     import ProjectsTable, { type ProjectRow, type ProjectSortKey } from "./ProjectsTable.svelte";
     import { t } from "../../../i18n/store";
-    import { withoutCache } from "../../../openapi/cacheInterceptor";
     import {
         apiProjectsGetCollection,
         apiProjectsIdPatch,
@@ -60,7 +59,6 @@
 
     let accountingsCache = $state(new Map<string, Accounting>());
     let ownersCache = $state(new Map<string, User>());
-    let lastQueryKey = $state("");
 
     let userEmailById = $derived.by(() => {
         const map = new Map<number, string>();
@@ -156,7 +154,7 @@
             : ((record["hydra:member"] as unknown[])?.length ?? 0);
     }
 
-    async function loadProjects(bypassCache = false): Promise<void> {
+    async function loadProjects(): Promise<void> {
         table.isLoading = true;
 
         async function fetchProjects() {
@@ -178,11 +176,7 @@
         }
 
         try {
-            const {
-                data: collection,
-                response,
-                error,
-            } = await (bypassCache ? withoutCache(fetchProjects) : fetchProjects());
+            const { data: collection, response, error } = await fetchProjects();
 
             if (error) {
                 console.error("Failed to fetch projects:", error);
@@ -276,25 +270,15 @@
         }
     }
 
-    function reloadProjects(bypassCache = false): void {
-        const queryKey = JSON.stringify({
-            filters,
-            selectedSort: table.selectedSort,
-            itemsPerPage: table.itemsPerPage,
-        });
-        if (queryKey !== lastQueryKey) {
-            accountingsCache = new Map();
-            ownersCache = new Map();
-            lastQueryKey = queryKey;
-        }
+    function reloadProjects(): void {
+        accountingsCache = new Map();
+        ownersCache = new Map();
         projectRows = [];
-        loadProjects(bypassCache);
+        loadProjects();
     }
 
     $effect(() => {
-        if (table.isFirstLoad) {
-            reloadProjects();
-        }
+        reloadProjects();
     });
 
     $effect(() => {
@@ -309,13 +293,11 @@
     async function handleApplyFilters(newFilters: ProjectsQuery): Promise<void> {
         filters = { ...filters, ...newFilters };
         table.currentPage = 1;
-        reloadProjects();
     }
 
     function handleCloseFilter(newFilters: any): void {
         filters = { ...newFilters };
         table.currentPage = 1;
-        reloadProjects();
     }
 
     async function handleStatusChange(projectId: number, status: string): Promise<void> {
@@ -368,7 +350,6 @@
         onSelectProject: (p: Project) => {
             filters = { ...filters, title: p.title };
             table.currentPage = 1;
-            reloadProjects();
         },
     }}
     filterTags={{

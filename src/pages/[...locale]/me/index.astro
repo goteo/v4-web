@@ -41,13 +41,19 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
             <ActivitySection {lang} {period} {user} client:load />
 
             <!-- Matchfunding Section (client-side data fetching) -->
-            <MatchfundingSection {lang} {user} client:visible />
+            <section id="matchfunding">
+                <MatchfundingSection {lang} {user} client:visible />
+            </section>
 
             <!-- Owned Projects Section (client-side data fetching) -->
-            <OwnedProjectsSection {lang} {user} client:visible />
+            <section id="owned-projects">
+                <OwnedProjectsSection {lang} {user} client:visible />
+            </section>
 
             <!-- Donated Projects Section (client-side data fetching) -->
-            <DonatedProjectsSection {lang} client:visible />
+            <section id="donated-projects">
+                <DonatedProjectsSection {lang} client:visible />
+            </section>
 
             <!-- CTA cards -->
             <Grid class="grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-[446px_1fr]">
@@ -58,11 +64,14 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                     buttons={[
                         {
                             label: t("pages.me.cta.discover.button"),
-                            href: lang === "es" ? "/projects" : `/${lang}/projects`,
+                            href: "/search?status[]=in_campaign",
                             kind: "secondary",
                         },
                     ]}
                 />
+                <!-- GOTEO-MATCHFUNDING-CALL: the matchfunding layer exists in the API but neither
+                     /matchfunding nor /matcher is shipped in the front yet. Re-enable when those
+                     routes exist. Do not delete.
                 <CTACard
                     variant="light"
                     title={t("pages.me.cta.matchfunding.title")}
@@ -70,16 +79,17 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
                     buttons={[
                         {
                             label: t("pages.me.cta.matchfunding.learnMore"),
-                            href: lang === "es" ? "/matchfunding" : `/${lang}/matchfunding`,
+                            href: "/matchfunding",
                             kind: "secondary",
                         },
                         {
                             label: t("pages.me.cta.matchfunding.becomeMatcher"),
-                            href: lang === "es" ? "/matcher" : `/${lang}/matcher`,
+                            href: "/matcher",
                             kind: "primary",
                         },
                     ]}
                 />
+                -->
             </Grid>
         </div>
     </App>

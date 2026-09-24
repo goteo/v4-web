@@ -1,15 +1,14 @@
 <script lang="ts">
     import { actions } from "astro:actions";
     import { Modal, TableBodyCell } from "flowbite-svelte";
+    import { tick } from "svelte";
 
-    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
     import { renderMarkdown } from "../../../../utils/renderMarkdown";
     import Hero from "../../../hero/Hero.svelte";
     import Edit from "../../../icons/actions/Edit.svelte";
-    import SearchIcon from "../../../icons/actions/Search.svelte";
     import Close from "../../../icons/navigation/Close.svelte";
     import Eye from "../../../icons/media/Eye.svelte";
     import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
@@ -134,6 +133,9 @@
 
         list = list.filter((h) => h.id !== hero.id);
 
+        // Let the parent's updated rows reach `filtered` before clamping.
+        await tick();
+
         // Deleting the last row of the last page would leave an empty table.
         if (currentPage > 1 && (currentPage - 1) * itemsPerPage >= filtered.length) {
             currentPage -= 1;
@@ -184,7 +186,6 @@
     {currentPage}
     totalItems={filtered.length}
     {itemsPerPage}
-    paginationPrefix="common.pagination"
     onPageChange={(page) => (currentPage = page)}
     onRowClick={openPreview}
 >
@@ -236,7 +237,10 @@
                 <button
                     class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
                     aria-label={$t("common.delete")}
-                    onclick={() => openDeleteModal(row)}
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openDeleteModal(row);
+                    }}
                 >
                     <Close class="size-5" />
                 </button>

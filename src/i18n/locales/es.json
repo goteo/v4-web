@@ -292,6 +292,15 @@
       "previousMonth": "Mes anterior",
       "nextMonth": "Mes siguiente",
       "close": "Cerrar"
+    },
+    "pagination": {
+      "showing": "Mostrando {{ from }}–{{ to }} de {{ total }}",
+      "unloaded": "Mostrando...",
+      "noResults": "No hay resultados",
+      "label": "Paginación",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "page": "Página {{ page }}"
     }
   },
   "common": {
@@ -323,11 +332,6 @@
     "login": "Iniciar sesión",
     "goHome": "Ir a la página de inicio",
     "viewAll": "Ver todo",
-    "pagination": {
-      "showing": "Mostrando {{ items }} de {{ total }}",
-      "unloaded": "Mostrando...",
-      "noResults": "No hay resultados"
-    },
     "viewMore": "Ver más",
     "viewLess": "Ver menos",
     "share": "Compartir",
@@ -381,6 +385,22 @@
       },
       "platoniq": {
         "foundation": "Fundación"
+      },
+      "a11y": {
+        "footerHeading": "Pie de página",
+        "fundingPartners": "Organizaciones financiadoras",
+        "partnerOrganizations": "Organizaciones asociadas",
+        "footerNavigation": "Navegación del pie de página",
+        "legalNavigation": "Navegación legal",
+        "legalAndSocial": "Enlaces legales y redes sociales",
+        "socialLinks": "Enlaces a redes sociales",
+        "social": {
+          "email": "Envíanos un correo a info@goteo.org",
+          "instagram": "Síguenos en Instagram",
+          "facebook": "Síguenos en Facebook",
+          "x": "Síguenos en X (antes Twitter)",
+          "linkedin": "Conecta con nosotras en LinkedIn"
+        }
       }
     },
     "saved": "Guardado"
@@ -1417,7 +1437,8 @@
           "removeTranslation": "Eliminar traducción",
           "removeTranslationModal": {
             "title": "¿Eliminar esta traducción?",
-            "description": "La traducción se eliminará del formulario y no se guardará."
+            "description": "La traducción se eliminará del formulario y no se guardará.",
+            "invalidUrl": "La URL del enlace no es válida"
           },
           "tabs": {
             "fields": "Nuevo",

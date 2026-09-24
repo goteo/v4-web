@@ -76,7 +76,7 @@
     {:else if currentSubtab === "history"}
         <HeroHistory
             rows={heroesList}
-            onError={(message) => {
+            onError={(message: string) => {
                 errorMessage = message;
                 showError = true;
             }}

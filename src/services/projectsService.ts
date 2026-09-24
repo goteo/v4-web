@@ -4,6 +4,8 @@ import { constrainToPublicStatuses } from "../utils/projectStatus";
 import type { AuthError } from "../openapi/api";
 import type { Project } from "../openapi/client/types.gen";
 import type { SearchFilters } from "../stores/searchStore";
+import { get } from "svelte/store";
+import { locale } from "../i18n/store";
 
 /**
  * Simple service wrapper for project API calls
@@ -38,6 +40,7 @@ export class ProjectsService {
                     page: options?.page || 1,
                     itemsPerPage: options?.limit || 20,
                 },
+                headers: { "Accept-Language": get(locale) },
                 ...(options?.abortSignal && { signal: options.abortSignal }),
             });
 

@@ -191,7 +191,7 @@ class HomeHeroRepository {
                     media_type,
                     starts_at,
                     date_created
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             )
             .bind(
                 hero.language,
