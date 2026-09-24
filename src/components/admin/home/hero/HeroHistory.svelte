@@ -200,12 +200,16 @@
             {row.startsAt.getTime() === 0 ? "—" : formatDate(row.startsAt, $locale)}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
-            {(row.languages ?? []).map((code: string) => getLanguageDisplayName(code) ?? code).join(", ")}
+            {(row.languages ?? [])
+                .map((code: string) => getLanguageDisplayName(code) ?? code)
+                .join(", ")}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             {@const status = statusOf(row)}
             <span
-                class="flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap {STATUS_BADGES[status]}"
+                class="flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap {STATUS_BADGES[
+                    status
+                ]}"
             >
                 <span class="size-1.5 rounded-full bg-current"></span>
                 {$t(`pages.admin.home.hero.history.status.${status}`)}

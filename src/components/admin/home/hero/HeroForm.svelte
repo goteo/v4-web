@@ -95,7 +95,7 @@
     let isAddModalOpen = $state(false);
     let candidateLanguage = $state<Locale | "">("");
     let selectedLanguageOption = $state<DropdownOption[]>([]);
-    
+
     const availableLanguages = $derived(
         SUPPORTED_LOCALES.filter((lang) => !languages.includes(lang)),
     );

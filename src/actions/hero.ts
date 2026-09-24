@@ -13,22 +13,19 @@ import { startOfDay } from "../utils/dates";
 const optionalText = z.string().optional();
 const optionalUrl = z
     .string()
-    .refine(
-        (value) => {
-            if (value === "" || value.startsWith("/") || value.startsWith("#")) {
-                return true;
-            }
+    .refine((value) => {
+        if (value === "" || value.startsWith("/") || value.startsWith("#")) {
+            return true;
+        }
 
-            try {
-                const url = new URL(value);
+        try {
+            const url = new URL(value);
 
-                return url.protocol === "http:" || url.protocol === "https:";
-            } catch {
-                return false;
-            }
-        },
-        "pages.admin.home.hero.errors.invalidUrl",
-    )
+            return url.protocol === "http:" || url.protocol === "https:";
+        } catch {
+            return false;
+        }
+    }, "pages.admin.home.hero.errors.invalidUrl")
     .optional();
 
 const scheduledDate = z.coerce
