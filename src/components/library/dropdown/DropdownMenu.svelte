@@ -35,6 +35,11 @@
         chips?: boolean;
         /** Renders the body of one pill; defaults to the option label. */
         chip?: Snippet<[DropdownOption]>;
+        /**
+         * Extra classes for every list item, e.g. to change the text alignment.
+         * Applied to the <button>/<label> element that holds the option label.
+         */
+        itemClass?: ClassNameValue;
     }
 
     let {
@@ -57,6 +62,7 @@
         isOpen = $bindable(false),
         chips = false,
         chip = undefined,
+        itemClass = undefined,
     }: Props = $props();
 
     const listId = $props.id();
@@ -223,6 +229,7 @@
                         class={twJoin(
                             item.position === "start" && "rounded-t-lg",
                             item.position === "end" && "rounded-b-lg",
+                            itemClass,
                         )}
                     />
                 {/each}
