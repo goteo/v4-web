@@ -38,7 +38,7 @@
 
 <div
     class={twMerge(
-        "flex shrink-0 flex-col rounded-[1.25rem] border border-[#E7E1F1] bg-[#FCFAFF] p-4 shadow-sm transition-[width,opacity,box-shadow] duration-300 ease-out",
+        "flex shrink-0 flex-col rounded-[1.25rem] border border-grey bg-white p-4 shadow-sm transition-[width,opacity,box-shadow] duration-300 ease-out",
         cardStyles[type],
         type === "contracted" && !isActive && "opacity-70",
         isActive && "opacity-100",
