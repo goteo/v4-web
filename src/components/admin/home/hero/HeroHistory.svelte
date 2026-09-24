@@ -1,6 +1,7 @@
 <script lang="ts">
     import { actions } from "astro:actions";
     import { TableBodyCell } from "flowbite-svelte";
+    import { tick } from "svelte";
 
     import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
@@ -19,11 +20,10 @@
     interface Props {
         rows: HomeHeroRecord[];
         onError?: (message: string) => void;
+        onDelete?: (id: number) => void;
     }
 
-    let { rows, onError }: Props = $props();
-
-    let list = $state(rows);
+    let { rows, onError, onDelete }: Props = $props();
 
     type Filter = "all" | "upcoming";
 
@@ -31,7 +31,7 @@
 
     // Same rule as the repository's getActive(): rows come newest first, so
     // the first one already started is the one the home shows.
-    const activeId = $derived(list.find((h) => h.startsAt.getTime() <= Date.now())?.id);
+    const activeId = $derived(rows.find((h) => h.startsAt.getTime() <= Date.now())?.id);
 
     type Status = "active" | "upcoming" | "past";
 
@@ -41,7 +41,7 @@
         return row.startsAt.getTime() > Date.now() ? "upcoming" : "past";
     }
 
-    const filtered = $derived(filter === "all" ? list : list.filter((h) => statusOf(h) !== "past"));
+    const filtered = $derived(filter === "all" ? rows : rows.filter((h) => statusOf(h) !== "past"));
 
     const headers: DataTableHeader[] = [
         { key: "pages.admin.home.hero.history.headers.title", sortable: false },
@@ -96,7 +96,10 @@
             return;
         }
 
-        list = list.filter((h) => h.id !== hero.id);
+        onDelete?.(hero.id);
+
+        // Let the parent's updated rows reach `filtered` before clamping.
+        await tick();
 
         // Deleting the last row of the last page would leave an empty table.
         if (currentPage > 1 && (currentPage - 1) * itemsPerPage >= filtered.length) {
