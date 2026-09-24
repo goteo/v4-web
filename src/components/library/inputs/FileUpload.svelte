@@ -2,6 +2,7 @@
     import { twJoin, twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
+    import { formatFileSize } from "../../../utils/media/formatFileSize";
     import { uploadImage } from "../../../utils/media/imageUpload";
     import UploadFileIcon from "../../icons/actions/UploadFile.svelte";
     import CloseIcon from "../../icons/navigation/Close.svelte";
@@ -21,6 +22,7 @@
         helperText,
         labelText,
         dropzoneClass = "",
+        maxSizeMB,
         class: className = "",
     } = $props<{
         accept?: string[];
@@ -33,6 +35,7 @@
         helperText?: string;
         labelText?: string;
         dropzoneClass?: ClassNameValue;
+        maxSizeMB?: number;
         class?: ClassNameValue;
     }>();
 
@@ -41,6 +44,8 @@
     let deleting = $state<Set<string>>(new Set());
 
     const maxSize = import.meta.env.PUBLIC_DEFAULT_MAXSIZE;
+
+    const fileLimit = $derived(maxSizeMB ? maxSizeMB * 1024 * 1024 : Number(maxSize) || Infinity);
 
     const inputId = $props.id();
 
@@ -59,8 +64,11 @@
     const hasUploading = $derived(uploading.size > 0);
 
     function validate(file: File) {
-        if (file.size > maxSize) {
-            error = `${$t("system.error.file.sizeTooLarge", { file: file.name, max: maxSize })}`;
+        if (file.size > fileLimit) {
+            error = `${$t("system.error.file.sizeTooLarge", {
+                file: file.name,
+                max: formatFileSize(fileLimit),
+            })}`;
             return false;
         }
 
@@ -70,6 +78,21 @@
         }
 
         return true;
+    }
+
+    let inputEl = $state<HTMLInputElement>();
+
+    function openPicker(e: MouseEvent) {
+        const target = e.target as HTMLElement | null;
+        if (target?.closest("label, button, a, input, [role='listitem']")) return;
+        inputEl?.click();
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            inputEl?.click();
+        }
     }
 
     async function uploadFile(file: File) {
@@ -165,12 +188,6 @@
         files = files.filter((f: UploadedObject) => f.id !== id);
     }
 
-    function formatFileSize(bytes: number): string {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-    }
-
     function isImage(mime: string): boolean {
         return mime.startsWith("image/");
     }
@@ -188,7 +205,6 @@
     </label>
     <!-- Drop Zone -->
     <div
-        id={inputId}
         role="button"
         tabindex="0"
         class={twMerge(
@@ -199,8 +215,11 @@
         ondragover={onDragOver}
         ondragleave={onDragLeave}
         ondrop={onDrop}
+        onclick={openPicker}
+        onkeydown={onKeyDown}
     >
         <input
+            bind:this={inputEl}
             type="file"
             {multiple}
             class="hidden"
@@ -307,7 +326,7 @@
             <span>{$t("system.constraint.file.supportedTypes", { types: supportedTypes })}</span>
         </div>
         <span>
-            {$t("system.constraint.file.maxAllowedSize", { size: formatFileSize(maxSize) })}
+            {$t("system.constraint.file.maxAllowedSize", { size: formatFileSize(fileLimit) })}
         </span>
     </div>
 

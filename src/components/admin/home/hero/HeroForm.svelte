@@ -7,10 +7,10 @@
     import { locale, t } from "../../../../i18n/store";
     import { formatDate, startOfDay } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
-    import { renderMarkdown } from "../../../../utils/renderMarkdown";
-    import Hero from "../../../hero/Hero.svelte";
     import LanguagesDropdown from "../../../header/LanguagesDropdown.svelte";
     import Trash from "../../../icons/actions/Trash.svelte";
+
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import Eye from "../../../icons/media/Eye.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Button from "../../../library/buttons/Button.svelte";
@@ -309,6 +309,8 @@
             // Refreshing the history must not be reported as a save failure.
             console.error(e);
         }
+
+        location.reload();
     }
 
     async function handleSubmit(event: SubmitEvent) {
@@ -510,18 +512,7 @@
     </div>
 </form>
 
-<Modal
-    bind:open={isPreviewOpen}
-    closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-[90vw] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    bodyClass="p-0"
->
-    {#if previewHero}
-        {#await renderMarkdown(previewHero.content) then html}
-            <Hero hero={previewHero} content={html} />
-        {/await}
-    {/if}
-</Modal>
+<HeroPreviewModal bind:open={isPreviewOpen} hero={previewHero} />
 
 <Modal
     bind:open={isAddModalOpen}

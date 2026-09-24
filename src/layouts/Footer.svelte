@@ -204,6 +204,9 @@
                                         {$t("common.footer.navigation.forUsers.rechargeWallet")}
                                     </FooterLink>
                                 </li>
+                                <!-- GOTEO-OC-DONATION-CERTIFICATE: "Descarga certificado" link is exclusive to
+                                     the donation-certificate feature of Goteo under Fundación Platoniq, hidden
+                                     in the open-core. Re-enable when a feature toggle exists. Do not delete.
                                 <li>
                                     <FooterLink href="/certificate">
                                         {$t(
@@ -211,6 +214,7 @@
                                         )}
                                     </FooterLink>
                                 </li>
+                                -->
                                 <li>
                                     <FooterLink href="/funds">
                                         {$t(

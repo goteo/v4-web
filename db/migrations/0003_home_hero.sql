@@ -11,8 +11,8 @@ CREATE TABLE
         secondary_cta_link TEXT,
         media_url TEXT,
         media_type TEXT,
-        starts_at INTEGER NOT NULL,
-        date_created INTEGER NOT NULL
+        starts_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
+        date_created INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
     );
 
 -- Default hero until an admin schedules one. Copy is the default locale (es),
@@ -31,8 +31,8 @@ SELECT
     'Arrancamos una nueva etapa con la misma brújula que nos ha guiado desde el principio: impulsar proyectos que transformen el mundo desde la justicia social, la participación democrática y la defensa de los derechos humanos y de los ecosistemas. Únete a una comunidad que transforma realidades. ¡Sé parte de la solución!',
     '/images/home/hero.png',
     'image/png',
-    0,
-    0
+    unixepoch() * 1000,
+    unixepoch() * 1000
 WHERE
     NOT EXISTS (
         SELECT

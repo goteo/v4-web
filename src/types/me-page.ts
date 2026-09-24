@@ -5,7 +5,6 @@ import type { Money } from "../openapi/client/types.gen";
  *
  * Extends Phase 1 types with filled state data including:
  * - Project grids for promoted and donated projects
- * - Certificate request functionality
  * - Enhanced project card data with status badges
  */
 
@@ -260,50 +259,54 @@ export interface FundingStats {
     needForOptimum?: Money | null;
 }
 
-/**
- * Certificate Request Payload
- *
- * Request body for POST /v4/users/me/certificates
- */
-export interface CertificateRequest {
-    /**
-     * Period for which to generate certificate (e.g., "2025", "2024")
-     */
-    period: string;
-    /**
-     * Optional: Specific donation IDs to include in certificate.
-     * If omitted, includes all donations in the period.
-     */
-    donationIds?: string[];
-}
-
-/**
- * Certificate Response
- *
- * Response from certificate generation endpoint.
- */
-export interface CertificateResponse {
-    /**
-     * Unique identifier for the generated certificate
-     */
-    certificateId: string;
-    /**
-     * Download URL for the certificate PDF
-     */
-    downloadUrl: string;
-    /**
-     * ISO 8601 date string when the download link expires
-     */
-    expiresAt: string;
-    /**
-     * Total amount covered by the certificate (minor units)
-     */
-    totalAmount: Money;
-    /**
-     * Number of donations included in the certificate
-     */
-    donationCount: number;
-}
+// GOTEO-OC-DONATION-CERTIFICATE: certificate request/response types are exclusive to the
+// donation-certificate feature of Goteo under Fundación Platoniq, hidden in the open-core.
+// Re-enable when a feature toggle exists. Do not delete.
+//
+// /**
+//  * Certificate Request Payload
+//  *
+//  * Request body for POST /v4/users/me/certificates
+//  */
+// export interface CertificateRequest {
+//     /**
+//      * Period for which to generate certificate (e.g., "2025", "2024")
+//      */
+//     period: string;
+//     /**
+//      * Optional: Specific donation IDs to include in certificate.
+//      * If omitted, includes all donations in the period.
+//      */
+//     donationIds?: string[];
+// }
+//
+// /**
+//  * Certificate Response
+//  *
+//  * Response from certificate generation endpoint.
+//  */
+// export interface CertificateResponse {
+//     /**
+//      * Unique identifier for the generated certificate
+//      */
+//     certificateId: string;
+//     /**
+//      * Download URL for the certificate PDF
+//      */
+//     downloadUrl: string;
+//     /**
+//      * ISO 8601 date string when the download link expires
+//      */
+//     expiresAt: string;
+//     /**
+//      * Total amount covered by the certificate (minor units)
+//      */
+//     totalAmount: Money;
+//     /**
+//      * Number of donations included in the certificate
+//      */
+//     donationCount: number;
+// }
 
 /**
  * Period Option

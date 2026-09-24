@@ -2,6 +2,7 @@
     import { actions } from "astro:actions";
     import { Modal, TableBodyCell } from "flowbite-svelte";
 
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
@@ -185,6 +186,7 @@
     {itemsPerPage}
     paginationPrefix="common.pagination"
     onPageChange={(page) => (currentPage = page)}
+    onRowClick={openPreview}
 >
     {#snippet children(row)}
         <TableBodyCell class="border-variant1 w-16 rounded-l-md border-t border-b border-l p-4">
