@@ -49,7 +49,7 @@ export interface FilterOption {
 export interface FilterSubject {
     key: string;
     param?: string;
-    type: "string" | "date" | "number";
+    type: "string" | "date" | "number" | "money";
     compatibleOperators: FilterOperator[];
     resources: FilterResource[];
     options?: FilterOption[];
@@ -167,7 +167,7 @@ const filterSubjects: Record<string, FilterSubject> = {
     },
     budgetAmount: {
         key: "budgetAmount",
-        type: "number",
+        type: "money",
         compatibleOperators: ["gte", "gt", "lte", "lt"],
         resources: ["projects"],
     },
@@ -218,7 +218,7 @@ const filterSubjects: Record<string, FilterSubject> = {
     amount: {
         key: "amount",
         param: "money.amount",
-        type: "number",
+        type: "money",
         compatibleOperators: ["gte", "gt", "lte", "lt"],
         resources: ["gateway_charges"],
     },

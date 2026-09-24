@@ -3,16 +3,22 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Hero from "../../../../components/admin/home/hero/Hero.svelte";
+import { homeHeroRepository } from "../../../../repositories/homeHero";
 import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/hero";
+
+// The form is pre-filled with the live hero so the admin edits from what is
+// currently published instead of from a blank block.
+const hero = await homeHeroRepository.getActive();
+const heroes = await homeHeroRepository.getAll();
 ---
 
 <Layout title={t("pages.admin.home.hero.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
         <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
-            <Hero client:load />
+            <Hero client:load {hero} {heroes} />
         </WithSidebar>
     </App>
 </Layout>

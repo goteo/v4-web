@@ -277,6 +277,7 @@
       "alignLeft": "Alinear a la izquierda",
       "alignCenter": "Centrar",
       "alignRight": "Alinear a la derecha",
+      "image": "Insertar imagen",
       "characterCount": "{{ current }} / {{ max }} caracteres"
     },
     "export": {
@@ -380,6 +381,22 @@
       },
       "platoniq": {
         "foundation": "Fundación"
+      },
+      "a11y": {
+        "footerHeading": "Pie de página",
+        "fundingPartners": "Organizaciones financiadoras",
+        "partnerOrganizations": "Organizaciones asociadas",
+        "footerNavigation": "Navegación del pie de página",
+        "legalNavigation": "Navegación legal",
+        "legalAndSocial": "Enlaces legales y redes sociales",
+        "socialLinks": "Enlaces a redes sociales",
+        "social": {
+          "email": "Envíanos un correo a info@goteo.org",
+          "instagram": "Síguenos en Instagram",
+          "facebook": "Síguenos en Facebook",
+          "x": "Síguenos en X (antes Twitter)",
+          "linkedin": "Conecta con nosotras en LinkedIn"
+        }
       }
     },
     "saved": "Guardado"
@@ -1403,8 +1420,35 @@
           "description": "El inicio de la portada, lo más importante.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
-            "invalidUrl": "La URL del enlace no es válida",
-            "invalidDateRange": "La fecha de fin no puede ser anterior a la de inicio"
+            "invalidUrl": "La URL del enlace no es válida"
+          },
+          "tabs": {
+            "fields": "Nuevo",
+            "history": "Histórico"
+          },
+          "history": {
+            "title": "Histórico de bloques",
+            "description": "Aquí puedes ver los bloques programados y eliminar los que no quieras publicar",
+            "noData": "No hay bloques en el histórico",
+            "filter": {
+              "all": "Todos",
+              "upcoming": "Programado"
+            },
+            "headers": {
+              "title": "Título",
+              "content": "Contenido",
+              "startsAt": "Fecha de inicio",
+              "status": "Estado"
+            },
+            "status": {
+              "active": "Actual",
+              "upcoming": "Programado",
+              "past": "Pasado"
+            },
+            "deleteModal": {
+              "title": "¿Borrar este bloque?",
+              "description": "El bloque se eliminará de forma permanente y dejará de mostrarse en la portada. Esta acción no se puede deshacer."
+            }
           },
           "fields": {
             "textsTitle": "Textos del bloque",
@@ -1415,10 +1459,9 @@
             "urlPlaceholder": "URL",
             "scheduleTitle": "Programar la subida del bloque",
             "startDatePlaceholder": "Indica la fecha de inicio",
-            "endDatePlaceholder": "Indica la fecha de fin",
             "mediaTitle": "Hora de subir las imágenes",
             "mediaLabel": "Imagen 01",
-            "mediaHint": "Sube una imagen o vídeo",
+            "mediaHint": "Sube una imagen o vídeo (opcional)",
             "mediaAdd": "Añade imagen"
           }
         },

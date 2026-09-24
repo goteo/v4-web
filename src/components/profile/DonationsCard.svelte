@@ -49,11 +49,11 @@
     recentTitleKey="pages.me.donations.recent"
     illustrationPath="/images/profile/ilustration-donations.png"
     primaryActionLabel="pages.me.donations.viewAll"
-    primaryActionHref={lang === "es" ? "/me/donations" : `/${lang}/me/donations`}
+    primaryActionHref="/me#donated-projects"
     isEmpty={!hasData}
     emptyMessageKey="pages.me.donations.empty"
     emptyCtaLabel="pages.me.donations.explore"
-    emptyCtaLink={lang === "es" ? "/discover" : `/${lang}/discover`}
+    emptyCtaLink="/search?status[]=in_campaign"
 >
     {#if donationsData?.recentDonations}
         {#each donationsData.recentDonations.slice(0, 2) as donation}
@@ -64,9 +64,7 @@
                 <span class="text-sm font-semibold text-black"> - </span>
                 {#if donation.projectSlug}
                     <a
-                        href={lang === "es"
-                            ? `/project/${donation.projectSlug}`
-                            : `/${lang}/project/${donation.projectSlug}`}
+                        href={`/project/${donation.projectSlug}`}
                         class="text-secondary text-sm no-underline hover:underline focus:underline focus:outline-none"
                     >
                         {donation.projectTitle || fallbackProjectTitle}

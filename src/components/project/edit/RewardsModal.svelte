@@ -10,8 +10,8 @@
     import { zCreateRewardForm, zUpdateRewardForm } from "../../../validation/rewardValidation";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
+    import CurrencyInput from "../../library/inputs/CurrencyInput.svelte";
     import FileUpload from "../../library/inputs/FileUpload.svelte";
-    import CurrencyInput from "../../library/inputs/MoneyInput.svelte";
     import RichTextEditor from "../../library/inputs/RichTextEditor.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
