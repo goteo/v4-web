@@ -2011,6 +2011,7 @@
           "x": "Inserte su cuenta de X",
           "linkedin": "Inserte su cuenta de Linkedin"
         },
+        "viewProfile": "Ver mi perfil",
         "save": "Guardar cambios",
         "success": "Perfil actualizado correctamente",
         "error": "No se pudo guardar el perfil. Inténtalo de nuevo más tarde.",

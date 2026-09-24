@@ -68,6 +68,7 @@
     });
 
     let displayName = $state(user.displayName ?? user.handle);
+    let profileHandle = $state(user.handle);
 
     // Not persisted: the API has no visibility flag and `User.links` is read-only
     let shareLocation = $state(false);
@@ -160,6 +161,7 @@
         }
 
         displayName = data.user.displayName ?? data.user.handle;
+        profileHandle = data.user.handle;
         showSuccess = true;
     }
 </script>
@@ -171,9 +173,14 @@
     </div>
 {/snippet}
 
-<div class="flex flex-col gap-4">
-    <Title level={1} variant="headline" weight="bold">{$t("pages.me.manage.title")}</Title>
-    <p class="text-content max-w-167 text-base leading-6">{$t("pages.me.manage.subtitle")}</p>
+<div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div class="flex flex-col gap-4">
+        <Title level={1} variant="headline" weight="bold">{$t("pages.me.manage.title")}</Title>
+        <p class="text-content max-w-167 text-base leading-6">{$t("pages.me.manage.subtitle")}</p>
+    </div>
+    <Button kind="secondary" href="/user/{profileHandle}" class="shrink-0">
+        {$t("pages.me.manage.viewProfile")}
+    </Button>
 </div>
 
 <form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
