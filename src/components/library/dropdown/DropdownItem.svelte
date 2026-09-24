@@ -39,7 +39,7 @@
         </label>
     {:else if variant === "basic"}
         <button
-            class="w-full cursor-pointer p-4 text-base text-black"
+            class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}
             onclick={() => handleChange(option)}
         >
             {@html option.label}
