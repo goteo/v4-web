@@ -1,5 +1,5 @@
 import { createBanner, deleteBanner } from "./banners";
-import { createHomeHero } from "./hero";
+import { createHomeHero, deleteHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updateProfile } from "./profile";
@@ -11,6 +11,7 @@ export const server = {
     createBanner,
     deleteBanner,
     createHomeHero,
+    deleteHomeHero,
     saveHighlights,
     deleteHighlights,
     updateProfile,

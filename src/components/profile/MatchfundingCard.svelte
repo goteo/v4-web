@@ -37,9 +37,7 @@
         recentTitleKey="pages.me.matchfunding.card.recent"
         illustrationPath="/images/profile/ilustration-matchfunding.png"
         primaryActionLabel="pages.me.matchfunding.card.viewAll"
-        primaryActionHref={lang === "es" ? "/me/matchfunding" : `/${lang}/me/matchfunding`}
-        secondaryActionLabel="pages.me.matchfunding.card.create"
-        secondaryActionHref={lang === "es" ? "/matchfunding/new" : `/${lang}/matchfunding/new`}
+        primaryActionHref="/me#matchfunding"
         isEmpty={false}
     >
         {#if data?.recentCalls}

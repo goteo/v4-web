@@ -1,16 +1,14 @@
 <script lang="ts">
     import FooterLink from "../components/footer/FooterLink.svelte";
     import FooterPartnerImage from "../components/footer/FooterPartnerImage.svelte";
-    import Facebook from "../components/icons/social/Facebook.svelte";
-    import Gmail from "../components/icons/social/Gmail.svelte";
-    import Instagram from "../components/icons/social/Instagram.svelte";
-    import Linkedin from "../components/icons/social/Linkedin.svelte";
-    import X from "../components/icons/social/X.svelte";
     import Title from "../components/library/typography/Title.svelte";
+    import { FOOTER_CONFIG as config } from "../config/footer";
     import { t } from "../i18n/store";
 </script>
 
 <footer class="text-variant1" aria-labelledby="footer-heading">
+    <h2 id="footer-heading" class="sr-only">{$t("common.footer.a11y.footerHeading")}</h2>
+
     <!-- Funding Partners Section -->
     <section
         class="bg-purple-soft text-tertiary border-variant1 border-2 border-b-0 py-6 sm:py-8 md:py-10"
@@ -33,21 +31,12 @@
                     <div
                         class="flex items-center gap-4"
                         role="list"
-                        aria-label="Funding partner organizations"
+                        aria-label={$t("common.footer.a11y.fundingPartners")}
                     >
                         <div class="flex items-center gap-3 sm:gap-4">
-                            <FooterPartnerImage
-                                src="/images/partners/NGEU.png"
-                                alt="Funded by the European Union NextGeneration EU"
-                            />
-                            <FooterPartnerImage
-                                src="/images/partners/MTES.png"
-                                alt="Ministerio de Trabajo y Economía Social"
-                            />
-                            <FooterPartnerImage
-                                src="/images/partners/PRTR.png"
-                                alt="Plan de Recuperación, Transformación y Resiliencia"
-                            />
+                            {#each config.funding as partner (partner.src)}
+                                <FooterPartnerImage src={partner.src} alt={partner.alt} />
+                            {/each}
                         </div>
                     </div>
                 </div>
@@ -60,36 +49,17 @@
                     <div
                         class="flex items-center gap-2 sm:gap-3"
                         role="list"
-                        aria-label="Partner organizations"
+                        aria-label={$t("common.footer.a11y.partnerOrganizations")}
                     >
-                        <FooterPartnerImage
-                            src="/images/partners/xes.png"
-                            alt="XES - Xarxa d'Economia Solidària"
-                            href="https://xes.cat"
-                            class="rounded-lg"
-                            size="medium"
-                        />
-                        <FooterPartnerImage
-                            src="/images/partners/alda-europe.svg"
-                            alt="Alda Europe - European Association for Local Democracy"
-                            href="https://www.alda-europe.eu"
-                            class="rounded-lg"
-                            size="medium"
-                        />
-                        <FooterPartnerImage
-                            src="/images/partners/alianza-por-el-clima.webp"
-                            alt="Alianza por el Clima"
-                            href="https://alianzaporelclima.org"
-                            class="rounded-lg"
-                            size="medium"
-                        />
-                        <FooterPartnerImage
-                            src="/images/partners/ampliando-democracia.jpg"
-                            alt="Ampliando Democracia"
-                            href="https://ampliandodemocracia.org"
-                            class="rounded-lg"
-                            size="medium"
-                        />
+                        {#each config.partOf as partner (partner.src)}
+                            <FooterPartnerImage
+                                src={partner.src}
+                                alt={partner.alt}
+                                href={partner.href}
+                                size={partner.size}
+                                class={partner.class}
+                            />
+                        {/each}
                     </div>
                 </div>
             </div>
@@ -98,7 +68,7 @@
 
     <div
         class="bg-secondary relative rounded-t-3xl bg-size-[116%_114%] bg-position-[-127%_42%] bg-no-repeat min-[700px]:bg-size-[64%_108%] min-[700px]:bg-position-[114%]"
-        style="background-image: url('/images/brand/path2.svg');"
+        style="background-image: url('{config.brand.backgroundImage}');"
     >
         <!-- Main Footer Content -->
         <section
@@ -110,135 +80,41 @@
                     <!-- Navigation Links -->
                     <nav
                         class="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:flex lg:flex-row lg:gap-8 xl:gap-10"
-                        aria-label="Footer navigation"
+                        aria-label={$t("common.footer.a11y.footerNavigation")}
                     >
-                        <h2 id="footer-navigation-heading" class="sr-only">Footer Navigation</h2>
+                        <h2 id="footer-navigation-heading" class="sr-only">
+                            {$t("common.footer.a11y.footerNavigation")}
+                        </h2>
 
-                        <!-- Collaborate -->
-                        <div class="space-y-2">
-                            <Title level={4} variant="field" color="purple-soft" class="leading-6">
-                                {$t("common.footer.navigation.collaborate.title")}
-                            </Title>
-                            <ul class="space-y-1 text-xs leading-5 sm:text-sm sm:leading-6">
-                                <li>
-                                    <FooterLink href="/create-project">
-                                        {$t("common.footer.navigation.collaborate.createProject")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/matchfunding">
-                                        {$t("common.footer.navigation.collaborate.matchfunding")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/workshops">
-                                        {$t("common.footer.navigation.collaborate.workshops")}
-                                    </FooterLink>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- Help -->
-                        <div class="space-y-2">
-                            <Title level={4} variant="field" color="purple-soft" class="leading-6">
-                                {$t("common.footer.navigation.help.title")}
-                            </Title>
-                            <ul class="space-y-1 text-xs leading-5 sm:text-sm sm:leading-6">
-                                <li>
-                                    <FooterLink href="/faqs">
-                                        {$t("common.footer.navigation.help.faqs")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/contact">
-                                        {$t("common.footer.navigation.help.contact")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/tax-calculator">
-                                        {$t("common.footer.navigation.help.taxCalculator")}
-                                    </FooterLink>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- About Goteo -->
-                        <div class="space-y-2">
-                            <Title level={4} variant="field" color="purple-soft" class="leading-6">
-                                {$t("common.footer.navigation.aboutGoteo.title")}
-                            </Title>
-                            <ul class="space-y-1 text-xs leading-5 sm:text-sm sm:leading-6">
-                                <li>
-                                    <FooterLink href="/about">
-                                        {$t("common.footer.navigation.aboutGoteo.whoWeAre")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/benefits">
-                                        {$t("common.footer.navigation.aboutGoteo.goteoBenefits")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/impact">
-                                        {$t("common.footer.navigation.aboutGoteo.foundationImpact")}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/platoniq">
-                                        {$t(
-                                            "common.footer.navigation.aboutGoteo.platoniqFoundation",
-                                        )}
-                                    </FooterLink>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <!-- For Users -->
-                        <div class="space-y-2">
-                            <Title level={4} variant="field" color="purple-soft" class="leading-6">
-                                {$t("common.footer.navigation.forUsers.title")}
-                            </Title>
-                            <ul class="space-y-1 text-xs leading-5 sm:text-sm sm:leading-6">
-                                <li>
-                                    <FooterLink href="/wallet">
-                                        {$t("common.footer.navigation.forUsers.rechargeWallet")}
-                                    </FooterLink>
-                                </li>
-                                <!-- GOTEO-OC-DONATION-CERTIFICATE: "Descarga certificado" link is exclusive to
-                                     the donation-certificate feature of Goteo under Fundación Platoniq, hidden
-                                     in the open-core. Re-enable when a feature toggle exists. Do not delete.
-                                <li>
-                                    <FooterLink href="/certificate">
-                                        {$t(
-                                            "common.footer.navigation.forUsers.downloadCertificate",
-                                        )}
-                                    </FooterLink>
-                                </li>
-                                -->
-                                <li>
-                                    <FooterLink href="/funds">
-                                        {$t(
-                                            "common.footer.navigation.forUsers.accessComplementaryFunds",
-                                        )}
-                                    </FooterLink>
-                                </li>
-                                <li>
-                                    <FooterLink href="/program">
-                                        {$t(
-                                            "common.footer.navigation.forUsers.designFundingProgram",
-                                        )}
-                                    </FooterLink>
-                                </li>
-                            </ul>
-                        </div>
+                        {#each config.navColumns as column (column.titleKey)}
+                            <div class="space-y-2">
+                                <Title
+                                    level={4}
+                                    variant="field"
+                                    color="purple-soft"
+                                    class="leading-6"
+                                >
+                                    {$t(column.titleKey)}
+                                </Title>
+                                <ul class="space-y-1 text-xs leading-5 sm:text-sm sm:leading-6">
+                                    {#each column.links as link (link.href)}
+                                        <li>
+                                            <FooterLink href={link.href}>
+                                                {$t(link.labelKey)}
+                                            </FooterLink>
+                                        </li>
+                                    {/each}
+                                </ul>
+                            </div>
+                        {/each}
                     </nav>
 
                     <!-- Logo -->
                     <div class="flex justify-center lg:justify-end">
                         <div class="h-8 w-28 sm:h-10 sm:w-36">
                             <img
-                                src="/images/brand/goteo-white-logo.svg"
-                                alt="Goteo logo"
+                                src={config.brand.logo.src}
+                                alt={config.brand.logo.alt}
                                 class="h-full w-full object-contain"
                                 loading="lazy"
                             />
@@ -260,21 +136,16 @@
                     <!-- Legal Links -->
                     <nav
                         class="flex flex-wrap gap-4 sm:gap-6 lg:gap-8"
-                        aria-label="Legal navigation"
+                        aria-label={$t("common.footer.a11y.legalNavigation")}
                     >
-                        <h3 id="footer-bottom-heading" class="sr-only">Legal and Social Links</h3>
-                        <FooterLink href="/terms" class="text-xs leading-4 font-medium">
-                            {$t("common.footer.legal.termsOfUse")}
-                        </FooterLink>
-                        <FooterLink href="/privacy" class="text-xs leading-4 font-medium">
-                            {$t("common.footer.legal.privacyPolicy")}
-                        </FooterLink>
-                        <FooterLink href="/licenses" class="text-xs leading-4 font-medium">
-                            {$t("common.footer.legal.licenses")}
-                        </FooterLink>
-                        <FooterLink href="/stats" class="text-xs leading-4 font-medium">
-                            {$t("common.footer.legal.stats")}
-                        </FooterLink>
+                        <h3 id="footer-bottom-heading" class="sr-only">
+                            {$t("common.footer.a11y.legalAndSocial")}
+                        </h3>
+                        {#each config.legalLinks as link (link.href)}
+                            <FooterLink href={link.href} class="text-xs leading-4 font-medium">
+                                {$t(link.labelKey)}
+                            </FooterLink>
+                        {/each}
                     </nav>
 
                     <!-- Social Media and Platoniq -->
@@ -283,50 +154,24 @@
                         <div
                             class="flex items-center justify-center gap-2 lg:justify-start"
                             role="list"
-                            aria-label="Social media links"
+                            aria-label={$t("common.footer.a11y.socialLinks")}
                         >
-                            <a
-                                href="mailto:info@goteo.org"
-                                class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                aria-label="Send email to info@goteo.org"
-                            >
-                                <Gmail width="24" height="24" />
-                            </a>
-                            <a
-                                href="https://instagram.com/goteofunding"
-                                class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                aria-label="Follow us on Instagram"
-                            >
-                                <Instagram width="24" height="24" />
-                            </a>
-                            <a
-                                href="https://facebook.com/goteofunding"
-                                class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                aria-label="Follow us on Facebook"
-                            >
-                                <Facebook width="24" height="24" />
-                            </a>
-                            <a
-                                href="https://twitter.com/goteofunding"
-                                class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                aria-label="Follow us on X (formerly Twitter)"
-                            >
-                                <X width="24" height="24" />
-                            </a>
-                            <a
-                                href="https://www.linkedin.com/company/platoniqlab"
-                                class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                aria-label="Connect with us on LinkedIn"
-                            >
-                                <Linkedin width="24" height="24" />
-                            </a>
+                            {#each config.social as link (link.href)}
+                                <a
+                                    href={link.href}
+                                    class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                                    aria-label={$t(link.ariaLabelKey)}
+                                >
+                                    <link.icon width="24" height="24" />
+                                </a>
+                            {/each}
                         </div>
 
                         <!-- Platoniq Foundation -->
                         <div class="text-variant1 flex flex-col items-center lg:items-start">
                             <img
-                                src="/images/brand/platoniq.png"
-                                alt="Platoniq Foundation logo"
+                                src={config.brand.platoniq.src}
+                                alt={config.brand.platoniq.alt}
                                 class="h-4 sm:h-5"
                                 loading="lazy"
                             />

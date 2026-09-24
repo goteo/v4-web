@@ -5,11 +5,14 @@
         options,
         value = $bindable(),
         class: classes = "",
+        btnClass = "",
         onchange,
     }: {
         options: [{ value: string; label: string }, { value: string; label: string }];
         value: string;
         class?: ClassNameValue;
+        /** Classes merged into each option button, e.g. to shrink the padding */
+        btnClass?: ClassNameValue;
         onchange?: (value: string) => void;
     } = $props();
 
@@ -27,6 +30,7 @@
             class={twMerge(
                 "text-secondary flex-1 cursor-pointer rounded-full px-8 py-3 text-base font-bold transition-all",
                 value === option.value ? "bg-primary" : "bg-transparent",
+                btnClass,
             )}
         >
             {option.label}
