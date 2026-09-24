@@ -21,8 +21,6 @@
     const page = $derived(Math.min(Math.max(1, currentPageProp), totalPages));
     const firstItem = $derived(totalItemsProp === 0 ? 0 : (page - 1) * itemsPerPageProp + 1);
     const lastItem = $derived(Math.min(page * itemsPerPageProp, totalItemsProp));
-    // TODO: borrar `shownItems` y el argumento `items` cuando Crowdin traduzca
-    // `domain.pagination.showing` con los placeholders `from`/`to`.
     const shownItems = $derived(Math.max(0, lastItem - firstItem + 1));
 
     function goToPage(p: number) {
