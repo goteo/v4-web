@@ -154,8 +154,8 @@
         { key: "pages.project.manage.claims.headers.user" },
         { key: "pages.project.manage.claims.headers.address", class: "w-1/3" },
         { key: "pages.project.manage.claims.headers.reward" },
-        { key: "pages.project.manage.claims.headers.status", class: "w-36" },
-        { key: "pages.project.manage.claims.headers.action", class: "w-52" },
+        { key: "pages.project.manage.claims.headers.status", class: "w-52" },
+        { key: "pages.project.manage.claims.headers.action", class: "w-56" },
     ];
 
     const candidacyHeaders = [
@@ -169,7 +169,7 @@
     const lastCell = "border-variant1 rounded-r-md border-t border-r border-b p-4";
 </script>
 
-<div class="wrapper flex flex-col gap-16 pb-20">
+<div class="wrapper flex flex-col gap-16 pb-20!">
     <section class="flex flex-col gap-10">
         <BackButton />
         <div class="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
