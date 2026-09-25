@@ -2,7 +2,11 @@
 import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ManageProfile from "../../../../components/profile/manage/ManageProfile.svelte";
+import { apiUsersIdorganizationGet, apiUsersIdpersonGet } from "../../../../openapi/client";
 import { goto } from "../../../../utils/navigation";
+
+import type { AdminSidebarItem } from "../../../../components/admin/AdminSidebar.svelte";
 
 const { lang, t, session } = Astro.locals;
 
@@ -11,12 +15,27 @@ if (!session) {
 }
 
 const activePath = "/me/manage";
+
+const navItems: AdminSidebarItem[] = [
+    { label: "pages.me.manage.sidebar.publicProfile", href: "/me/manage" },
+];
+
+const path = { id: String(session.user.id) };
+const headers = session.token.asHttpHeaders;
+
+const [{ data: person }, { data: organization }] = await Promise.all([
+    apiUsersIdpersonGet({ path, headers }),
+    // 404 for individual users, resolved as `undefined`
+    session.user.type === "organization"
+        ? apiUsersIdorganizationGet({ path, headers })
+        : Promise.resolve({ data: undefined }),
+]);
 ---
 
 <Layout title={t("pages.me.manage.title")}>
     <App client:load locale={lang} session={session}>
-        <WithSidebar client:idle navItems={[]} {activePath}>
-            <div class="text-content font-body text-base leading-6"></div>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <ManageProfile client:load user={session.user} {person} {organization} />
         </WithSidebar>
     </App>
 </Layout>
