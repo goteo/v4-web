@@ -63,7 +63,7 @@ The dev server runs on the Cloudflare Workers runtime (`workerd`), the same one 
 | `pnpm preview`         | Preview production build locally                 |
 | `pnpm format`          | ESLint fix + Prettier write                      |
 | `pnpm check`           | Prettier format check                            |
-| `pnpm sdk`         | Regenerate OpenAPI SDK from live API spec        |
+| `pnpm sdk`             | Regenerate OpenAPI SDK from live API spec        |
 | `pnpm storybook`       | Storybook dev server at `localhost:6006`         |
 | `pnpm build-storybook` | Build Storybook static output                    |
 
