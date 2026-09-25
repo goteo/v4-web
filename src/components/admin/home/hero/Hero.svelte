@@ -15,6 +15,8 @@
 
     let { hero = null, heroes }: Props = $props();
 
+    let list = $state(heroes);
+
     let currentSubtab = $state("fields");
     let showError = $state(false);
     let errorMessage = $state("");
@@ -41,7 +43,8 @@
         <HeroForm {hero} />
     {:else if currentSubtab === "history"}
         <HeroHistory
-            rows={heroes}
+            rows={list}
+            onDelete={(id) => (list = list.filter((h) => h.id !== id))}
             onError={(message) => {
                 errorMessage = message;
                 showError = true;

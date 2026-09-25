@@ -105,7 +105,6 @@
     {currentPage}
     totalItems={list.length}
     {itemsPerPage}
-    paginationPrefix="common.pagination"
     onPageChange={(page) => (currentPage = page)}
 >
     {#snippet children(row)}

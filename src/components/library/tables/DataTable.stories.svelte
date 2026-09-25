@@ -48,14 +48,12 @@
             itemsPerPage: 10,
             itemsPerPageOptions: [10, 20, 30, 50],
             itemsPerPageLabel: "Rows per page",
-            paginationPrefix: "common.pagination",
         },
         argTypes: {
             isLoading: { control: "boolean" },
             emptyMessage: { control: "text" },
             sortLabel: { control: "text" },
             itemsPerPageLabel: { control: "text" },
-            paginationPrefix: { control: "text" },
         },
     });
 </script>
@@ -72,7 +70,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={1}
         totalItems={10}
         onPageChange={() => {}}
@@ -97,7 +94,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={1}
         totalItems={0}
         onPageChange={() => {}}
@@ -120,7 +116,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={1}
         totalItems={0}
         onPageChange={() => {}}
@@ -146,7 +141,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={1}
         totalItems={10}
         onPageChange={() => {}}
@@ -171,7 +165,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={2}
         totalItems={47}
         onPageChange={() => {}}
@@ -194,7 +187,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={13}
         totalItems={250}
         onPageChange={() => {}}
@@ -217,7 +209,6 @@
         itemsPerPageLabel="Rows per page"
         itemsPerPageOptions={[10, 20, 30, 50]}
         itemsPerPage={10}
-        paginationPrefix="common.pagination"
         currentPage={1}
         totalItems={1}
         expandedRowIndex={0}

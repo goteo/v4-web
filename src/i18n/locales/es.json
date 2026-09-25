@@ -292,6 +292,15 @@
       "previousMonth": "Mes anterior",
       "nextMonth": "Mes siguiente",
       "close": "Cerrar"
+    },
+    "pagination": {
+      "showing": "Mostrando {{ from }}–{{ to }} de {{ total }}",
+      "unloaded": "Mostrando...",
+      "noResults": "No hay resultados",
+      "label": "Paginación",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "page": "Página {{ page }}"
     }
   },
   "common": {
@@ -323,11 +332,6 @@
     "login": "Iniciar sesión",
     "goHome": "Ir a la página de inicio",
     "viewAll": "Ver todo",
-    "pagination": {
-      "showing": "Mostrando {{ items }} de {{ total }}",
-      "unloaded": "Mostrando...",
-      "noResults": "No hay resultados"
-    },
     "viewMore": "Ver más",
     "viewLess": "Ver menos",
     "share": "Compartir",

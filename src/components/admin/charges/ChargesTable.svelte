@@ -179,7 +179,6 @@
     {currentPage}
     {totalItems}
     {itemsPerPage}
-    paginationPrefix="common.pagination"
     sortOptions={chargeSortOptions}
     {selectedSort}
     sortLabel="pages.admin.charges.filters.order.title"

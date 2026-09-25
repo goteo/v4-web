@@ -64,7 +64,7 @@
 </script>
 
 <div
-    class="border-grey relative flex basis-1/3 flex-col justify-between gap-2 rounded-4xl border bg-[#FFF] p-6 shadow-[0px_1px_3px_0px_#0000001A] md:gap-4"
+    class="border-grey relative flex basis-1/3 flex-col justify-between gap-2 rounded-4xl border bg-white p-6 shadow-[0px_1px_3px_0px_#0000001A] md:gap-4"
 >
     <button
         type="button"

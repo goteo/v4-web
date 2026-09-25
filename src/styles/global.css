@@ -74,7 +74,7 @@ body {
     font-weight: 400;
     font-size: var(--body-regular);
     line-height: 140%;
-    color: var(--text-primary);
+    color: var(--color-content);
 }
 
 body.grid {
