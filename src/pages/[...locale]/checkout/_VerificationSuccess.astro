@@ -6,7 +6,7 @@ import Card from "../../../components/library/cards/Card.svelte";
 
 const { t, session } = Astro.locals;
 
-const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl, charges } =
+const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl, checkoutId } =
     Astro.props;
 ---
 
@@ -46,7 +46,7 @@ const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl
             class="lg: sticky -bottom-6 flex h-fit w-full flex-col items-start gap-6 rounded-3xl border-black pr-4 pb-10 pl-4 lg:top-(--sticky-top) lg:bottom-auto lg:w-1/2 lg:gap-6 lg:rounded-[40px] lg:p-6"
         >
             <Summary client:load {total} />
-            <RewardClaims client:load userId={session!.user.id!} {charges} />
+            <RewardClaims client:load userId={session!.user.id!} {checkoutId} />
             <div class="w-full lg:block" id="checkout-details">
                 <div class="flex flex-col">
                     <p class="text-content text-sm">
