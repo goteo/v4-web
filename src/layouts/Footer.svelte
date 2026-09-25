@@ -1,8 +1,8 @@
 <script lang="ts">
+    import { FOOTER_DATA as config } from "./footer-data";
     import FooterLink from "../components/footer/FooterLink.svelte";
     import FooterPartnerImage from "../components/footer/FooterPartnerImage.svelte";
     import Title from "../components/library/typography/Title.svelte";
-    import { FOOTER_DATA as config } from "./footer-data";
     import { t } from "../i18n/store";
 </script>
 
