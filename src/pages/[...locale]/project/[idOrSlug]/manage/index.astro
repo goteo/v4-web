@@ -1,0 +1,54 @@
+---
+import ProjectManage from "../../../../../components/project/manage/ProjectManage.svelte";
+import App from "../../../../../layouts/App.svelte";
+import Layout from "../../../../../layouts/Layout.astro";
+import { apiProjectsIdOrSlugGet } from "../../../../../openapi/client";
+import { goto } from "../../../../../utils/navigation";
+import { NotFound, Unauthorized } from "../../../../../utils/responses";
+
+const { t, lang, session } = Astro.locals;
+
+const { idOrSlug } = Astro.params;
+if (!idOrSlug) {
+    return Astro.rewrite("/500");
+}
+
+const requestUrl = new URL(Astro.request.url);
+const toLogin = () =>
+    goto("/login", { query: { callback: requestUrl.pathname + requestUrl.search } });
+
+if (!session) {
+    return toLogin();
+}
+
+const { data: project, error } = await apiProjectsIdOrSlugGet({
+    headers: { ...session.token.asHttpHeaders, "Accept-Language": lang },
+    path: { idOrSlug },
+});
+
+if (error) {
+    if (error.status === NotFound.status) {
+        return Astro.rewrite("/404");
+    }
+
+    // Stale/revoked token: the API rejects it with 401 "Bad credentials."
+    if (error.status === Unauthorized.status) {
+        return toLogin();
+    }
+
+    console.error({ project, error });
+    return Astro.rewrite("/500");
+}
+
+const isAdmin = session.user.roles?.includes("ROLE_ADMIN");
+const isOwner = project.owner === `/v4/users/${session.user.id}`;
+if (!isAdmin && !isOwner) {
+    return Astro.rewrite("/403");
+}
+---
+
+<Layout title={t("pages.project.manage.title", { project: project.title })}>
+    <App client:load locale={lang} {session}>
+        <ProjectManage {project} client:load />
+    </App>
+</Layout>
