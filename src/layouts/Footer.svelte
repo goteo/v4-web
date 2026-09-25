@@ -10,61 +10,67 @@
     <h2 id="footer-heading" class="sr-only">{$t("common.footer.a11y.footerHeading")}</h2>
 
     <!-- Funding Partners Section -->
-    <section
-        class="bg-purple-soft text-tertiary border-variant1 border-2 border-b-0 py-6 sm:py-8 md:py-10"
-        aria-labelledby="funding-partners-heading"
-    >
-        <div class="wrapper">
-            <div
-                class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8"
-            >
-                <!-- Funding Partners -->
-                <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
-                    <Title
-                        level={3}
-                        variant="field"
-                        color="secondary"
-                        id="funding-partners-heading"
-                    >
-                        {$t("common.footer.funding.title")}
-                    </Title>
-                    <div
-                        class="flex items-center gap-4"
-                        role="list"
-                        aria-label={$t("common.footer.a11y.fundingPartners")}
-                    >
-                        <div class="flex items-center gap-3 sm:gap-4">
-                            {#each config.funding as partner (partner.src)}
-                                <FooterPartnerImage src={partner.src} alt={partner.alt} />
-                            {/each}
+    {#if config.funding.length > 0 || config.partOf.length > 0}
+        <section
+            class="bg-purple-soft text-tertiary border-variant1 border-2 border-b-0 py-6 sm:py-8 md:py-10"
+            aria-labelledby="funding-partners-heading"
+        >
+            <div class="wrapper">
+                <div
+                    class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8"
+                >
+                    {#if config.funding.length > 0}
+                        <!-- Funding Partners -->
+                        <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
+                            <Title
+                                level={3}
+                                variant="field"
+                                color="secondary"
+                                id="funding-partners-heading"
+                            >
+                                {$t("common.footer.funding.title")}
+                            </Title>
+                            <div
+                                class="flex items-center gap-4"
+                                role="list"
+                                aria-label={$t("common.footer.a11y.fundingPartners")}
+                            >
+                                <div class="flex items-center gap-3 sm:gap-4">
+                                    {#each config.funding as partner (partner.src)}
+                                        <FooterPartnerImage src={partner.src} alt={partner.alt} />
+                                    {/each}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    {/if}
 
-                <!-- Part Of Section -->
-                <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
-                    <Title level={3} variant="field" color="secondary" weight="medium">
-                        {$t("common.footer.funding.partOf")}
-                    </Title>
-                    <div
-                        class="flex items-center gap-2 sm:gap-3"
-                        role="list"
-                        aria-label={$t("common.footer.a11y.partnerOrganizations")}
-                    >
-                        {#each config.partOf as partner (partner.src)}
-                            <FooterPartnerImage
-                                src={partner.src}
-                                alt={partner.alt}
-                                href={partner.href}
-                                size={partner.size}
-                                class={partner.class}
-                            />
-                        {/each}
-                    </div>
+                    {#if config.partOf.length > 0}
+                        <!-- Part Of Section -->
+                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                            <Title level={3} variant="field" color="secondary" weight="medium">
+                                {$t("common.footer.funding.partOf")}
+                            </Title>
+                            <div
+                                class="flex items-center gap-2 sm:gap-3"
+                                role="list"
+                                aria-label={$t("common.footer.a11y.partnerOrganizations")}
+                            >
+                                {#each config.partOf as partner (partner.src)}
+                                    <FooterPartnerImage
+                                        src={partner.src}
+                                        alt={partner.alt}
+                                        href={partner.href}
+                                        size={partner.size}
+                                        class={partner.class}
+                                    />
+                                {/each}
+                            </div>
+                        </div>
+                    {/if}
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    {/if}
 
     <div
         class="bg-secondary relative rounded-t-3xl bg-size-[116%_114%] bg-position-[-127%_42%] bg-no-repeat min-[700px]:bg-size-[64%_108%] min-[700px]:bg-position-[114%]"
