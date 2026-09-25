@@ -2,7 +2,7 @@
     import FooterLink from "../components/footer/FooterLink.svelte";
     import FooterPartnerImage from "../components/footer/FooterPartnerImage.svelte";
     import Title from "../components/library/typography/Title.svelte";
-    import { FOOTER_CONFIG as config } from "../config/footer";
+    import { FOOTER_DATA as config } from "./footer-data";
     import { t } from "../i18n/store";
 </script>
 
@@ -166,7 +166,7 @@
                                 <a
                                     href={link.href}
                                     class="focus:ring-purple-soft focus:ring-offset-secondary rounded-sm transition-all duration-200 hover:opacity-80 focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                                    aria-label={$t(link.ariaLabelKey)}
+                                    aria-label={$t(link.labelKey)}
                                 >
                                     <link.icon width="24" height="24" />
                                 </a>
