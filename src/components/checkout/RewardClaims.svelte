@@ -1,95 +1,24 @@
 <script lang="ts">
     import { get } from "svelte/store";
 
-    import { apiProjectRewardClaimsPost, type GatewayCharge } from "../../openapi/client";
-    import { client } from "../../openapi/client/client.gen";
-    import {
-        apiGatewayChargesIdGetUrl,
-        apiProjectRewardsIdGetUrl,
-    } from "../../openapi/client/operation-paths.gen";
-    import { cart, clearForUser, type CheckoutItem } from "../../stores/checkoutsStore";
+    import { cart, clearForUser } from "../../stores/checkoutsStore";
 
     let {
         userId,
-        charges,
+        checkoutId,
     }: {
         userId?: number;
-        charges: GatewayCharge[];
+        checkoutId: string;
     } = $props();
 
     /**
-     * Pairs each cart item with the GatewayCharge that paid for it.
-     *
-     * The v4 payment API has no way to know that a charge pays for a Reward, so
-     * the association must be recovered from the local cart. The charges come
-     * from the checkout already fetched and validated in `verify.astro`, so
-     * they carry the same fields the cart item was created with.
+     * Submits the paid cart items to `/api/checkout/rewardClaims`, where the items are
+     * matched to the checkout's GatewayCharges and the ProjectRewardClaims are
+     * created. Running that on the server means a page close mid-request cannot
+     * leave the claims half-done: once this request is sent, the endpoint
+     * completes every claim on its own.
      */
-    function pairRewardsToCharges(
-        items: CheckoutItem[],
-        charges: GatewayCharge[],
-    ): Array<{ reward: string; charge: string }> {
-        const pendingItems: CheckoutItem[] = [];
-        const usedCharges = new Set<GatewayCharge>();
-
-        const toClaim = (
-            item: CheckoutItem,
-            charge: GatewayCharge,
-        ): { reward: string; charge: string } => ({
-            reward: client.buildUrl({
-                url: apiProjectRewardsIdGetUrl,
-                path: { id: item.reward!.id },
-            }),
-            charge: client.buildUrl({
-                url: apiGatewayChargesIdGetUrl,
-                path: { id: charge.id },
-            }),
-        });
-
-        const claims: Array<{ reward: string; charge: string }> = [];
-
-        for (const item of items) {
-            if (item.kind !== "reward" || item.reward?.id == null) continue;
-
-            const match = charges.find(
-                (charge) =>
-                    !usedCharges.has(charge) &&
-                    charge.target === item.target &&
-                    charge.title === item.title &&
-                    charge.type === item.type &&
-                    charge.money.amount === item.money.amount &&
-                    charge.money.currency === item.money.currency,
-            );
-
-            if (!match) {
-                pendingItems.push(item);
-                continue;
-            }
-
-            usedCharges.add(match);
-            claims.push(toClaim(item, match));
-        }
-
-        // Items that did not match by fields fall back to the next unused
-        // charge, relying on the 1:1 creation order preserved in the checkout.
-        for (const item of pendingItems) {
-            const next = charges.find((charge) => !usedCharges.has(charge));
-
-            if (!next) {
-                console.warn("No charge left for reward item:", item);
-                continue;
-            }
-
-            usedCharges.add(next);
-            claims.push(toClaim(item, next));
-        }
-
-        return claims;
-    }
-
     async function claimRewards() {
-        let allSucceeded = true;
-
         try {
             // Guard: a finalised cart must never be re-claimed. The store's
             // soft-delete keeps the items around (just flags `finalised:
@@ -106,34 +35,36 @@
 
             if (!hasRewards) return;
 
-            const claims = pairRewardsToCharges(items, charges);
+            const response = await fetch("/api/checkout/rewardClaims", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ checkoutId, items }),
+            });
 
-            for (const claim of claims) {
-                const { error } = await apiProjectRewardClaimsPost({
-                    baseUrl: "/api/relay",
-                    body: claim,
-                });
-
-                if (error) {
-                    console.error("[RewardClaims] failed:", claim.reward, error);
-                    throw new Error(`[RewardClaims] claim for reward ${claim.reward} rejected`);
-                }
+            if (!response.ok) {
+                throw new Error(`Claims endpoint replied ${response.status}`);
             }
+
+            const { failed, unmatched }: { failed: number; unmatched: number } =
+                await response.json();
+
+            // Only clear the user's cart once every claim succeeded. Unmatched
+            // items and rejected claims keep the cart intact so the data can be
+            // inspected and a later run re-tries — claims that already exist are
+            // idempotent, so re-trials are safe.
+            if (failed > 0 || unmatched > 0) {
+                throw new Error(`Claims not created — failed: ${failed}, unmatched: ${unmatched}`);
+            }
+
+            if (userId != null) clearForUser(userId);
         } catch (err) {
-            allSucceeded = false;
             console.error("[RewardClaims] error:", err);
-        } finally {
-            // Only clear the user's cart once every claim succeeded. If any
-            // single claim was rejected mid-claim, the cart stays intact so
-            // the $effect above re-runs against the same charges/chart data
-            // once they change — never erasing the chance to re-try.
-            if (allSucceeded && userId != null) clearForUser(userId);
         }
     }
 
-    // Submit claims when the cart holds rewards (and re-submit if the
-    // charges/cart they pair against change). The `finally` above clears the
-    // user's cart, so later effect runs exit early on the `!hasRewards` guard.
+    // Submit claims when the cart holds rewards. The `clearForUser` above
+    // finalises the cart, so later effect runs exit early on the `!hasRewards`
+    // or `finalised` guards.
     $effect(() => {
         if (
             Object.values(get(cart).items).some(
