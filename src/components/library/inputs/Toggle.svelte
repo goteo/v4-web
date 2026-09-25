@@ -7,7 +7,10 @@
 
     import type { HTMLButtonAttributes } from "svelte/elements";
 
-    interface Props extends Omit<HTMLButtonAttributes, "class"> {
+    interface Props extends Omit<HTMLButtonAttributes, "class" | "value"> {
+        /** Current state, `true` for on */
+        value?: boolean;
+
         /**
          * Callback function that receives the new value of the state
          * @param value `true` for on, `false` for off
@@ -30,6 +33,7 @@
     }
 
     let {
+        value = $bindable(false),
         onChange,
         btnClass,
         btnClassOn,
@@ -39,8 +43,6 @@
         circleClassOff,
         ...rest
     }: Props = $props();
-
-    let value = $state(false);
 
     function handleToggle() {
         value = !value;
