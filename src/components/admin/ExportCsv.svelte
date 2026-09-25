@@ -14,12 +14,14 @@
         filenamePrefix = "export",
         totalItems = undefined,
         size = "sm",
+        disabled = false,
     } = $props<{
         endpoint?: string;
         queryParams?: Record<string, unknown>;
         filenamePrefix?: string;
         totalItems?: number;
         size?: "sm" | "md";
+        disabled?: boolean;
     }>();
 
     const iconSize = $derived(size === "md" ? "24" : "16");
@@ -157,7 +159,8 @@
         {size}
         kind="secondary"
         onclick={handleExportCSV}
-        disabled={isExporting}
+        disabled={disabled || isExporting}
+        class={disabled ? "cursor-not-allowed opacity-50 hover:cursor-not-allowed" : ""}
         aria-label={$t("domain.export.csv")}
     >
         {#if isExporting}

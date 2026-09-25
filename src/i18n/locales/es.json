@@ -1193,7 +1193,8 @@
             "type": "Tipo de colaboración",
             "assign": "Asignar"
           },
-          "error": "No se ha podido actualizar la colaboración"
+          "error": "No se ha podido actualizar la colaboración",
+          "search": "Busca usuario..."
         }
       }
     },

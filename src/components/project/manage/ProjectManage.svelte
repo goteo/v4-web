@@ -9,6 +9,7 @@
         apiProjectCollaborationsGetCollection,
         apiProjectRewardClaimsGetCollection,
         apiProjectRewardsGetCollection,
+        apiUsersGetCollection,
         apiUsersIdOrHandleGet,
     } from "../../../openapi/client";
     import { formatCurrency } from "../../../utils/currencies";
@@ -52,7 +53,11 @@
         total: 0,
         loading: true,
     });
-    let search = $state("");
+    let claimsSearch = $state("");
+    let candidaciesSearch = $state("");
+    /** User IRIs matching each search box; `undefined` means no user filter */
+    let claimOwners = $state<string[]>();
+    let candidacyUsers = $state<string[]>();
     let showError = $state(false);
     // ponytail: claims have no status field in the API yet; kept in memory until it exists
     let claimStatuses = $state<Record<number, ClaimStatus>>({});
@@ -63,12 +68,25 @@
     const collaborationIris = $derived(
         collaborations.map((c) => `/v4/project_collaborations/${c.id}`),
     );
-    // ponytail: the API has no text filter for claims, so search only narrows the current page
-    const visibleClaims = $derived(
-        claims.rows.filter((c) =>
-            (userNames[c.owner ?? ""] ?? "").toLowerCase().includes(search.trim().toLowerCase()),
-        ),
-    );
+    async function userIrisFor(term: string): Promise<string[] | undefined> {
+        if (!term.trim()) return undefined;
+        const { data } = await apiUsersGetCollection({ ...relay, query: { q: term.trim() } });
+        return toCollectionItems<{ id?: number }>(data).map((u) => `/v4/users/${u.id}`);
+    }
+
+    async function searchClaims() {
+        claimOwners = await userIrisFor(claimsSearch);
+        loadClaims(1);
+    }
+
+    async function searchCandidacies() {
+        candidacyUsers = await userIrisFor(candidaciesSearch);
+        loadCandidacies(1);
+    }
+
+    const onEnter = (search: () => void) => (e: KeyboardEvent) => {
+        if (e.key === "Enter") search();
+    };
 
     function totalOf(collection: unknown): number {
         const total = (collection as Record<string, unknown>)?.totalItems;
@@ -88,10 +106,21 @@
     }
 
     async function loadClaims(page: number) {
+        // An empty owner[] would disable the filter, so no matching users means no rows
+        if (claimOwners?.length === 0) {
+            claims = { rows: [], page: 1, total: 0, loading: false };
+            return;
+        }
+
         claims.loading = true;
         const { data } = await apiProjectRewardClaimsGetCollection({
             ...relay,
-            query: { "reward[]": rewardIris, page, itemsPerPage: ITEMS_PER_PAGE },
+            query: {
+                "reward[]": rewardIris,
+                "owner[]": claimOwners,
+                page,
+                itemsPerPage: ITEMS_PER_PAGE,
+            },
         });
         const rows = toCollectionItems<ProjectRewardClaim>(data);
         await loadUserNames(rows.map((r) => r.owner));
@@ -99,10 +128,20 @@
     }
 
     async function loadCandidacies(page: number) {
+        if (candidacyUsers?.length === 0) {
+            candidacies = { rows: [], page: 1, total: 0, loading: false };
+            return;
+        }
+
         candidacies.loading = true;
         const { data } = await apiProjectCollaborationCandidaciesGetCollection({
             ...relay,
-            query: { "collaboration[]": collaborationIris, page, itemsPerPage: ITEMS_PER_PAGE },
+            query: {
+                "collaboration[]": collaborationIris,
+                "user[]": candidacyUsers,
+                page,
+                itemsPerPage: ITEMS_PER_PAGE,
+            },
         });
         const rows = toCollectionItems<ProjectCollaborationCandidacy>(data);
         await loadUserNames(rows.map((r) => r.user));
@@ -230,24 +269,29 @@
             </Title>
             <div class="flex flex-col gap-6 md:flex-row md:items-center">
                 <Search
-                    bind:value={search}
+                    bind:value={claimsSearch}
                     placeholder={$t("pages.project.manage.claims.search")}
                     class="bg-white md:w-94"
+                    onsubmit={searchClaims}
+                    onkeydown={onEnter(searchClaims)}
+                    onclear={() => {
+                        claimsSearch = "";
+                        searchClaims();
+                    }}
                 />
-                {#if rewardIris.length}
-                    <ExportCsv
-                        endpoint="/v4/project_reward_claims"
-                        queryParams={{ "reward[]": rewardIris }}
-                        filenamePrefix="reward_claims"
-                        size="md"
-                        totalItems={claims.total}
-                    />
-                {/if}
+                <ExportCsv
+                    endpoint="/v4/project_reward_claims"
+                    queryParams={{ "reward[]": rewardIris, "owner[]": claimOwners }}
+                    filenamePrefix="reward_claims"
+                    size="md"
+                    totalItems={claims.total}
+                    disabled={!rewardIris.length || !claims.total}
+                />
             </div>
         </div>
         <DataTable
             headers={claimHeaders}
-            rows={visibleClaims}
+            rows={claims.rows}
             isLoading={claims.loading}
             emptyMessage="pages.project.manage.claims.noData"
             currentPage={claims.page}
@@ -295,9 +339,36 @@
     </section>
 
     <section class="flex flex-col gap-6">
-        <Title level={2} variant="subsection" weight="bold">
-            {$t("pages.project.manage.collaborations.title")}
-        </Title>
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <Title level={2} variant="subsection" weight="bold">
+                {$t("pages.project.manage.collaborations.title")}
+            </Title>
+            <div class="flex flex-col gap-6 md:flex-row md:items-center">
+                <Search
+                    id="candidacies-search"
+                    bind:value={candidaciesSearch}
+                    placeholder={$t("pages.project.manage.collaborations.search")}
+                    class="bg-white md:w-94"
+                    onsubmit={searchCandidacies}
+                    onkeydown={onEnter(searchCandidacies)}
+                    onclear={() => {
+                        candidaciesSearch = "";
+                        searchCandidacies();
+                    }}
+                />
+                <ExportCsv
+                    endpoint="/v4/project_collaboration_candidacies"
+                    queryParams={{
+                        "collaboration[]": collaborationIris,
+                        "user[]": candidacyUsers,
+                    }}
+                    filenamePrefix="collaboration_candidacies"
+                    totalItems={candidacies.total}
+                    size="md"
+                    disabled={!collaborationIris.length || !candidacies.total}
+                />
+            </div>
+        </div>
         <DataTable
             headers={candidacyHeaders}
             rows={candidacies.rows}
