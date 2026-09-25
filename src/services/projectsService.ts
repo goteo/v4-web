@@ -1,11 +1,12 @@
+import { get } from "svelte/store";
+
+import { locale } from "../i18n/store";
 import { apiProjectsGetCollection } from "../openapi/client/sdk.gen";
 import { constrainToPublicStatuses } from "../utils/projectStatus";
 
 import type { AuthError } from "../openapi/api";
 import type { Project } from "../openapi/client/types.gen";
 import type { SearchFilters } from "../stores/searchStore";
-import { get } from "svelte/store";
-import { locale } from "../i18n/store";
 
 /**
  * Simple service wrapper for project API calls
