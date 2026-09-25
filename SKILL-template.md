@@ -189,7 +189,7 @@ Register new actions in the `server` object of `src/actions/index.ts`. Throw `Ac
 
 ## SDK (`@hey-api`)
 
-Generated in `src/openapi/client/` — do not edit. Regenerate with `pnpm openapi` (needs the API running and env vars set); commit generated files together with the config change.
+Generated in `src/openapi/client/` — do not edit. Regenerate with `pnpm sdk` (needs the API running and env vars set); commit generated files together with the config change.
 
 Functions follow `api{Resource}{Operation}` (e.g. `apiProjectsIdOrSlugGet`, `apiUsersIdpersonPatch`); path constants add a `Url` suffix in `operation-paths.gen.ts`.
 

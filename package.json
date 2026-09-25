@@ -21,7 +21,7 @@
     "format": "NODE_OPTIONS=\"--max-old-space-size=4096\" eslint --fix . && prettier --write .",
     "format:eslint": "eslint --fix . ",
     "format:prettier": "prettier --write .",
-    "openapi": "openapi-ts",
+    "sdk": "openapi-ts",
     "preview": "astro preview",
     "preview:ci": "NODE_ENV=test NODE_TLS_REJECT_UNAUTHORIZED=0 SKIP_PAYMENT_GATEWAYS=true PAYMENT_GATEWAYS_ENABLED=false wrangler dev --env preview --port 4321 --ip 0.0.0.0",
     "storybook": "storybook dev -p 6006",
