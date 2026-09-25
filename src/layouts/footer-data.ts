@@ -6,7 +6,7 @@ import X from "../components/icons/social/X.svelte";
 
 import type { FooterConfig } from "../types/footer";
 
-export const FOOTER_CONFIG: FooterConfig = {
+export const FOOTER_DATA: FooterConfig = {
     funding: [
         { src: "/images/partners/NGEU.png", alt: "Funded by the European Union NextGeneration EU" },
         { src: "/images/partners/MTES.png", alt: "Ministerio de Trabajo y Economía Social" },
@@ -118,27 +118,27 @@ export const FOOTER_CONFIG: FooterConfig = {
         {
             icon: Gmail,
             href: "mailto:info@goteo.org",
-            ariaLabelKey: "common.footer.a11y.social.email",
+            labelKey: "common.footer.a11y.social.email",
         },
         {
             icon: Instagram,
             href: "https://instagram.com/goteofunding",
-            ariaLabelKey: "common.footer.a11y.social.instagram",
+            labelKey: "common.footer.a11y.social.instagram",
         },
         {
             icon: Facebook,
             href: "https://facebook.com/goteofunding",
-            ariaLabelKey: "common.footer.a11y.social.facebook",
+            labelKey: "common.footer.a11y.social.facebook",
         },
         {
             icon: X,
             href: "https://twitter.com/goteofunding",
-            ariaLabelKey: "common.footer.a11y.social.x",
+            labelKey: "common.footer.a11y.social.x",
         },
         {
             icon: Linkedin,
             href: "https://www.linkedin.com/company/platoniqlab",
-            ariaLabelKey: "common.footer.a11y.social.linkedin",
+            labelKey: "common.footer.a11y.social.linkedin",
         },
     ],
     brand: {
