@@ -1,5 +1,6 @@
 <script lang="ts">
     import BaseActivityCard from "./BaseActivityCard.svelte";
+    import { locale, t } from "../../i18n/store";
     import {
         apiAccountingsIdGet,
         apiMatchCallsGetCollection,
@@ -16,11 +17,6 @@
 
     interface Props {
         /**
-         * Current language locale
-         */
-        lang: string;
-
-        /**
          * Authenticated user whose matchfunding calls are listed
          */
         user: User;
@@ -32,178 +28,208 @@
         onHasData?: (hasData: boolean) => void;
     }
 
-    let { lang, user, onHasData }: Props = $props();
+    let { user, onHasData }: Props = $props();
 
-    let data = $state<MatchfundingCardData | undefined>(undefined);
-    let matchfundingPromise = $state<Promise<MatchfundingCardData | undefined>>(
-        Promise.resolve(undefined),
-    );
+    let data = $state<Promise<MatchfundingCardData | undefined>>();
 
-    const hasData = $derived(!!(data && data.totalCalls > 0));
-    const formattedTotal = $derived(
-        data?.totalDonated
-            ? formatAmountWithSymbol(data.totalDonated.amount, data.totalDonated.currency, lang)
-            : "",
-    );
+    const MATCH_CALLS_PER_PAGE = 30;
 
-    async function fetchMatchfunding() {
-        try {
-            const headers = {
-                "Accept-Language": lang,
-            };
+    type MatchCallsCollection = {
+        member?: MatchCall[];
+        "hydra:member"?: MatchCall[];
+        totalItems?: number;
+        "hydra:totalItems"?: number;
+    };
 
+    async function fetchMatchfunding(): Promise<MatchfundingCardData> {
+        const headers = {
+            "Accept-Language": $locale,
+        };
+
+        // Fetch all match calls for this user (filtered by manager server-side),
+        // paging through with JSON-LD to get the real total, since all of them are
+        // needed to sum their accountings.
+        const allCalls: MatchCall[] = [];
+        let currentPage = 1;
+        let totalItems = 0;
+
+        do {
             const { data: callsData, error: callsError } = await apiMatchCallsGetCollection({
                 baseUrl: "/api/relay",
                 query: {
-                    itemsPerPage: 100,
+                    "managers.id": user.id,
+                    page: currentPage,
+                    itemsPerPage: MATCH_CALLS_PER_PAGE,
+                } as any,
+                headers: {
+                    Accept: "application/ld+json",
+                    ...headers,
                 },
-                headers,
             });
 
             if (callsError) {
                 console.warn("Failed to fetch matchfunding calls:", callsError);
-                data = undefined;
-                return;
+                throw callsError;
             }
 
-            const calls = toCollectionItems<MatchCall>(callsData);
+            const collection = (callsData as unknown as MatchCallsCollection) ?? {};
+            allCalls.push(...toCollectionItems<MatchCall>(collection));
+            totalItems = collection.totalItems ?? collection["hydra:totalItems"] ?? allCalls.length;
+            currentPage++;
+        } while (allCalls.length < totalItems);
 
-            // Filter calls where the user is a manager.
-            // managers is Array<string> containing IRI paths like "/v4/users/123"
-            const userCalls = calls.filter((call) => {
-                if (!call.managers || call.managers.length === 0) return false;
-                return call.managers.some((managerIri) => managerIri.includes(String(user.id)));
-            });
+        const calls = allCalls;
 
-            if (userCalls.length === 0) {
-                data = undefined;
-                return;
-            }
-
-            // Fetch accounting data for each call to get donation amounts
-            const callAccountings = await Promise.all(
-                userCalls.map(async (call) => {
-                    const accountingId = extractId(call.accounting);
-                    if (!accountingId)
-                        return {
-                            callId: call.id,
-                            amount: 0,
-                            currency: getDefaultCurrency(),
-                        };
-
-                    try {
-                        const { data: accounting } = await apiAccountingsIdGet({
-                            baseUrl: "/api/relay",
-                            path: { id: accountingId },
-                            headers,
-                        });
-
-                        return {
-                            callId: call.id,
-                            amount: accounting?.balance?.amount || 0,
-                            currency: accounting?.balance?.currency || getDefaultCurrency(),
-                        };
-                    } catch {
-                        return {
-                            callId: call.id,
-                            amount: 0,
-                            currency: getDefaultCurrency(),
-                        };
-                    }
-                }),
-            );
-
-            // Calculate total donated across all calls
-            const totalDonatedMoney = sumMoney(
-                callAccountings.map((acc) => ({
-                    amount: acc.amount,
-                    currency: acc.currency,
-                })),
-            );
-            const totalDonated = totalDonatedMoney.amount ?? 0;
-            const currency = totalDonatedMoney.currency ?? getDefaultCurrency();
-
-            // Get recent calls (up to 3)
-            const recentCalls = userCalls.slice(0, 3).map((call, index) => ({
-                id: call.id || 0,
-                title: call.title || "",
-                donationAmount: {
-                    amount: callAccountings[index]?.amount || 0,
-                    currency: callAccountings[index]?.currency || getDefaultCurrency(),
-                },
-            }));
-
-            data = {
-                totalCalls: userCalls.length,
-                totalDonated: {
-                    amount: totalDonated,
-                    currency,
-                },
-                recentCalls,
+        if (calls.length === 0) {
+            return {
+                totalCalls: 0,
+                totalDonated: { amount: 0, currency: getDefaultCurrency() },
+                recentCalls: [],
             };
-            return data;
-        } catch (matchfundingError) {
-            console.warn("Failed to fetch matchfunding data:", matchfundingError);
-            // Don't fail the whole page if matchfunding fails
-            throw matchfundingError;
-        } finally {
-            // nop
         }
+
+        // Fetch accounting data for each call to get donation amounts
+        const callAccountings = await Promise.all(
+            calls.map(async (call) => {
+                const accountingId = extractId(call.accounting);
+                if (!accountingId)
+                    return {
+                        callId: call.id,
+                        amount: 0,
+                        currency: getDefaultCurrency(),
+                    };
+
+                try {
+                    const { data: accounting } = await apiAccountingsIdGet({
+                        baseUrl: "/api/relay",
+                        path: { id: accountingId },
+                        headers,
+                    });
+
+                    return {
+                        callId: call.id,
+                        amount: accounting?.balance?.amount || 0,
+                        currency: accounting?.balance?.currency || getDefaultCurrency(),
+                    };
+                } catch {
+                    return {
+                        callId: call.id,
+                        amount: 0,
+                        currency: getDefaultCurrency(),
+                    };
+                }
+            }),
+        );
+
+        // Calculate total donated across all calls
+        const totalDonatedMoney = sumMoney(
+            callAccountings.map((acc) => ({
+                amount: acc.amount,
+                currency: acc.currency,
+            })),
+        );
+        const totalDonated = totalDonatedMoney.amount ?? 0;
+        const currency = totalDonatedMoney.currency ?? getDefaultCurrency();
+
+        // Get recent calls (up to 3)
+        const recentCalls = calls.slice(0, 3).map((call, index) => ({
+            id: call.id || 0,
+            title: call.title || "",
+            donationAmount: {
+                amount: callAccountings[index]?.amount || 0,
+                currency: callAccountings[index]?.currency || getDefaultCurrency(),
+            },
+        }));
+
+        return {
+            totalCalls: calls.length,
+            totalDonated: {
+                amount: totalDonated,
+                currency,
+            },
+            recentCalls,
+        };
     }
 
     $effect(() => {
-        matchfundingPromise = fetchMatchfunding();
+        data = fetchMatchfunding();
     });
 
-    // Notify the parent about its presence so the grid columns can adapt
+    // Notify the parent whether the card rendered data, so the grid columns can adapt
     $effect(() => {
-        onHasData?.(hasData);
+        data?.then((summary) => {
+            onHasData?.(!!(summary && summary.totalCalls > 0));
+        });
     });
 </script>
 
-{#await matchfundingPromise}
+{#if data}
+    {#await data}
+        <!-- Loading state -->
+        <div
+            class="border-grey flex min-h-96 items-center justify-center rounded-4xl border bg-white"
+        >
+            <div class="flex items-center gap-2">
+                <LoadingSpinner />
+                <p class="text-content">{$t("system.loading")}</p>
+            </div>
+        </div>
+    {:then summary}
+        <BaseActivityCard
+            titleKey="pages.me.matchfunding.card.title"
+            leftStatLabel="pages.me.matchfunding.card.calls"
+            leftStatValue={summary?.totalCalls ?? 0}
+            rightStatLabel="pages.me.matchfunding.card.donated"
+            rightStatValue={summary?.totalDonated
+                ? formatAmountWithSymbol(
+                      summary.totalDonated.amount,
+                      summary.totalDonated.currency,
+                      $locale,
+                  )
+                : ""}
+            recentTitleKey="pages.me.matchfunding.card.recent"
+            illustrationPath="/images/profile/ilustration-matchfunding.png"
+            primaryActionLabel="pages.me.matchfunding.card.viewAll"
+            primaryActionHref={$locale === "es"
+                ? "/me/matchfunding"
+                : `/${$locale}/me/matchfunding`}
+            secondaryActionLabel="pages.me.matchfunding.card.create"
+            secondaryActionHref={$locale === "es"
+                ? "/matchfunding/new"
+                : `/${$locale}/matchfunding/new`}
+            isEmpty={false}
+        >
+            {#if summary?.recentCalls}
+                {#each summary.recentCalls.slice(0, 2) as call}
+                    <li class="flex flex-wrap items-center gap-2">
+                        <span class="text-sm font-semibold text-black">
+                            {formatAmountWithSymbol(
+                                call.donationAmount.amount,
+                                call.donationAmount.currency,
+                                $locale,
+                            )}
+                        </span>
+                        <span class="text-sm font-semibold text-black"> - </span>
+                        <span class="text-content text-sm">
+                            {call.title}
+                        </span>
+                    </li>
+                {/each}
+            {/if}
+        </BaseActivityCard>
+    {:catch matchfundingError}
+        <div
+            class="border-grey flex min-h-96 items-center justify-center rounded-4xl border bg-white"
+        >
+            <p class="text-tertiary font-semibold">{matchfundingError.message}</p>
+        </div>
+    {/await}
+{:else}
     <!-- Loading state -->
     <div class="border-grey flex min-h-96 items-center justify-center rounded-4xl border bg-white">
         <div class="flex items-center gap-2">
             <LoadingSpinner />
-            <p class="text-content">Loading...</p>
+            <p class="text-content">{$t("system.loading")}</p>
         </div>
     </div>
-{:then data}
-    <BaseActivityCard
-        titleKey="pages.me.matchfunding.card.title"
-        leftStatLabel="pages.me.matchfunding.card.calls"
-        leftStatValue={data?.totalCalls ?? 0}
-        rightStatLabel="pages.me.matchfunding.card.donated"
-        rightStatValue={formattedTotal}
-        recentTitleKey="pages.me.matchfunding.card.recent"
-        illustrationPath="/images/profile/ilustration-matchfunding.png"
-        primaryActionLabel="pages.me.matchfunding.card.viewAll"
-        primaryActionHref={lang === "es" ? "/me/matchfunding" : `/${lang}/me/matchfunding`}
-        secondaryActionLabel="pages.me.matchfunding.card.create"
-        secondaryActionHref={lang === "es" ? "/matchfunding/new" : `/${lang}/matchfunding/new`}
-        isEmpty={false}
-    >
-        {#if data?.recentCalls}
-            {#each data.recentCalls.slice(0, 2) as call}
-                <li class="flex flex-wrap items-center gap-2">
-                    <span class="text-sm font-semibold text-black">
-                        {formatAmountWithSymbol(
-                            call.donationAmount.amount,
-                            call.donationAmount.currency,
-                            lang,
-                        )}
-                    </span>
-                    <span class="text-sm font-semibold text-black"> - </span>
-                    <span class="text-content text-sm">
-                        {call.title}
-                    </span>
-                </li>
-            {/each}
-        {/if}
-    </BaseActivityCard>
-{:catch matchfundingError}
-    <div class="border-grey flex min-h-96 items-center justify-center rounded-4xl border bg-white">
-        <p class="text-tertiary font-semibold">{matchfundingError.message}</p>
-    </div>
-{/await}
+{/if}

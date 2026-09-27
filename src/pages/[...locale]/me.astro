@@ -38,7 +38,7 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
             </div>
 
             <!-- Activity cards grid (client-side data fetching) -->
-            <ActivitySection {lang} {period} {user} client:load />
+            <ActivitySection {period} {user} client:load />
 
             <!-- Matchfunding Section (client-side data fetching) -->
             <MatchfundingSection {lang} {user} client:visible />

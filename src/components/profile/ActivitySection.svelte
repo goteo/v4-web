@@ -7,12 +7,11 @@
     import type { User } from "../../openapi/client/types.gen.ts";
 
     interface Props {
-        lang: string;
         period?: string;
         user: User;
     }
 
-    let { lang, period = new Date().getFullYear().toString(), user }: Props = $props();
+    let { period = new Date().getFullYear().toString(), user }: Props = $props();
 
     let hasMatchfunding = $state(false);
 
@@ -26,7 +25,9 @@
         ? "grid-cols-1 gap-6 lg:grid-cols-3"
         : "grid-cols-1 gap-6 lg:grid-cols-2"}
 >
-    <DonationsCard {lang} {period} {user} />
-    <ProjectsCard {lang} {period} {user} />
-    <MatchfundingCard {lang} {user} onHasData={onMatchfundingDataChange} />
+    <DonationsCard {period} {user} />
+    <ProjectsCard {period} {user} />
+    <div class={hasMatchfunding ? "" : "hidden"}>
+        <MatchfundingCard {user} onHasData={onMatchfundingDataChange} />
+    </div>
 </Grid>
