@@ -23,6 +23,8 @@
         size?: keyof typeof sizeStyles;
         class?: ClassNameValue;
     } = $props();
+
+    const external = $derived(!!href && href.startsWith("http"));
 </script>
 
 {#snippet image()}
@@ -38,7 +40,9 @@
     <a
         {href}
         class="focus:ring-purple-soft focus:ring-offset-purple-soft rounded-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
-        aria-label={hrefAriaLabel || `Visit ${href}`}
+        aria-label={hrefAriaLabel}
+        target={external ? "_blank" : undefined}
+        rel={external ? "noopener noreferrer" : undefined}
     >
         {@render image()}
     </a>

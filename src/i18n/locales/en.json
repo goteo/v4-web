@@ -365,7 +365,6 @@
         "forUsers": {
           "title": "For users",
           "rechargeWallet": "Top up your wallet",
-          "downloadCertificate": "Download certificate",
           "accessComplementaryFunds": "Access complementary funds",
           "designFundingProgram": "Design a funding program"
         }
@@ -508,10 +507,6 @@
       "postPayment": {
         "title": "Congratulations! Thank you for your donation",
         "emailSent": "We have sent a summary to:",
-        "certificate": {
-          "title": "How do I request my certificate?",
-          "description": "The certificate is generated automatically at the end of the fiscal year (December). We will send you an email once we have submitted the documentation to the tax authorities. If we encounter any issues, we will contact you by email."
-        },
         "donatedProjects": {
           "title": "You have donated to the following projects"
         },
@@ -1104,9 +1099,6 @@
         "banner": {
           "donator": {
             "description": "Goteo belongs to the Platoniq Foundation. When you contribute to a campaign, your money will be held by Platoniq and donated to {{owner}} if the stated success goals are reached."
-          },
-          "certificate": {
-            "description": "When you support a project promoted on Goteo, you can request a donation certificate. This way, you can deduct up to 80% of what you have contributed on your next income tax return."
           }
         },
         "langNotAvailable": "The selected language \"{{lang}}\" is not available for this project. Showing content in the available language.",
@@ -1607,7 +1599,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Download certificates",
           "pdf": "Download PDF"
         },
         "lastEdited": "Last modified: {{date}} {{time}}",
@@ -1739,7 +1730,6 @@
                 "contributions": "Contributions",
                 "donors": "Campaign donors",
                 "financialReport": "Funding report",
-                "certificates": "Certificates",
                 "annotations": "Annotations"
               }
             },
@@ -1973,8 +1963,7 @@
         "count": "Donations",
         "total": "Total donated",
         "recent": "Latest donations",
-        "viewAll": "See all",
-        "certificate": "Request certificate"
+        "viewAll": "See all"
       },
       "projects": {
         "title": "Promoted projects",

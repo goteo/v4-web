@@ -3,8 +3,7 @@ import { currencySymbols } from "./currencyData";
 
 import type { Money } from "../openapi/client";
 
-function getSeparators(currency: string) {
-    const locale = getDefaultLanguage();
+function getSeparators(currency: string, locale: string) {
     const example = new Intl.NumberFormat(locale, {
         style: "currency",
         currency,
@@ -23,12 +22,14 @@ function getSeparators(currency: string) {
 /**
  * Parse a currency-like numeric string into a number
  * @param value {string}
+ * @param currency {string} ISO 4217 code, defaults to the platform currency
+ * @param locale {string} locale whose separators `value` uses, defaults to the platform language
  */
-export function parseCurrency(value: string, currency?: string): number {
+export function parseCurrency(value: string, currency?: string, locale?: string): number {
     if (currency === undefined) currency = getDefaultCurrency();
-    const locale = getDefaultLanguage();
+    if (locale === undefined) locale = getDefaultLanguage();
 
-    const { groupSep, decimalSep } = getSeparators(currency);
+    const { groupSep, decimalSep } = getSeparators(currency, locale);
     const { minimumFractionDigits: scale } = new Intl.NumberFormat(locale, {
         style: "currency",
         currency,
@@ -106,17 +107,6 @@ function formatUnits(
     });
 
     return asLocaleString ? formatter.format(rawAmount) : formattedAmount;
-}
-
-export function getUnit(currency?: string): number {
-    if (!currency) currency = getDefaultCurrency();
-
-    const currencyData = currencySymbols[currency];
-    if (!currencyData) return 0;
-
-    const { decimals } = currencyData;
-
-    return Math.pow(10, decimals);
 }
 
 /**

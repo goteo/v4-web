@@ -1,5 +1,5 @@
 <!--
-    Tiptap rich text editor with a bold / italic / alignment / font-size toolbar.
+    Tiptap rich text editor with a bold / italic / image / alignment / font-size toolbar.
 
     `format` picks the shape of `value` and of what `onChange` reports: Tiptap JSON (the default
     and the canonical one), HTML, Markdown or plain text. The editor always works in JSON
@@ -14,6 +14,7 @@
     import { untrack } from "svelte";
     import { twJoin, twMerge, type ClassNameValue } from "tailwind-merge";
 
+    import ImageUploadModal from "./ImageUploadModal.svelte";
     import { t } from "../../../i18n/store";
     import {
         ALIGNMENTS as ALIGNMENT_VALUES,
@@ -23,8 +24,10 @@
         serializeRichText,
     } from "../../../utils/richText";
     import Align from "../../icons/Align.svelte";
+    import Image from "../../icons/media/Image.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
 
+    import type { UploadedObject } from "../../../utils/media/objectStorage.types";
     import type { Alignment, RichTextFormat, RichTextValue } from "../../../utils/richText";
 
     interface RichTextEditorProps {
@@ -33,6 +36,7 @@
         onChange: (value: RichTextValue<F>) => void;
         format?: F;
         placeholder?: string;
+        labelText?: string;
         error?: string;
         ariaDescribedBy?: string;
         class?: ClassNameValue;
@@ -40,6 +44,7 @@
         maxLength?: number;
         showFontSize?: boolean;
         showAlignment?: boolean;
+        showImage?: boolean;
     }
 
     interface ToolbarButton {
@@ -49,6 +54,7 @@
         run: () => void;
         align?: Alignment;
         glyph?: { text: string; class: string };
+        image?: boolean;
     }
 
     let {
@@ -57,6 +63,7 @@
         onChange,
         format = "json" as F,
         placeholder = "",
+        labelText,
         error,
         ariaDescribedBy,
         class: className = "",
@@ -64,6 +71,7 @@
         maxLength,
         showFontSize = true,
         showAlignment = true,
+        showImage = true,
     }: RichTextEditorProps = $props();
 
     const ALIGNMENT_LABEL_KEYS: Record<Alignment, string> = {
@@ -77,6 +85,7 @@
 
     let editorElement = $state<HTMLDivElement>();
     let editor = $state<Editor | null>(null);
+    let showImageModal = $state(false);
 
     // The markdown converters are loaded on demand, so the editor waits for them before mounting.
     let markdownReady = $state(false);
@@ -105,6 +114,17 @@
             run: () => editor?.chain().focus().toggleItalic().run(),
             glyph: { text: "I", class: "font-serif italic" },
         },
+        ...(showImage
+            ? [
+                  {
+                      id: "image",
+                      labelKey: "domain.richTextEditor.image",
+                      active: false,
+                      run: () => (showImageModal = true),
+                      image: true,
+                  },
+              ]
+            : []),
     ]);
 
     const alignButtons: ToolbarButton[] = $derived(
@@ -130,6 +150,13 @@
         (minLength !== undefined && toolbar.characters < minLength) ||
             (maxLength !== undefined && toolbar.characters > maxLength),
     );
+
+    function insertImages(files: UploadedObject[]) {
+        const chain = editor?.chain().focus();
+        // `alt` is always set: the markdown renderer would otherwise emit `![null](src)`.
+        files.forEach((file) => chain?.setImage({ src: file.url, alt: file.name }));
+        chain?.run();
+    }
 
     function syncToolbar(instance: Editor) {
         toolbar.bold = instance.isActive("bold");
@@ -202,7 +229,7 @@
     });
 </script>
 
-{#snippet toolbarButton({ labelKey, active, run, align, glyph }: ToolbarButton)}
+{#snippet toolbarButton({ labelKey, active, run, align, glyph, image }: ToolbarButton)}
     <button
         type="button"
         onclick={run}
@@ -223,6 +250,8 @@
             />
         {:else if glyph}
             <span class={glyph.class}>{glyph.text}</span>
+        {:else if image}
+            <Image width="24" height="24" class="text-content" />
         {/if}
     </button>
 {/snippet}
@@ -271,14 +300,27 @@
         {/if}
     </div>
 
-    <div
-        {id}
-        bind:this={editorElement}
-        class={twJoin(
-            "max-h-100 overflow-y-auto rounded-lg border",
-            error ? "border-tertiary" : "border-secondary",
-        )}
-    ></div>
+    <div class="relative">
+        {#if labelText}
+            <label
+                for={id}
+                class={twJoin(
+                    "text-secondary absolute top-0 left-4 -translate-y-1/2 transform bg-white px-1 text-sm font-medium transition-all",
+                    error && "text-tertiary",
+                )}
+            >
+                {labelText}
+            </label>
+        {/if}
+        <div
+            {id}
+            bind:this={editorElement}
+            class={twJoin(
+                "max-h-100 overflow-y-auto rounded-lg border",
+                error ? "border-tertiary" : "border-secondary",
+            )}
+        ></div>
+    </div>
 
     {#if maxLength !== undefined}
         <p class={twJoin("text-right text-sm", isCountOutOfRange ? "text-tertiary" : "text-black")}>
@@ -293,6 +335,10 @@
         <p role="alert" class="text-tertiary mt-2 text-sm">{error}</p>
     {/if}
 </div>
+
+{#if showImage}
+    <ImageUploadModal bind:open={showImageModal} onConfirm={insertImages} />
+{/if}
 
 <style>
     :global(.tiptap) {
@@ -315,6 +361,17 @@
     :global(.tiptap strong) {
         font-weight: var(--font-weight-bold);
         color: var(--color-black);
+    }
+
+    :global(.tiptap img) {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: var(--text-lg);
+    }
+
+    :global(.tiptap img.ProseMirror-selectednode) {
+        outline: 2px solid var(--color-secondary);
     }
 
     :global(.tiptap p.is-editor-empty:first-child::before) {

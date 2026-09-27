@@ -184,22 +184,20 @@
             recentTitleKey="pages.me.projects.recent"
             illustrationPath="/images/profile/ilustration-project.png"
             primaryActionLabel="pages.me.projects.viewAll"
-            primaryActionHref={$locale === "es" ? "/me/projects" : `/${$locale}/me/projects`}
+            primaryActionHref="/me#owned-projects"
             secondaryActionLabel="pages.me.projects.createNew"
-            secondaryActionHref={$locale === "es" ? "/projects/new" : `/${$locale}/projects/new`}
+            secondaryActionHref="/create/project"
             isEmpty={!summary || summary.count === 0}
             emptyMessageKey="pages.me.projects.empty"
             emptyCtaLabel="pages.me.projects.create"
-            emptyCtaLink={$locale === "es" ? "/projects/new" : `/${$locale}/projects/new`}
+            emptyCtaLink="/create/project"
         >
             {#if summary?.recentProjects}
                 {#each summary.recentProjects.slice(0, 2) as project}
                     <li class="flex items-start gap-2">
                         {#if project.slug}
                             <a
-                                href={$locale === "es"
-                                    ? `/project/${project.slug}`
-                                    : `/${$locale}/project/${project.slug}`}
+                                href={`/project/${project.slug}`}
                                 class="text-content hover:text-secondary focus:text-secondary text-sm no-underline focus:outline-none"
                             >
                                 {project.title}

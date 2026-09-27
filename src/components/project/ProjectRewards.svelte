@@ -6,14 +6,19 @@
         apiProjectRewardsGetCollection,
     } from "../../openapi/client/index";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
-    import { getUnit } from "../../utils/currencies";
+    import { DEFAULT_CURRENCY } from "../../utils/currencies";
     import { extractId } from "../../utils/extractId";
     import Button from "../library/buttons/Button.svelte";
-    import TextInput from "../library/inputs/TextInput.svelte";
+    import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
     import Grid from "../library/layout/Grid.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    import type { ProjectReward, Project } from "../../openapi/client/index";
+    import type {
+        Accounting,
+        MoneyInput,
+        ProjectReward,
+        Project,
+    } from "../../openapi/client/index";
 
     let {
         lang = $bindable(),
@@ -26,6 +31,9 @@
     let projectId = $derived(project.id!.toString());
 
     let rewards: ProjectReward[] = $state([]);
+    let accounting: Accounting | undefined = $state();
+    let money = $state<MoneyInput>({ amount: 0, currency: DEFAULT_CURRENCY });
+    let amountError = $state("");
 
     $effect(() => {
         apiProjectRewardsGetCollection({
@@ -34,9 +42,14 @@
         }).then((data) => {
             rewards = data.data!;
         });
-    });
 
-    let freeAmount = $state("");
+        apiAccountingsIdGet({
+            path: { id: String(extractId(project.accounting)) },
+        }).then(({ data }) => {
+            accounting = data;
+            money.currency = data?.currency ?? DEFAULT_CURRENCY;
+        });
+    });
 
     let isAvailable = $state(calcAvailability());
     function calcAvailability(reward?: ProjectReward): boolean {
@@ -52,16 +65,12 @@
     }
 
     async function handleFreeDonation() {
-        const numericAmount = Number(freeAmount);
-
-        if (isNaN(numericAmount) || numericAmount <= 0) {
-            alert($t("pages.project.view.rewards.error.amount"));
+        if (money.amount <= 0) {
+            amountError = $t("pages.project.view.rewards.error.amount");
             return;
         }
 
-        const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: String(extractId(project.accounting)) },
-        });
+        amountError = "";
 
         cart.addItem({
             kind: "free",
@@ -72,10 +81,7 @@
             recipientDisplayName: project.title,
             target: project.accounting!,
             cover: project.cover,
-            money: {
-                amount: numericAmount * getUnit(accounting?.currency),
-                currency: accounting?.currency!,
-            },
+            money,
         });
 
         await checkoutReady();
@@ -109,10 +115,12 @@
                     </p>
                 </div>
                 <div class="mt-auto flex flex-col">
-                    <TextInput
-                        type="number"
-                        bind:value={freeAmount}
+                    <CurrencyInput
+                        amount={money.amount}
+                        currency={money.currency}
                         placeholder={$t("pages.project.view.rewards.donationFree.placeholder")}
+                        error={amountError}
+                        onInput={(newMoney) => (money = newMoney)}
                     />
                     <Button
                         kind="secondary"

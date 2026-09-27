@@ -190,13 +190,7 @@
             recentTitleKey="pages.me.matchfunding.card.recent"
             illustrationPath="/images/profile/ilustration-matchfunding.png"
             primaryActionLabel="pages.me.matchfunding.card.viewAll"
-            primaryActionHref={$locale === "es"
-                ? "/me/matchfunding"
-                : `/${$locale}/me/matchfunding`}
-            secondaryActionLabel="pages.me.matchfunding.card.create"
-            secondaryActionHref={$locale === "es"
-                ? "/matchfunding/new"
-                : `/${$locale}/matchfunding/new`}
+            primaryActionHref="/me#matchfunding"
             isEmpty={false}
         >
             {#if summary?.recentCalls}

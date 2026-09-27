@@ -46,9 +46,13 @@
         {/if}
     </div>
     <div class="flex flex-row flex-wrap items-center justify-start gap-8 md:justify-end">
+        <!-- GOTEO-OC-DONATION-CERTIFICATE: "Descarga certificados" button is exclusive to the
+             donation-certificate feature of Goteo under Fundación Platoniq, hidden in the
+             open-core. Re-enable when a feature toggle exists. Do not delete.
         <button class="text-secondary cursor-pointer bg-transparent font-bold">
             {$t("pages.admin.charges.downloadButtons.certificates")}
         </button>
+        -->
         <button class="text-secondary cursor-pointer bg-transparent font-bold">
             {$t("pages.admin.charges.downloadButtons.pdf")}
         </button>

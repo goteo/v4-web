@@ -14,6 +14,7 @@
         extractTerritory,
         type NominatimResult,
     } from "../../../services/nominatim";
+    import { debounce } from "../../../utils/debounce";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
 
     import type { Territory } from "../../../openapi/client";
@@ -52,8 +53,6 @@
     let options: TerritoryOption[] = $state([]);
     let selected: TerritoryOption[] = $state([]);
 
-    let searchTimer: ReturnType<typeof setTimeout> | undefined;
-
     let lastIncoming = "";
 
     $effect(() => {
@@ -90,25 +89,26 @@
         })();
     });
 
-    function handleSearch(searchText: string) {
-        clearTimeout(searchTimer);
+    const searchPlaces = debounce(async (searchText: string) => {
+        const selectedIds = new Set(selected.map((s) => s.id));
+        const results = await searchPlace(searchText, 6);
 
+        options = results.map((result) => ({
+            id: result.osm_id.toString(),
+            label: result.display_name,
+            selected: selectedIds.has(result.osm_id.toString()),
+            result,
+        }));
+    });
+
+    function handleSearch(searchText: string) {
         if (!searchText || searchText.length < 2) {
+            searchPlaces.cancel();
             options = multiple ? [...selected] : [];
             return;
         }
 
-        searchTimer = setTimeout(async () => {
-            const selectedIds = new Set(selected.map((s) => s.id));
-            const results = await searchPlace(searchText, 6);
-
-            options = results.map((result) => ({
-                id: result.osm_id.toString(),
-                label: result.display_name,
-                selected: selectedIds.has(result.osm_id.toString()),
-                result,
-            }));
-        }, 300);
+        searchPlaces(searchText);
     }
 
     function handleChange(option: DropdownOption) {

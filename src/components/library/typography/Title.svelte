@@ -41,6 +41,7 @@
         truncate?: 0 | 1 | 2 | 3;
         uppercase?: boolean;
         align?: TitleAlign;
+        id?: string;
         class?: ClassNameValue;
     }
 
@@ -53,6 +54,7 @@
         truncate = 0,
         uppercase = false,
         align = "left",
+        id,
         class: classes = "",
     }: Props = $props();
 
@@ -75,6 +77,6 @@
     const tag = $derived(`h${level}` as const);
 </script>
 
-<svelte:element this={tag} class={classFinal}>
+<svelte:element this={tag} {id} class={classFinal}>
     {@render children()}
 </svelte:element>

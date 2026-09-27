@@ -52,13 +52,15 @@
 
         /**
          * Secondary action button label translation key
+         * Optional: hidden when empty (used to disable the donation-certificate button in the open-core).
          */
-        secondaryActionLabel: string;
+        secondaryActionLabel?: string;
 
         /**
          * Secondary action button href
+         * Optional: hidden when empty (used to disable the donation-certificate button in the open-core).
          */
-        secondaryActionHref: string;
+        secondaryActionHref?: string;
 
         /**
          * Whether the card is in empty state
@@ -212,12 +214,14 @@
             >
                 <span class="truncate whitespace-nowrap">{$t(primaryActionLabel)}</span>
             </a>
+            <!-- GOTEO-OC-DONATION-CERTIFICATE: secondary action (donation certificate) hidden in the
+                 open-core; re-enable with the button when the feature toggle exists. Do not delete.
             <a
                 href={secondaryActionHref}
                 class="bg-variant1 text-secondary focus:ring-secondary flex grow items-center justify-center gap-2 overflow-hidden rounded-3xl px-6 py-3 text-sm font-bold no-underline transition-opacity hover:opacity-90 focus:ring-2 focus:outline-none md:py-4 md:text-base"
             >
                 <span class="truncate whitespace-nowrap">{$t(secondaryActionLabel)}</span>
-            </a>
+            </a> -->
         </div>
     </div>
 {/if}

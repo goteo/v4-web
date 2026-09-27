@@ -12,7 +12,7 @@
 </script>
 
 {#snippet flashIconSnippet()}
-    <Flash />
+    <Flash class="size-4" />
 {/snippet}
 
 <!-- The "ending soon" and "matchfunding" tabs below are disabled; re-add their

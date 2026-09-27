@@ -1,3 +1,6 @@
+import { get } from "svelte/store";
+
+import { locale } from "../i18n/store";
 import { apiProjectsGetCollection } from "../openapi/client/sdk.gen";
 import { constrainToPublicStatuses } from "../utils/projectStatus";
 
@@ -38,6 +41,7 @@ export class ProjectsService {
                     page: options?.page || 1,
                     itemsPerPage: options?.limit || 20,
                 },
+                headers: { "Accept-Language": get(locale) },
                 ...(options?.abortSignal && { signal: options.abortSignal }),
             });
 

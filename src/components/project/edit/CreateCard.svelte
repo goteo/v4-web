@@ -2,10 +2,12 @@
     import { twJoin } from "tailwind-merge";
 
     import BudgetModal from "./BudgetModal.svelte";
+    import CollabsModal from "./CollabsModal.svelte";
     import RewardsModal from "./RewardsModal.svelte";
     import { t } from "../../../i18n/store";
     import {
         apiProjectBudgetItemsPost,
+        apiProjectCollaborationsPost,
         apiProjectRewardsPost,
         type ProjectBudgetItem,
         type ProjectCollaboration,
@@ -62,6 +64,22 @@
         if (!error) {
             open = false;
             onSave?.(newReward);
+            return;
+        }
+
+        console.error(error);
+    }
+
+    async function handleCollab(newCollab: ProjectCollaboration) {
+        const { error } = await apiProjectCollaborationsPost({
+            baseUrl: "/api/relay",
+            headers: { "Content-Language": $draft.lang },
+            body: newCollab,
+        });
+
+        if (!error) {
+            open = false;
+            onSave?.(newCollab);
             return;
         }
 
@@ -134,8 +152,8 @@
 
 {#if !disabled && variant === "reward"}
     <RewardsModal bind:open {draft} onSave={handleReward} />
-    <!-- {:else if !disabled && variant === "collab"}
-    <CollabsModal bind:open onSave={() => onSave?.()} collab={null} {project} /> -->
+{:else if !disabled && variant === "collab"}
+    <CollabsModal bind:open {draft} onSave={handleCollab} />
 {:else if !disabled && variant === "budget"}
     <BudgetModal bind:open {draft} {deadline} onSave={handleBudgetItem} />
 {/if}

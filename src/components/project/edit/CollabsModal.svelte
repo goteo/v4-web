@@ -1,51 +1,107 @@
 <script lang="ts">
     import { Modal } from "flowbite-svelte";
-    import { untrack } from "svelte";
 
     import { t } from "../../../i18n/store";
-    import { apiProjectsGetCollectionUrl } from "../../../openapi/client/operation-paths.gen";
-    import { validationErrors } from "../../../stores/drafts/projectDraft";
+    import { client } from "../../../openapi/client/client.gen";
+    import { apiProjectsIdOrSlugGetUrl } from "../../../openapi/client/operation-paths.gen";
+    import { zApiProjectCollaborationsPostBody } from "../../../openapi/client/zod.gen";
+    import { zCreateCollabForm, zUpdateCollabForm } from "../../../validation/collabValidation";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
-    import Toast from "../../library/feedback/Toast.svelte";
+    import RichTextEditor from "../../library/inputs/RichTextEditor.svelte";
+    import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { Project, ProjectCollaboration } from "../../../openapi/client";
-    import type { ClassNameValue } from "tailwind-merge";
+    import type { ProjectCollaboration } from "../../../openapi/client";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
     let {
         open = $bindable(false),
-        showToast = $bindable(false),
-        project,
+        draft,
         collab,
         onSave,
         onDelete,
     }: {
         open: boolean;
-        showToast: boolean;
-        project: Project;
-        collab: ProjectCollaboration | null;
-        onSave: (data: ProjectCollaboration | null) => void;
-        onDelete?: () => void;
+        draft: ProjectDraftStore;
+        collab?: ProjectCollaboration;
+        onSave?: (collab: ProjectCollaboration) => void;
+        onDelete?: (collab: ProjectCollaboration) => void;
     } = $props();
 
-    // Seed the form fields once; the inputs own them afterwards.
-    let title = $state(untrack(() => collab?.title ?? ""));
-    let description = $state(untrack(() => collab?.description ?? ""));
-    let openDeleteModal = $state(false);
+    let data: ProjectCollaboration = $derived.by(() => {
+        if (collab) {
+            return { ...collab };
+        }
 
-    const INPUTS_CLASSES: ClassNameValue =
-        "border-secondary text-content items-center rounded-lg border bg-white p-4 text-base font-normal placeholder:opacity-48 focus:ring-0";
+        return {
+            project: client.buildUrl({
+                url: apiProjectsIdOrSlugGetUrl,
+                path: { idOrSlug: $draft.actual.id },
+            }),
+            title: "",
+            description: "",
+            isFulfilled: false,
+        };
+    });
 
-    function handleSaveOrCreate() {
-        const projectIri = apiProjectsGetCollectionUrl + "/" + (project.slug ?? project.id);
+    let validation: Partial<Record<keyof typeof data, string>> = $state({});
 
-        onSave({ project: projectIri, title, description, isFulfilled: false });
+    const descriptionError = $derived(getValidationMessage("description"));
+
+    function getValidationMessage(field: keyof typeof data): string {
+        if (!validation[field]) {
+            return "";
+        }
+
+        return $t(validation[field]);
     }
+
+    function handleTitle(newTitle: string) {
+        const result = zApiProjectCollaborationsPostBody.shape.title.safeParse(newTitle);
+
+        if (result.success) {
+            validation["title"] = "";
+            return;
+        }
+        validation["title"] = result.error.issues[0].message;
+    }
+
+    function handleDescription(newDescription: string) {
+        data.description = newDescription;
+
+        const result =
+            zApiProjectCollaborationsPostBody.shape.description.safeParse(newDescription);
+
+        if (result.success) {
+            validation["description"] = "";
+            return;
+        }
+
+        validation["description"] = result.error.issues[0].message;
+    }
+
+    function handleSubmit(event: SubmitEvent) {
+        event.preventDefault();
+
+        const collabValidation = collab ? zUpdateCollabForm : zCreateCollabForm;
+        const result = collabValidation.safeParse(data);
+
+        if (result.success) {
+            onSave?.(data);
+            return;
+        }
+
+        for (const issue of result.error.issues) {
+            validation[issue.path[0] as keyof typeof data] = issue.message;
+        }
+    }
+
+    let openDeleteModal = $state(false);
 
     function handleDeleteClick() {
         if (collab) {
-            onDelete?.();
+            onDelete?.(collab);
             openDeleteModal = false;
             open = false;
         }
@@ -54,53 +110,46 @@
 
 <Modal
     bind:open
-    onclose={() => validationErrors.set({})}
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
     class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
     bodyClass="p-0"
 >
-    <!--
-        The handler only stops clicks inside the modal body from reaching the
-        backdrop, so this is not an interactive control: it has no keyboard
-        equivalent and no ARIA role to expose.
-    -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div
-        class="flex flex-col gap-8 rounded-3xl bg-white p-6 shadow-lg"
-        onclick={(e) => e.stopPropagation()}
-    >
-        {#if Object.keys($validationErrors).length === 1}
-            {#each Object.values($validationErrors) as validationError}
-                <Toast class="absolute z-999 self-center" variant="error" bind:showToast>
-                    {$t(validationError)}
-                </Toast>
-            {/each}
-        {:else if Object.keys($validationErrors).length >= 2}
-            <Toast class="absolute z-999 self-end" variant="error" bind:showToast>
-                {$t("system.validation.missingRequiredFields")}
-            </Toast>
-        {/if}
+    <form class="flex flex-col gap-8 rounded-3xl bg-white p-6 shadow-lg" onsubmit={handleSubmit}>
         <Title level={2} variant="subsection">
             {$t("pages.project.edit.collaborations.modal.title")}
         </Title>
         <p class="text-content line-clamp-1 overflow-hidden text-base font-normal text-ellipsis">
             {$t("pages.project.edit.collaborations.modal.description")}
         </p>
-        <div class="flex flex-col gap-4">
-            <input
-                type="text"
-                placeholder={$t("pages.project.edit.collaborations.modal.placeholders.title")}
-                bind:value={title}
-                class={INPUTS_CLASSES}
+        <div class="flex flex-col gap-10 pt-2">
+            <TextInput
+                bind:value={data.title}
+                labelText={$t("pages.project.edit.collaborations.modal.form.titleLabel")}
+                helperText={$t("pages.project.edit.collaborations.modal.form.titleHelper")}
+                placeholder={$t("pages.project.edit.collaborations.modal.form.titlePlaceholder")}
+                error={getValidationMessage("title")}
+                onInput={(title) => handleTitle(String(title))}
             />
-            <textarea
-                placeholder={$t("pages.project.edit.collaborations.modal.placeholders.description")}
-                bind:value={description}
-                class={`h-32 resize-none ${INPUTS_CLASSES}`}></textarea>
+            <div class="flex flex-col gap-1">
+                <RichTextEditor
+                    id="description"
+                    format="markdown"
+                    value={data.description}
+                    onChange={handleDescription}
+                    placeholder={$t(
+                        "pages.project.edit.collaborations.modal.form.descriptionPlaceholder",
+                    )}
+                    labelText={$t("pages.project.edit.collaborations.modal.form.descriptionLabel")}
+                    error={descriptionError}
+                    ariaDescribedBy="description-helper"
+                />
+                <p class="text-content ml-4 text-xs" id="description-helper">
+                    {$t("pages.project.edit.collaborations.modal.form.descriptionHelper")}
+                </p>
+            </div>
         </div>
         <div class="flex items-center justify-end gap-4">
-            {#if collab !== null && onDelete}
+            {#if collab && onDelete}
                 <Button kind="secondary" onclick={() => (openDeleteModal = true)} class="w-fit">
                     {$t("common.remove")}
                 </Button>
@@ -111,9 +160,9 @@
                     onclick={() => handleDeleteClick()}
                 />
             {/if}
-            <Button onclick={() => handleSaveOrCreate()} class="w-fit">
-                {$t("common.continue")}
+            <Button type="submit" class="w-fit">
+                {$t("common.save")}
             </Button>
         </div>
-    </div>
+    </form>
 </Modal>

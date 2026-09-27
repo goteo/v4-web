@@ -171,6 +171,11 @@
     </div>
 {/snippet}
 
+<!-- GOTEO-OC-DONATION-CERTIFICATE: secondary action "Solicitar certificado" is exclusive to the
+     donation-certificate feature of Goteo under Fundación Platoniq, hidden in the open-core.
+     Re-enable when a feature toggle exists. Do not delete.
+     <BaseActivityCard ... secondaryActionLabel="pages.me.donations.certificate"
+        secondaryActionHref="#" ... /> -->
 {#if donations}
     {#await donations}
         {@render loadingShell()}
@@ -186,13 +191,11 @@
             recentTitleKey="pages.me.donations.recent"
             illustrationPath="/images/profile/ilustration-donations.png"
             primaryActionLabel="pages.me.donations.viewAll"
-            primaryActionHref={$locale === "es" ? "/me/donations" : `/${$locale}/me/donations`}
-            secondaryActionLabel="pages.me.donations.certificate"
-            secondaryActionHref="#"
+            primaryActionHref="/me#donated-projects"
             isEmpty={!summary || summary.count === 0}
             emptyMessageKey="pages.me.donations.empty"
             emptyCtaLabel="pages.me.donations.explore"
-            emptyCtaLink={$locale === "es" ? "/discover" : `/${$locale}/discover`}
+            emptyCtaLink="/search?status[]=in_campaign"
         >
             {#if summary?.recentDonations}
                 {#each summary.recentDonations.slice(0, 2) as donation}
@@ -207,9 +210,7 @@
                         <span class="text-sm font-semibold text-black"> - </span>
                         {#if donation.projectSlug}
                             <a
-                                href={$locale === "es"
-                                    ? `/project/${donation.projectSlug}`
-                                    : `/${$locale}/project/${donation.projectSlug}`}
+                                href={`/project/${donation.projectSlug}`}
                                 class="text-secondary text-sm no-underline hover:underline focus:underline focus:outline-none"
                             >
                                 {donation.projectTitle}

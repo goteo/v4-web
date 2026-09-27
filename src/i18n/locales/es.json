@@ -277,6 +277,7 @@
       "alignLeft": "Alinear a la izquierda",
       "alignCenter": "Centrar",
       "alignRight": "Alinear a la derecha",
+      "image": "Insertar imagen",
       "characterCount": "{{ current }} / {{ max }} caracteres"
     },
     "export": {
@@ -291,6 +292,15 @@
       "previousMonth": "Mes anterior",
       "nextMonth": "Mes siguiente",
       "close": "Cerrar"
+    },
+    "pagination": {
+      "showing": "Mostrando {{ from }}–{{ to }} de {{ total }}",
+      "unloaded": "Mostrando...",
+      "noResults": "No hay resultados",
+      "label": "Paginación",
+      "previous": "Página anterior",
+      "next": "Página siguiente",
+      "page": "Página {{ page }}"
     }
   },
   "common": {
@@ -322,15 +332,11 @@
     "login": "Iniciar sesión",
     "goHome": "Ir a la página de inicio",
     "viewAll": "Ver todo",
-    "pagination": {
-      "showing": "Mostrando {{ items }} de {{ total }}",
-      "unloaded": "Mostrando...",
-      "noResults": "No hay resultados"
-    },
     "viewMore": "Ver más",
     "viewLess": "Ver menos",
     "share": "Compartir",
     "noData": "No hay datos disponibles",
+    "noOptions": "No hay opciones disponibles",
     "tooltip": {
       "copied": "¡Copiado!"
     },
@@ -368,7 +374,6 @@
         "forUsers": {
           "title": "Para usuarias",
           "rechargeWallet": "Recarga tu monedero",
-          "downloadCertificate": "Descarga certificado",
           "accessComplementaryFunds": "Accede a fondos complementarios",
           "designFundingProgram": "Diseña un programa de financiación"
         }
@@ -381,6 +386,22 @@
       },
       "platoniq": {
         "foundation": "Fundación"
+      },
+      "a11y": {
+        "footerHeading": "Pie de página",
+        "fundingPartners": "Organizaciones financiadoras",
+        "partnerOrganizations": "Organizaciones asociadas",
+        "footerNavigation": "Navegación del pie de página",
+        "legalNavigation": "Navegación legal",
+        "legalAndSocial": "Enlaces legales y redes sociales",
+        "socialLinks": "Enlaces a redes sociales",
+        "social": {
+          "email": "Envíanos un correo a info@goteo.org",
+          "instagram": "Síguenos en Instagram",
+          "facebook": "Síguenos en Facebook",
+          "x": "Síguenos en X (antes Twitter)",
+          "linkedin": "Conecta con nosotras en LinkedIn"
+        }
       }
     },
     "saved": "Guardado"
@@ -511,10 +532,6 @@
       "postPayment": {
         "title": "¡Enhorabuena! Gracias por tu donación",
         "emailSent": "Te hemos enviado un resumen a:",
-        "certificate": {
-          "title": "¿Cómo solicito mi certificado?",
-          "description": "El certificado se genera de forma automática al final del año fiscal (diciembre). Te mandaremos un correo una vez hayamos presentado la documentación a Hacienda. En caso de que encontremos algún problema te contactaremos por correo."
-        },
         "donatedProjects": {
           "title": "Has donado a los siguientes proyectos"
         },
@@ -873,6 +890,14 @@
           "modal": {
             "title": "Añade colaboraciones",
             "description": "Indica el tipo de colaboración que necesitas",
+            "form": {
+              "titleLabel": "Título de la colaboración",
+              "titlePlaceholder": "Título de la colaboración",
+              "titleHelper": "El título se mostrará en todas las tarjetas de esta colaboración",
+              "descriptionLabel": "Descripción de la colaboración",
+              "descriptionPlaceholder": "Descripción de la colaboración",
+              "descriptionHelper": "La descripción puede contener texto enriquecido, pero se truncará en las tarjetas pequeñas"
+            },
             "placeholders": {
               "title": "Título de la colaboración",
               "description": "Descripción de la colaboración"
@@ -1107,9 +1132,6 @@
         "banner": {
           "donator": {
             "description": "Goteo pertenece a la Fundación Platoniq. Al colaborar en una campaña tu dinero será custodiado por Platoniq y donado a {{owner}} en caso de llegar a los objetivos de éxito marcados."
-          },
-          "certificate": {
-            "description": "Al colaborar con un proyecto impulsado en Goteo puedes solicitar un certificado de donación. Así, te deduces hasta un 80% de lo que hayas aportado en tu próxima declaración de la renta."
           }
         },
         "langNotAvailable": "El idioma seleccionado \"{{lang}}\" no está disponible para este proyecto. Mostrando contenido en el idioma disponible.",
@@ -1403,8 +1425,35 @@
           "description": "El inicio de la portada, lo más importante.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
-            "invalidUrl": "La URL del enlace no es válida",
-            "invalidDateRange": "La fecha de fin no puede ser anterior a la de inicio"
+            "invalidUrl": "La URL del enlace no es válida"
+          },
+          "tabs": {
+            "fields": "Nuevo",
+            "history": "Histórico"
+          },
+          "history": {
+            "title": "Histórico de bloques",
+            "description": "Aquí puedes ver los bloques programados y eliminar los que no quieras publicar",
+            "noData": "No hay bloques en el histórico",
+            "filter": {
+              "all": "Todos",
+              "upcoming": "Programado"
+            },
+            "headers": {
+              "title": "Título",
+              "content": "Contenido",
+              "startsAt": "Fecha de inicio",
+              "status": "Estado"
+            },
+            "status": {
+              "active": "Actual",
+              "upcoming": "Programado",
+              "past": "Pasado"
+            },
+            "deleteModal": {
+              "title": "¿Borrar este bloque?",
+              "description": "El bloque se eliminará de forma permanente y dejará de mostrarse en la portada. Esta acción no se puede deshacer."
+            }
           },
           "fields": {
             "textsTitle": "Textos del bloque",
@@ -1415,10 +1464,9 @@
             "urlPlaceholder": "URL",
             "scheduleTitle": "Programar la subida del bloque",
             "startDatePlaceholder": "Indica la fecha de inicio",
-            "endDatePlaceholder": "Indica la fecha de fin",
             "mediaTitle": "Hora de subir las imágenes",
             "mediaLabel": "Imagen 01",
-            "mediaHint": "Sube una imagen o vídeo",
+            "mediaHint": "Sube una imagen o vídeo (opcional)",
             "mediaAdd": "Añade imagen"
           }
         },
@@ -1610,7 +1658,6 @@
           }
         },
         "downloadButtons": {
-          "certificates": "Descarga certificados",
           "pdf": "Descarga PDF"
         },
         "lastEdited": "Última modificación: {{date}} {{time}}",
@@ -1742,7 +1789,6 @@
                 "contributions": "Aportes",
                 "donors": "Donantes de campaña",
                 "financialReport": "Informe financiación",
-                "certificates": "Certificados",
                 "annotations": "Anotaciones"
               }
             },
@@ -1976,8 +2022,7 @@
         "count": "Donaciones",
         "total": "Total donado",
         "recent": "Últimas donaciones",
-        "viewAll": "Ver todas",
-        "certificate": "Solicitar certificado"
+        "viewAll": "Ver todas"
       },
       "projects": {
         "title": "Proyectos impulsados",
