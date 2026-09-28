@@ -217,8 +217,6 @@ Full list lives in [`.env.example`](.env.example). Grouped by purpose:
 
 ## CI / Deployment
 
-| Workflow             | Trigger           | Action                            |
-| -------------------- | ----------------- | --------------------------------- |
-| `deploy.yml`         | Push to `main`    | Deploy to Cloudflare (production) |
-| `deploy.yml`         | Push to `develop` | Deploy to Cloudflare (staging)    |
-| `prettier-check.yml` | PR / push         | Prettier format check             |
+| Workflow             | Trigger   | Action                |
+| -------------------- | --------- | --------------------- |
+| `prettier-check.yml` | PR / push | Prettier format check |

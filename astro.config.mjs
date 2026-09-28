@@ -11,7 +11,7 @@ const locales = Object.keys(labels);
 
 /**
  * The API and the object storage live on their own hosts, and both change per deployment
- * (`api-staging`, `api`, a local API…), so the CSP below has to be built from the environment
+ * (staging, production, a local API…), so the CSP below has to be built from the environment
  * rather than hardcoded. This is build-time config, so reading `.env` from disk is fine.
  *
  * Astro has not loaded `.env` yet when this file is evaluated, and in CI there is no `.env`
@@ -120,8 +120,7 @@ export default defineConfig({
                 // Login and checkout forms post to us; nothing should post elsewhere.
                 "form-action 'self'",
                 /**
-                 * Clickjacking: nobody frames us. The shareable project widget lives on
-                 * `www.goteo.org` (v3), not here, so no route on this origin is meant to be
+                 * Clickjacking: nobody frames us. No route on this origin is meant to be
                  * embedded elsewhere. Worth revisiting the day one is.
                  */
                 "frame-ancestors 'self'",
