@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { getSocialNetwork, SOCIAL_NETWORKS } from "../utils/socialLinks";
 import { isValidTaxId } from "../utils/taxId";
 
 const zRequiredField = () =>
@@ -24,8 +25,27 @@ export const zProfileForm = z
         taxId: z.string(),
         legalName: z.string(),
         businessName: z.string(),
+        links: z.object({
+            instagram: z.string(),
+            facebook: z.string(),
+            x: z.string(),
+            linkedin: z.string(),
+        }),
     })
     .superRefine((data, ctx) => {
+        // A link from another network would be shown under the wrong field once saved
+        for (const network of SOCIAL_NETWORKS) {
+            const url = data.links[network].trim();
+
+            if (url && getSocialNetwork(url) !== network) {
+                ctx.addIssue({
+                    code: "custom",
+                    path: ["links", network],
+                    message: "pages.me.manage.validation.linkInvalid",
+                });
+            }
+        }
+
         const taxId = data.taxId.trim();
 
         if (data.country && taxId && isValidTaxId(data.country, data.type, taxId) === false) {

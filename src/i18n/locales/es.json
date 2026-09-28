@@ -2060,7 +2060,8 @@
         "validation": {
           "required": "Este campo es obligatorio",
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
-          "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado"
+          "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
+          "linkInvalid": "Introduce un enlace a tu perfil de esta red social"
         }
       },
       "period": {

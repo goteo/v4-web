@@ -4,9 +4,8 @@
     Public profile edit form for /me/manage: header, profile image card, bio and
     promoter info. Saves through the `updateProfile` action (User + Person + Organization).
 
-    Location sharing and social links are laid out but not persisted yet: the API has no
-    visibility flag and `User.links` is read-only (see the Asana ticket for both). Other
-    Figma fields without an API equivalent (postal code, document type, "how did you meet
+    Location sharing is laid out but not persisted yet: the API has no visibility flag
+    (see the Asana ticket). Other Figma fields without an API equivalent (postal code, document type, "how did you meet
     us", public entity, categories) are left out.
 -->
 <script lang="ts">
@@ -15,6 +14,7 @@
 
     import ProfileImageCard from "./ProfileImageCard.svelte";
     import { locale, t } from "../../../i18n/store";
+    import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName } from "../../../utils/territory";
     import { zProfileForm, type ProfileForm } from "../../../validation/profileValidation";
     import Facebook from "../../icons/social/Facebook.svelte";
@@ -65,16 +65,16 @@
         legalName: organization?.legalName ?? "",
         businessName: organization?.businessName ?? "",
         taxId: (user.type === "organization" ? organization?.taxId : person?.taxId) ?? "",
+        links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
     });
 
     let displayName = $state(user.displayName ?? user.handle);
     let profileHandle = $state(user.handle);
 
-    // Not persisted: the API has no visibility flag and `User.links` is read-only
+    // Not persisted: the API has no visibility flag
     let shareLocation = $state(false);
-    let socialLinks = $state({ instagram: "", facebook: "", x: "", linkedin: "" });
 
-    const socialNetworks: { key: keyof typeof socialLinks; icon: Component }[] = [
+    const socialNetworks: { key: SocialNetwork; icon: Component }[] = [
         { key: "instagram", icon: Instagram },
         { key: "facebook", icon: Facebook },
         { key: "x", icon: X },
@@ -111,8 +111,8 @@
         validation[field] = result.error?.issues.filter((issue) => issue.path[0] === field);
     }
 
-    function getValidationMessage(field: FieldName) {
-        const issue = validation[field]?.[0];
+    function getValidationMessage(field: FieldName, network?: SocialNetwork) {
+        const issue = validation[field]?.find((issue) => !network || issue.path[1] === network);
 
         if (!issue) {
             return "";
@@ -161,6 +161,8 @@
         }
 
         displayName = data.user.displayName ?? data.user.handle;
+        // The API resolves each link (scheme, redirects), show what was stored
+        form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
         profileHandle = data.user.handle;
         showSuccess = true;
     }
@@ -362,9 +364,11 @@
                     <Icon width="56" height="56" class="shrink-0" />
                     <div class="min-w-0 flex-1">
                         <TextInput
-                            bind:value={socialLinks[key]}
+                            bind:value={form.links[key]}
                             labelText={$t(`pages.me.manage.social.${key}`)}
+                            error={getValidationMessage("links", key)}
                             class="h-14"
+                            onInput={() => validate("links")}
                             disabled={isSubmitting}
                         />
                     </div>

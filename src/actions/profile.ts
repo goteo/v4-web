@@ -7,6 +7,7 @@ import {
     apiUsersIdPatch,
     apiUsersIdpersonPatch,
 } from "../openapi/client/index.ts";
+import { getSocialNetwork, normalizeLinkUrl, SOCIAL_NETWORKS } from "../utils/socialLinks.ts";
 import { zProfileForm } from "../validation/profileValidation.ts";
 
 export const updateProfile = defineAction({
@@ -26,24 +27,40 @@ export const updateProfile = defineAction({
         const headers = session.token.asHttpHeaders;
         const isOrganization = input.type === "organization";
 
+        // PATCH replaces the whole list, keep the links the form does not manage (websites, etc.)
+        const currentLinks = (session.user.links ?? []).flatMap((link) => link.url ?? []);
+        const links = [
+            ...currentLinks.filter((url) => !getSocialNetwork(url)),
+            ...SOCIAL_NETWORKS.flatMap((network) => {
+                const url = input.links[network].trim();
+
+                return url ? [normalizeLinkUrl(url)] : [];
+            }),
+        ];
+        // The API fetches every link on save, skip it when nothing changed
+        const linksChanged = links.join() !== currentLinks.join();
+
         try {
             // User first: switching to `organization` makes the API create the Organization record
             const { error: userError } = await apiUsersIdPatch({
                 path: { id },
                 headers,
                 body: {
-                    // `email` is required by the User type; unchanged here, edited from access settings
-                    email: session.user.email,
-                    handle: input.handle,
+                    // The API rejects a handle already in the DB, including the User's own
+                    ...(input.handle !== session.user.handle && { handle: input.handle }),
                     avatar: input.avatar,
                     description: input.description.trim(),
                     type: input.type,
-                    territory: {
-                        country: input.country || null,
-                        subLvl1: input.subLvl1 || null,
-                        subLvl2: input.subLvl2 || null,
-                        address: input.address.trim() || null,
-                    },
+                    ...(linksChanged && { links }),
+                    // A missing country is stored as "ZZ", which the API rejects as invalid
+                    ...(input.country && {
+                        territory: {
+                            country: input.country,
+                            subLvl1: input.subLvl1 || null,
+                            subLvl2: input.subLvl2 || null,
+                            address: input.address.trim() || null,
+                        },
+                    }),
                 },
             });
 
