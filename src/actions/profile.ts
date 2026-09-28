@@ -37,8 +37,6 @@ export const updateProfile = defineAction({
                 return (url && toSocialLinkUrl(network, url)) || [];
             }),
         ];
-        // The API fetches every link on save, skip it when nothing changed
-        const linksChanged = links.join() !== currentLinks.join();
 
         try {
             // User first: switching to `organization` makes the API create the Organization record
@@ -51,7 +49,7 @@ export const updateProfile = defineAction({
                     avatar: input.avatar,
                     description: input.description.trim(),
                     type: input.type,
-                    ...(linksChanged && { links }),
+                    links,
                     // A missing country is stored as "ZZ", which the API rejects as invalid
                     ...(input.country && {
                         territory: {
