@@ -175,7 +175,15 @@ export const zGatewayLink = z.object({
     method: z.string().optional(),
     type: z.enum(['debug', 'payment']).optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zGatewayLinkJsonld = z.object({
@@ -191,12 +199,28 @@ export const zGatewayLinkJsonld = z.object({
     method: z.string().optional(),
     type: z.enum(['debug', 'payment']).optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zLink = z.object({
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zLinkJsonld = z.object({
@@ -210,7 +234,15 @@ export const zLinkJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 /**
@@ -1208,6 +1240,21 @@ export const zUserUserSignupDtoJsonld = z.object({
 /**
  * Users represent people who interact with the platform.
  */
+export const zUserUserUpdationDto = z.object({
+    handle: z.string().min(4).max(30).regex(/^([a-z0-9_]+)$/).optional(),
+    email: z.email().optional(),
+    password: z.string().min(8).optional(),
+    avatar: z.url().optional(),
+    type: z.enum(['individual', 'organization']).optional(),
+    roles: z.array(z.string()).optional(),
+    links: z.array(z.string()).optional(),
+    territory: zTerritory.optional(),
+    description: z.string().optional()
+});
+
+/**
+ * Users represent people who interact with the platform.
+ */
 export const zUserJsonld = z.object({
     '@context': z.union([
         z.string(),
@@ -1641,6 +1688,7 @@ export const zProject = z.object({
     rewards: z.array(z.string()).readonly().optional(),
     budget: zBudget.readonly().optional(),
     budgetItems: z.array(z.string()).readonly().optional(),
+    collaborations: z.array(z.string()).readonly().optional(),
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLink).readonly().optional(),
@@ -1701,6 +1749,7 @@ export const zProjectJsonld = z.object({
     rewards: z.array(z.string()).readonly().optional(),
     budget: zBudgetJsonld.readonly().optional(),
     budgetItems: z.array(z.string()).readonly().optional(),
+    collaborations: z.array(z.string()).readonly().optional(),
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLinkJsonld).readonly().optional(),
@@ -2649,7 +2698,7 @@ export const zApiUsersIdDeleteResponse = z.void();
 /**
  * The updated User resource
  */
-export const zApiUsersIdPatchBody = zUser;
+export const zApiUsersIdPatchBody = zUserUserUpdationDto;
 
 export const zApiUsersIdPatchPath = z.object({
     id: z.string()

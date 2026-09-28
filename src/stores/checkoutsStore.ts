@@ -43,10 +43,20 @@ export interface StoredCheckout {
     key: string;
     items: Record<string, CheckoutItem>;
     updatedAt: number;
+    /**
+     * Marks a checkout that has been fully claimed/deprecated. The record is
+     * kept (soft delete) so the data is never lost, but it is no longer
+     * offered to the shopper or re-submitted by `RewardClaims`.
+     */
+    finalised?: boolean;
+    finalisedAt?: number;
 }
 
 type CheckoutState = {
     items: Record<string, CheckoutItem>;
+    /** Set once the whole cart has been claimed; see `StoredCheckout`. */
+    finalised?: boolean;
+    finalisedAt?: number;
 };
 
 export interface CheckoutStore {
@@ -126,8 +136,8 @@ function schedulePersist() {
 
     const key = activeKey;
     enqueue(async () => {
-        const { items } = get(state);
-        await checkoutRepo.update(key, { items });
+        const { items, finalised, finalisedAt } = get(state);
+        await checkoutRepo.update(key, { items, finalised, finalisedAt });
     });
 }
 
@@ -147,9 +157,17 @@ if (isBrowser) {
             let merged: Record<string, CheckoutItem> = {};
             state.update((current) => {
                 merged = { ...loaded, ...current.items };
-                return { items: merged };
+                return {
+                    items: merged,
+                    finalised: current.finalised ?? record?.finalised,
+                    finalisedAt: current.finalisedAt ?? record?.finalisedAt,
+                };
             });
-            await checkoutRepo.update(key, { items: merged });
+            await checkoutRepo.update(key, {
+                items: merged,
+                finalised: record?.finalised,
+                finalisedAt: record?.finalisedAt,
+            });
         }
 
         hydrated.set(true);
@@ -271,16 +289,29 @@ export const cart: CheckoutStore = {
 
     clearForUser: (userId?: string | number) => {
         skipHydrationMerge = true;
-        state.set({ items: {} });
+
+        // Soft delete: mark the cart as finalised instead of destroying it, so
+        // the record (and the reason it was claimed) is never lost. RewardClaims
+        // exits early on the `finalised` flag, so nothing is re-submitted.
+        const now = Date.now();
+        state.set({ items: {}, finalised: true, finalisedAt: now });
 
         if (!isBrowser) return;
 
         enqueue(async () => {
-            await checkoutRepo.remove(GUEST_CHECKOUT_KEY);
+            await checkoutRepo.update(GUEST_CHECKOUT_KEY, {
+                items: {},
+                finalised: true,
+                finalisedAt: now,
+            });
 
             const key = checkoutKeyForUser(userId);
             if (key !== GUEST_CHECKOUT_KEY) {
-                await checkoutRepo.remove(key);
+                await checkoutRepo.update(key, {
+                    items: {},
+                    finalised: true,
+                    finalisedAt: now,
+                });
             }
         });
         dropLegacyCart();

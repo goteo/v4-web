@@ -71,10 +71,6 @@ export interface DonationItem {
      * Project slug for URL construction
      */
     projectSlug: string;
-    /**
-     * Date of the donation (ISO 8601 format)
-     */
-    date: string;
 }
 
 /**

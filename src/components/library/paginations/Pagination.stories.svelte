@@ -12,13 +12,11 @@
             totalItems: 47,
             itemsPerPage: 10,
             isLoading: false,
-            i18nPrefix: "common.pagination",
         },
         argTypes: {
             currentPage: { control: { type: "number", min: 1 } },
             totalItems: { control: { type: "number", min: 0 } },
             itemsPerPage: { control: { type: "number", min: 1 } },
-            i18nPrefix: { control: "text" },
         },
     });
 </script>

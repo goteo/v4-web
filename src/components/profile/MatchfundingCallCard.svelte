@@ -25,9 +25,10 @@
             : "",
     );
 
-    const callUrl = $derived(
-        lang === "es" ? `/matchfunding/${call.slug}` : `/${lang}/matchfunding/${call.slug}`,
-    );
+    /* GOTEO-MATCHFUNDING-CALL: the matchfunding layer exists in the API but the front-end call
+       page is not shipped yet. Re-enable when the route exists. Do not delete.
+    const callUrl = $derived(`/matchfunding/${call.slug}`);
+    */
 </script>
 
 <!-- Hero-style Matchfunding Card -->
@@ -105,13 +106,15 @@
                 </div>
             </div>
 
-            <!-- Call to Action Button -->
+            <!-- GOTEO-MATCHFUNDING-CALL: CTA hidden until the matchfunding call page exists.
+                 Re-enable together with `callUrl`. Do not delete.
             <a
                 href={callUrl}
                 class="bg-variant1 text-secondary focus:ring-primary flex items-center justify-center gap-2 rounded-3xl px-6 py-4 text-base leading-normal font-bold no-underline transition-all duration-200 hover:opacity-90 focus:ring-2 focus:outline-none"
             >
                 {$t("pages.me.matchfunding.callCard.viewCall")}
             </a>
+            -->
         </div>
 
         <!-- Right: Logo Card -->

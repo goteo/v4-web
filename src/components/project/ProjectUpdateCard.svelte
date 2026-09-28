@@ -103,7 +103,7 @@
 
 <div
     class={twMerge(
-        "flex shrink-0 flex-col overflow-hidden rounded-[1.25rem] border border-[#E7E1F1] bg-[#FCFAFF] p-4 shadow-sm transition-[width,opacity,box-shadow] duration-300 ease-out",
+        "border-grey flex shrink-0 flex-col overflow-hidden rounded-[1.25rem] border bg-white p-4 shadow-sm transition-[width,opacity,box-shadow] duration-300 ease-out",
         cardStyles[type],
         isActive && "opacity-100",
     )}
