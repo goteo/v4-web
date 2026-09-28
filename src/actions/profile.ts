@@ -7,7 +7,7 @@ import {
     apiUsersIdPatch,
     apiUsersIdpersonPatch,
 } from "../openapi/client/index.ts";
-import { getSocialNetwork, normalizeLinkUrl, SOCIAL_NETWORKS } from "../utils/socialLinks.ts";
+import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
 import { zProfileForm } from "../validation/profileValidation.ts";
 
 export const updateProfile = defineAction({
@@ -34,7 +34,7 @@ export const updateProfile = defineAction({
             ...SOCIAL_NETWORKS.flatMap((network) => {
                 const url = input.links[network].trim();
 
-                return url ? [normalizeLinkUrl(url)] : [];
+                return (url && toSocialLinkUrl(network, url)) || [];
             }),
         ];
         // The API fetches every link on save, skip it when nothing changed

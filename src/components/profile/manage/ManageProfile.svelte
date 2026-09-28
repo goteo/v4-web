@@ -366,6 +366,7 @@
                         <TextInput
                             bind:value={form.links[key]}
                             labelText={$t(`pages.me.manage.social.${key}`)}
+                            placeholder={$t("pages.me.manage.social.placeholder")}
                             error={getValidationMessage("links", key)}
                             class="h-14"
                             onInput={() => validate("links")}

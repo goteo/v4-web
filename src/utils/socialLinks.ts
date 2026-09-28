@@ -12,6 +12,14 @@ const NETWORK_DOMAINS: Record<SocialNetwork, string[]> = {
     linkedin: ["linkedin.com"],
 };
 
+// Where a bare username is appended to build the profile link
+const NETWORK_PROFILE_URLS: Record<SocialNetwork, string> = {
+    instagram: "https://www.instagram.com/",
+    facebook: "https://www.facebook.com/",
+    x: "https://x.com/",
+    linkedin: "https://www.linkedin.com/in/",
+};
+
 /**
  * Adds `https://` when the scheme is missing, like the API does before storing a link.
  */
@@ -33,6 +41,23 @@ export function getSocialNetwork(url: string): SocialNetwork | undefined {
     return SOCIAL_NETWORKS.find((network) =>
         NETWORK_DOMAINS[network].some((domain) => host === domain || host.endsWith(`.${domain}`)),
     );
+}
+
+/**
+ * Turns a profile link or a bare username (`@` optional) into a link of the given network.
+ * @returns `undefined` when the value is neither
+ */
+export function toSocialLinkUrl(network: SocialNetwork, value: string): string | undefined {
+    const input = value.trim();
+    const linkNetwork = getSocialNetwork(input);
+
+    if (linkNetwork) {
+        return linkNetwork === network ? normalizeLinkUrl(input) : undefined;
+    }
+
+    const username = input.replace(/^@/, "");
+
+    return /^[\w.-]+$/.test(username) ? NETWORK_PROFILE_URLS[network] + username : undefined;
 }
 
 /**

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { getSocialNetwork, SOCIAL_NETWORKS } from "../utils/socialLinks";
+import { SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks";
 import { isValidTaxId } from "../utils/taxId";
 
 const zRequiredField = () =>
@@ -33,11 +33,11 @@ export const zProfileForm = z
         }),
     })
     .superRefine((data, ctx) => {
-        // A link from another network would be shown under the wrong field once saved
+        // A username or a link of this network; one from another network would land in the wrong field
         for (const network of SOCIAL_NETWORKS) {
             const url = data.links[network].trim();
 
-            if (url && getSocialNetwork(url) !== network) {
+            if (url && !toSocialLinkUrl(network, url)) {
                 ctx.addIssue({
                     code: "custom",
                     path: ["links", network],

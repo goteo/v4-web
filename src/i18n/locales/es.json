@@ -2051,7 +2051,8 @@
           "instagram": "Inserte su cuenta de Instagram",
           "facebook": "Inserte su cuenta de Facebook",
           "x": "Inserte su cuenta de X",
-          "linkedin": "Inserte su cuenta de Linkedin"
+          "linkedin": "Inserte su cuenta de Linkedin",
+          "placeholder": "Usuario o enlace"
         },
         "viewProfile": "Ver mi perfil",
         "save": "Guardar cambios",
@@ -2061,7 +2062,7 @@
           "required": "Este campo es obligatorio",
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
           "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
-          "linkInvalid": "Introduce un enlace a tu perfil de esta red social"
+          "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
         }
       },
       "period": {
