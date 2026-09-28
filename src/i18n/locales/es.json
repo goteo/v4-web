@@ -278,6 +278,14 @@
       "alignCenter": "Centrar",
       "alignRight": "Alinear a la derecha",
       "image": "Insertar imagen",
+      "link": "Insertar enlace",
+      "linkUrl": "URL del enlace",
+      "linkApply": "Aplicar",
+      "linkRemove": "Quitar enlace",
+      "linkCancel": "Cancelar",
+      "bulletList": "Lista con viñetas",
+      "orderedList": "Lista numerada",
+      "quote": "Cita",
       "characterCount": "{{ current }} / {{ max }} caracteres"
     },
     "export": {

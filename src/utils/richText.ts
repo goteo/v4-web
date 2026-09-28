@@ -25,14 +25,11 @@ export type RichTextValue<F extends RichTextFormat> = F extends "json" ? JSONCon
 export const richTextExtensions = [
     StarterKit.configure({
         heading: false,
-        bulletList: false,
-        orderedList: false,
-        listItem: false,
         strike: false,
         code: false,
         codeBlock: false,
-        link: false,
         underline: false,
+        link: { openOnClick: false, autolink: true, defaultProtocol: "https" },
     }),
     TextAlign.configure({
         types: ["paragraph"],
