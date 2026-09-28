@@ -146,6 +146,7 @@
 
     async function handleSave() {
         const projectIds = slotAssignments
+            .filter((a) => a.position < slotCount)
             .sort((a, b) => a.position - b.position)
             .map((a) => a.projectId);
         const { error } = await actions.saveHighlights({ type, layout, slots: projectIds });
