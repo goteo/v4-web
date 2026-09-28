@@ -210,6 +210,7 @@ Full list lives in [`.env.example`](.env.example). Grouped by purpose:
 | `PUBLIC_TIPPING_DEFAULT_AMOUNT`               |          | Pre-filled tip amount                                                                 |
 | `PUBLIC_TIPPING_DEFAULT_CHECKED`              |          | `"true"` to pre-check the tip option                                                  |
 | `PUBLIC_FACEBOOK_APP_ID`                      |          | Facebook share dialog app ID                                                          |
+| `PUBLIC_WIDGET_URL`                           |          | Host of the embeddable project widget; empty hides the embed option                   |
 | `CLOUDFLARE_INCLUDE_PROCESS_ENV`              |          | `"true"` — required for Cloudflare Workers to read env vars                           |
 | `BASIC_AUTH`                                  |          | `"true"` to add an HTTP Basic auth layer (not a replacement for OAuth)                |
 | `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` |          | Credentials for the Basic auth layer                                                  |

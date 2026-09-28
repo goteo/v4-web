@@ -50,6 +50,11 @@ export function getDefaultLanguage(): string {
     return getEnvVar("PUBLIC_DEFAULT_LANGUAGE");
 }
 
+/** Host serving the embeddable project widget. Empty hides the embed option. */
+export function getWidgetUrl(): string {
+    return runtimeEnv["PUBLIC_WIDGET_URL"] || "";
+}
+
 export function getDefaultCountry(): string {
     return runtimeEnv["PUBLIC_DEFAULT_COUNTRY"] || "ES";
 }

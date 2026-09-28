@@ -7,6 +7,7 @@
     import Iframe from "./Iframe.svelte";
     import X from "./X.svelte";
     import { t } from "../../../i18n/store";
+    import { getWidgetUrl } from "../../../utils/consts";
     import ShareIcon from "../../icons/actions/Share.svelte";
 
     interface Props {
@@ -25,8 +26,9 @@
         buttonClass = "",
     }: Props = $props();
 
+    const widgetHost = getWidgetUrl();
     const widgetUrl = $derived(
-        variant === "project" ? `https://www.goteo.org/widget/project/${projectSlug}` : "",
+        variant === "project" && widgetHost ? `${widgetHost}/widget/project/${projectSlug}` : "",
     );
 
     let openModal = $state(false);
@@ -74,7 +76,7 @@
         <CopyUrl {url} />
         <Facebook {url} />
         <X text={shareText} {url} />
-        {#if variant === "project"}
+        {#if widgetUrl}
             <Iframe url={widgetUrl} />
         {/if}
     </div>
