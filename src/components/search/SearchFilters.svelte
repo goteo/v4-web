@@ -2,54 +2,30 @@
 Search Filters Container Component
 Main container that composes all filter subcomponents
 Implements responsive layout matching Figma design with collapsible mobile behavior
-Integrated with searchStore for state management and URL synchronization
 -->
 <script lang="ts">
-    import { onMount } from "svelte";
-
     import CategoryFilter from "./CategoryFilter.svelte";
     import SearchButton from "./SearchButton.svelte";
     import SearchInput from "./SearchInput.svelte";
     import StatusFilter from "./StatusFilter.svelte";
     import { t } from "../../i18n/store";
-    import { searchStore, searchFilters, type SearchFilters } from "../../stores/searchStore";
     import FilterIcon from "../icons/filters/FilterIcon.svelte";
     import Button from "../library/buttons/Button.svelte";
     import TerritoryInput from "../library/inputs/TerritoryInput.svelte";
     import Title from "../library/typography/Title.svelte";
 
+    import type { SearchFilters } from "../../utils/searchParams";
+
     interface Props {
-        initialFilters?: SearchFilters;
+        filters: SearchFilters;
+        onChange: (filters: Partial<SearchFilters>) => void;
+        onSearch: () => void;
     }
 
-    let { initialFilters }: Props = $props();
+    let { filters, onChange, onSearch }: Props = $props();
 
     // Filter visibility (collapsed by default on all devices)
     let filtersOpen = $state(false);
-
-    // Initialize locale and filters when component mounts
-    onMount(() => {
-        // Initialize with server-provided filters if available (without triggering search)
-        if (initialFilters) {
-            searchStore.initializeFilters(initialFilters);
-        }
-    });
-
-    // Debounce auto-applied searches so typing in the search input
-    // doesn't fire one API request per keystroke
-    let autoSearchTimeout: ReturnType<typeof setTimeout>;
-
-    // Handle filter updates using searchStore and auto-apply the search
-    function updateFilters(newFilters: Partial<typeof $searchFilters>) {
-        searchStore.updateFilters(newFilters);
-        clearTimeout(autoSearchTimeout);
-        autoSearchTimeout = setTimeout(() => searchStore.searchWithApi(), 400);
-    }
-
-    function handleSearch() {
-        clearTimeout(autoSearchTimeout);
-        searchStore.searchWithApi();
-    }
 
     function toggleFilters() {
         filtersOpen = !filtersOpen;
@@ -68,10 +44,10 @@ Integrated with searchStore for state management and URL synchronization
             <!-- Search input -->
             <div class="min-w-0 flex-1">
                 <SearchInput
-                    value={$searchFilters.title}
-                    onSearch={(title) => updateFilters({ title })}
-                    onEnter={handleSearch}
-                    onClear={handleSearch}
+                    value={filters.title}
+                    onSearch={(title) => onChange({ title })}
+                    onEnter={onSearch}
+                    onClear={onSearch}
                     data-testid="search-input"
                 />
             </div>
@@ -79,7 +55,7 @@ Integrated with searchStore for state management and URL synchronization
             <!-- Search button -->
             <SearchButton
                 variant="secondary"
-                onclick={handleSearch}
+                onclick={onSearch}
                 data-testid="search-btn"
                 class="w-full shrink-0 sm:w-auto"
             >
@@ -108,8 +84,8 @@ Integrated with searchStore for state management and URL synchronization
                         {$t("pages.search.filters.status.label")}
                     </Title>
                     <StatusFilter
-                        statuses={$searchFilters["status[]"] || []}
-                        onStatusesChange={(statuses) => updateFilters({ "status[]": statuses })}
+                        statuses={filters["status[]"] || []}
+                        onStatusesChange={(statuses) => onChange({ "status[]": statuses })}
                     />
                 </div>
                 <div class="w-full">
@@ -119,12 +95,12 @@ Integrated with searchStore for state management and URL synchronization
                     <TerritoryInput
                         multiple
                         selectedTerritory={{
-                            countries: $searchFilters["territory.country[]"] || [],
-                            subLvl1: $searchFilters["territory.subLvl1[]"] || [],
-                            subLvl2: $searchFilters["territory.subLvl2[]"] || [],
+                            countries: filters["territory.country[]"] || [],
+                            subLvl1: filters["territory.subLvl1[]"] || [],
+                            subLvl2: filters["territory.subLvl2[]"] || [],
                         }}
                         onTerritoryChange={(territories) =>
-                            updateFilters({
+                            onChange({
                                 "territory.country[]": territories.countries,
                                 "territory.subLvl1[]": territories.subLvl1,
                                 "territory.subLvl2[]": territories.subLvl2,
@@ -136,8 +112,8 @@ Integrated with searchStore for state management and URL synchronization
             <!-- Category filters -->
             <div class="w-full">
                 <CategoryFilter
-                    selectedCategories={$searchFilters["categories[]"] || []}
-                    onCategoryChange={(categories) => updateFilters({ "categories[]": categories })}
+                    selectedCategories={filters["categories[]"] || []}
+                    onCategoryChange={(categories) => onChange({ "categories[]": categories })}
                 />
             </div>
         </div>
