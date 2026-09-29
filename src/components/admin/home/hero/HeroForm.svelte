@@ -218,9 +218,7 @@
         isRemoveModalOpen = false;
     }
 
-    const currentFields = $derived(
-        fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage],
-    );
+    const currentFields = $derived(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage]);
 
     function openPreview() {
         previewHero = {
@@ -572,7 +570,11 @@
         <Button kind="ghost" onclick={() => (isAddModalOpen = false)} class="w-fit">
             {$t("common.cancel")}
         </Button>
-        <Button onclick={confirmAddLanguage} class="w-fit" disabled={selectedLanguageOption.length === 0}>
+        <Button
+            onclick={confirmAddLanguage}
+            class="w-fit"
+            disabled={selectedLanguageOption.length === 0}
+        >
             {$t("pages.admin.home.hero.addTranslationModal.submit")}
         </Button>
     {/snippet}
