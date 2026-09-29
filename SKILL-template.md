@@ -32,7 +32,8 @@ Cloudflare D1 database: migrations in `db/migrations/`, seed in `db/seed.sql`. L
 | ----------------- | ------------------------------- | ---------------------------------- |
 | Svelte components | `PascalCase.svelte`             | `ProjectCard.svelte`               |
 | Services          | `camelCaseService.ts`           | `projectsService.ts`               |
-| Stores            | `camelCase.ts`                  | `searchStore.ts`                   |
+| Stores            | `camelCaseStore.ts`             | `draftsStore.ts`                   |
+| Repositories      | `camelCases.ts`                 | `drafts.ts`                        |
 | Utils             | `camelCase.ts`                  | `extractId.ts`                     |
 | Types/interfaces  | `camelCase.ts`                  | `campaign.ts`                      |
 | Pages             | kebab-case under `[...locale]/` | `[...locale]/create/project.astro` |
