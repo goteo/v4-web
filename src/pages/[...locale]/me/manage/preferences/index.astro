@@ -1,0 +1,27 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import App from "../../../../../layouts/App.svelte";
+import WithSidebar from "../../../../../layouts/WithSidebar.svelte";
+import ManagePreferencesSection from "../../../../../components/profile/ManagePreferencesSection.svelte";
+import { goto } from "../../../../../utils/navigation";
+
+const { lang, t, session } = Astro.locals;
+
+if (!session) {
+    return goto("/login", { query: { callback: "/me/manage/preferences" } });
+}
+
+const activePath = "/me/manage/preferences";
+
+const navItems = [
+    { label: "pages.me.manage.preferences.nav.preferences", href: "/me/manage/preferences" },
+];
+---
+
+<Layout title={t("pages.me.manage.preferences.title")}>
+    <App client:load locale={lang} session={session}>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <ManagePreferencesSection userId={session.user.id} client:load />
+        </WithSidebar>
+    </App>
+</Layout>
