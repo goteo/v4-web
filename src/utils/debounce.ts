@@ -1,10 +1,8 @@
 /**
- * Delay `fn` until `ms` have passed without another call. Each call resets the timer.
+ * Delays `fn` until `ms` have passed without another call. Each call cancels
+ * the pending one; `cancel()` drops it without running.
  */
-export function debounce<A extends unknown[]>(
-    fn: (...args: A) => void,
-    ms: number,
-): ((...args: A) => void) & { cancel: () => void } {
+export function debounce<A extends unknown[]>(fn: (...args: A) => void, ms = 300) {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const debounced = (...args: A) => {

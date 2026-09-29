@@ -2,27 +2,27 @@
     import { onMount } from "svelte";
 
     import { t } from "../../i18n/store";
-    import { apiTipjarsIdGet } from "../../openapi/client";
+    import { apiTipjarsIdGet, type MoneyInput } from "../../openapi/client";
     import { cart, cartByRecipient, type CheckoutItem } from "../../stores/checkoutsStore";
-    import { getUnit } from "../../utils/currencies";
+    import { DEFAULT_CURRENCY } from "../../utils/currencies";
     import * as tipping from "../../utils/tipping";
+    import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    let amount = $state(tipping.defaultAmount / getUnit());
-    let hasError = $state(false);
+    let money = $state<MoneyInput>({
+        amount: Number(tipping.defaultAmount),
+        currency: DEFAULT_CURRENCY,
+    });
 
     let isChecked = $state(tipping.defaultChecked);
+
+    const amountError = $derived(
+        money.amount <= 0 ? $t("pages.checkout.tipjar.error.invalidAmount") : "",
+    );
 
     onMount(() => {
         toggleTip();
     });
-
-    function getMoney(amount: number) {
-        return {
-            amount,
-            currency: import.meta.env.PUBLIC_DEFAULT_CURRENCY,
-        };
-    }
 
     async function getTip(): Promise<Omit<CheckoutItem, "key">> {
         if ($cartByRecipient[tipping.tipjarIri]) {
@@ -36,31 +36,30 @@
             type: "single",
             quantity: 1,
             title: $t("domain.tipping.title"),
-            money: getMoney(tipping.defaultAmount),
+            money: { amount: Number(tipping.defaultAmount), currency: DEFAULT_CURRENCY },
             recipient: tipping.tipjarIri,
             recipientDisplayName: tipjar?.name!,
             target: tipjar?.accounting!,
         };
     }
 
-    async function setTip(amount: number) {
+    async function setTip(newMoney: MoneyInput) {
         const tip = await getTip();
 
         cart.addItem({
             ...tip,
-            money: getMoney(amount),
+            money: newMoney,
         });
     }
 
-    function handleAmountChange(amount: number) {
-        if (amount <= 0) {
-            hasError = true;
+    function handleAmountChange(newMoney: MoneyInput) {
+        money = newMoney;
+
+        if (newMoney.amount <= 0) {
             return;
         }
 
-        hasError = false;
-
-        setTip(amount * getUnit());
+        setTip(newMoney);
     }
 
     function toggleTip() {
@@ -72,7 +71,7 @@
 
             cart.removeItem(tip.key);
         } else {
-            setTip(amount * getUnit());
+            setTip(money);
         }
     }
 </script>
@@ -83,25 +82,14 @@
             {$t("pages.checkout.tipjar.community")}
         </Title>
 
-        <input
-            class="w-full rounded border border-gray-300 p-2
-			transition focus:border-blue-500 focus:outline-none
-			disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
-            type="number"
-            min="1"
-            bind:value={amount}
-            oninput={(e) => handleAmountChange(+e.currentTarget.value)}
+        <CurrencyInput
+            amount={money.amount}
+            currency={money.currency}
             placeholder={$t("pages.checkout.tipjar.input")}
             disabled={!isChecked}
-            class:border-red-500={hasError}
-            class:ring-red-200={hasError}
-            class:ring-2={hasError}
+            error={amountError}
+            onInput={handleAmountChange}
         />
-        {#if hasError}
-            <p class="text-sm text-red-600">
-                {$t("pages.checkout.tipjar.error.invalidAmount")}
-            </p>
-        {/if}
     </div>
 
     <div>

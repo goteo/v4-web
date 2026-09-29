@@ -1,20 +1,18 @@
 <script lang="ts">
     import { Modal } from "flowbite-svelte";
-    import { onMount } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../i18n/store";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
-    import { getDefaultCurrency } from "../../utils/consts";
-    import { formatCurrency, getUnit } from "../../utils/currencies";
+    import { formatCurrency } from "../../utils/currencies";
     import { lt } from "../../utils/money";
     import { renderMarkdown } from "../../utils/renderMarkdown";
     import UnitIcon from "../icons/UnitIcon.svelte";
     import UserIcon from "../icons/user/User.svelte";
     import Button from "../library/buttons/Button.svelte";
-    import TextInput from "../library/inputs/TextInput.svelte";
+    import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
 
-    import type { Project, ProjectReward } from "../../openapi/client";
+    import type { MoneyInput, Project, ProjectReward } from "../../openapi/client";
 
     let {
         open = $bindable(false),
@@ -26,26 +24,17 @@
         project: Project;
     } = $props();
 
-    let rawInput = $state("");
-    let customAmount = $state(0);
+    let money = $state<MoneyInput>({ ...reward.money });
+    let amountError = $state("");
     let link = $state(`/calculadora-fiscal`);
 
     async function updateAmount(action: "close" | "checkout") {
-        const numericAmount = customAmount;
-
-        if (
-            isNaN(numericAmount) ||
-            lt(
-                {
-                    amount: numericAmount * getUnit(reward.money?.currency),
-                    currency: reward.money.currency,
-                },
-                reward.money ?? { amount: 0, currency: getDefaultCurrency() },
-            )
-        ) {
-            alert($t("pages.project.view.rewards.error.invalidAmount"));
+        if (lt(money, reward.money)) {
+            amountError = $t("pages.project.view.rewards.error.invalidAmount");
             return;
         }
+
+        amountError = "";
 
         cart.addItem({
             kind: "reward",
@@ -57,10 +46,7 @@
             recipientDisplayName: project.title,
             target: project.accounting!,
             cover: reward.cover ?? project.cover,
-            money: {
-                amount: numericAmount * getUnit(reward.money?.currency),
-                currency: reward.money.currency,
-            },
+            money,
         });
 
         if (action === "checkout") {
@@ -70,13 +56,6 @@
             open = false;
         }
     }
-
-    onMount(() => {
-        rawInput = formatCurrency(reward.money);
-        customAmount = +formatCurrency(reward.money, {
-            asLocaleString: false,
-        });
-    });
 </script>
 
 {#snippet cover(className: ClassNameValue)}
@@ -113,25 +92,13 @@
         <p class="text-secondary text-sm font-medium">
             {$t("pages.project.view.rewards.donationFree.additionalDonation")}
         </p>
-        <!-- TO-DO: Change this input to dedicated CurrencyInput -->
-        <TextInput
+        <CurrencyInput
             labelText={$t("domain.project.reward.donation")}
-            type="text"
-            class="focus-ring-2 focus:ring-tertiary w-full rounded border border-gray-300 p-4"
-            bind:value={rawInput}
-            onFocus={() => {
-                rawInput = customAmount.toString();
-            }}
-            onBlur={() => {
-                const currency = reward?.money?.currency!;
-                const unit = getUnit(currency);
-
-                const parsed = parseFloat(rawInput.replace(/[^\d.,]/g, "").replace(",", "."));
-                customAmount = isNaN(parsed) ? 0 : parsed;
-
-                rawInput = customAmount > 0 ? formatCurrency(customAmount * unit, currency) : "";
-            }}
+            amount={money.amount}
+            currency={money.currency}
             placeholder={$t("pages.project.view.rewards.donationFree.placeholder")}
+            error={amountError}
+            onInput={(newMoney) => (money = newMoney)}
         />
     </div>
 {/snippet}

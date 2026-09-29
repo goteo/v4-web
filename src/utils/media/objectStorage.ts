@@ -56,10 +56,14 @@ export function generateStorageKey(
 }
 
 export function parseStorageKey(key: string): StorageKey {
-    const pieces = key.split("/");
-    if (pieces.length !== 3) {
-        throw new Error("Supplied key has too many pieces for a storage key");
+    const pieces = key.split("/").filter(Boolean);
+    if (pieces.length < 3) {
+        throw new Error("Supplied key has too few pieces to be a storage key");
     }
 
-    return { prefix: pieces[0], owner: pieces[1], file: pieces[2] };
+    const file = pieces.pop() as string;
+    const owner = pieces.pop() as string;
+    const prefix = pieces.join("/");
+
+    return { prefix, owner, file };
 }

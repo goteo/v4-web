@@ -3,9 +3,10 @@
     import { apiGatewaysGetCollection, type Gateway } from "../../../../openapi/client";
     import { client } from "../../../../openapi/client/client.gen";
     import { apiGatewaysIdGetUrl } from "../../../../openapi/client/operation-paths.gen";
-    import { DEFAULT_CURRENCY, formatCurrency, parseCurrency } from "../../../../utils/currencies";
+    import { DEFAULT_CURRENCY } from "../../../../utils/currencies";
     import { toCollectionItems } from "../../../../utils/hydra";
     import { createAccountingSearcher } from "../../../../utils/searchers";
+    import CurrencyInput from "../../../library/inputs/CurrencyInput.svelte";
     import ResourceSearch from "../../../library/inputs/ResourceSearch.svelte";
     import Select from "../../../library/inputs/Select.svelte";
     import TextArea from "../../../library/inputs/TextArea.svelte";
@@ -25,12 +26,6 @@
         baseUrl: "/api/relay",
         resources: ["projects", "tipjars"],
     });
-
-    let amountInput = $state(
-        form.charge.money.amount
-            ? formatCurrency(form.charge.money.amount, form.charge.money.currency)
-            : "",
-    );
 
     const CURRENCIES = [DEFAULT_CURRENCY];
 
@@ -67,27 +62,6 @@
         });
         const gw = gateways.find((g) => g.id === value);
         form.charge.gatewayName = gw?.name ?? value;
-    }
-
-    function onAmountInput(value: string) {
-        amountInput = value;
-    }
-
-    function onAmountBlur() {
-        if (!amountInput.trim()) {
-            form.charge.money.amount = 0;
-            return;
-        }
-        const parsed = parseCurrency(amountInput, form.charge.money.currency);
-        form.charge.money.amount = parsed;
-        amountInput = formatCurrency(parsed, form.charge.money.currency);
-    }
-
-    function onCurrencyChange(value: string) {
-        form.charge.money.currency = value;
-        if (form.charge.money.amount > 0) {
-            amountInput = formatCurrency(form.charge.money.amount, value);
-        }
     }
 
     export function validate(): boolean {
@@ -134,20 +108,19 @@
     </Select>
 
     <div class="grid grid-cols-2 gap-4">
-        <TextInput
-            type="text"
-            value={amountInput}
+        <CurrencyInput
+            amount={form.charge.money.amount}
+            currency={form.charge.money.currency}
             labelText={$t("pages.admin.charges.headers.amount")}
             helperText={$t("pages.admin.charges.create.fields.amountHelper")}
             required={true}
-            onInput={(value) => onAmountInput(value.toString())}
-            onBlur={onAmountBlur}
+            onInput={(money) => (form.charge.money = money)}
         />
         <Select
             labelText={$t("pages.admin.charges.create.fields.currency")}
             required={true}
             value={form.charge.money.currency}
-            onChange={onCurrencyChange}
+            onChange={(value) => (form.charge.money.currency = value)}
         >
             {#each CURRENCIES as c}
                 <option value={c} selected={form.charge.money.currency === c}>{c}</option>

@@ -3,12 +3,16 @@
     import { untrack } from "svelte";
 
     import { t } from "../../../i18n/store";
-    import { apiProjectsIdOrSlugGetUrl, type ProjectBudgetItem } from "../../../openapi/client";
+    import {
+        apiProjectsIdOrSlugGetUrl,
+        type MoneyInput,
+        type ProjectBudgetItem,
+    } from "../../../openapi/client";
     import { client } from "../../../openapi/client/client.gen";
-    import { DEFAULT_CURRENCY, getUnit } from "../../../utils/currencies";
-    import { toUnitsNumber } from "../../../utils/money";
+    import { DEFAULT_CURRENCY } from "../../../utils/currencies";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
+    import CurrencyInput from "../../library/inputs/CurrencyInput.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TextArea from "../../library/inputs/TextArea.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
@@ -36,7 +40,9 @@
     let selectedBudgetType: "infrastructure" | "material" | "task" | undefined = $state(
         untrack(() => item?.type),
     );
-    let amount = $state(untrack(() => (item?.money ? toUnitsNumber(item.money) : 0)));
+    let money = $state<MoneyInput>(
+        untrack(() => (item ? { ...item.money } : { amount: 0, currency: DEFAULT_CURRENCY })),
+    );
     let selectedBudgetDeadline: "minimum" | "optimum" | undefined = $state(
         untrack(() => item?.deadline || deadline),
     );
@@ -47,7 +53,7 @@
     const isFormValid = $derived(
         selectedBudgetTitle.trim() !== "" &&
             !!selectedBudgetType &&
-            Number(amount) > 0 &&
+            money.amount > 0 &&
             !!selectedBudgetDeadline &&
             selectedBudgetDescription.trim() !== "",
     );
@@ -65,7 +71,7 @@
             : undefined,
     );
     const amountError = $derived(
-        formTouched && Number(amount) <= 0
+        formTouched && money.amount <= 0
             ? $t("pages.project.edit.budget.validation.amount")
             : undefined,
     );
@@ -86,10 +92,7 @@
             title: selectedBudgetTitle,
             description: selectedBudgetDescription,
             deadline: selectedBudgetDeadline!,
-            money: {
-                amount: Number(amount) * getUnit(DEFAULT_CURRENCY),
-                currency: DEFAULT_CURRENCY,
-            },
+            money,
             type: selectedBudgetType!,
         });
     }
@@ -148,12 +151,16 @@
                 <option value="material">{$t("domain.project.budget.type.material")}</option>
                 <option value="task">{$t("domain.project.budget.type.task")}</option>
             </Select>
-            <TextInput
-                bind:value={amount}
-                type="number"
+            <CurrencyInput
+                amount={money.amount}
+                currency={money.currency}
                 labelText={$t("pages.project.edit.budget.modal.placeholders.moneyAmount")}
                 placeholder={$t("pages.project.edit.budget.modal.placeholders.moneyAmount")}
                 error={amountError}
+                onInput={(newMoney) => {
+                    money = newMoney;
+                    formTouched = true;
+                }}
             />
             <TextArea
                 bind:value={selectedBudgetDescription}

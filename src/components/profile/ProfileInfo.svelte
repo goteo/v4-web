@@ -1,10 +1,10 @@
 <script lang="ts">
-    import FacebookIcon from "../icons/social/FacebookIcon.svelte";
-    import GmailIcon from "../icons/social/GmailIcon.svelte";
-    import InstagramIcon from "../icons/social/InstagramIcon.svelte";
-    import LinkedinIcon from "../icons/social/LinkedinIcon.svelte";
+    import Facebook from "../icons/social/Facebook.svelte";
+    import Gmail from "../icons/social/Gmail.svelte";
+    import Instagram from "../icons/social/Instagram.svelte";
+    import Linkedin from "../icons/social/Linkedin.svelte";
     import MediumIcon from "../icons/social/MediumIcon.svelte";
-    import XIcon from "../icons/social/XIcon.svelte";
+    import X from "../icons/social/X.svelte";
     import Title from "../library/typography/Title.svelte";
     import TerritoryTag from "../project/TerritoryTag.svelte";
 
@@ -50,13 +50,14 @@
         ),
     );
 
+    // Same order as the design
     const allSocialLinks: Record<SocialLinkKey, SocialLink> = $derived({
-        email: { url: resolvedLinks.email || "", label: "Email", icon: GmailIcon },
-        facebook: { url: resolvedLinks.facebook || "", label: "Facebook", icon: FacebookIcon },
-        instagram: { url: resolvedLinks.instagram || "", label: "Instagram", icon: InstagramIcon },
-        linkedin: { url: resolvedLinks.linkedin || "", label: "LinkedIn", icon: LinkedinIcon },
+        twitter: { url: resolvedLinks.twitter || "", label: "X/Twitter", icon: X },
+        instagram: { url: resolvedLinks.instagram || "", label: "Instagram", icon: Instagram },
+        facebook: { url: resolvedLinks.facebook || "", label: "Facebook", icon: Facebook },
+        linkedin: { url: resolvedLinks.linkedin || "", label: "LinkedIn", icon: Linkedin },
+        email: { url: resolvedLinks.email || "", label: "Email", icon: Gmail },
         medium: { url: resolvedLinks.medium || "", label: "Medium", icon: MediumIcon },
-        twitter: { url: resolvedLinks.twitter || "", label: "X/Twitter", icon: XIcon },
     });
 
     const socialMediaLinks = $derived(
@@ -80,15 +81,21 @@
     <!-- Social Media Links -->
     {#if socialMediaLinks.length > 0}
         <div class="flex items-center gap-2">
-            {#each socialMediaLinks as [, link]}
+            {#each socialMediaLinks as [key, link]}
                 <a
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="bg-variant1 text-secondary focus:ring-secondary flex size-6 items-center justify-center rounded p-1 transition-opacity hover:opacity-90 focus:ring-2 focus:outline-none"
+                    class="text-secondary focus:ring-secondary flex size-6 items-center justify-center overflow-hidden rounded-[4.8px] transition-opacity hover:opacity-90 focus:ring-2 focus:outline-none"
                     aria-label={link.label}
                 >
-                    <link.icon class="size-full" />
+                    {#if key === "medium"}
+                        <span class="bg-variant1 flex size-full p-1">
+                            <link.icon class="size-full" />
+                        </span>
+                    {:else}
+                        <link.icon width="24" height="24" />
+                    {/if}
                 </a>
             {/each}
         </div>

@@ -9,6 +9,7 @@
 
     interface Props {
         class?: ClassNameValue;
+        searchClasses?: ClassNameValue;
         value?: string;
         placeholder?: string;
         helperText?: string;
@@ -22,6 +23,7 @@
 
     let {
         class: classes = undefined,
+        searchClasses = undefined,
         value = $bindable(""),
         placeholder,
         helperText,
@@ -85,6 +87,7 @@
 
 <ResourceSearch
     class={classes}
+    {searchClasses}
     search={searchTerritories}
     {multiple}
     bind:value

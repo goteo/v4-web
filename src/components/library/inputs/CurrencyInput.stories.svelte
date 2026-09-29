@@ -1,11 +1,11 @@
 <script module>
     import { defineMeta } from "@storybook/addon-svelte-csf";
 
-    import MoneyInput from "./MoneyInput.svelte";
+    import CurrencyInput from "./CurrencyInput.svelte";
 
     const { Story } = defineMeta({
-        component: MoneyInput,
-        title: "Library/MoneyInput",
+        component: CurrencyInput,
+        title: "Library/CurrencyInput",
         tags: ["autodocs"],
         args: {
             amount: 0,

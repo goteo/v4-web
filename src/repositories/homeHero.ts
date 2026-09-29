@@ -8,10 +8,13 @@ export interface HomeHeroRecord {
     primaryCtaLink: string | null;
     secondaryCtaText: string | null;
     secondaryCtaLink: string | null;
+    /**
+     * Image or video shown next to the text. The home renders it in a 668x510
+     * box (`aspect-668/510`, ~4:3).
+     */
     mediaUrl: string | null;
     mediaType: string | null;
     startsAt: Date;
-    endsAt: Date;
     dateCreated: Date;
 }
 
@@ -25,8 +28,20 @@ const COLUMNS = `id,
                  media_url          AS mediaUrl,
                  media_type         AS mediaType,
                  starts_at          AS startsAt,
-                 ends_at            AS endsAt,
                  date_created       AS dateCreated`;
+
+/**
+ * Dates come back as the stored millisecond integers.
+ * @param row A raw D1 row
+ * @returns The row with real Date instances
+ */
+function fromRow(row: HomeHeroRecord): HomeHeroRecord {
+    return {
+        ...row,
+        startsAt: new Date(row.startsAt),
+        dateCreated: new Date(row.dateCreated),
+    };
+}
 
 class HomeHeroRepository {
     db: D1Database;
@@ -36,8 +51,24 @@ class HomeHeroRepository {
     }
 
     /**
-     * The hero scheduled for right now, most recently authored first.
-     * @returns The active hero, or null when nothing is scheduled
+     * Every hero ever scheduled, most recently authored first.
+     * @returns All stored heroes
+     */
+    public async getAll(): Promise<HomeHeroRecord[]> {
+        const { results } = await this.db
+            .prepare(
+                `SELECT ${COLUMNS}
+                 FROM home_hero
+                 ORDER BY date_created DESC`,
+            )
+            .all<HomeHeroRecord>();
+
+        return results.map(fromRow);
+    }
+
+    /**
+     * The hero whose start date has already passed, most recently authored first.
+     * @returns The active hero, or null when nothing is scheduled yet
      */
     public async getActive(): Promise<HomeHeroRecord | null> {
         const now = Date.now();
@@ -46,24 +77,14 @@ class HomeHeroRepository {
             .prepare(
                 `SELECT ${COLUMNS}
                  FROM home_hero
-                 WHERE starts_at <= ? AND ends_at >= ?
+                 WHERE starts_at <= ?
                  ORDER BY date_created DESC
                  LIMIT 1`,
             )
-            .bind(now, now)
+            .bind(now)
             .first<HomeHeroRecord>();
 
-        if (!row) {
-            return null;
-        }
-
-        // Dates come back as the stored millisecond integers.
-        return {
-            ...row,
-            startsAt: new Date(row.startsAt),
-            endsAt: new Date(row.endsAt),
-            dateCreated: new Date(row.dateCreated),
-        };
+        return row ? fromRow(row) : null;
     }
 
     /**
@@ -83,9 +104,8 @@ class HomeHeroRepository {
                     media_url,
                     media_type,
                     starts_at,
-                    ends_at,
                     date_created
-                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             )
             .bind(
                 hero.title,
@@ -97,7 +117,6 @@ class HomeHeroRepository {
                 hero.mediaUrl,
                 hero.mediaType,
                 hero.startsAt.getTime(),
-                hero.endsAt.getTime(),
                 hero.dateCreated.getTime(),
             )
             .run();
@@ -105,6 +124,14 @@ class HomeHeroRepository {
         if (result.error) {
             throw new Error(result.error);
         }
+    }
+
+    /**
+     * Remove a hero block.
+     * @param id The hero to remove
+     */
+    public async delete(id: number): Promise<void> {
+        await this.db.prepare(`DELETE FROM home_hero WHERE id = ?`).bind(id).run();
     }
 }
 

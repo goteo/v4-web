@@ -1,5 +1,6 @@
 import { getSession } from "../auth/session";
 import { getMatchingACL, isAuthorized } from "../firewall";
+import { isSameHost } from "../utils/requests";
 
 import type { APIContext } from "astro";
 
@@ -10,6 +11,11 @@ export type FirewallResult =
     | { type: "basic-auth"; response: Response };
 
 export async function checkAuth(context: APIContext): Promise<FirewallResult> {
+    const exemptAuth = withAuthExemption(context);
+    if (exemptAuth) {
+        return exemptAuth;
+    }
+
     const basicAuth = withBasicAuth(context);
     if (basicAuth) {
         return basicAuth;
@@ -21,6 +27,18 @@ export async function checkAuth(context: APIContext): Promise<FirewallResult> {
     }
 
     return { type: "ok" };
+}
+
+export function withAuthExemption(context: APIContext): FirewallResult | null {
+    try {
+        if (isSameHost(context.request) && context.url.pathname.startsWith("/api/relay")) {
+            return { type: "ok" };
+        }
+    } catch {
+        // If the request could not be determined as self-host simply continue
+    }
+
+    return null;
 }
 
 export function withBasicAuth(context: APIContext): FirewallResult | null {

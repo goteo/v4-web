@@ -1,0 +1,53 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ManageProfile from "../../../../components/profile/manage/ManageProfile.svelte";
+import { setSession } from "../../../../auth/session";
+import {
+    apiUsersIdOrHandleGet,
+    apiUsersIdorganizationGet,
+    apiUsersIdpersonGet,
+} from "../../../../openapi/client";
+import { goto } from "../../../../utils/navigation";
+
+import type { AdminSidebarItem } from "../../../../components/admin/AdminSidebar.svelte";
+
+const { lang, t, session } = Astro.locals;
+
+if (!session) {
+    return goto("/login", { query: { callback: "/me/manage" } });
+}
+
+const activePath = "/me/manage";
+
+const navItems: AdminSidebarItem[] = [
+    { label: "pages.me.manage.sidebar.publicProfile", href: "/me/manage" },
+];
+
+const path = { id: String(session.user.id) };
+const headers = session.token.asHttpHeaders;
+
+// The session cookie holds a snapshot of the User taken at login, read the current one
+const [{ data: user }, { data: person }, { data: organization }] = await Promise.all([
+    apiUsersIdOrHandleGet({ path: { idOrHandle: path.id }, headers }),
+    apiUsersIdpersonGet({ path, headers }),
+    // 404 for individual users, resolved as `undefined`
+    session.user.type === "organization"
+        ? apiUsersIdorganizationGet({ path, headers })
+        : Promise.resolve({ data: undefined }),
+]);
+
+// Refresh the cookie too: `updateProfile` builds the new links list from `session.user`
+if (user) {
+    setSession(Astro.cookies, { ...session, user });
+}
+---
+
+<Layout title={t("pages.me.manage.title")}>
+    <App client:load locale={lang} session={session}>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <ManageProfile client:load user={user ?? session.user} {person} {organization} />
+        </WithSidebar>
+    </App>
+</Layout>

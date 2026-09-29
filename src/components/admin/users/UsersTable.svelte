@@ -105,7 +105,6 @@
     {itemsPerPage}
     itemsPerPageLabel={USER_ITEMS_PER_PAGE_LABEL}
     itemsPerPageOptions={[...ADMIN_ITEMS_PER_PAGE_OPTIONS]}
-    paginationPrefix="common.pagination"
     sortOptions={userSortOptions}
     {selectedSort}
     sortLabel="pages.admin.users.filters.order.title"

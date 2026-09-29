@@ -171,7 +171,6 @@
     {itemsPerPage}
     itemsPerPageLabel={PROJECT_ITEMS_PER_PAGE_LABEL}
     itemsPerPageOptions={[...ADMIN_ITEMS_PER_PAGE_OPTIONS]}
-    paginationPrefix="common.pagination"
     sortOptions={projectSortOptions}
     {selectedSort}
     sortLabel="pages.admin.projects.filters.order.title"

@@ -858,6 +858,10 @@ export type GatewayLink = {
      * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
      */
     rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
 export type GatewayLinkJsonld = {
@@ -886,6 +890,10 @@ export type GatewayLinkJsonld = {
      * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
      */
     rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
 export type Link = {
@@ -897,6 +905,10 @@ export type Link = {
      * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
      */
     rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
 export type LinkJsonld = {
@@ -915,6 +927,10 @@ export type LinkJsonld = {
      * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
      */
     rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
 /**
@@ -1582,6 +1598,10 @@ export type Project = {
      */
     readonly budgetItems?: Array<string>;
     /**
+     * A list of the ProjectCollaborations this Project has.
+     */
+    readonly collaborations?: Array<string>;
+    /**
      * A list of the ProjectUpdates this Project has.
      */
     readonly updates?: Array<string>;
@@ -1804,6 +1824,10 @@ export type ProjectJsonld = {
      * A list of the BudgetItems composing the budget of this Project.
      */
     readonly budgetItems?: Array<string>;
+    /**
+     * A list of the ProjectCollaborations this Project has.
+     */
+    readonly collaborations?: Array<string>;
     /**
      * A list of the ProjectUpdates this Project has.
      */
@@ -2689,7 +2713,7 @@ export type UserUserSignupDto = {
      */
     email: string;
     /**
-     * The auth password for the new User. Plaintext string,
+     * The authentication password for the new User. Plaintext string,
      * will be hashed by the API.
      */
     password: string;
@@ -2708,7 +2732,7 @@ export type UserUserSignupDtoJsonld = {
      */
     email: string;
     /**
-     * The auth password for the new User. Plaintext string,
+     * The authentication password for the new User. Plaintext string,
      * will be hashed by the API.
      */
     password: string;
@@ -2716,6 +2740,50 @@ export type UserUserSignupDtoJsonld = {
      * Is this User for an individual acting on their own or a group of individuals?
      */
     type: 'individual' | 'organization';
+};
+
+/**
+ * Users represent people who interact with the platform.
+ */
+export type UserUserUpdationDto = {
+    /**
+     * A unique, non white space, byte-safe string identifier for this User.
+     */
+    handle?: string;
+    /**
+     * The User's given email address. Only available to themselves and platform administrators.
+     */
+    email?: string;
+    /**
+     * The authentication password for the User. Plaintext string,
+     * will be hashed by the API.
+     */
+    password?: string;
+    /**
+     * URL to the avatar image of this User.
+     */
+    avatar?: string;
+    /**
+     * Is this User for an individual acting on their own or a group of individuals?
+     */
+    type?: 'individual' | 'organization';
+    /**
+     * A list of the roles assigned to this User. Admin scoped property.
+     */
+    roles?: Array<string>;
+    /**
+     * A list of absolute URLs.\
+     * e.g: social profiles, personal website.
+     */
+    links?: Array<string>;
+    /**
+     * ISO 3166 data about the Users's location territory.
+     */
+    territory?: Territory;
+    /**
+     * Free-form rich text description for the User.
+     */
+    description?: string;
 };
 
 /**
@@ -6003,7 +6071,7 @@ export type ApiUsersIdPatchData = {
     /**
      * The updated User resource
      */
-    body: User;
+    body: UserUserUpdationDto;
     path: {
         /**
          * User identifier

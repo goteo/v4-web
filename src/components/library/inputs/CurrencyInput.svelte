@@ -1,8 +1,10 @@
 <script lang="ts">
+    import { untrack } from "svelte";
     import { twJoin, twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { locale } from "../../../i18n/store";
-    import { DEFAULT_CURRENCY, formatCurrency, getUnit } from "../../../utils/currencies";
+    import { DEFAULT_CURRENCY, formatCurrency, parseCurrency } from "../../../utils/currencies";
+    import { toUnitsNumber } from "../../../utils/money";
 
     import type { MoneyInput } from "../../../openapi/client";
 
@@ -15,6 +17,7 @@
         id,
         labelText,
         helperText,
+        placeholder,
         error,
         onInput,
     }: {
@@ -26,6 +29,7 @@
         id?: string;
         labelText?: string;
         helperText?: string;
+        placeholder?: string;
         error?: string;
         onInput?: (value: MoneyInput) => void;
     } = $props();
@@ -34,43 +38,41 @@
     const finalId = $derived(id ?? generatedId);
 
     let input: HTMLInputElement;
-    let focused = false;
-    let display = $derived(formatCurrency({ amount, currency }, { locale: $locale }));
+    let focused = $state(false);
+
+    /** Formats an amount for display, rendering an empty string at zero so the placeholder shows. */
+    function format(value: number): string {
+        return value ? formatCurrency({ amount: value, currency }, { locale: $locale }) : "";
+    }
+
+    /**
+     * Formats an amount as a bare, editable number for the focused state.
+     *
+     * Must use the same locale separators `parseCurrency` expects: under `es` a "." is the *group*
+     * separator, so emitting "12.5" here would be read back as 1250 units instead of 12,5.
+     */
+    function toEditable(value: number): string {
+        if (!value) return "";
+
+        return new Intl.NumberFormat($locale, {
+            useGrouping: false,
+            maximumFractionDigits: 20,
+        }).format(toUnitsNumber({ amount: value, currency }));
+    }
+
+    // Initial value only; the effect below keeps it in sync with `amount` while unfocused.
+    let display = $state(untrack(() => format(amount)));
 
     $effect(() => {
         if (!focused) {
-            display = formatCurrency({ amount, currency }, { locale: $locale });
+            display = format(amount);
         }
     });
-
-    function toMoney(raw: string): MoneyInput | null {
-        const normalized = raw.replace(/[^\d.,-]/g, "").replace(/,/g, "");
-        if (!normalized || normalized === "-" || normalized === ".") {
-            return null;
-        }
-
-        const amount = Number(normalized);
-        if (!Number.isFinite(amount)) {
-            return null;
-        }
-
-        return {
-            amount: Math.round(amount * getUnit(currency)),
-            currency: currency,
-        };
-    }
-
-    function emit(next: MoneyInput) {
-        amount = next.amount;
-        currency = next.currency;
-        onInput?.(next);
-    }
 
     function handleFocus() {
         focused = true;
 
-        display = (amount / getUnit(currency)).toFixed(Math.max(0, Math.log10(getUnit(currency))));
-        display = display.replace(/\.?0+$/, "");
+        display = toEditable(amount);
 
         requestAnimationFrame(() => {
             input?.setSelectionRange(display.length, display.length);
@@ -78,31 +80,17 @@
     }
 
     function handleInput(event: Event) {
-        const target = event.currentTarget as HTMLInputElement;
-        const raw = target.value;
+        display = (event.currentTarget as HTMLInputElement).value;
 
-        const sanitized = raw.replace(/[^\d.,-]/g, "");
-        const normalized = sanitized.includes(".")
-            ? sanitized.replace(/,/g, "")
-            : sanitized.replace(",", ".");
+        const parsed = parseCurrency(display, currency, $locale);
 
-        display = normalized;
-
-        const next = toMoney(normalized);
-
-        if (next) {
-            emit(next);
-        } else if (normalized === "") {
-            emit({
-                amount: 0,
-                currency: currency,
-            });
-        }
+        amount = Number.isFinite(parsed) ? parsed : 0;
+        onInput?.({ amount, currency });
     }
 
     function handleBlur() {
         focused = false;
-        display = formatCurrency({ amount, currency }, { locale: $locale });
+        display = format(amount);
     }
 </script>
 
@@ -130,6 +118,7 @@
         type="text"
         inputmode="decimal"
         autocomplete="off"
+        {placeholder}
         {required}
         {disabled}
         class={twMerge(

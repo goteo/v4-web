@@ -1,4 +1,5 @@
 import { generateHTML, generateJSON, generateText, type JSONContent } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 import { FontSize, TextStyle } from "@tiptap/extension-text-style";
 import { CharacterCount } from "@tiptap/extensions";
@@ -41,6 +42,7 @@ export const richTextExtensions = [
     TextStyle,
     FontSize,
     CharacterCount,
+    Image,
 ];
 
 export function emptyRichText(): JSONContent {

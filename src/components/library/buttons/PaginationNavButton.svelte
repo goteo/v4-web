@@ -18,7 +18,7 @@
     onclick={onClick}
     {disabled}
     aria-label={ariaLabel}
-    class="border-content flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 hover:disabled:bg-transparent"
+    class="border-variant1 text-secondary hover:border-secondary hover:bg-purple-soft disabled:border-content/24 disabled:text-content/24 hover:disabled:border-content/24 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border disabled:cursor-not-allowed hover:disabled:bg-transparent"
 >
     {@render children()}
 </button>

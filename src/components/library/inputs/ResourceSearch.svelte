@@ -30,6 +30,8 @@
 
     interface Props {
         class?: ClassNameValue;
+        /** Extra classes for the search input pill. */
+        searchClasses?: ClassNameValue;
         /** The I/O adapter: query in, `SearchResultItem[]` out. */
         search: ResourceSearcher;
         /** Multi picker with chips instead of a single picker. */
@@ -59,6 +61,7 @@
 
     let {
         class: classes = undefined,
+        searchClasses = undefined,
         search,
         multiple = false,
         value = $bindable(""),
@@ -223,7 +226,7 @@
         {label}
         {placeholder}
         bind:value
-        class={error ? "border-tertiary" : undefined}
+        class={twMerge(searchClasses, error && "border-tertiary")}
         oninput={handleInput}
         onfocus={() => {
             if (results.length > 0) isOpen = true;

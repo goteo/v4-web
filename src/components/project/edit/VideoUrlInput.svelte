@@ -103,9 +103,7 @@
                 aria-label={$t("pages.project.edit.campaignInfo.media.removeVideo")}
                 class="border-secondary text-secondary hover:bg-light-surface self-start border-2 bg-white"
             >
-                <span class="h-4 w-4">
-                    <CloseIcon />
-                </span>
+                <CloseIcon class="size-4" />
 
                 {$t("pages.project.edit.campaignInfo.media.removeVideo")}
             </Button>

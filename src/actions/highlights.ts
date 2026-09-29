@@ -1,5 +1,5 @@
-import { z } from "astro/zod";
 import { ActionError, defineAction } from "astro:actions";
+import { z } from "zod";
 
 import { highlightRepository } from "../repositories/highlights";
 
