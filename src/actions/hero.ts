@@ -3,8 +3,12 @@ import { z } from "zod";
 
 import { homeHeroRepository } from "../repositories/homeHero";
 import { HOME_HERO_TABLE, translationRepository } from "../repositories/translations";
-import { isSupportedLocale } from "../i18n/locales";
 import { startOfDay } from "../utils/dates";
+
+// The admin may translate the hero into ANY recognized language, not only the
+// locales the UI is available in. A bare ISO-like code (e.g. "de", "pt", "eu")
+// is enough; only well-formed codes are persisted.
+const LANGUAGE_CODE_PATTERN = /^[a-z]{2,8}([-_][a-z0-9]{2,8})*$/;
 
 // Astro turns any empty form field into null unless the validator is optional,
 // so every field the admin may leave blank has to be declared as such. The CTA
@@ -110,7 +114,9 @@ export const createHomeHero = defineAction({
             }
 
             translations = Object.fromEntries(
-                Object.entries(result.data).filter(([locale]) => isSupportedLocale(locale)),
+                Object.entries(result.data).filter(([locale]) =>
+                    LANGUAGE_CODE_PATTERN.test(locale),
+                ),
             );
         }
 

@@ -1,12 +1,12 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
     import { Modal } from "flowbite-svelte";
-    import { get } from "svelte/store";
 
-    import { languagesList, type Locale } from "../../../../i18n/locales";
     import { locale, t } from "../../../../i18n/store";
+    import { getDefaultLanguage } from "../../../../utils/consts";
     import { formatDate, startOfDay } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
+    import { iso639_1Codes } from "../../../../utils/lang.types";
     import LanguagesDropdown from "../../../header/LanguagesDropdown.svelte";
     import Trash from "../../../icons/actions/Trash.svelte";
 
@@ -44,7 +44,17 @@
         secondaryCtaLink: string;
     }
 
-    const SUPPORTED_LOCALES = Object.keys(languagesList) as Locale[];
+    // The admin may translate into ANY recognized language, not only the locales
+    // the UI itself is available in. The catalog covers all ISO 639-1 codes the
+    // browser can name; the search narrows it, unknown codes are not offered.
+    const ALL_LANGUAGE_OPTIONS: DropdownOption[] = iso639_1Codes
+        .map((code) => ({ id: code, label: getLanguageDisplayName(code) }))
+        .filter((option): option is { id: string; label: string } => option.label !== undefined)
+        .map((option) => ({
+            id: option.id,
+            label: `${option.label} (${option.id})`,
+            selected: false,
+        }));
 
     function emptyFields(): HeroFields {
         return {
@@ -85,43 +95,32 @@
 
     const contentId = $props.id();
 
-    // The initial language is the one the admin is writing in right now. It is
-    // captured once so switching the UI language mid-edit does not rebrand the
-    // base content.
-    let baseLanguage = $state(get(locale));
-    let languages = $state([baseLanguage]);
-    let selectedLanguage = $state(baseLanguage);
+    // All languages are equal: there is no "base" language, only a default one
+    // (the platform language) used to seed the form. An existing block keeps
+    // the language it was authored in, and the default can be removed like any
+    // other language once a second one exists.
+    const defaultLanguage = getDefaultLanguage();
+    const initialLanguage = hero?.language || defaultLanguage;
+
+    let languages = $state<string[]>([initialLanguage]);
+    let selectedLanguage = $state<string>(initialLanguage);
 
     let isAddModalOpen = $state(false);
-    let candidateLanguage = $state<Locale | "">("");
+    let languageSearch = $state("");
+    let candidateOptions = $state<DropdownOption[]>([]);
     let selectedLanguageOption = $state<DropdownOption[]>([]);
-
-    const availableLanguages = $derived(
-        SUPPORTED_LOCALES.filter((lang) => !languages.includes(lang)),
-    );
-
-    const languageOptions = $derived<DropdownOption[]>(
-        availableLanguages.map((code) => ({
-            id: code,
-            label: getLanguageDisplayName(code) ?? code,
-            selected: false,
-        })),
-    );
 
     let isRemoveModalOpen = $state(false);
 
     let fieldValues = $state<Record<string, HeroFields>>({
-        [baseLanguage]: hero ? fieldsFromRecord(hero) : emptyFields(),
+        [initialLanguage]: hero ? fieldsFromRecord(hero) : emptyFields(),
     });
 
-    const editingLabel = $derived(
-        selectedLanguage === baseLanguage
-            ? $t("pages.admin.home.hero.fields.baseContentLabel", {
-                  language: getLanguageDisplayName(selectedLanguage)!,
-              })
-            : $t("pages.admin.home.hero.fields.translationContentLabel", {
-                  language: getLanguageDisplayName(selectedLanguage)!,
-              }),
+    // The stored row must be authored in exactly one language. The platform
+    // language keeps that role while it is present; otherwise the first chosen
+    // language becomes the authoring language.
+    const primaryLanguage = $derived(
+        languages.includes(defaultLanguage) ? defaultLanguage : (languages[0] ?? defaultLanguage),
     );
 
     let fieldErrors: FieldErrors = $state({});
@@ -153,33 +152,61 @@
     }
 
     function openAddModal() {
-        candidateLanguage = "";
+        languageSearch = "";
         selectedLanguageOption = [];
+        refreshLanguageOptions();
         isAddModalOpen = true;
     }
 
+    function refreshLanguageOptions(query = "") {
+        // After picking an option its label is shown in the search input; that
+        // label must not act as a filter, otherwise reopening the list would
+        // narrow it to the selected language alone.
+        const search = query.trim().toLowerCase();
+        const selectedLabel = ALL_LANGUAGE_OPTIONS.find(
+            (option) => option.id === selectedLanguageOption[0]?.id,
+        )?.label.toLowerCase();
+        const active = search && search !== selectedLabel ? search : "";
+
+        candidateOptions = ALL_LANGUAGE_OPTIONS.filter(
+            (option) =>
+                !languages.includes(option.id) &&
+                (!active ||
+                    option.label.toLowerCase().includes(active) ||
+                    option.id.includes(active)),
+        ).map((option) => ({
+            ...option,
+            selected: selectedLanguageOption[0]?.id === option.id,
+        }));
+    }
+
     function handleAddLanguageChange(option: DropdownOption) {
-        candidateLanguage = option.id as Locale;
+        selectedLanguageOption = [option];
+        languageSearch = option.label;
+        refreshLanguageOptions(option.label);
     }
 
     function confirmAddLanguage() {
-        if (!candidateLanguage || languages.includes(candidateLanguage)) {
+        const lang = selectedLanguageOption[0]?.id;
+
+        if (!lang || languages.includes(lang)) {
             return;
         }
 
-        if (!fieldValues[candidateLanguage]) {
-            fieldValues[candidateLanguage] = emptyFields();
+        if (!fieldValues[lang]) {
+            fieldValues[lang] = emptyFields();
         }
 
-        languages = [...languages, candidateLanguage];
-        selectedLanguage = candidateLanguage;
-        candidateLanguage = "";
+        languages = [...languages, lang];
+        selectedLanguage = lang;
+        languageSearch = "";
         selectedLanguageOption = [];
         isAddModalOpen = false;
     }
 
     function openRemoveModal() {
-        if (selectedLanguage !== baseLanguage) {
+        // Any language can be removed, but at least one must remain.
+        if (languages.length > 1) {
             isRemoveModalOpen = true;
         }
     }
@@ -187,11 +214,13 @@
     function confirmRemoveLanguage() {
         delete fieldValues[selectedLanguage];
         languages = languages.filter((lang) => lang !== selectedLanguage);
-        selectedLanguage = baseLanguage;
+        selectedLanguage = languages[0] ?? defaultLanguage;
         isRemoveModalOpen = false;
     }
 
-    const currentFields = $derived(fieldValues[selectedLanguage] ?? fieldValues[baseLanguage]);
+    const currentFields = $derived(
+        fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage],
+    );
 
     function openPreview() {
         previewHero = {
@@ -217,12 +246,13 @@
 
     function validate(): boolean {
         const errors: FieldErrors = {};
+        const primary = fieldValues[primaryLanguage] ?? emptyFields();
 
-        if (!fieldValues[baseLanguage].title.trim()) {
+        if (!primary.title.trim()) {
             errors.title = "system.constraint.text.notEmpty";
         }
 
-        if (!fieldValues[baseLanguage].content.trim()) {
+        if (!primary.content.trim()) {
             errors.content = "system.constraint.text.notEmpty";
         }
 
@@ -240,20 +270,20 @@
 
         const data = new FormData(formElement);
 
-        const base = fieldValues[baseLanguage];
+        const primary = fieldValues[primaryLanguage] ?? emptyFields();
 
-        data.set("language", baseLanguage);
-        data.set("title", base.title.trim());
-        data.set("content", base.content.trim());
-        data.set("primaryCtaText", base.primaryCtaText.trim());
-        data.set("primaryCtaLink", base.primaryCtaLink.trim());
-        data.set("secondaryCtaText", base.secondaryCtaText.trim());
-        data.set("secondaryCtaLink", base.secondaryCtaLink.trim());
+        data.set("language", primaryLanguage);
+        data.set("title", primary.title.trim());
+        data.set("content", primary.content.trim());
+        data.set("primaryCtaText", primary.primaryCtaText.trim());
+        data.set("primaryCtaLink", primary.primaryCtaLink.trim());
+        data.set("secondaryCtaText", primary.secondaryCtaText.trim());
+        data.set("secondaryCtaLink", primary.secondaryCtaLink.trim());
 
         const translations: Record<string, HeroFields> = {};
 
         for (const lang of languages) {
-            if (lang === baseLanguage) {
+            if (lang === primaryLanguage) {
                 continue;
             }
 
@@ -309,8 +339,6 @@
             // Refreshing the history must not be reported as a save failure.
             console.error(e);
         }
-
-        location.reload();
     }
 
     async function handleSubmit(event: SubmitEvent) {
@@ -319,12 +347,12 @@
     }
 </script>
 
-{#snippet textFields(fields: HeroFields, isBase: boolean)}
+{#snippet textFields(fields: HeroFields)}
     <div class="space-y-4">
         <TextInput
             value={fields.title}
             onInput={(value) => (fields.title = String(value))}
-            required={isBase}
+            required={selectedLanguage === primaryLanguage}
             placeholder={$t("pages.admin.home.hero.fields.titlePlaceholder")}
             error={fieldErrors.title && $t(fieldErrors.title)}
         />
@@ -388,16 +416,14 @@
             <LanguagesDropdown
                 {languages}
                 selected={selectedLanguage}
-                onSelect={(lang) => (selectedLanguage = lang as Locale)}
+                onSelect={(lang) => (selectedLanguage = lang)}
             />
 
-            {#if availableLanguages.length > 0}
-                <Button kind="secondary" size="sm" class="w-fit" onclick={openAddModal}>
-                    {$t("pages.admin.home.hero.addTranslation")}
-                </Button>
-            {/if}
+            <Button kind="secondary" size="sm" class="w-fit" onclick={openAddModal}>
+                {$t("pages.admin.home.hero.addTranslation")}
+            </Button>
 
-            {#if selectedLanguage !== baseLanguage}
+            {#if languages.length > 1}
                 <Button
                     kind="ghost"
                     size="sm"
@@ -409,8 +435,6 @@
                 </Button>
             {/if}
         </div>
-
-        <p class="text-content text-sm font-normal">{editingLabel}</p>
     </div>
 
     <div class="flex flex-col gap-6">
@@ -419,10 +443,7 @@
         </Title>
 
         {#key selectedLanguage}
-            {@render textFields(
-                fieldValues[selectedLanguage] ?? fieldValues[baseLanguage],
-                selectedLanguage === baseLanguage,
-            )}
+            {@render textFields(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage])}
         {/key}
     </div>
 
@@ -536,10 +557,13 @@
         <DropdownMenu
             variant="basic"
             singleSelect
-            options={languageOptions}
+            hasSearch
+            bind:searchValue={languageSearch}
+            bind:options={candidateOptions}
             bind:selected={selectedLanguageOption}
+            onSearch={(query) => refreshLanguageOptions(query)}
             onChange={handleAddLanguageChange}
-            label={$t("pages.admin.home.hero.addTranslationModal.placeholder")}
+            searchPlaceholder={$t("pages.admin.home.hero.addTranslationModal.searchPlaceholder")}
             itemClass="text-start"
         />
     </div>
@@ -548,7 +572,7 @@
         <Button kind="ghost" onclick={() => (isAddModalOpen = false)} class="w-fit">
             {$t("common.cancel")}
         </Button>
-        <Button onclick={confirmAddLanguage} class="w-fit" disabled={!candidateLanguage}>
+        <Button onclick={confirmAddLanguage} class="w-fit" disabled={selectedLanguageOption.length === 0}>
             {$t("pages.admin.home.hero.addTranslationModal.submit")}
         </Button>
     {/snippet}

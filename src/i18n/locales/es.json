@@ -1430,8 +1430,8 @@
           "addTranslation": "Añadir traducción",
           "addTranslationModal": {
             "title": "Añade una nueva traducción",
-            "description": "Elige el idioma al que quieres traducir el contenido del hero",
-            "placeholder": "Selecciona un idioma",
+            "description": "Busca y elige el idioma al que quieres traducir el contenido del hero",
+            "searchPlaceholder": "Busca entre todos los idiomas…",
             "submit": "Añadir"
           },
           "removeTranslation": "Eliminar traducción",
@@ -1478,8 +1478,6 @@
             "primaryCtaPlaceholder": "Call to action primario",
             "secondaryCtaPlaceholder": "Call to action secundario",
             "urlPlaceholder": "URL",
-            "baseContentLabel": "Contenido base ({{ language }})",
-            "translationContentLabel": "Traducción al {{ language }}",
             "scheduleTitle": "Programar la subida del bloque",
             "startDatePlaceholder": "Indica la fecha de inicio",
             "mediaTitle": "Hora de subir las imágenes",
