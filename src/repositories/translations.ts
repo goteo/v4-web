@@ -1,19 +1,5 @@
 import { env } from "cloudflare:workers";
 
-/**
- * Per-column, per-locale overrides for any table. The base row always holds the
- * default locale, so rows here only exist for the remaining locales. See
- * `db/migrations/0001_banners.sql`.
- */
-
-export interface TranslationRecord {
-    tableName: string;
-    rowId: number;
-    columnName: string;
-    locale: string;
-    value: string;
-}
-
 /** The home_hero columns that may be translated. `column_name` = DB column. */
 export const HOME_HERO_TABLE = "home_hero";
 
