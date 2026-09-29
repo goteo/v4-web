@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { twMerge, type ClassNameValue } from "tailwind-merge";
+    import { twJoin, twMerge, type ClassNameValue } from "tailwind-merge";
+
+    import Check from "../../icons/actions/Check.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
 
@@ -42,7 +44,10 @@
             class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}
             onclick={() => handleChange(option)}
         >
-            {@html option.label}
+            <span>{@html option.label}</span>
+            {#if option.selected}
+                <Check width="20" height="20" class="text-primary shrink-0" />
+            {/if}
         </button>
     {/if}
 </div>

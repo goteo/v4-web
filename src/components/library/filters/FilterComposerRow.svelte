@@ -1,6 +1,7 @@
 <script lang="ts">
     import { t } from "../../../i18n/store";
     import { DEFAULT_CURRENCY } from "../../../utils/currencies";
+    import { debounce } from "../../../utils/debounce";
     import Close from "../../icons/navigation/Close.svelte";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
     import CurrencyInput from "../inputs/CurrencyInput.svelte";
@@ -57,24 +58,23 @@
         suggestOptions = [];
     });
 
-    let searchTimer: ReturnType<typeof setTimeout> | null = null;
+    const runSuggest = debounce(async (query: string) => {
+        const results = (await currentSubject?.suggest?.(query)) ?? [];
+        suggestOptions = results.map((result) => ({
+            id: result.value,
+            label: result.label,
+            selected: false,
+        }));
+    });
 
     function handleSuggest(query: string) {
-        if (searchTimer) clearTimeout(searchTimer);
-
         if (!query) {
+            runSuggest.cancel();
             suggestOptions = [...dropdownSelected];
             return;
         }
 
-        searchTimer = setTimeout(async () => {
-            const results = (await currentSubject?.suggest?.(query)) ?? [];
-            suggestOptions = results.map((result) => ({
-                id: result.value,
-                label: result.label,
-                selected: false,
-            }));
-        }, 300);
+        runSuggest(query);
     }
 
     function syncReferent() {

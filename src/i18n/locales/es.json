@@ -271,13 +271,23 @@
     },
     "richTextEditor": {
       "toolbar": "Barra de formato de texto",
-      "fontSize": "Tamaño de letra",
+      "textStyle": "Estilo de texto",
+      "paragraph": "Texto normal",
+      "heading": "Título {{ level }}",
       "bold": "Negrita",
       "italic": "Cursiva",
       "alignLeft": "Alinear a la izquierda",
       "alignCenter": "Centrar",
       "alignRight": "Alinear a la derecha",
       "image": "Insertar imagen",
+      "link": "Insertar enlace",
+      "linkUrl": "URL del enlace",
+      "linkApply": "Aplicar",
+      "linkRemove": "Quitar enlace",
+      "linkCancel": "Cancelar",
+      "bulletList": "Lista con viñetas",
+      "orderedList": "Lista numerada",
+      "quote": "Cita",
       "characterCount": "{{ current }} / {{ max }} caracteres"
     },
     "export": {
@@ -336,6 +346,7 @@
     "viewLess": "Ver menos",
     "share": "Compartir",
     "noData": "No hay datos disponibles",
+    "noOptions": "No hay opciones disponibles",
     "tooltip": {
       "copied": "¡Copiado!"
     },
@@ -2026,6 +2037,80 @@
       "page": {
         "title": "Actividad",
         "subtitle": "Consulta tu actividad en Goteo"
+      },
+      "manage": {
+        "title": "Perfil de impulsor",
+        "subtitle": "Sé parte de Goteo: presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "sidebar": {
+          "publicProfile": "Perfil público"
+        },
+        "profile": {
+          "uploadImage": "Sube nueva imagen",
+          "avatarAlt": "Imagen de perfil",
+          "type": {
+            "individual": "Perfil impulsor · Persona física",
+            "organization": "Perfil impulsor · Persona jurídica"
+          }
+        },
+        "bio": {
+          "title": "Bio",
+          "subtitle": "Cuéntanos algo sobre ti",
+          "placeholder": "Escribe una breve presentación"
+        },
+        "info": {
+          "title": "Información del impulsor",
+          "subtitle": "Cuéntanos algo sobre ti",
+          "handle": "Nombre de usuario",
+          "firstName": "Nombre",
+          "lastName": "Apellidos",
+          "legalName": "Razón social",
+          "businessName": "Nombre comercial",
+          "country": "País",
+          "locality": "Localidad",
+          "localityPlaceholder": "Busca tu localidad",
+          "address": "Dirección (indicar si es calle, plaza, avenida, etc)",
+          "type": "Forma jurídica",
+          "taxId": "Número de documento",
+          "representative": "Datos del representante"
+        },
+        "location": {
+          "share": "*Compartir mi ubicación",
+          "disclaimer": "*Compartir tu ubicación con el equipo de Goteo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+        },
+        "social": {
+          "title": "Redes sociales",
+          "subtitle": "Añade tus redes para mostrárselas al mundo",
+          "instagram": "Inserte su cuenta de Instagram",
+          "facebook": "Inserte su cuenta de Facebook",
+          "x": "Inserte su cuenta de X",
+          "linkedin": "Inserte su cuenta de Linkedin",
+          "placeholder": "Usuario o enlace"
+        },
+        "viewProfile": "Ver mi perfil",
+        "save": "Guardar cambios",
+        "success": "Perfil actualizado correctamente",
+        "error": "No se pudo guardar el perfil. Inténtalo de nuevo más tarde.",
+        "validation": {
+          "required": "Este campo es obligatorio",
+          "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
+          "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
+          "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
+        },
+        "preferences": {
+          "title": "Preferencias",
+          "subtitle": "Gestiona tus preferencias de perfil para que todo fluya a tu gusto",
+          "nav": {
+            "preferences": "Preferencias"
+          },
+          "languages": {
+            "title": "Idiomas",
+            "preferred": "Selecciona tu idioma"
+          },
+          "save": "Guardar preferencias",
+          "toast": {
+            "saved": "Preferencias guardadas correctamente"
+          }
+        }
       },
       "period": {
         "label": "Periodo",

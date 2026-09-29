@@ -63,7 +63,7 @@ The dev server runs on the Cloudflare Workers runtime (`workerd`), the same one 
 | `pnpm preview`         | Preview production build locally                 |
 | `pnpm format`          | ESLint fix + Prettier write                      |
 | `pnpm check`           | Prettier format check                            |
-| `pnpm openapi`         | Regenerate OpenAPI SDK from live API spec        |
+| `pnpm sdk`             | Regenerate OpenAPI SDK from live API spec        |
 | `pnpm storybook`       | Storybook dev server at `localhost:6006`         |
 | `pnpm build-storybook` | Build Storybook static output                    |
 
@@ -72,7 +72,7 @@ The dev server runs on the Cloudflare Workers runtime (`workerd`), the same one 
 The TypeScript API client under `src/openapi/client/` is generated from the live API's OpenAPI spec. Regenerate it whenever the API spec changes (requires the API running and `PUBLIC_API_URL` / `PUBLIC_API_VERSION` set):
 
 ```shell
-pnpm openapi
+pnpm sdk
 ```
 
 This fetches the spec from `$PUBLIC_API_URL/$PUBLIC_API_VERSION/docs.json`. Commit the generated files together with any config change.
@@ -108,7 +108,7 @@ This almost always means the app cannot reach the API or the OAuth client is mis
 The generated SDK is out of date. Regenerate it (API must be running):
 
 ```shell
-pnpm openapi
+pnpm sdk
 ```
 
 ### 3. Errors about missing Node.js modules (`fs`, `path`, `os`, `child_process`, …).

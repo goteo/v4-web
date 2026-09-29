@@ -3,6 +3,7 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Highlights from "../../../../components/admin/home/Highlights.svelte";
+import { apiProjectsIdOrSlugGet } from "../../../../openapi/client/sdk.gen";
 import { highlightRepository } from "../../../../repositories/highlights";
 import { SUBSECTIONS } from "./subsections";
 
@@ -18,7 +19,21 @@ const config = {
               layout: data.highlight.layout,
           }
         : null,
-    slots: data ? data.slots.map((s) => ({ position: s.position, projectId: s.projectId })) : [],
+    slots: await Promise.all(
+        (data?.slots ?? []).map(async (s) => {
+            const { data: project } = await apiProjectsIdOrSlugGet({
+                path: { idOrSlug: String(s.projectId) },
+                headers: { "Accept-Language": lang },
+            });
+
+            return {
+                position: s.position,
+                projectId: s.projectId,
+                projectTitle: project?.title ?? String(s.projectId),
+                projectImage: project?.video?.thumbnail ?? project?.cover ?? null,
+            };
+        }),
+    ),
 };
 ---
 
