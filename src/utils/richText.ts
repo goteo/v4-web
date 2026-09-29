@@ -9,6 +9,10 @@ export const ALIGNMENTS = ["left", "center", "right"] as const;
 
 export type Alignment = (typeof ALIGNMENTS)[number];
 
+export const HEADING_LEVELS = [1, 2, 3, 4] as const;
+
+export type HeadingLevel = (typeof HEADING_LEVELS)[number];
+
 /**
  * Output formats RichTextEditor can read and emit. Tiptap JSON is the canonical one — every other
  * format is derived from it, so anything the schema does not model is lost on the way out.
@@ -21,10 +25,13 @@ export type RichTextValue<F extends RichTextFormat> = F extends "json" ? JSONCon
  * Schema shared by the editor and the converters below. Any extension added here changes the
  * document schema, so RichTextEditor must build its editor from this same list — otherwise a
  * document written by the editor could fail to round-trip through the converters.
+ *
+ * `TextStyle` and `FontSize` no longer have a toolbar control, but stay in the schema so documents
+ * saved with the old font-size selector still load.
  */
 export const richTextExtensions = [
     StarterKit.configure({
-        heading: false,
+        heading: { levels: [...HEADING_LEVELS] },
         strike: false,
         code: false,
         codeBlock: false,
@@ -32,7 +39,7 @@ export const richTextExtensions = [
         link: { openOnClick: false, autolink: true, defaultProtocol: "https" },
     }),
     TextAlign.configure({
-        types: ["paragraph"],
+        types: ["heading", "paragraph"],
         alignments: [...ALIGNMENTS],
         defaultAlignment: "left",
     }),

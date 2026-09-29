@@ -271,7 +271,9 @@
     },
     "richTextEditor": {
       "toolbar": "Barra de formato de texto",
-      "fontSize": "Tamaño de letra",
+      "textStyle": "Estilo de texto",
+      "paragraph": "Texto normal",
+      "heading": "Título {{ level }}",
       "bold": "Negrita",
       "italic": "Cursiva",
       "alignLeft": "Alinear a la izquierda",

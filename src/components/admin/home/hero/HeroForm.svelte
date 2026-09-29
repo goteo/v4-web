@@ -164,7 +164,7 @@
                 value={content}
                 onChange={(value) => (content = value)}
                 format="markdown"
-                showFontSize={false}
+                showTextStyle={false}
                 showAlignment={false}
                 showImage={false}
                 placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}

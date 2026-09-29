@@ -1,7 +1,7 @@
 <!--
-    Tiptap rich text editor with a bold / italic / image / link / list / quote / alignment /
-    font-size toolbar. Every tool is on by default and can be hidden with its `show*` prop; hiding
-    a tool only removes its button, the document schema stays the same.
+    Tiptap rich text editor with a text style (paragraph / headings 1-4) / bold / italic / image /
+    link / list / quote / alignment toolbar. Every tool is on by default and can be hidden with its
+    `show*` prop; hiding a tool only removes its button, the document schema stays the same.
 
     `format` picks the shape of `value` and of what `onChange` reports: Tiptap JSON (the default
     and the canonical one), HTML, Markdown or plain text. The editor always works in JSON
@@ -21,6 +21,7 @@
     import { t } from "../../../i18n/store";
     import {
         ALIGNMENTS as ALIGNMENT_VALUES,
+        HEADING_LEVELS,
         loadMarkdown,
         parseRichText,
         richTextExtensions,
@@ -36,7 +37,12 @@
     import Button from "../buttons/Button.svelte";
 
     import type { UploadedObject } from "../../../utils/media/objectStorage.types";
-    import type { Alignment, RichTextFormat, RichTextValue } from "../../../utils/richText";
+    import type {
+        Alignment,
+        HeadingLevel,
+        RichTextFormat,
+        RichTextValue,
+    } from "../../../utils/richText";
 
     interface RichTextEditorProps {
         id: string;
@@ -50,7 +56,7 @@
         class?: ClassNameValue;
         minLength?: number;
         maxLength?: number;
-        showFontSize?: boolean;
+        showTextStyle?: boolean;
         showAlignment?: boolean;
         showBold?: boolean;
         showItalic?: boolean;
@@ -85,7 +91,7 @@
         class: className = "",
         minLength,
         maxLength,
-        showFontSize = true,
+        showTextStyle = true,
         showAlignment = true,
         showBold = true,
         showItalic = true,
@@ -102,8 +108,16 @@
         right: "domain.richTextEditor.alignRight",
     };
 
-    const FONT_SIZES = ["12px", "14px", "16px", "18px", "20px", "24px"];
-    const DEFAULT_FONT_SIZE = "16px";
+    type TextStyle = "paragraph" | `${HeadingLevel}`;
+
+    const TEXT_STYLES: { value: TextStyle; labelKey: string; level?: HeadingLevel }[] = [
+        { value: "paragraph", labelKey: "domain.richTextEditor.paragraph" },
+        ...HEADING_LEVELS.map((level) => ({
+            value: `${level}` as const,
+            labelKey: "domain.richTextEditor.heading",
+            level,
+        })),
+    ];
 
     let editorElement = $state<HTMLDivElement>();
     let editor = $state<Editor | null>(null);
@@ -124,7 +138,7 @@
         orderedList: false,
         blockquote: false,
         alignment: "left" as Alignment,
-        fontSize: DEFAULT_FONT_SIZE,
+        textStyle: "paragraph" as TextStyle,
         characters: 0,
     });
 
@@ -233,6 +247,13 @@
         tick().then(() => linkPopoverElement?.querySelector("input")?.focus());
     }
 
+    function setTextStyle(textStyle: TextStyle) {
+        const chain = editor?.chain().focus();
+
+        if (textStyle === "paragraph") chain?.setParagraph().run();
+        else chain?.setHeading({ level: Number(textStyle) as HeadingLevel }).run();
+    }
+
     function closeLinkPopover() {
         showLinkPopover = false;
         editor?.commands.focus();
@@ -275,7 +296,8 @@
         toolbar.alignment =
             ALIGNMENT_VALUES.find((alignment) => instance.isActive({ textAlign: alignment })) ??
             "left";
-        toolbar.fontSize = instance.getAttributes("textStyle").fontSize ?? DEFAULT_FONT_SIZE;
+        const level = HEADING_LEVELS.find((level) => instance.isActive("heading", { level }));
+        toolbar.textStyle = level ? `${level}` : "paragraph";
         toolbar.characters = instance.storage.characterCount.characters();
     }
 
@@ -338,11 +360,32 @@
     $effect(() => {
         editor?.setOptions({ editorProps: { attributes: editorAttributes } });
     });
+
+    // A click outside the popover (e.g. back in the editor) moves the selection off the link, so
+    // the popover would be left editing a link that is no longer selected: close it instead. The
+    // link button is excluded because its own click already toggles the popover.
+    $effect(() => {
+        if (!showLinkPopover) return;
+
+        const handlePointerDown = (event: PointerEvent) => {
+            const target = event.target as Element;
+            if (linkPopoverElement?.contains(target) || target.closest?.('[data-tool="link"]')) {
+                return;
+            }
+
+            showLinkPopover = false;
+        };
+
+        document.addEventListener("pointerdown", handlePointerDown);
+
+        return () => document.removeEventListener("pointerdown", handlePointerDown);
+    });
 </script>
 
-{#snippet toolbarButton({ labelKey, active, run, align, glyph, icon: Icon }: ToolbarButton)}
+{#snippet toolbarButton({ id, labelKey, active, run, align, glyph, icon: Icon }: ToolbarButton)}
     <button
         type="button"
+        data-tool={id}
         onclick={run}
         class={twJoin(
             "flex size-10 cursor-pointer items-center justify-center rounded-lg border bg-white shadow-sm",
@@ -374,18 +417,19 @@
         aria-label={$t("domain.richTextEditor.toolbar")}
     >
         <div class="flex flex-wrap items-center gap-2">
-            {#if showFontSize}
+            {#if showTextStyle}
                 <div class="relative flex">
                     <select
-                        value={toolbar.fontSize}
-                        onchange={(event) =>
-                            editor?.chain().focus().setFontSize(event.currentTarget.value).run()}
-                        aria-label={$t("domain.richTextEditor.fontSize")}
-                        title={$t("domain.richTextEditor.fontSize")}
-                        class="border-grey text-secondary flex h-10 w-auto max-w-27.5 cursor-pointer appearance-none items-center justify-center rounded-lg border bg-white bg-none px-2 py-1 pr-8 text-sm shadow-sm ring-0"
+                        value={toolbar.textStyle}
+                        onchange={(event) => setTextStyle(event.currentTarget.value as TextStyle)}
+                        aria-label={$t("domain.richTextEditor.textStyle")}
+                        title={$t("domain.richTextEditor.textStyle")}
+                        class="border-grey text-secondary flex h-10 w-auto cursor-pointer appearance-none items-center justify-center rounded-lg border bg-white bg-none px-2 py-1 pr-8 text-sm shadow-sm ring-0"
                     >
-                        {#each FONT_SIZES as size (size)}
-                            <option value={size}>{size}</option>
+                        {#each TEXT_STYLES as { value: style, labelKey, level } (style)}
+                            <option value={style}
+                                >{level ? $t(labelKey, { level }) : $t(labelKey)}</option
+                            >
                         {/each}
                     </select>
                     <Chevron
@@ -496,6 +540,35 @@
 
     :global(.tiptap p:last-child) {
         margin-bottom: 0;
+    }
+
+    :global(.tiptap h1),
+    :global(.tiptap h2),
+    :global(.tiptap h3),
+    :global(.tiptap h4) {
+        font-weight: var(--font-weight-bold);
+        color: var(--color-black);
+        margin-bottom: var(--text-lg);
+    }
+
+    :global(.tiptap h1) {
+        font-size: var(--text-3xl);
+        line-height: var(--text-3xl--line-height);
+    }
+
+    :global(.tiptap h2) {
+        font-size: var(--text-2xl);
+        line-height: var(--text-2xl--line-height);
+    }
+
+    :global(.tiptap h3) {
+        font-size: var(--text-xl);
+        line-height: var(--text-xl--line-height);
+    }
+
+    :global(.tiptap h4) {
+        font-size: var(--text-lg);
+        line-height: var(--text-lg--line-height);
     }
 
     :global(.tiptap strong) {

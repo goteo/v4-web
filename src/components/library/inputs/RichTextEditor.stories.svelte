@@ -43,7 +43,7 @@
         format: "markdown",
         placeholder: "Escribe algo...",
         value: "",
-        showFontSize: false,
+        showTextStyle: false,
         showAlignment: false,
         showImage: false,
         showLink: false,
