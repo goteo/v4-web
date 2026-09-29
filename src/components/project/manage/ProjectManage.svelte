@@ -12,6 +12,20 @@
         apiUsersGetCollection,
         apiUsersIdOrHandleGet,
     } from "../../../openapi/client";
+    import { client } from "../../../openapi/client/client.gen";
+    import {
+        apiProjectCollaborationCandidaciesGetCollectionUrl,
+        apiProjectCollaborationsIdGetUrl,
+        apiProjectRewardClaimsGetCollectionUrl,
+        apiProjectRewardsIdGetUrl,
+        apiUsersIdOrHandleGetUrl,
+    } from "../../../openapi/client/operation-paths.gen";
+    import {
+        ADMIN_ITEMS_PER_PAGE_OPTIONS,
+        getInitialItemsPerPage,
+        isValidItemsPerPage,
+    } from "../../../utils/adminTable";
+    import { setCookie } from "../../../utils/cookies";
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
     import { toCollectionItems } from "../../../utils/hydra";
@@ -39,12 +53,13 @@
 
     let { project }: { project: Project } = $props();
 
-    const ITEMS_PER_PAGE = 5;
+    const ITEMS_PER_PAGE_COOKIE = "manage-items-per-page";
     const relay = { baseUrl: "/api/relay", headers: { Accept: "application/ld+json" } };
 
     let rewards = $state<ProjectReward[]>([]);
     let collaborations = $state<ProjectCollaboration[]>([]);
     let userNames = $state<Record<string, string>>({});
+    let itemsPerPage = $state(getInitialItemsPerPage(ITEMS_PER_PAGE_COOKIE));
 
     let claims = $state({ rows: [] as ProjectRewardClaim[], page: 1, total: 0, loading: true });
     let candidacies = $state({
@@ -64,14 +79,31 @@
     let editingClaim = $state<ProjectRewardClaim>();
     let statusModalOpen = $state(false);
 
-    const rewardIris = $derived(rewards.map((r) => `/v4/project_rewards/${r.id}`));
-    const collaborationIris = $derived(
-        collaborations.map((c) => `/v4/project_collaborations/${c.id}`),
-    );
+    /** Relative IRI, as the API returns them, so it can be compared against response fields */
+    const iri = (url: string, path: Record<string, unknown>) =>
+        client.buildUrl({ baseUrl: "", url, path });
+
+    const rewardIri = (id?: number) => iri(apiProjectRewardsIdGetUrl, { id });
+    const collaborationIri = (id?: number) => iri(apiProjectCollaborationsIdGetUrl, { id });
+
+    const rewardIris = $derived(rewards.map((r) => rewardIri(r.id)));
+    const collaborationIris = $derived(collaborations.map((c) => collaborationIri(c.id)));
+
+    function setItemsPerPage(perPage: number) {
+        if (!isValidItemsPerPage(perPage)) return;
+        itemsPerPage = perPage;
+        setCookie(ITEMS_PER_PAGE_COOKIE, String(perPage));
+        // An empty reward[]/collaboration[] would disable the filter and list every project's rows
+        if (rewards.length) loadClaims(1);
+        if (collaborations.length) loadCandidacies(1);
+    }
+
     async function userIrisFor(term: string): Promise<string[] | undefined> {
         if (!term.trim()) return undefined;
         const { data } = await apiUsersGetCollection({ ...relay, query: { q: term.trim() } });
-        return toCollectionItems<{ id?: number }>(data).map((u) => `/v4/users/${u.id}`);
+        return toCollectionItems<{ id?: number }>(data).map((u) =>
+            iri(apiUsersIdOrHandleGetUrl, { idOrHandle: u.id }),
+        );
     }
 
     async function searchClaims() {
@@ -119,7 +151,7 @@
                 "reward[]": rewardIris,
                 "owner[]": claimOwners,
                 page,
-                itemsPerPage: ITEMS_PER_PAGE,
+                itemsPerPage,
             },
         });
         const rows = toCollectionItems<ProjectRewardClaim>(data);
@@ -140,7 +172,7 @@
                 "collaboration[]": collaborationIris,
                 "user[]": candidacyUsers,
                 page,
-                itemsPerPage: ITEMS_PER_PAGE,
+                itemsPerPage,
             },
         });
         const rows = toCollectionItems<ProjectCollaborationCandidacy>(data);
@@ -182,11 +214,9 @@
         );
     });
 
-    const rewardByIri = $derived(
-        Object.fromEntries(rewards.map((r) => [`/v4/project_rewards/${r.id}`, r])),
-    );
+    const rewardByIri = $derived(Object.fromEntries(rewards.map((r) => [rewardIri(r.id), r])));
     const collaborationByIri = $derived(
-        Object.fromEntries(collaborations.map((c) => [`/v4/project_collaborations/${c.id}`, c])),
+        Object.fromEntries(collaborations.map((c) => [collaborationIri(c.id), c])),
     );
 
     const claimHeaders = [
@@ -280,7 +310,7 @@
                     }}
                 />
                 <ExportCsv
-                    endpoint="/v4/project_reward_claims"
+                    endpoint={apiProjectRewardClaimsGetCollectionUrl}
                     queryParams={{ "reward[]": rewardIris, "owner[]": claimOwners }}
                     filenamePrefix="reward_claims"
                     size="md"
@@ -296,7 +326,10 @@
             emptyMessage="pages.project.manage.claims.noData"
             currentPage={claims.page}
             totalItems={claims.total}
-            itemsPerPage={ITEMS_PER_PAGE}
+            {itemsPerPage}
+            itemsPerPageLabel="pages.project.manage.itemsPerPage"
+            itemsPerPageOptions={[...ADMIN_ITEMS_PER_PAGE_OPTIONS]}
+            onItemsPerPageChange={setItemsPerPage}
             onPageChange={loadClaims}
         >
             {#snippet children(claim: ProjectRewardClaim)}
@@ -357,7 +390,7 @@
                     }}
                 />
                 <ExportCsv
-                    endpoint="/v4/project_collaboration_candidacies"
+                    endpoint={apiProjectCollaborationCandidaciesGetCollectionUrl}
                     queryParams={{
                         "collaboration[]": collaborationIris,
                         "user[]": candidacyUsers,
@@ -376,7 +409,10 @@
             emptyMessage="pages.project.manage.collaborations.noData"
             currentPage={candidacies.page}
             totalItems={candidacies.total}
-            itemsPerPage={ITEMS_PER_PAGE}
+            {itemsPerPage}
+            itemsPerPageLabel="pages.project.manage.itemsPerPage"
+            itemsPerPageOptions={[...ADMIN_ITEMS_PER_PAGE_OPTIONS]}
+            onItemsPerPageChange={setItemsPerPage}
             onPageChange={loadCandidacies}
         >
             {#snippet children(candidacy: ProjectCollaborationCandidacy)}

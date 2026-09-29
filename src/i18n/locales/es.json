@@ -1158,6 +1158,7 @@
         "title": "Gestionando proyecto: {{ project }}",
         "subtitle": "Consulta tu actividad en Goteo",
         "editProject": "Editar proyecto",
+        "itemsPerPage": "Líneas por página:",
         "rewards": {
           "title": "Recompensas"
         },
@@ -1174,9 +1175,8 @@
           },
           "changeStatus": "Cambiar estado",
           "statuses": {
-            "sent": "Enviado",
-            "pending": "Pendiente de envío",
-            "error": "Error de envío"
+            "fulfilled": "Entregada",
+            "pending": "Pendiente"
           },
           "modal": {
             "title": "Cambiar estado de recompensa",

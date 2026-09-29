@@ -1,9 +1,8 @@
 <script lang="ts" module>
     /** Claim status → Tag variant */
     export const CLAIM_STATUSES = {
-        sent: "success",
+        fulfilled: "success",
         pending: "warning",
-        error: "error",
     } as const;
 
     export type ClaimStatus = keyof typeof CLAIM_STATUSES;

@@ -3,6 +3,8 @@ import ProjectManage from "../../../../../components/project/manage/ProjectManag
 import App from "../../../../../layouts/App.svelte";
 import Layout from "../../../../../layouts/Layout.astro";
 import { apiProjectsIdOrSlugGet } from "../../../../../openapi/client";
+import { client } from "../../../../../openapi/client/client.gen";
+import { apiUsersIdOrHandleGetUrl } from "../../../../../openapi/client/operation-paths.gen";
 import { goto } from "../../../../../utils/navigation";
 import { NotFound, Unauthorized } from "../../../../../utils/responses";
 
@@ -41,7 +43,13 @@ if (error) {
 }
 
 const isAdmin = session.user.roles?.includes("ROLE_ADMIN");
-const isOwner = project.owner === `/v4/users/${session.user.id}`;
+// Relative IRI, as the API returns it in `project.owner`
+const ownerIri = client.buildUrl({
+    baseUrl: "",
+    url: apiUsersIdOrHandleGetUrl,
+    path: { idOrHandle: session.user.id },
+});
+const isOwner = project.owner === ownerIri;
 if (!isAdmin && !isOwner) {
     return Astro.rewrite("/403");
 }
