@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { session } from "../../auth/store.ts";
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
+
     import { languagesList } from "../../i18n/locales";
     import { locale, t } from "../../i18n/store";
-    import { apiUsersIdPatch } from "../../openapi/client/sdk.gen.ts";
     import { setCookie } from "../../utils/cookies";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
@@ -10,30 +10,18 @@
     import Title from "../library/typography/Title.svelte";
 
     interface Props {
-        userId: number | undefined;
-        class?: string;
+        class?: ClassNameValue;
     }
 
-    let { userId, class: classes = "" }: Props = $props();
+    let { class: classes = "" }: Props = $props();
 
     let language: string = $state($locale ?? "es");
     let toast = $state(false);
 
+    /* The preferred language is the only preference this screen owns, and the API has no
+       endpoint for it: it lives in a cookie, read back by `src/middleware/index.ts`. */
     async function save() {
-        const user = $session?.user;
-        if (!user) {
-            return;
-        }
-
         setCookie("preferred-lang", language);
-
-        await apiUsersIdPatch({
-            baseUrl: "/api/relay",
-            path: { id: String(userId) },
-            // The user is known to be authenticated in this screen, so handle and
-            // email are guaranteed to exist — no need for the null-safe `?? ""`.
-            body: { handle: user.handle!, email: user.email! },
-        });
 
         toast = true;
     }
@@ -44,7 +32,7 @@
     }
 </script>
 
-<form onsubmit={handleSubmit} class={`flex flex-col gap-8 ${classes}`}>
+<form onsubmit={handleSubmit} class={twMerge("flex flex-col gap-8", classes)}>
     <div class="flex items-start justify-between gap-4">
         <div class="flex flex-col gap-2">
             <h1 class="font-body text-[2.5rem] leading-12 font-bold text-black">

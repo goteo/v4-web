@@ -21,7 +21,7 @@ const navItems = [
 <Layout title={t("pages.me.manage.preferences.title")}>
     <App client:load locale={lang} session={session}>
         <WithSidebar client:idle {navItems} {activePath}>
-            <ManagePreferencesSection userId={session.user.id} client:load />
+            <ManagePreferencesSection client:load />
         </WithSidebar>
     </App>
 </Layout>
