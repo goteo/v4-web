@@ -38,6 +38,23 @@
     let canvas: HTMLCanvasElement | null = null;
     const marginDays = 4;
 
+    /* The canvas can't resolve CSS variables by itself, so the color tokens declared in
+       `global.css` are read from the computed styles of the root element. */
+    const themeColors = {
+        primary: "",
+        secondary: "",
+        white: "",
+        black: "",
+    };
+
+    function readThemeColors() {
+        const styles = getComputedStyle(document.documentElement);
+        themeColors.primary = styles.getPropertyValue("--color-primary").trim();
+        themeColors.secondary = styles.getPropertyValue("--color-secondary").trim();
+        themeColors.white = styles.getPropertyValue("--color-white").trim();
+        themeColors.black = styles.getPropertyValue("--color-black").trim();
+    }
+
     let data: { x: number; y: number }[] = [];
     let sortedBalancePoints: any[] = [];
     let firstDateMs: number | null = null;
@@ -86,6 +103,8 @@
     }
 
     onMount(() => {
+        readThemeColors();
+
         Chart.register(
             LineController,
             LinearScale,
@@ -112,7 +131,7 @@
                     ctx.moveTo(left, yPos);
                     ctx.lineTo(right, yPos);
                     ctx.lineWidth = 1;
-                    ctx.strokeStyle = "#000";
+                    ctx.strokeStyle = themeColors.black;
                     ctx.setLineDash([2, 3]);
                     ctx.stroke();
                 };
@@ -122,7 +141,7 @@
 
                 if (hasSecondRound && secondRoundStartDay !== -1) {
                     const xPos = x.getPixelForValue(secondRoundStartDay);
-                    const color = "#462949";
+                    const color = themeColors.secondary;
 
                     const badgeWidth = 76;
                     const badgeHeight = 26;
@@ -140,7 +159,7 @@
                     }
 
                     ctx.font = "12px sans-serif";
-                    ctx.fillStyle = "#fff";
+                    ctx.fillStyle = themeColors.white;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
                     ctx.fillText(
@@ -177,16 +196,16 @@
                 datasets: [
                     {
                         data,
-                        borderColor: "#59E9D3",
-                        backgroundColor: "#59E9D3",
+                        borderColor: themeColors.primary,
+                        backgroundColor: themeColors.primary,
                         borderWidth: 1,
                         fill: "start",
                         tension: 0.25,
                         pointRadius: 0,
                         pointHoverRadius: 4,
                         pointHoverBorderWidth: 2,
-                        pointHoverBackgroundColor: "#fff",
-                        pointHoverBorderColor: "#59E9D3",
+                        pointHoverBackgroundColor: themeColors.white,
+                        pointHoverBorderColor: themeColors.primary,
                     },
                 ],
             },
