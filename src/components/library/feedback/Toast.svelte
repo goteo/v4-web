@@ -14,6 +14,7 @@
         button,
         link,
         class: classes = "",
+        floating,
         showToast = $bindable(false),
         children,
     }: {
@@ -21,6 +22,7 @@
         button?: Snippet;
         link?: Snippet;
         class?: ClassNameValue;
+        floating?: boolean;
         showToast: boolean;
         children: Snippet;
     } = $props();
@@ -35,8 +37,11 @@
 
 {#if showToast}
     <div
+        role={variant === "error" ? "alert" : "status"}
         class={twMerge(
             "flex max-w-360 min-w-67.5 items-start gap-4 self-center rounded-lg border p-6 text-wrap sm:items-center sm:justify-between",
+            floating &&
+                "fixed right-4 bottom-4 left-4 z-999 shadow-lg sm:right-6 sm:bottom-6 sm:left-auto sm:max-w-120",
             variantStyles[variant],
             classes,
         )}
