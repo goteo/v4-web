@@ -37,7 +37,15 @@
     list-style: initial;
 }
 .marked-content ol {
-    list-style: initial;
+    padding-left: var(--text-xl);
+    padding-bottom: var(--text-lg);
+    list-style: decimal;
+}
+
+.marked-content blockquote {
+    border-left: 4px solid var(--color-primary);
+    padding-left: var(--text-lg);
+    margin-bottom: var(--text-lg);
 }
 
 .marked-content h3 {

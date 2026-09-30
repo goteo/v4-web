@@ -18,7 +18,13 @@ import { extractId } from "../../../utils/extractId";
 import { sumMoney } from "../../../utils/money";
 import { goto } from "../../../utils/navigation";
 
-import type { Money, MoneyOutput, Project, ProjectSupport } from "../../../openapi/client";
+import type {
+    GatewayCharge,
+    Money,
+    MoneyOutput,
+    Project,
+    ProjectSupport,
+} from "../../../openapi/client";
 
 const { t, lang, session } = Astro.locals;
 
@@ -50,6 +56,7 @@ let total: Money | undefined;
 let selectedGateway: string | undefined;
 let donatedProjects: Project[] = [];
 let projectSupports: ProjectSupport[] = [];
+let charges: GatewayCharge[] = [];
 
 try {
     if (!checkoutId) {
@@ -71,7 +78,7 @@ try {
 
     selectedGateway = checkout.gateway.split("/").at(-1);
 
-    const charges = checkout.charges ?? [];
+    charges = checkout.charges ?? [];
 
     const money = charges
         .map((charge) => charge.money)
@@ -138,6 +145,7 @@ try {
                         donatedProjects={donatedProjects}
                         projectSupports={projectSupports}
                         postPaymentUrl={postPaymentUrl}
+                        {checkoutId}
                     />
                 )
             }

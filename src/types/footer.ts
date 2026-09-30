@@ -8,6 +8,10 @@ export interface FooterLinkItem {
     href: string;
 }
 
+export interface FooterLinkSocial extends FooterLinkItem {
+    icon: Component<{ width?: string | number; height?: string | number }>;
+}
+
 export interface FooterNavColumn {
     /** i18n key for the column heading */
     titleKey: string;
@@ -23,13 +27,6 @@ export interface FooterPartner {
     class?: ClassNameValue;
 }
 
-export interface FooterSocialLink {
-    icon: Component<{ width?: string | number; height?: string | number }>;
-    href: string;
-    /** i18n key for the link's aria-label */
-    ariaLabelKey: string;
-}
-
 export interface FooterConfig {
     /** first band — non-linked funding logos */
     funding: FooterPartner[];
@@ -37,7 +34,7 @@ export interface FooterConfig {
     partOf: FooterPartner[];
     navColumns: FooterNavColumn[];
     legalLinks: FooterLinkItem[];
-    social: FooterSocialLink[];
+    social: FooterLinkSocial[];
     brand: {
         backgroundImage: string;
         logo: { src: string; alt: string };
