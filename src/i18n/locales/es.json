@@ -2078,6 +2078,21 @@
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
           "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
           "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
+        },
+        "preferences": {
+          "title": "Preferencias",
+          "subtitle": "Gestiona tus preferencias de perfil para que todo fluya a tu gusto",
+          "nav": {
+            "preferences": "Preferencias"
+          },
+          "languages": {
+            "title": "Idiomas",
+            "preferred": "Selecciona tu idioma"
+          },
+          "save": "Guardar preferencias",
+          "toast": {
+            "saved": "Preferencias guardadas correctamente"
+          }
         }
       },
       "period": {
