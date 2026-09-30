@@ -1,11 +1,13 @@
 <script lang="ts" module>
-    /** Claim status → Tag variant */
-    export const CLAIM_STATUSES = {
-        fulfilled: "success",
-        pending: "warning",
-    } as const;
+    import type { ProjectRewardClaim } from "../../../openapi/client";
 
-    export type ClaimStatus = keyof typeof CLAIM_STATUSES;
+    export type ClaimStatus = NonNullable<ProjectRewardClaim["status"]>;
+
+    /** Claim status → Tag variant */
+    export const CLAIM_STATUSES: Record<ClaimStatus, "success" | "warning"> = {
+        fulfilled: "success",
+        in_pending: "warning",
+    };
 </script>
 
 <script lang="ts">

@@ -1159,6 +1159,7 @@
         "subtitle": "Consulta tu actividad en Goteo",
         "editProject": "Editar proyecto",
         "itemsPerPage": "Líneas por página:",
+        "error": "No se ha podido guardar el cambio",
         "rewards": {
           "title": "Recompensas"
         },
@@ -1176,7 +1177,7 @@
           "changeStatus": "Cambiar estado",
           "statuses": {
             "fulfilled": "Entregada",
-            "pending": "Pendiente"
+            "in_pending": "Pendiente"
           },
           "modal": {
             "title": "Cambiar estado de recompensa",
@@ -1193,7 +1194,6 @@
             "type": "Tipo de colaboración",
             "assign": "Asignar"
           },
-          "error": "No se ha podido actualizar la colaboración",
           "search": "Busca usuario..."
         }
       }

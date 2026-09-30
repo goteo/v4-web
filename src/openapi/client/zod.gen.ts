@@ -175,7 +175,15 @@ export const zGatewayLink = z.object({
     method: z.string().optional(),
     type: z.enum(['debug', 'payment']).optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zGatewayLinkJsonld = z.object({
@@ -191,12 +199,28 @@ export const zGatewayLinkJsonld = z.object({
     method: z.string().optional(),
     type: z.enum(['debug', 'payment']).optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zLink = z.object({
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 export const zLinkJsonld = z.object({
@@ -210,7 +234,15 @@ export const zLinkJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     url: z.string().optional(),
-    rel: z.string().nullish()
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
 });
 
 /**
@@ -735,51 +767,6 @@ export const zProjectRewardJsonld = z.object({
 });
 
 /**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
- */
-export const zProjectRewardClaim = z.object({
-    id: z.int().readonly().optional(),
-    owner: z.string().readonly().optional(),
-    charge: z.string(),
-    reward: z.string()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimCreationDto = z.object({
-    charge: z.string(),
-    reward: z.string()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimCreationDtoJsonld = z.object({
-    charge: z.string(),
-    reward: z.string()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
- */
-export const zProjectRewardClaimJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    id: z.int().readonly().optional(),
-    owner: z.string().readonly().optional(),
-    charge: z.string(),
-    reward: z.string()
-});
-
-/**
  * ProjectSupports gather Transactions going from one same origin to one same Project.\
  * \
  * MatchCalls specially might make several different Transactions to the same Project,
@@ -873,6 +860,109 @@ export const zProjectVideoJsonld = z.object({
     src: z.string().nullish(),
     cover: z.string().nullish(),
     thumbnail: z.string().nullish()
+});
+
+export const zShippingAddress = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    addressLine1: z.string(),
+    addressLine2: z.string().nullish(),
+    city: z.string(),
+    postCode: z.string(),
+    country: z.string()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaim = z.object({
+    id: z.int().readonly().optional(),
+    owner: z.string().optional(),
+    charge: z.string().optional(),
+    reward: z.string().optional(),
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    shippingAddress: zShippingAddress.nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimCreationDto = z.object({
+    charge: z.string(),
+    reward: z.string(),
+    shippingAddress: zShippingAddress.nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimUpdationDto = z.object({
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    shippingAddress: zShippingAddress.nullish()
+});
+
+export const zShippingAddressJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    firstName: z.string(),
+    lastName: z.string(),
+    addressLine1: z.string(),
+    addressLine2: z.string().nullish(),
+    city: z.string(),
+    postCode: z.string(),
+    country: z.string()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimCreationDtoJsonld = z.object({
+    charge: z.string(),
+    reward: z.string(),
+    shippingAddress: zShippingAddressJsonld.nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    owner: z.string().optional(),
+    charge: z.string().optional(),
+    reward: z.string().optional(),
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    shippingAddress: zShippingAddressJsonld.nullish()
 });
 
 export const zTerritory = z.object({
@@ -1203,6 +1293,21 @@ export const zUserUserSignupDtoJsonld = z.object({
     email: z.email(),
     password: z.string().min(8),
     type: z.enum(['individual', 'organization']).default('individual')
+});
+
+/**
+ * Users represent people who interact with the platform.
+ */
+export const zUserUserUpdationDto = z.object({
+    handle: z.string().min(4).max(30).regex(/^([a-z0-9_]+)$/).optional(),
+    email: z.email().optional(),
+    password: z.string().min(8).optional(),
+    avatar: z.url().optional(),
+    type: z.enum(['individual', 'organization']).optional(),
+    roles: z.array(z.string()).optional(),
+    links: z.array(z.string()).optional(),
+    territory: zTerritory.optional(),
+    description: z.string().optional()
 });
 
 /**
@@ -1641,6 +1746,7 @@ export const zProject = z.object({
     rewards: z.array(z.string()).readonly().optional(),
     budget: zBudget.readonly().optional(),
     budgetItems: z.array(z.string()).readonly().optional(),
+    collaborations: z.array(z.string()).readonly().optional(),
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLink).readonly().optional(),
@@ -1701,6 +1807,7 @@ export const zProjectJsonld = z.object({
     rewards: z.array(z.string()).readonly().optional(),
     budget: zBudgetJsonld.readonly().optional(),
     budgetItems: z.array(z.string()).readonly().optional(),
+    collaborations: z.array(z.string()).readonly().optional(),
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLinkJsonld).readonly().optional(),
@@ -2405,7 +2512,12 @@ export const zApiProjectRewardClaimsGetCollectionQuery = z.object({
     charge: z.string().optional(),
     'charge[]': z.array(z.string()).optional(),
     reward: z.string().optional(),
-    'reward[]': z.array(z.string()).optional()
+    'reward[]': z.array(z.string()).optional(),
+    status: z.string().optional(),
+    'status[]': z.array(z.string()).optional(),
+    'shippingAddress.city': z.string().optional(),
+    'shippingAddress.postCode': z.string().optional(),
+    'shippingAddress.country': z.string().optional()
 });
 
 /**
@@ -2440,6 +2552,20 @@ export const zApiProjectRewardClaimsIdGetPath = z.object({
  * ProjectRewardClaim resource
  */
 export const zApiProjectRewardClaimsIdGetResponse = zProjectRewardClaim;
+
+/**
+ * The updated ProjectRewardClaim resource
+ */
+export const zApiProjectRewardClaimsIdPatchBody = zProjectRewardClaimRewardClaimUpdationDto;
+
+export const zApiProjectRewardClaimsIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectRewardClaim resource updated
+ */
+export const zApiProjectRewardClaimsIdPatchResponse = zProjectRewardClaim;
 
 export const zApiProjectSupportsmoneyTotalGetCollectionQuery = z.object({
     project: z.string().optional(),
@@ -2649,7 +2775,7 @@ export const zApiUsersIdDeleteResponse = z.void();
 /**
  * The updated User resource
  */
-export const zApiUsersIdPatchBody = zUser;
+export const zApiUsersIdPatchBody = zUserUserUpdationDto;
 
 export const zApiUsersIdPatchPath = z.object({
     id: z.string()

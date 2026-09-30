@@ -8,6 +8,7 @@
         apiProjectCollaborationCandidaciesIdPatch,
         apiProjectCollaborationsGetCollection,
         apiProjectRewardClaimsGetCollection,
+        apiProjectRewardClaimsIdPatch,
         apiProjectRewardsGetCollection,
         apiUsersGetCollection,
         apiUsersIdOrHandleGet,
@@ -74,8 +75,6 @@
     let claimOwners = $state<string[]>();
     let candidacyUsers = $state<string[]>();
     let showError = $state(false);
-    // ponytail: claims have no status field in the API yet; kept in memory until it exists
-    let claimStatuses = $state<Record<number, ClaimStatus>>({});
     let editingClaim = $state<ProjectRewardClaim>();
     let statusModalOpen = $state(false);
 
@@ -194,6 +193,30 @@
             candidacy.status = previous;
             showError = true;
         }
+    }
+
+    async function setClaimStatus(claim: ProjectRewardClaim, status: ClaimStatus) {
+        const previous = claim.status;
+        claim.status = status;
+
+        const { error } = await apiProjectRewardClaimsIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String(claim.id) },
+            body: { status },
+        });
+
+        if (error) {
+            claim.status = previous;
+            showError = true;
+        }
+    }
+
+    function formatAddress(address: ProjectRewardClaim["shippingAddress"]): string {
+        if (!address) return "—";
+        const { addressLine1, addressLine2, postCode, city, country } = address;
+        return [addressLine1, addressLine2, `${postCode} ${city}`, country]
+            .filter(Boolean)
+            .join(", ");
     }
 
     $effect(() => {
@@ -333,12 +356,13 @@
             onPageChange={loadClaims}
         >
             {#snippet children(claim: ProjectRewardClaim)}
-                {@const reward = rewardByIri[claim.reward]}
+                {@const reward = rewardByIri[claim.reward ?? ""]}
                 <TableBodyCell class={firstCell}>
                     <span class="block truncate">{userNames[claim.owner ?? ""] ?? "—"}</span>
                 </TableBodyCell>
-                <!-- ponytail: API has no shipping address on claims yet -->
-                <TableBodyCell class={cell}>—</TableBodyCell>
+                <TableBodyCell class={cell}>
+                    <span class="block truncate">{formatAddress(claim.shippingAddress)}</span>
+                </TableBodyCell>
                 <TableBodyCell class={cell}>
                     {#if reward}
                         <p>{formatCurrency(reward.money.amount, reward.money.currency)}</p>
@@ -346,10 +370,9 @@
                     {/if}
                 </TableBodyCell>
                 <TableBodyCell class="{cell} text-center">
-                    {@const status = claimStatuses[claim.id!]}
-                    {#if status}
-                        <Tag variant={CLAIM_STATUSES[status]} class="mx-auto">
-                            {$t(`pages.project.manage.claims.statuses.${status}`)}
+                    {#if claim.status}
+                        <Tag variant={CLAIM_STATUSES[claim.status]} class="mx-auto">
+                            {$t(`pages.project.manage.claims.statuses.${claim.status}`)}
                         </Tag>
                     {:else}
                         —
@@ -438,11 +461,11 @@
 
     <ClaimStatusModal
         bind:open={statusModalOpen}
-        status={editingClaim && claimStatuses[editingClaim.id!]}
-        onSave={(status) => (claimStatuses[editingClaim!.id!] = status)}
+        status={editingClaim?.status}
+        onSave={(status) => setClaimStatus(editingClaim!, status)}
     />
 
     <Toast bind:showToast={showError} variant="error">
-        {$t("pages.project.manage.collaborations.error")}
+        {$t("pages.project.manage.error")}
     </Toast>
 </div>
