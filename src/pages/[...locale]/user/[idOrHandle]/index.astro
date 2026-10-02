@@ -8,10 +8,17 @@ import {
     apiProjectSupportsmoneyTotalGetCollection,
     apiProjectsGetCollection,
 } from "../../../../openapi/client";
-import type { Money, ProjectSupport } from "../../../../openapi/client";
+import type {
+    ApiProjectsGetCollectionData,
+    Money,
+    Project,
+    ProjectSupport,
+} from "../../../../openapi/client";
 import { apiProjectSupportsGetCollectionUrl } from "../../../../openapi/client/operation-paths.gen";
 import type { Campaign } from "../../../../types/campaign";
 import { client } from "../../../../openapi/client/client.gen";
+import { toCollectionItems } from "../../../../utils/hydra";
+import { ALL_PUBLIC_STATUSES, expandPublicStatuses } from "../../../../utils/projectStatus";
 
 const { idOrHandle } = Astro.params;
 const { lang } = Astro.locals;
@@ -74,39 +81,46 @@ const slugs = userSupports
     .map((s) => s.project?.split("/").at(-1))
     .filter(Boolean) as string[];
 
-let campaigns: Campaign[] = [];
-
-if (slugs.length > 0) {
+async function fetchCampaigns(query: ApiProjectsGetCollectionData["query"]): Promise<Campaign[]> {
     try {
-        const { data: projects } = await apiProjectsGetCollection({
-            query: { "slug[]": slugs },
+        const { data } = await apiProjectsGetCollection({
+            query,
             headers: { "Accept-Language": lang },
         });
 
-        if (projects) {
-            campaigns = projects
-                .map((project) => ({
-                    ...project,
-                    slug: project.slug!,
-                    title: project.title!,
-                    image: project.video?.thumbnail ?? "",
-                    minimum: project.budget?.minimum?.money as Money,
-                    optimum: project.budget?.optimum?.money as Money | undefined,
-                    size: "small",
-                }))
-                .filter((c) => c.slug && c.title) as Campaign[];
-        }
+        return toCollectionItems<Project>(data)
+            .map((project) => ({
+                ...project,
+                slug: project.slug!,
+                title: project.title!,
+                image: project.video?.thumbnail ?? "",
+                minimum: project.budget?.minimum?.money as Money,
+                optimum: project.budget?.optimum?.money as Money | undefined,
+                size: "small",
+            }))
+            .filter((c) => c.slug && c.title) as Campaign[];
     } catch (e) {
         console.error("Error fetching projects:", e);
+        return [];
     }
 }
+
+const [donatedCampaigns, ownedCampaigns] = await Promise.all([
+    slugs.length ? fetchCampaigns({ "slug[]": slugs }) : [],
+    fetchCampaigns({
+        owner: `/v4/users/${user.id}`,
+        "status[]": expandPublicStatuses(ALL_PUBLIC_STATUSES),
+        itemsPerPage: 10,
+    }),
+]);
 ---
 
 <Layout title={user.displayName ?? user.handle} description={user.handle}>
     <App client:load locale={lang} class="mt-0 pb-20">
         <User
             {user}
-            {campaigns}
+            {ownedCampaigns}
+            {donatedCampaigns}
             projectsDonated={projectsDonatedCount}
             moneyDonatedAmount={totalDonated.amount}
             moneyDonatedCurrency={totalDonated.currency}

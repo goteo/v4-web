@@ -1989,9 +1989,10 @@
       "noProjects": "No hay proyectos impulsados aún.",
       "noBio": "Todavía no hay información sobre este perfil.",
       "donorType": {
+        "noProjects": "Aún no ha donado a ningún proyecto.",
         "fan": {
           "title": "Fan",
-          "description": "Este donante ha invertido más de 25€",
+          "description": "Este donante ha invertido {{ amount }}",
           "projectsDonated": "Proyectos donados",
           "moneyDonated": "Dinero donado"
         },
