@@ -24,5 +24,8 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
+# graphify
+graphify-out/
+
 # Others
 pnpm-lock.yaml
