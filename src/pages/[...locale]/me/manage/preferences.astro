@@ -1,0 +1,38 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ManagePreferencesSection from "../../../../components/profile/ManagePreferencesSection.svelte";
+import { PROFILE_NAV_ITEMS, PROFILE_PATHS } from "../../../../components/profile/meSections";
+import { apiCategoriesGetCollection } from "../../../../openapi/client";
+import { withoutCache } from "../../../../openapi/cacheInterceptor";
+import { toCollectionItems } from "../../../../utils/hydra";
+import { goto } from "../../../../utils/navigation";
+
+import type { Category } from "../../../../openapi/client";
+
+const { lang, langs, t, session } = Astro.locals;
+
+if (!session) {
+    return goto("/login", { query: { callback: PROFILE_PATHS.preferences } });
+}
+
+const activePath = PROFILE_PATHS.preferences;
+const navItems = PROFILE_NAV_ITEMS;
+
+// The Categories behind "Proyectos que te motivan", already translated by `Accept-Language`
+const { data: categoriesRaw } = await withoutCache(() =>
+    apiCategoriesGetCollection({
+        headers: { "Accept-Language": langs },
+    }),
+);
+const categories = toCollectionItems<Category>(categoriesRaw);
+---
+
+<Layout title={t("pages.me.manage.preferences.title")}>
+    <App client:load locale={lang} session={session} me>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <ManagePreferencesSection client:load {categories} />
+        </WithSidebar>
+    </App>
+</Layout>
