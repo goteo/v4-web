@@ -3,10 +3,7 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import ManagePersonalProfile from "../../../../components/profile/manage/ManagePersonalProfile.svelte";
-import {
-    PROFILE_NAV_ITEMS,
-    PROFILE_PATHS,
-} from "../../../../components/profile/meSections";
+import { PROFILE_NAV_ITEMS, PROFILE_PATHS } from "../../../../components/profile/meSections";
 import { setSession } from "../../../../auth/session";
 import { apiUsersIdOrHandleGet, apiUsersIdpersonGet } from "../../../../openapi/client";
 import { goto } from "../../../../utils/navigation";

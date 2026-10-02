@@ -8,7 +8,11 @@
 -->
 <script lang="ts">
     import { t } from "../../../i18n/store";
-    import { SOCIAL_NETWORKS, type SocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
+    import {
+        SOCIAL_NETWORKS,
+        type SocialLinks,
+        type SocialNetwork,
+    } from "../../../utils/socialLinks";
     import Facebook from "../../icons/social/Facebook.svelte";
     import Instagram from "../../icons/social/Instagram.svelte";
     import Linkedin from "../../icons/social/Linkedin.svelte";

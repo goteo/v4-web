@@ -18,10 +18,7 @@
     import { locale, t } from "../../../i18n/store";
     import { getCountries } from "../../../utils/countries";
     import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
-    import {
-        getTerritoryDisplayName,
-        UNKNOWN_COUNTRY_CODE,
-    } from "../../../utils/territory";
+    import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import { zProfileForm, type ProfileForm } from "../../../validation/publicProfileValidation";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
@@ -46,9 +43,7 @@
     let { user, person, organization }: Props = $props();
 
     const country =
-        user.territory?.country === UNKNOWN_COUNTRY_CODE
-            ? ""
-            : (user.territory?.country ?? "");
+        user.territory?.country === UNKNOWN_COUNTRY_CODE ? "" : (user.territory?.country ?? "");
 
     let form: ProfileForm = $state({
         handle: user.handle,
