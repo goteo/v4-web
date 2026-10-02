@@ -32,3 +32,7 @@
 >
 
 <Story name="Warning" args={{ variant: "warning" }}>Your session will expire in 5 minutes.</Story>
+
+<Story name="Floating" args={{ variant: "success", floating: true }}
+    >Floating toast anchored to the bottom-right of the viewport.</Story
+>
