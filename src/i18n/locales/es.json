@@ -1435,6 +1435,20 @@
           "description": "El inicio de la portada, lo más importante.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
+            "invalidUrl": "La URL del enlace no es válida",
+            "invalidTranslations": "Las traducciones enviadas no son válidas"
+          },
+          "addTranslation": "Añadir traducción",
+          "addTranslationModal": {
+            "title": "Añade una nueva traducción",
+            "description": "Busca y elige el idioma al que quieres traducir el contenido del hero",
+            "searchPlaceholder": "Busca entre todos los idiomas…",
+            "submit": "Añadir"
+          },
+          "removeTranslation": "Eliminar traducción",
+          "removeTranslationModal": {
+            "title": "¿Eliminar esta traducción?",
+            "description": "La traducción se eliminará del formulario y no se guardará.",
             "invalidUrl": "La URL del enlace no es válida"
           },
           "tabs": {
@@ -1449,10 +1463,13 @@
               "all": "Todos",
               "upcoming": "Programado"
             },
+            "searchPlaceholder": "Busca por ID, título o contenido",
             "headers": {
+              "id": "ID",
               "title": "Título",
               "content": "Contenido",
               "startsAt": "Fecha de inicio",
+              "languages": "Idiomas",
               "status": "Estado"
             },
             "status": {
