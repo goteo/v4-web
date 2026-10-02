@@ -2,53 +2,40 @@
 import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
-import ManageProfile from "../../../../components/profile/manage/ManageProfile.svelte";
+import ManagePersonalProfile from "../../../../components/profile/manage/ManagePersonalProfile.svelte";
+import { PROFILE_NAV_ITEMS, PROFILE_PATHS } from "../../../../components/profile/meSections";
 import { setSession } from "../../../../auth/session";
-import {
-    apiUsersIdOrHandleGet,
-    apiUsersIdorganizationGet,
-    apiUsersIdpersonGet,
-} from "../../../../openapi/client";
+import { apiUsersIdOrHandleGet, apiUsersIdpersonGet } from "../../../../openapi/client";
 import { goto } from "../../../../utils/navigation";
-
-import type { AdminSidebarItem } from "../../../../components/admin/AdminSidebar.svelte";
 
 const { lang, t, session } = Astro.locals;
 
 if (!session) {
-    return goto("/login", { query: { callback: "/me/manage" } });
+    return goto("/login", { query: { callback: PROFILE_PATHS.root } });
 }
 
-const activePath = "/me/manage";
-
-const navItems: AdminSidebarItem[] = [
-    { label: "pages.me.manage.sidebar.publicProfile", href: "/me/manage" },
-    { label: "pages.me.manage.preferences.nav.preferences", href: "/me/manage/preferences" },
-];
+const activePath = PROFILE_PATHS.root;
+const navItems = PROFILE_NAV_ITEMS;
 
 const path = { id: String(session.user.id) };
 const headers = session.token.asHttpHeaders;
 
 // The session cookie holds a snapshot of the User taken at login, read the current one
-const [{ data: user }, { data: person }, { data: organization }] = await Promise.all([
+const [{ data: user }, { data: person }] = await Promise.all([
     apiUsersIdOrHandleGet({ path: { idOrHandle: path.id }, headers }),
     apiUsersIdpersonGet({ path, headers }),
-    // 404 for individual users, resolved as `undefined`
-    session.user.type === "organization"
-        ? apiUsersIdorganizationGet({ path, headers })
-        : Promise.resolve({ data: undefined }),
 ]);
 
-// Refresh the cookie too: `updateProfile` builds the new links list from `session.user`
+// Refresh the cookie too: the names feed the display name shown in the header
 if (user) {
     setSession(Astro.cookies, { ...session, user });
 }
 ---
 
-<Layout title={t("pages.me.manage.title")}>
-    <App client:load locale={lang} session={session}>
+<Layout title={t("pages.me.manage.personal.title")}>
+    <App client:load locale={lang} session={session} me>
         <WithSidebar client:idle {navItems} {activePath}>
-            <ManageProfile client:load user={user ?? session.user} {person} {organization} />
+            <ManagePersonalProfile client:load user={user ?? session.user} {person} />
         </WithSidebar>
     </App>
 </Layout>

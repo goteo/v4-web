@@ -2021,11 +2021,18 @@
         "title": "Actividad",
         "subtitle": "Consulta tu actividad en Goteo"
       },
+      "nav": {
+        "activity": "Actividad",
+        "wallet": "Monedero",
+        "inbox": "Buzón",
+        "profile": "Perfil"
+      },
       "manage": {
         "title": "Perfil de impulsor",
         "subtitle": "Sé parte de Goteo: presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
-          "publicProfile": "Perfil público"
+          "publicProfile": "Perfil público",
+          "personalProfile": "Perfil personal"
         },
         "profile": {
           "uploadImage": "Sube nueva imagen",
@@ -2068,6 +2075,26 @@
           "x": "Inserte su cuenta de X",
           "linkedin": "Inserte su cuenta de Linkedin",
           "placeholder": "Usuario o enlace"
+        },
+        "motivatingProjects": {
+          "title": "Proyectos que te motivan",
+          "subtitle": "Indica el tipo de proyectos que pueden conectar con tus intereses para cofinanciarlos y/o aportar con otros recursos, conocimientos o habilidades. Estas categorías son transversales, puedes seleccionar más de una."
+        },
+        "personal": {
+          "title": "Perfil personal",
+          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y el equipo de Goteo podemos verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "info": {
+            "title": "Información personal",
+            "subtitle": "Tal y como aparecen en tu documentación.",
+            "postalCode": "Código postal",
+            "anonymousDonation": "Al realizar una donación mantener mi perfil anónimo",
+            "howDidYouMeet": "¿Cómo nos conociste?",
+            "documentType": "Tipo de documento",
+            "birthYear": "Año de nacimiento",
+            "gender": "Sexo"
+          },
+          "success": "Datos personales actualizados correctamente",
+          "error": "No se pudieron guardar los datos personales. Inténtalo de nuevo más tarde."
         },
         "viewProfile": "Ver mi perfil",
         "save": "Guardar cambios",

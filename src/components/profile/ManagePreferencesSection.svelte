@@ -3,25 +3,56 @@
 
     import { languagesList } from "../../i18n/locales";
     import { locale, t } from "../../i18n/store";
-    import { setCookie } from "../../utils/cookies";
+    import { getCookie, setCookie } from "../../utils/cookies";
+    import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Select from "../library/inputs/Select.svelte";
     import Title from "../library/typography/Title.svelte";
 
+    import type { Category } from "../../openapi/client";
+
     interface Props {
+        /** Categories to offer, read by the page from `apiCategoriesGetCollection` */
+        categories?: Category[];
         class?: ClassNameValue;
     }
 
-    let { class: classes = "" }: Props = $props();
+    let { categories = [], class: classes = "" }: Props = $props();
 
     let language: string = $state($locale ?? "es");
     let toast = $state(false);
+    let motivatingProjects: Category[] = $state([]);
+
+    const CATEGORIES_COOKIE = "preferred-categories";
+
+    $effect(() => {
+        const stored = getCookie(CATEGORIES_COOKIE);
+        if (!stored || motivatingProjects.length > 0 || categories.length === 0) {
+            return;
+        }
+
+        try {
+            const ids = JSON.parse(stored) as (string | number)[];
+            motivatingProjects = categories.filter((category) =>
+                ids.some((id) => String(id) === String(category.id)),
+            );
+        } catch {
+            motivatingProjects = [];
+        }
+    });
 
     /* The preferred language is the only preference this screen owns, and the API has no
        endpoint for it: it lives in a cookie, read back by `src/middleware/index.ts`. */
     async function save() {
         setCookie("preferred-lang", language);
+
+        const ids = motivatingProjects
+            .map((category) => category.id)
+            .filter((id): id is string => id !== undefined && id !== null)
+            .map((id) => String(id));
+
+        setCookie(CATEGORIES_COOKIE, JSON.stringify(ids));
 
         toast = true;
     }
@@ -67,6 +98,7 @@
             </div>
         </div>
     </section>
+    <MotivatingProjectsSection options={categories} bind:selected={motivatingProjects} />
 </form>
 
 <Toast bind:showToast={toast} variant="success">
