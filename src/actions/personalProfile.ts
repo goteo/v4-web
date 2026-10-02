@@ -3,16 +3,22 @@ import { ActionError, defineAction } from "astro:actions";
 import { setSession } from "../auth/session.ts";
 import {
     apiUsersIdOrHandleGet,
-    apiUsersIdorganizationPatch,
     apiUsersIdPatch,
+    apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
 } from "../openapi/client/index.ts";
 import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
-import { zProfileForm } from "../validation/publicProfileValidation.ts";
+import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
 
-export const updatePublicProfile = defineAction({
+/**
+ * Saves the private part of the profile: the `Person` record, the `Territory` on the `User` and
+ * the identity row (avatar, bio, social networks) that this section shares with the public one.
+ * The email is deliberately left out: changing it needs a confirmation flow the API does not
+ * expose here.
+ */
+export const updatePersonalProfile = defineAction({
     accept: "json",
-    input: zProfileForm,
+    input: zPersonalProfileForm,
     handler: async (input, context) => {
         const { t, session } = context.locals;
 
@@ -39,16 +45,12 @@ export const updatePublicProfile = defineAction({
         ];
 
         try {
-            // User first: switching to `organization` makes the API create the Organization record
             const { error: userError } = await apiUsersIdPatch({
                 path: { id },
                 headers,
                 body: {
-                    // The API rejects a handle already in the DB, including the User's own
-                    ...(input.handle !== session.user.handle && { handle: input.handle }),
                     avatar: input.avatar,
                     description: input.description.trim(),
-                    type: input.type,
                     links,
                     // A missing country is stored as "ZZ", which the API rejects as invalid
                     ...(input.country && {
@@ -81,35 +83,19 @@ export const updatePublicProfile = defineAction({
                 throw personError;
             }
 
-            if (isOrganization) {
-                const { error: organizationError } = await apiUsersIdorganizationPatch({
-                    path: { id },
-                    headers,
-                    body: {
-                        taxId: input.taxId.trim(),
-                        legalName: input.legalName.trim(),
-                        businessName: input.businessName.trim(),
-                    },
-                });
-
-                if (organizationError) {
-                    throw organizationError;
-                }
-            }
-
-            // Keep the session cookie in sync so header and profile pages show fresh data
-            const { data: user } = await apiUsersIdOrHandleGet({
-                path: { idOrHandle: id },
-                headers,
-            });
+            // The names feed the display name, refresh the cookie so the header stays in sync
+            const [{ data: user }, { data: person }] = await Promise.all([
+                apiUsersIdOrHandleGet({ path: { idOrHandle: id }, headers }),
+                apiUsersIdpersonGet({ path: { id }, headers }),
+            ]);
 
             if (user) {
                 setSession(context.cookies, { ...session, user });
             }
 
-            return { user: user ?? session.user };
+            return { user: user ?? session.user, person };
         } catch (error) {
-            console.error("User profile update error:", error);
+            console.error("Personal profile update error:", error);
 
             const detail =
                 typeof error === "object" && error !== null && "detail" in error
@@ -118,7 +104,7 @@ export const updatePublicProfile = defineAction({
 
             throw new ActionError({
                 code: "BAD_REQUEST",
-                message: detail || t("pages.me.manage.error"),
+                message: detail || t("pages.me.manage.personal.error"),
             });
         }
     },
