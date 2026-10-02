@@ -112,6 +112,8 @@ export const apiProjectRewardClaimsIdDeleteUrl = '/v4/project_reward_claims/{id}
 
 export const apiProjectRewardClaimsIdGetUrl = '/v4/project_reward_claims/{id}';
 
+export const apiProjectRewardClaimsIdPatchUrl = '/v4/project_reward_claims/{id}';
+
 export const apiProjectSupportsmoneyTotalGetCollectionUrl = '/v4/project_supports/money_total';
 
 export const apiProjectUpdatesGetCollectionUrl = '/v4/project_updates';

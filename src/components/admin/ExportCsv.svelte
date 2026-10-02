@@ -13,12 +13,18 @@
         queryParams = {},
         filenamePrefix = "export",
         totalItems = undefined,
+        size = "sm",
+        disabled = false,
     } = $props<{
         endpoint?: string;
         queryParams?: Record<string, unknown>;
         filenamePrefix?: string;
         totalItems?: number;
+        size?: "sm" | "md";
+        disabled?: boolean;
     }>();
+
+    const iconSize = $derived(size === "md" ? "24" : "16");
 
     let abortController = $state<AbortController | null>(null);
     let isExporting = $state(false);
@@ -150,21 +156,22 @@
 
 <div class="flex items-center gap-2">
     <Button
-        size="sm"
+        {size}
         kind="secondary"
         onclick={handleExportCSV}
-        disabled={isExporting}
+        disabled={disabled || isExporting}
+        class={disabled ? "cursor-not-allowed opacity-50 hover:cursor-not-allowed" : ""}
         aria-label={$t("domain.export.csv")}
     >
         {#if isExporting}
-            <Spinner width="16px" height="16px" class="text-secondary" />
+            <Spinner width="{iconSize}px" height="{iconSize}px" class="text-secondary" />
             <span class="text-secondary font-bold">
                 {exportProgress > 0
                     ? `${rowsExported} / ${totalItems} (${exportProgress}%)`
                     : $t("domain.export.exporting")}
             </span>
         {:else}
-            <Download width="16" height="16" class="text-secondary" />
+            <Download width={iconSize} height={iconSize} class="text-secondary" />
             <span class="text-secondary font-bold">
                 {$t("domain.export.csv")}
             </span>
