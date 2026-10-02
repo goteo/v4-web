@@ -1412,7 +1412,8 @@
         "projects": "Proyectos",
         "users": "Usuarios",
         "comm": "Comunicación",
-        "home": "Portada"
+        "home": "Portada",
+        "reviews": "Revisiones"
       },
       "sidebar": {
         "aria": {
@@ -1967,6 +1968,48 @@
             "deleteModal": {
               "title": "¿Borrar este anuncio?",
               "description": "El anuncio se eliminará de forma permanente y desaparecerá del histórico. Esta acción no se puede deshacer."
+            }
+          }
+        }
+      },
+      "reviews": {
+        "description": "Revisa los proyectos enviados a revisión y gestiona su estado.",
+        "projects": {
+          "title": "Revisión de Proyectos",
+          "description": "Gestiona y supervisa el estado de tus proyectos de crowdfunding de forma centralizada.",
+          "list": "Listado de proyectos:",
+          "totalizers": {
+            "selected": "Proyectos seleccionados:"
+          },
+          "table": {
+            "headers": {
+              "name": "Proyecto",
+              "promoter": "Impulsor",
+              "dateSubmitted": "Envío a revisión",
+              "status": "Estado",
+              "advisor": "Asesor"
+            },
+            "rows": {
+              "unassigned": "Sin asignar",
+              "details": {
+                "email": "Contacto mail:",
+                "phone": "Teléfono:",
+                "dateRelease": "Lanzamiento",
+                "dateCreated": "Creación",
+                "lastInteraction": "Última interacción",
+                "risk": "Riesgo",
+                "pendingMessages": "Mensajes pendientes",
+                "minOptim": "Mínimo - Óptimo:",
+                "lastModified": "Última modificación:",
+                "btns": {
+                  "preview": "Preview proyecto",
+                  "promoter": "Perfil de impulsor",
+                  "config": "Config. proyecto",
+                  "advisory": "Asesoría de proyecto",
+                  "assignAdvisor": "Asignar asesor",
+                  "annotations": "Anotaciones"
+                }
+              }
             }
           }
         }
