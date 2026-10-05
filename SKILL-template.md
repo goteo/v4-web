@@ -11,7 +11,7 @@ Astro 7 + Svelte 5 + TailwindCSS 4 + TypeScript 5, deployed on Cloudflare Worker
 
 `svelte.config.js` only sets `preprocess: vitePreprocess()` — Astro reads its Svelte config from `astro.config.mjs`, but `svelte-check` reads this file, so it must stay in sync.
 
-Cloudflare D1 database: migrations in `db/migrations/`, seed in `db/seed.sql`. Locally: `pnpm db:migrate`, `pnpm db:seed`. `deploy:*` scripts apply remote migrations before deploying.
+Cloudflare D1 database: migrations in `db/migrations/`, seed in `db/seed.sql`. Locally: `pnpm db:migrate`, `pnpm db:seed`.
 
 ## Where new code goes
 
