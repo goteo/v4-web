@@ -141,11 +141,7 @@
 </div>
 
 {#if disabled && disabledMessage}
-    <Toast
-        class="fixed top-1/2 left-1/2 z-999 -translate-x-1/2 -translate-y-1/2"
-        variant="error"
-        bind:showToast={showDisabledToast}
-    >
+    <Toast floating variant="error" bind:showToast={showDisabledToast}>
         {disabledMessage}
     </Toast>
 {/if}

@@ -179,6 +179,8 @@
             </div>
         {/if}
     </div>
+{:else if noVideoSrc && previewImage}
+    <img src={previewImage} alt={poster.alt} class="h-full w-full rounded-lg object-cover" />
 {:else if noVideoSrc}
     <div
         class="flex h-full items-center justify-center rounded-lg bg-gray-100 p-4 text-sm text-gray-600"

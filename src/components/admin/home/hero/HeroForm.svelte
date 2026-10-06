@@ -302,7 +302,7 @@
 
 <HeroPreviewModal bind:open={isPreviewOpen} hero={previewHero} />
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <ImageUploadModal
     bind:open={isUploadOpen}

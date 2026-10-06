@@ -32,7 +32,7 @@
     </p>
 </div>
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <div class="flex flex-col gap-6">
     <BannersTabs currentTab={currentSubtab} onTabChange={handleTabChange} />
