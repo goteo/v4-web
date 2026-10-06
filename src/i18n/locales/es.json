@@ -1454,15 +1454,15 @@
           },
           "tabs": {
             "fields": "Nuevo",
-            "history": "Histórico"
+            "history": "Registro"
           },
           "history": {
-            "title": "Histórico de bloques",
+            "title": "Registro de bloques",
             "description": "Aquí puedes ver los bloques programados y eliminar los que no quieras publicar",
-            "noData": "No hay bloques en el histórico",
+            "noData": "No hay bloques en el registro",
             "filter": {
               "all": "Todos",
-              "upcoming": "Programado"
+              "upcoming": "Programados"
             },
             "searchPlaceholder": "Busca por ID, título o contenido",
             "headers": {
