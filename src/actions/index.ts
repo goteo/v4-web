@@ -3,6 +3,11 @@ import { createHomeHero, deleteHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updateProfile } from "./profile";
+import {
+    sendReviewAreaComment,
+    updateReviewAreaRisk,
+    updateReviewProjectStatus,
+} from "./projectReview";
 import { register } from "./register";
 
 export const server = {
@@ -15,4 +20,7 @@ export const server = {
     saveHighlights,
     deleteHighlights,
     updateProfile,
+    updateReviewAreaRisk,
+    updateReviewProjectStatus,
+    sendReviewAreaComment,
 };
