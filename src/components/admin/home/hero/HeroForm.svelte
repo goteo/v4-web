@@ -668,7 +668,7 @@
     onclick={confirmRemoveLanguage}
 />
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <ImageUploadModal
     bind:open={isUploadOpen}

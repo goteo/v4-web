@@ -64,7 +64,7 @@ export function useTranslations<T extends string>(lang: T) {
  * @param {string} unsafe - The string to escape.
  * @returns {string} - The escaped string.
  */
-function escapeHTML(unsafe: string): string {
+export function escapeHTML(unsafe: string): string {
     return unsafe.replace(/[&<>"']/g, (match) => {
         const map: Record<string, string> = {
             "&": "&amp;",

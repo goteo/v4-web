@@ -1164,6 +1164,49 @@
           "not-found": "Disculpa, esta campaña no tiene vídeo de presentación",
           "not-supported": "No ha sido posible cargar el vídeo. Por favor, revisa el enlace o contacta con el administrador de la campaña."
         }
+      },
+      "manage": {
+        "title": "Gestionando proyecto: {{ project }}",
+        "subtitle": "Consulta tu actividad en Goteo",
+        "editProject": "Editar proyecto",
+        "itemsPerPage": "Líneas por página:",
+        "error": "No se ha podido guardar el cambio",
+        "rewards": {
+          "title": "Recompensas"
+        },
+        "claims": {
+          "title": "Gestión de recompensas",
+          "search": "Busca usuario...",
+          "noData": "Todavía no hay recompensas reclamadas",
+          "headers": {
+            "user": "Usuario",
+            "address": "Dirección de envío",
+            "reward": "Recompensa",
+            "status": "Estado",
+            "action": "Acción"
+          },
+          "changeStatus": "Cambiar estado",
+          "statuses": {
+            "fulfilled": "Entregada",
+            "in_pending": "Pendiente"
+          },
+          "modal": {
+            "title": "Cambiar estado de recompensa",
+            "current": "Actualmente la recompensa está en estado {{ status }}",
+            "placeholder": "Selecciona el estado",
+            "save": "Guardar estado"
+          }
+        },
+        "collaborations": {
+          "title": "Gestión de colaboraciones",
+          "noData": "Todavía no hay candidaturas a colaboraciones",
+          "headers": {
+            "user": "Usuario",
+            "type": "Tipo de colaboración",
+            "assign": "Asignar"
+          },
+          "search": "Busca usuario..."
+        }
       }
     },
     "about": {
