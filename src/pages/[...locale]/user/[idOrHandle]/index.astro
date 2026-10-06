@@ -14,7 +14,10 @@ import type {
     Project,
     ProjectSupport,
 } from "../../../../openapi/client";
-import { apiProjectSupportsGetCollectionUrl } from "../../../../openapi/client/operation-paths.gen";
+import {
+    apiProjectSupportsGetCollectionUrl,
+    apiUsersIdOrHandleGetUrl,
+} from "../../../../openapi/client/operation-paths.gen";
 import type { Campaign } from "../../../../types/campaign";
 import { client } from "../../../../openapi/client/client.gen";
 import { toCollectionItems } from "../../../../utils/hydra";
@@ -93,7 +96,7 @@ async function fetchCampaigns(query: ApiProjectsGetCollectionData["query"]): Pro
                 ...project,
                 slug: project.slug!,
                 title: project.title!,
-                image: project.video?.thumbnail ?? "",
+                image: project.cover || project.video?.thumbnail || "",
                 minimum: project.budget?.minimum?.money as Money,
                 optimum: project.budget?.optimum?.money as Money | undefined,
                 size: "small",
@@ -108,7 +111,7 @@ async function fetchCampaigns(query: ApiProjectsGetCollectionData["query"]): Pro
 const [donatedCampaigns, ownedCampaigns] = await Promise.all([
     slugs.length ? fetchCampaigns({ "slug[]": slugs }) : [],
     fetchCampaigns({
-        owner: `/v4/users/${user.id}`,
+        owner: apiUsersIdOrHandleGetUrl.replace("{idOrHandle}", String(user.id)),
         "status[]": expandPublicStatuses(ALL_PUBLIC_STATUSES),
         itemsPerPage: 10,
     }),
