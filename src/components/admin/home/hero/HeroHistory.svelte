@@ -6,8 +6,8 @@
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
-    import { renderMarkdown } from "../../../../utils/renderMarkdown";
-    import Hero from "../../../hero/Hero.svelte";
+    import HeroForm from "./HeroForm.svelte";
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import Edit from "../../../icons/actions/Edit.svelte";
     import Close from "../../../icons/navigation/Close.svelte";
     import Eye from "../../../icons/media/Eye.svelte";
@@ -23,10 +23,10 @@
     interface Props {
         rows: HomeHeroRecord[];
         onError?: (message: string) => void;
-        onEdit?: (row: HomeHeroRecord) => void;
+        onSaved?: () => void;
     }
 
-    let { rows, onError, onEdit }: Props = $props();
+    let { rows, onError, onSaved }: Props = $props();
 
     let list = $state(rows);
 
@@ -149,6 +149,19 @@
         previewRow = row;
         isPreviewOpen = true;
     }
+
+    let isEditModalOpen = $state(false);
+    let rowToEdit = $state<HomeHeroRecord | null>(null);
+
+    function openEditModal(row: HomeHeroRecord) {
+        rowToEdit = row;
+        isEditModalOpen = true;
+    }
+
+    function closeEditModal() {
+        rowToEdit = null;
+        isEditModalOpen = false;
+    }
 </script>
 
 <div class="flex flex-col gap-4">
@@ -187,7 +200,7 @@
     totalItems={filtered.length}
     {itemsPerPage}
     onPageChange={(page) => (currentPage = page)}
-    onRowClick={openPreview}
+    onRowClick={openEditModal}
 >
     {#snippet children(row)}
         <TableBodyCell class="border-variant1 w-16 rounded-l-md border-t border-b border-l p-4">
@@ -223,14 +236,20 @@
                 <button
                     class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
                     aria-label={$t("common.edit")}
-                    onclick={() => onEdit?.(row)}
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openEditModal(row);
+                    }}
                 >
                     <Edit class="size-5" />
                 </button>
                 <button
                     class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
                     aria-label={$t("common.preview")}
-                    onclick={() => openPreview(row)}
+                    onclick={(event) => {
+                        event.stopPropagation();
+                        openPreview(row);
+                    }}
                 >
                     <Eye class="size-5" />
                 </button>
@@ -249,16 +268,22 @@
     {/snippet}
 </DataTable>
 
+<HeroPreviewModal bind:open={isPreviewOpen} hero={previewRow} />
+
 <Modal
-    bind:open={isPreviewOpen}
+    bind:open={isEditModalOpen}
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-[90vw] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    bodyClass="p-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-fit min-w-152 max-w-[min(46rem,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="border-grey max-h-[90vh] overflow-y-auto rounded-t-3xl border-b bg-white p-6"
 >
-    {#if previewRow}
-        {#await renderMarkdown(previewRow.content) then html}
-            <Hero hero={previewRow} content={html} />
-        {/await}
+    {#if rowToEdit}
+        <HeroForm
+            hero={rowToEdit}
+            onSaved={() => {
+                closeEditModal();
+                onSaved?.();
+            }}
+        />
     {/if}
 </Modal>
 

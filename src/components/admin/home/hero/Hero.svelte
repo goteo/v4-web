@@ -11,16 +11,14 @@
     import type { HomeHeroRecord } from "../../../../repositories/homeHero";
 
     interface Props {
-        hero?: HomeHeroRecord | null;
         heroes: HomeHeroRecord[];
     }
 
-    let { hero = null, heroes }: Props = $props();
+    let { heroes }: Props = $props();
 
     let currentSubtab = $state("fields");
     let showError = $state(false);
     let errorMessage = $state("");
-    let editingHero = $state<HomeHeroRecord | null>(hero);
     let heroesList = $state(heroes);
 
     function handleTabChange(tabId: string) {
@@ -33,13 +31,8 @@
         }
     }
 
-    function handleEdit(row: HomeHeroRecord) {
-        editingHero = row;
-        currentSubtab = "fields";
-    }
-
     // The list is passed in once by the page; after a save it must be refreshed
-    // so the history shows the new block without a full page reload.
+    // so the history shows the updated block without a full page reload.
     async function refreshHeroes() {
         try {
             const { data, error } = await actions.getHomeHeroData();
@@ -72,7 +65,7 @@
 <div class="flex flex-col gap-6">
     <HeroTabs currentTab={currentSubtab} onTabChange={handleTabChange} />
     {#if currentSubtab === "fields"}
-        <HeroForm hero={editingHero} onSaved={refreshHeroes} />
+        <HeroForm onSaved={refreshHeroes} />
     {:else if currentSubtab === "history"}
         <HeroHistory
             rows={heroesList}
@@ -80,7 +73,7 @@
                 errorMessage = message;
                 showError = true;
             }}
-            onEdit={handleEdit}
+            onSaved={refreshHeroes}
         />
     {/if}
 </div>
