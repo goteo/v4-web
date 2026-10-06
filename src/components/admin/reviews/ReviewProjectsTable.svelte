@@ -18,22 +18,6 @@
         minOptim: string;
     };
 
-    /** Statuses selectable in the review dropdown; also used to filter the listing. */
-    export const REVIEW_STATUSES: ProjectStatus[] = [
-        "to_campaign_review",
-        "in_campaign_review",
-        "in_campaign_review.to_review",
-        "in_campaign_review.to_change",
-        "campaign_review.rejected",
-        "to_campaign",
-        "to_funding_review",
-        "in_funding_review",
-        "in_funding_review.to_review",
-        "in_funding_review.to_change",
-        "funding_review.rejected",
-        "to_funding",
-    ];
-
     const headers: DataTableHeader[] = [
         { key: "pages.admin.reviews.projects.table.headers.name" },
         { key: "pages.admin.reviews.projects.table.headers.promoter" },
@@ -50,6 +34,7 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
+    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -151,7 +136,7 @@
                     onchange={(e) =>
                         onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
                 >
-                    {#each REVIEW_STATUSES as status (status)}
+                    {#each CAMPAIGN_REVIEW_STATUSES as status (status)}
                         <option value={status}>{statusLabel(status)}</option>
                     {/each}
                 </select>

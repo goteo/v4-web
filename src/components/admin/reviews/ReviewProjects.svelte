@@ -1,6 +1,5 @@
 <script lang="ts">
     import ReviewProjectsTable, {
-        REVIEW_STATUSES,
         type ProjectStatus,
         type ReviewProjectRow,
     } from "./ReviewProjectsTable.svelte";
@@ -19,6 +18,7 @@
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
     import { getCollectionTotalItems, toCollectionItems } from "../../../utils/hydra";
+    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
     import Dashboard from "../AdminDashboard.svelte";
     import { projectSortMap, type ProjectSortKey } from "../projects/ProjectsTable.svelte";
 
@@ -32,7 +32,7 @@
     let rows = $state<ReviewProjectRow[]>([]);
     let totalEarned = $state("—");
 
-    let baseQuery = $derived<ProjectsQuery>({ "status[]": REVIEW_STATUSES, ...filters });
+    let baseQuery = $derived<ProjectsQuery>({ "status[]": CAMPAIGN_REVIEW_STATUSES, ...filters });
 
     let slides = $derived([
         { title: $t("pages.admin.reviews.projects.totalizers.selected"), amount: table.totalItems },
@@ -48,10 +48,7 @@
                 ),
             },
         });
-        totalEarned = formatCurrency(
-            data?.amount ?? 0,
-            data?.currency ?? import.meta.env.PUBLIC_DEFAULT_CURRENCY,
-        );
+        if (data) totalEarned = formatCurrency(data.amount, data.currency);
     }
 
     async function fetchOwner(iri: string): Promise<User | undefined> {
