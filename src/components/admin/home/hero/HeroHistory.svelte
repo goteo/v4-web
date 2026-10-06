@@ -273,7 +273,7 @@
 <Modal
     bind:open={isEditModalOpen}
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-fit min-w-152 max-w-[min(46rem,calc(100vw-1rem))] -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-fit max-w-[min(46rem,calc(100vw-1rem))] min-w-152 -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
     bodyClass="border-grey max-h-[90vh] overflow-y-auto rounded-t-3xl border-b bg-white p-6"
 >
     {#if rowToEdit}

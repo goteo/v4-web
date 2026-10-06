@@ -131,8 +131,8 @@ class HomeHeroRepository {
                 continue;
             }
 
-            (translatedByRow[translation.rowId] ??= {});
-            (translatedByRow[translation.rowId][translation.locale] ??= {});
+            translatedByRow[translation.rowId] ??= {};
+            translatedByRow[translation.rowId][translation.locale] ??= {};
             translatedByRow[translation.rowId][translation.locale][
                 property as keyof NonNullable<HeroTranslations[string]>
             ] = translation.value;

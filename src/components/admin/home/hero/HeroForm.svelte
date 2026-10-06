@@ -116,7 +116,12 @@
     const defaultLanguage = getDefaultLanguage();
     const baseLanguage = hero?.language || defaultLanguage;
     const languagesSeed = hero
-        ? [...new Set([baseLanguage, ...(hero.languages ?? []).filter((code) => code !== baseLanguage)])]
+        ? [
+              ...new Set([
+                  baseLanguage,
+                  ...(hero.languages ?? []).filter((code) => code !== baseLanguage),
+              ]),
+          ]
         : [defaultLanguage];
 
     const initialFieldValues: Record<string, HeroFields> = {};
@@ -270,8 +275,7 @@
             };
         }
 
-        const previewTranslations =
-            Object.keys(translations).length > 0 ? translations : undefined;
+        const previewTranslations = Object.keys(translations).length > 0 ? translations : undefined;
 
         previewHero = {
             id: hero?.id ?? 0,

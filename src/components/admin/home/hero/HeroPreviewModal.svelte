@@ -15,10 +15,7 @@
 
     let { open = $bindable(false), hero }: Props = $props();
 
-    const availableLanguages = $derived(
-        hero?.languages ??
-            (hero?.language ? [hero.language] : []),
-    );
+    const availableLanguages = $derived(hero?.languages ?? (hero?.language ? [hero.language] : []));
 
     let previewLanguage = $state("");
 
