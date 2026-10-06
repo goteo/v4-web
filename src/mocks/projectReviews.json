@@ -1,8 +1,8 @@
 {
   "projects": {
     "/v4/projects/1": {
-            "title": "Proyecto de ejemplo para revisar",
-            "status": "in_campaign_review",
+      "title": "Proyecto de ejemplo para revisar",
+      "status": "in_campaign_review",
       "owner": "/v4/users/1"
     }
   },

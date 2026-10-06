@@ -136,7 +136,7 @@
     <header class="space-y-6">
         <BackButton class="self-start" />
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div class="flex flex-col gap-4 max-w-5xl">
+            <div class="flex max-w-5xl flex-col gap-4">
                 <Title level={1} variant="headline" weight="bold">
                     {title}
                 </Title>

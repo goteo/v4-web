@@ -54,15 +54,15 @@ const isReviewer = isConsultant(session);
     description={t("pages.metadata.description")}
 >
     <App client:load locale={lang} session={session}>
-            <ReviewChat
-                client:load
-                reviewId={review.id}
-                {area}
-                authors={authors ?? []}
-                currentUserIri={sessionUserIri(session)}
-                projectTitle={project?.title ?? ""}
-                canEditRisk={isReviewer}
-                locale={lang}
-            />
+        <ReviewChat
+            client:load
+            reviewId={review.id}
+            {area}
+            authors={authors ?? []}
+            currentUserIri={sessionUserIri(session)}
+            projectTitle={project?.title ?? ""}
+            canEditRisk={isReviewer}
+            locale={lang}
+        />
     </App>
 </Layout>
