@@ -5,7 +5,7 @@
 
     const { Story } = defineMeta({
         component: ChatTextarea,
-        title: "Library/Admin/ChatTextarea",
+        title: "Library/Review/ChatTextarea",
         tags: ["autodocs"],
     });
 </script>

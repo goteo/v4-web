@@ -1,0 +1,79 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import ReviewAreas from "../../../../components/review/ReviewAreas.svelte";
+import { canAccessReview, isConsultant } from "../../../../services/reviewAccess";
+import { getReview } from "../../../../services/projectReview";
+import { getReviewedProject } from "../../../../services/reviewProject";
+import { goto } from "../../../../utils/navigation";
+
+const { t, lang, session } = Astro.locals;
+
+const { id } = Astro.params;
+
+if (!session) {
+    const requestUrl = new URL(Astro.request.url);
+    return goto("/login", { query: { callback: requestUrl.pathname + requestUrl.search } });
+}
+
+if (!id || !/^\d+$/.test(id)) {
+    return Astro.rewrite("/404");
+}
+
+const { data: review } = getReview(id);
+
+if (!review) {
+    return Astro.rewrite("/404");
+}
+
+// Only the consultant admin and the promoter owning the reviewed project get in.
+if (!(await canAccessReview(session, review))) {
+    return Astro.rewrite("/403");
+}
+
+const project = await getReviewedProject(review, session, lang);
+
+const isReviewer = isConsultant(session);
+
+// Each side reads the other one first: the consultant is named for the promoter and
+// the promoter for the consultant. Without one of them the copy falls back to a
+// version with no hole in it.
+const counterpart = isReviewer ? project?.promoter : project?.reviewer;
+
+const title = counterpart?.handle
+    ? t(
+          isReviewer ? "pages.review.titleReviewer" : "pages.review.titlePromoter",
+          isReviewer
+              ? { promoter: counterpart.handle, project: project?.title ?? "" }
+              : { reviewer: counterpart.handle, project: project?.title ?? "" },
+      )
+    : t("pages.review.titleFallback", { project: project?.title ?? "" });
+
+const subtitle = counterpart?.name
+    ? t(
+          isReviewer ? "pages.review.subtitleReviewer" : "pages.review.subtitlePromoter",
+          isReviewer ? { promoter: counterpart.name } : { reviewer: counterpart.name },
+      )
+    : t("pages.review.subtitleFallback");
+---
+
+<Layout
+    title={t("pages.review.title", { project: project?.title ?? "" })}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session}>
+        <div class="wrapper">
+            <ReviewAreas
+                client:load
+                reviewId={review.id}
+                areas={review.areas}
+                {title}
+                {subtitle}
+                projectStatus={project?.status}
+                canAssessRisks={isReviewer}
+                canChangeStatus={isReviewer}
+                locale={lang}
+            />
+        </div>
+    </App>
+</Layout>

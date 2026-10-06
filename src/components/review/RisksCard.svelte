@@ -1,73 +1,95 @@
 <script lang="ts">
+    import ReviewOptionsModal from "./ReviewOptionsModal.svelte";
     import { locale, t } from "../../i18n/store";
     import { formatDate } from "../../utils/dates";
+    import { lastActivity, REVIEW_RISKS, RISK_TAG_VARIANTS } from "../../utils/review";
     import Button from "../library/buttons/Button.svelte";
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    import type { ProjectReviewArea, ProjectReviewRisk } from "../../types/projectReview";
+    import type { ProjectReviewRisk, ReviewArea } from "../../types/projectReview";
 
     let {
-        review,
-        risk,
-        newMessage = false,
+        area,
+        reviewId,
+        locale: localePrefix = "es",
+        canEditRisk = false,
+        savingRisk = false,
+        onRiskChange,
     }: {
-        review: ProjectReviewArea;
-        risk?: ProjectReviewRisk;
-        newMessage?: boolean;
+        /** The reviewable area this card summarises. */
+        area: ReviewArea;
+        /** Identifier of the review the area belongs to, used to build the chat link. */
+        reviewId: number;
+        /** Active locale, needed to prefix the link because the site is routed by locale. */
+        locale?: string;
+        /** Only the consultant admin assesses risks; a promoter only reads them. */
+        canEditRisk?: boolean;
+        savingRisk?: boolean;
+        onRiskChange?: (area: ReviewArea, risk: ProjectReviewRisk) => void;
     } = $props();
 
-    const riskStyles: Record<ProjectReviewRisk, "success" | "warning" | "error"> = {
-        low: "success",
-        medium: "warning",
-        high: "error",
-    };
+    let tagVariant = $derived(area.risk ? RISK_TAG_VARIANTS[area.risk] : "success");
 
-    // An explicit `risk` prop overrides the one stored on the review.
-    let currentRisk = $derived(risk ?? review.risk);
-    let tagVariant = $derived(currentRisk ? riskStyles[currentRisk] : "success");
+    let isRiskModalOpen = $state(false);
+
+    let riskOptions = $derived(
+        REVIEW_RISKS.map((risk) => ({ value: risk, label: $t(`domain.review.risks.${risk}`) })),
+    );
 
     let activity = $derived.by(() => {
-        if (review.chatCount === undefined || !review.lastActivity) return undefined;
+        const latest = lastActivity(area.comments);
+
+        if (!latest) return undefined;
 
         return $t("pages.review.card.activity", {
-            count: review.chatCount,
-            date: formatDate(new Date(review.lastActivity), $locale),
+            count: area.comments.length,
+            date: formatDate(latest, $locale),
         });
     });
 </script>
 
 <article
-    class="border-variant1 bg-purple-soft flex w-full max-w-109.25 flex-col gap-8 rounded-2xl border p-6 {newMessage
-        ? 'shadow-[0_1px_3px_0_#0000001A,0_6px_6px_0_#00000017,0_13px_8px_0_#0000000D,0_22px_9px_0_#00000003,0_35px_10px_0_#00000000]'
-        : ''}"
+    class="border-variant1 bg-purple-soft flex w-full max-w-109.25 flex-col gap-8 rounded-2xl border p-6 transition-shadow duration-300 hover:shadow-sm"
 >
     <div class="flex flex-col gap-4">
         <div class="flex justify-between">
             <div class="flex flex-col gap-1">
-                <!-- TODO: Messages reactivity functionality (new messages styling and handling + future chatbox logic) -->
                 <Title level={2} variant="subsection" color="secondary">
-                    {review.title}
+                    {area.title}
                 </Title>
                 {#if activity}
                     <span class="text-content text-sm/4">{activity}</span>
                 {/if}
             </div>
-            {#if currentRisk}
-                <Tag variant={tagVariant}>{$t(`domain.review.risks.${currentRisk}`)}</Tag>
+            {#if area.risk}
+                <Tag variant={tagVariant}>{$t(`domain.review.risks.${area.risk}`)}</Tag>
             {/if}
         </div>
         <p class="text-content line-clamp-4 w-full text-base">
-            {review.summary}
+            {area.summary}
         </p>
     </div>
-    <div class="flex justify-between">
-        <!-- TODO: Add functionality to both buttons -->
-        <Button kind="ghost">
+    <div class="flex items-end gap-4">
+        <Button class="flex-1" kind="ghost" href="/{localePrefix}/reviews/{reviewId}/{area.id}">
             {$t("pages.review.btns.seeChat")}
         </Button>
-        <Button kind="secondary">
-            {$t("pages.review.btns.changeRisk")}
-        </Button>
+        {#if canEditRisk}
+            <Button
+                kind="secondary"
+                class="flex-1"
+                disabled={savingRisk}
+                onclick={() => (isRiskModalOpen = true)}
+            >
+                {$t("pages.review.btns.changeRisk")}
+            </Button>
+            <ReviewOptionsModal
+                bind:open={isRiskModalOpen}
+                title={$t("pages.review.btns.changeRisk")}
+                options={riskOptions}
+                value={area.risk ?? ""}
+                onSelect={(risk) => onRiskChange?.(area, risk as ProjectReviewRisk)}
+            />
+        {/if}
     </div>
 </article>
