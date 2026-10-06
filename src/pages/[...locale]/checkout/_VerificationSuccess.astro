@@ -1,12 +1,13 @@
 ---
 import FeedbackForm from "../../../components/checkout/FeedbackForm.svelte";
+import RewardClaims from "../../../components/checkout/RewardClaims.svelte";
 import Summary from "../../../components/checkout/Summary.svelte";
 import Card from "../../../components/library/cards/Card.svelte";
-import ClearCart from "../../../components/cart/ClearCart.svelte";
 
 const { t, session } = Astro.locals;
 
-const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl } = Astro.props;
+const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl, checkoutId } =
+    Astro.props;
 ---
 
 <div class="wrapper max-md:px-0">
@@ -45,7 +46,7 @@ const { total, selectedGateway, donatedProjects, projectSupports, postPaymentUrl
             class="lg: sticky -bottom-6 flex h-fit w-full flex-col items-start gap-6 rounded-3xl border-black pr-4 pb-10 pl-4 lg:top-(--sticky-top) lg:bottom-auto lg:w-1/2 lg:gap-6 lg:rounded-[40px] lg:p-6"
         >
             <Summary client:load {total} />
-            <ClearCart client:load userId={session!.user.id!} />
+            <RewardClaims client:load userId={session!.user.id!} {checkoutId} />
             <div class="w-full lg:block" id="checkout-details">
                 <div class="flex flex-col">
                     <p class="text-content text-sm">

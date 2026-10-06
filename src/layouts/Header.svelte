@@ -77,7 +77,15 @@
                                             use:clickOutside={userDropdownClose}
                                             class="flex w-full cursor-pointer items-center gap-1"
                                         >
-                                            <UserIcon />
+                                            {#if $session.user.avatar}
+                                                <img
+                                                    src={$session.user.avatar}
+                                                    alt=""
+                                                    class="size-8 shrink-0 rounded-full object-cover"
+                                                />
+                                            {:else}
+                                                <UserIcon class="size-8" />
+                                            {/if}
                                             <span class="hidden sm:inline">
                                                 {$t("common.greeting")}, {$session.user.displayName}
                                             </span>
@@ -112,7 +120,7 @@
                                     </div>
                                 {:else}
                                     <a href="/login" class="flex w-full items-center gap-1">
-                                        <UserIcon />
+                                        <UserIcon class="size-8" />
                                         <span class="hidden sm:inline">{$t("common.login")}</span>
                                     </a>
                                 {/if}

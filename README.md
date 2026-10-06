@@ -63,7 +63,11 @@ The dev server runs on the Cloudflare Workers runtime (`workerd`), the same one 
 | `pnpm preview`         | Preview production build locally                 |
 | `pnpm format`          | ESLint fix + Prettier write                      |
 | `pnpm check`           | Prettier format check                            |
-| `pnpm openapi`         | Regenerate OpenAPI SDK from live API spec        |
+| `pnpm check:astro`     | Type check `.astro` files (`astro check`)        |
+| `pnpm check:svelte`    | Type check `.svelte` files (`svelte-check`)      |
+| `pnpm db:migrate`      | Apply D1 migrations to the local database        |
+| `pnpm db:seed`         | Seed the local D1 database                       |
+| `pnpm sdk`             | Regenerate OpenAPI SDK from live API spec        |
 | `pnpm storybook`       | Storybook dev server at `localhost:6006`         |
 | `pnpm build-storybook` | Build Storybook static output                    |
 
@@ -72,14 +76,20 @@ The dev server runs on the Cloudflare Workers runtime (`workerd`), the same one 
 The TypeScript API client under `src/openapi/client/` is generated from the live API's OpenAPI spec. Regenerate it whenever the API spec changes (requires the API running and `PUBLIC_API_URL` / `PUBLIC_API_VERSION` set):
 
 ```shell
-pnpm openapi
+pnpm sdk
 ```
 
 This fetches the spec from `$PUBLIC_API_URL/$PUBLIC_API_VERSION/docs.json`. Commit the generated files together with any config change.
 
 ## Testing
 
-Component and unit tests run on [Vitest](https://vitest.dev/) through the Storybook test addon — launch Storybook to develop and visually check components:
+Component and unit tests run on [Vitest](https://vitest.dev/) through the Storybook test addon. There is no `pnpm test` script; run them with:
+
+```shell
+pnpm exec vitest
+```
+
+Launch Storybook to develop and visually check components:
 
 ```shell
 pnpm storybook
@@ -89,6 +99,8 @@ pnpm storybook
 
 ```shell
 pnpm format         # Fix formatting (ESLint + Prettier)
+pnpm check:astro    # Type check .astro files
+pnpm check:svelte   # Type check .svelte files
 ```
 
 ## Debugging
@@ -108,7 +120,7 @@ This almost always means the app cannot reach the API or the OAuth client is mis
 The generated SDK is out of date. Regenerate it (API must be running):
 
 ```shell
-pnpm openapi
+pnpm sdk
 ```
 
 ### 3. Errors about missing Node.js modules (`fs`, `path`, `os`, `child_process`, …).
@@ -126,42 +138,50 @@ The dev server and production both run on the Cloudflare Workers runtime, which 
 | Language   | TypeScript 5                                |
 | Runtime    | Cloudflare Workers (also supports Node)     |
 | API client | `@hey-api/client-fetch` (generated OpenAPI) |
-| Testing    | Vitest (unit), Cypress (E2E), Storybook     |
+| Testing    | Vitest, Storybook                           |
 
 ## Routes
 
 All user-facing pages live under `src/pages/[...locale]/` (locale prefix: `es`, `en`, `ca`).
 
-| Route                      | Page                       |
-| -------------------------- | -------------------------- |
-| `/`                        | Home                       |
-| `/search`                  | Project search             |
-| `/project/[idOrSlug]`      | Project detail             |
-| `/project/[idOrSlug]/edit` | Project editor (auth)      |
-| `/create/project`          | Create project (auth)      |
-| `/checkout`                | Checkout cart              |
-| `/checkout/payment`        | Payment                    |
-| `/checkout/post-payment`   | Post-payment confirmation  |
-| `/checkout/verify`         | Payment verification       |
-| `/checkout/wallet`         | Wallet confirmation        |
-| `/login`                   | Login                      |
-| `/login/callback`          | OAuth2 callback            |
-| `/logout`                  | Logout                     |
-| `/register`                | Register                   |
-| `/me`                      | My profile (auth)          |
-| `/user/[idOrHandle]`       | Public user profile        |
-| `/about`                   | About                      |
-| `/static/[fileName]`       | CMS static content         |
-| `/admin/charges`           | Admin contributions (auth) |
-| `/403`, `/404`, `/500`     | Error pages                |
+| Route                      | Page                           |
+| -------------------------- | ------------------------------ |
+| `/`                        | Home                           |
+| `/search`                  | Project search                 |
+| `/project/[idOrSlug]`      | Project detail                 |
+| `/project/[idOrSlug]/edit` | Project editor (auth)          |
+| `/create/project`          | Create project (auth)          |
+| `/checkout`                | Checkout cart                  |
+| `/checkout/payment`        | Payment                        |
+| `/checkout/post-payment`   | Post-payment confirmation      |
+| `/checkout/verify`         | Payment verification           |
+| `/checkout/wallet`         | Wallet confirmation            |
+| `/login`                   | Login                          |
+| `/login/callback`          | OAuth2 callback                |
+| `/logout`                  | Logout                         |
+| `/register`                | Register                       |
+| `/me`                      | My profile (auth)              |
+| `/me/manage`               | Manage my projects (auth)      |
+| `/user/[idOrHandle]`       | Public user profile            |
+| `/about`                   | About                          |
+| `/static/[fileName]`       | CMS static content             |
+| `/admin`                   | Admin dashboard (admin)        |
+| `/admin/charges`           | Admin contributions (admin)    |
+| `/admin/projects`          | Admin projects (admin)         |
+| `/admin/users`             | Admin users (admin)            |
+| `/admin/home`              | Home hero & highlights (admin) |
+| `/admin/comm`              | Banners & newsletter (admin)   |
+| `/403`, `/404`, `/500`     | Error pages                    |
 
 API endpoints under `src/pages/api/`:
 
-| Endpoint                 | Purpose                      |
-| ------------------------ | ---------------------------- |
-| `/api/relay/[...path]`   | Authenticated API proxy      |
-| `/api/upload/preupload`  | S3 pre-signed URL generation |
-| `/api/upload/postupload` | S3 post-upload validation    |
+| Endpoint                 | Purpose                                   |
+| ------------------------ | ----------------------------------------- |
+| `/api/relay/[...path]`   | Authenticated API proxy                   |
+| `/api/session`           | Read session (GET), password login (POST) |
+| `/api/upload/preupload`  | S3 pre-signed URL generation              |
+| `/api/upload/postupload` | S3 post-upload validation                 |
+| `/api/upload/delete`     | Delete an uploaded object                 |
 
 ## Project Structure
 
@@ -171,9 +191,9 @@ src/
 ├── auth/             # JWT sessions, OAuth2 tokens, refresh logic
 ├── components/       # Svelte components (PascalCase filenames)
 │   ├── library/      # Reusable UI primitives + Storybook stories
-│   ├── Admin/        # Admin-specific components
+│   ├── admin/        # Admin-specific components
 │   ├── icons/        # Icon SVG components
-│   └── [Feature]/    # Feature-scoped (project/, profile/, Checkout/, etc.)
+│   └── [feature]/    # Feature-scoped (project/, profile/, checkout/, etc.)
 ├── firewall/         # Route access control rules
 ├── i18n/             # Translations (es/en/ca) + t() store
 ├── layouts/          # Astro layout components
@@ -182,15 +202,13 @@ src/
 ├── pages/            # Astro routes
 │   ├── [...locale]/  # All user-facing pages under locale prefix
 │   └── api/          # Server-side API endpoints
+├── repositories/     # Persistence: drafts (Dexie/IndexedDB), banners, highlights, home hero (D1)
 ├── services/         # Business logic & API call wrappers
 ├── stores/           # Svelte stores (client-side state)
-│   └── drafts/       # Project draft persistence (Dexie/IndexedDB)
-├── stories/          # Full-page Storybook stories
 ├── styles/           # Global CSS + Tailwind theme tokens
-├── svgs/             # SVG Svelte components
 ├── types/            # Shared TypeScript interfaces
-└── utils/            # Pure helper functions
-    └── drafts/       # Draft DB repository helpers
+├── utils/            # Helper functions (checkouts/, media/ subfolders)
+└── validation/       # Project/reward/collab/register validators
 ```
 
 ## Environment variables
@@ -215,10 +233,9 @@ Full list lives in [`.env.example`](.env.example). Grouped by purpose:
 | `BASIC_AUTH_USERNAME` / `BASIC_AUTH_PASSWORD` |          | Credentials for the Basic auth layer                                                  |
 | `OBJECT_STORAGE_*`                            |          | S3-compatible storage (access key, secret, region, endpoint, bucket) for media upload |
 
-## CI / Deployment
+## CI
 
-| Workflow             | Trigger           | Action                            |
-| -------------------- | ----------------- | --------------------------------- |
-| `deploy.yml`         | Push to `main`    | Deploy to Cloudflare (production) |
-| `deploy.yml`         | Push to `develop` | Deploy to Cloudflare (staging)    |
-| `prettier-check.yml` | PR / push         | Prettier format check             |
+| Workflow             | Trigger                                      | Action                           |
+| -------------------- | -------------------------------------------- | -------------------------------- |
+| `prettier-check.yml` | PR to `main` / `develop`                     | Prettier format check            |
+| `crowdin-upload.yml` | Push to `develop` touching `es.json`, manual | Upload source strings to Crowdin |

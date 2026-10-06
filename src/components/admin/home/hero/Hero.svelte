@@ -15,6 +15,8 @@
 
     let { hero = null, heroes }: Props = $props();
 
+    let list = $state(heroes);
+
     let currentSubtab = $state("fields");
     let showError = $state(false);
     let errorMessage = $state("");
@@ -33,7 +35,7 @@
     </p>
 </div>
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <div class="flex flex-col gap-6">
     <HeroTabs currentTab={currentSubtab} onTabChange={handleTabChange} />
@@ -41,7 +43,8 @@
         <HeroForm {hero} />
     {:else if currentSubtab === "history"}
         <HeroHistory
-            rows={heroes}
+            rows={list}
+            onDelete={(id) => (list = list.filter((h) => h.id !== id))}
             onError={(message) => {
                 errorMessage = message;
                 showError = true;

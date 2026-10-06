@@ -164,7 +164,7 @@
                 value={content}
                 onChange={(value) => (content = value)}
                 format="markdown"
-                showFontSize={false}
+                showTextStyle={false}
                 showAlignment={false}
                 showImage={false}
                 placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}
@@ -302,7 +302,7 @@
 
 <HeroPreviewModal bind:open={isPreviewOpen} hero={previewHero} />
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <ImageUploadModal
     bind:open={isUploadOpen}

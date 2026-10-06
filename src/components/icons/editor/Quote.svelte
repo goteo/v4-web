@@ -7,22 +7,22 @@
         height?: string | number;
     }
 
-    let { class: classes = "", width = "40", height = "40" }: Props = $props();
+    let { class: classes = "", width = "32", height = "32" }: Props = $props();
 </script>
 
 <svg
     {width}
     {height}
-    viewBox="0 0 40 40"
+    viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    class={twMerge("", classes)}
+    class={twMerge("text-secondary", classes)}
 >
-    <path d="M24 15.0346V24.9654" stroke="currentColor" stroke-linecap="round" />
+    <path d="M7 8V24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
     <path
-        d="M15.5 25L20.5 20L15.5 15"
+        d="M13 11H25M13 16H25M13 21H21"
         stroke="currentColor"
+        stroke-width="2"
         stroke-linecap="round"
-        stroke-linejoin="round"
     />
 </svg>

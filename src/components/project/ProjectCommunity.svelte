@@ -112,23 +112,14 @@
                 </Grid>
             {/if}
 
-            {#if groupedItems.default?.length}
-                <Grid class="grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {#if !hasMatchfunding}
-                        <ProjectCommunityAnonymous
-                            {project}
-                            currency={accounting.balance?.currency!}
-                        />
-                    {/if}
-                    {#each visibleDefaultItems as item (item.id)}
-                        <ProjectCommunityMessage
-                            {item}
-                            bind:openModal
-                            bind:selectedProjectSupport
-                        />
-                    {/each}
-                </Grid>
-            {/if}
+            <Grid class="grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {#if !hasMatchfunding}
+                    <ProjectCommunityAnonymous {project} currency={accounting.balance?.currency!} />
+                {/if}
+                {#each visibleDefaultItems as item (item.id)}
+                    <ProjectCommunityMessage {item} bind:openModal bind:selectedProjectSupport />
+                {/each}
+            </Grid>
 
             {#if hasMore}
                 <div class="flex w-full justify-center">

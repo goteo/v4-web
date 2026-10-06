@@ -53,7 +53,6 @@
         itemsPerPage?: number;
         itemsPerPageOptions?: number[];
         itemsPerPageLabel?: string;
-        paginationPrefix?: string;
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (value: AdminItemsPerPage) => void;
         onRowClick?: (row: any, index: number) => void;
@@ -77,7 +76,6 @@
         itemsPerPage = 10,
         itemsPerPageOptions,
         itemsPerPageLabel,
-        paginationPrefix = "common.pagination",
         onPageChange,
         onItemsPerPageChange,
         onRowClick,
@@ -240,13 +238,6 @@
                 </div>
             </div>
         {/if}
-        <Pagination
-            {currentPage}
-            {totalItems}
-            {itemsPerPage}
-            {isLoading}
-            i18nPrefix={paginationPrefix}
-            {onPageChange}
-        />
+        <Pagination {currentPage} {totalItems} {itemsPerPage} {isLoading} {onPageChange} />
     {/if}
 </div>

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { t } from "../../../../i18n/store";
     import { apiUsersGetCollection, type User } from "../../../../openapi/client";
+    import { debounce } from "../../../../utils/debounce";
     import { highlightMatch } from "../../../../utils/highlights";
     import CloseIcon from "../../../icons/navigation/Close.svelte";
     import Spinner from "../../../icons/status/Spinner.svelte";
@@ -21,8 +22,6 @@
     let searching = $state(false);
     let searched = $state(false);
     let showCreateForm = $state(false);
-
-    let debounce: ReturnType<typeof setTimeout> | undefined;
 
     async function searchUsers() {
         const trimmed = form.user.email.trim();
@@ -52,8 +51,10 @@
         }
     }
 
+    const debouncedSearch = debounce(searchUsers, 400);
+
     function onEmailInput() {
-        clearTimeout(debounce);
+        debouncedSearch.cancel();
         if (form.existingUser) {
             form.existingUser = null;
         }
@@ -64,7 +65,7 @@
 
         const trimmed = form.user.email.trim();
         if (trimmed.length >= 3 && emailRegex.test(trimmed)) {
-            debounce = setTimeout(() => searchUsers(), 400);
+            debouncedSearch();
         }
     }
 

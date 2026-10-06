@@ -31,7 +31,23 @@
         id: "rte-multiparagraph",
         format: "markdown",
         placeholder: "Escribe algo...",
-        value: "Primer párrafo de ejemplo.\n\nSegundo párrafo separado con el mismo espaciado que en la página de campaña.\n\nTercer párrafo con **negrita** y *cursiva* para visualizar el estilo.",
+        value: "Primer párrafo de ejemplo.\n\nSegundo párrafo separado con el mismo espaciado que en la página de campaña.\n\nTercer párrafo con **negrita**, *cursiva* y un [enlace](https://goteo.org).\n\n- Primer punto\n- Segundo punto\n\n1. Paso uno\n2. Paso dos\n\n> Una cita destacada.",
+        onChange: () => {},
+    }}
+/>
+
+<Story
+    name="MinimalToolbar"
+    args={{
+        id: "rte-minimal",
+        format: "markdown",
+        placeholder: "Escribe algo...",
+        value: "",
+        showTextStyle: false,
+        showAlignment: false,
+        showImage: false,
+        showLink: false,
+        showQuote: false,
         onChange: () => {},
     }}
 />

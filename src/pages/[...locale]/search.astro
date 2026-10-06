@@ -1,22 +1,12 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import App from "../../layouts/App.svelte";
-import SearchFilters from "../../components/search/SearchFilters.svelte";
-import SearchResultsClient from "../../components/search/SearchResultsClient.svelte";
-import { parseSearchParamsFilters } from "../../stores/searchStore";
-
-import type { Project } from "../../openapi/client/types.gen";
+import Search from "../../components/search/Search.svelte";
+import { parseSearchParamsFilters } from "../../utils/searchParams";
 
 const { t, lang } = Astro.locals;
 
-// Initial projects will be fetched client-side to avoid blocking SSR
-const initialProjects: Project[] = [];
-
-const url = new URL(Astro.request.url);
-const initialFilters = parseSearchParamsFilters(url.searchParams);
-
-// Check if URL has search parameters
-const hasInitialSearch = Object.entries(initialFilters).length > 0;
+const initialFilters = parseSearchParamsFilters(new URL(Astro.request.url).searchParams);
 ---
 
 <Layout title={t("pages.search.title")} description={t("pages.search.description")}>
@@ -32,20 +22,7 @@ const hasInitialSearch = Object.entries(initialFilters).length > 0;
                 </p>
             </div>
 
-            <!-- Search Filters -->
-            <div class="mb-8">
-                <SearchFilters initialFilters={initialFilters} client:load />
-            </div>
-
-            <!-- Search Results -->
-            <div class="mb-8" role="region" aria-label={t("pages.search.results.regionLabel")}>
-                <SearchResultsClient
-                    initialProjects={initialProjects}
-                    initialFilters={initialFilters}
-                    hasInitialSearch={hasInitialSearch}
-                    client:load
-                />
-            </div>
+            <Search initialFilters={initialFilters} client:load />
         </section>
     </App>
 </Layout>

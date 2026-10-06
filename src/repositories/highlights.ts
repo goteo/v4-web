@@ -65,7 +65,7 @@ class HighlightRepository {
                     id,
                     highlight_id AS highlightId,
                     position,
-                    project_id AS projectId
+                    CAST(project_id AS INTEGER) AS projectId
                  FROM highlight_slots
                  WHERE highlight_id = ?
                  ORDER BY position ASC`,
