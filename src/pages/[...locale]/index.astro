@@ -16,8 +16,6 @@ import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
 import { homeHeroRepository } from "../../repositories/homeHero";
 import { renderMarkdown } from "../../utils/renderMarkdown";
-import Button from "../../components/library/buttons/Button.svelte";
-import { PLACEHOLDER_REVIEW_ID } from "../../services/projectReview";
 
 const { locale } = Astro.params;
 
@@ -35,10 +33,6 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
 
 <Layout title={t("pages.index.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} class="mb-20 gap-18">
-        <!-- Temporary shortcut into the reviews placeholder. Remove once the API carries them. -->
-        <Button href={`/${lang}/reviews/${PLACEHOLDER_REVIEW_ID}`} kind="primary" class="mx-auto mb-12">
-            {t("pages.index.reviewCta")}
-        </Button>
         <Hero {hero} content={heroContent} />
         <Banners banners={activeBanners} client:visible />
         <Campaigns />
