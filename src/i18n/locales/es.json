@@ -727,8 +727,7 @@
       },
       "featuredPromoters": {
         "title": "Impulsores destacados",
-        "viewAll": "Ver todes",
-        "projectsPromoted": "Proyectos impulados",
+        "projectsPromoted": "Proyectos propios",
         "capitalRaised": "Capital recaudado",
         "promoterImage": "Foto del impulsor",
         "shareProfile": "Compartir perfil de {{name}}"
@@ -1428,7 +1427,8 @@
         "description": "Elige qué se muestra en la portada.",
         "tabs": {
           "hero": "Hero",
-          "highlights": "P. Destacados"
+          "highlights": "P. Destacados",
+          "featuredUsers": "Impulsores"
         },
         "hero": {
           "title": "Hero",
@@ -1508,6 +1508,22 @@
               "search": "Busca un proyecto",
               "submit": "Añadir"
             }
+          }
+        },
+        "featuredUsers": {
+          "title": "Impulsores",
+          "description": "Los que están al frente de nuestra iniciativa, los más destacados.",
+          "selection": {
+            "title": "Selecciona a los impulsores más destacados",
+            "empty": "Sube una imagen o vídeo",
+            "add": "Añade impulsor",
+            "change": "Destaca otro impulsor/a"
+          },
+          "modal": {
+            "title": "Añade impulsor/a",
+            "description": "Busca y añade al impulsor que quieras destacar en portada",
+            "search": "Busca un impulsor/a",
+            "submit": "Añadir"
           }
         }
       },
