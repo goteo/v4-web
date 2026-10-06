@@ -2192,26 +2192,40 @@ export type ProjectRewardJsonld = {
 };
 
 /**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
 export type ProjectRewardClaim = {
     readonly id?: number;
     /**
-     * The User claiming the ProjectReward.
+     * The User claiming the ProjectReward. Derived from the GatewayCharge.
      */
-    readonly owner?: string;
+    owner?: string;
     /**
      * The GatewayCharge granting access to the ProjectReward.
      */
-    charge: string;
+    charge?: string;
     /**
      * The ProjectReward being claimed.
      */
-    reward: string;
+    reward?: string;
+    /**
+     * The point at which the claim is in its life-cylce.
+     */
+    status?: 'in_pending' | 'fulfilled';
+    /**
+     * Only used when the reward is a physical object that needs to be shipped.
+     */
+    shippingAddress?: ShippingAddress | null;
 };
 
 /**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
 export type ProjectRewardClaimRewardClaimCreationDto = {
     /**
@@ -2222,10 +2236,17 @@ export type ProjectRewardClaimRewardClaimCreationDto = {
      * The ProjectReward being claimed.
      */
     reward: string;
+    /**
+     * If the reward is a physical object that needs to be delivered to an specific place.
+     */
+    shippingAddress?: ShippingAddress | null;
 };
 
 /**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
 export type ProjectRewardClaimRewardClaimCreationDtoJsonld = {
     /**
@@ -2236,10 +2257,35 @@ export type ProjectRewardClaimRewardClaimCreationDtoJsonld = {
      * The ProjectReward being claimed.
      */
     reward: string;
+    /**
+     * If the reward is a physical object that needs to be delivered to an specific place.
+     */
+    shippingAddress?: ShippingAddressJsonld | null;
 };
 
 /**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export type ProjectRewardClaimRewardClaimUpdationDto = {
+    /**
+     * The point at which the claim over the reward is.\
+     * May only be updated by admins or the User who owns the Project of the ProjectReward.
+     */
+    status?: 'in_pending' | 'fulfilled';
+    /**
+     * If the reward is a physical object that needs to be delivered to an specific place.
+     */
+    shippingAddress?: ShippingAddress | null;
+};
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
 export type ProjectRewardClaimJsonld = {
     readonly '@context'?: string | {
@@ -2251,17 +2297,25 @@ export type ProjectRewardClaimJsonld = {
     readonly '@type'?: string;
     readonly id?: number;
     /**
-     * The User claiming the ProjectReward.
+     * The User claiming the ProjectReward. Derived from the GatewayCharge.
      */
-    readonly owner?: string;
+    owner?: string;
     /**
      * The GatewayCharge granting access to the ProjectReward.
      */
-    charge: string;
+    charge?: string;
     /**
      * The ProjectReward being claimed.
      */
-    reward: string;
+    reward?: string;
+    /**
+     * The point at which the claim is in its life-cylce.
+     */
+    status?: 'in_pending' | 'fulfilled';
+    /**
+     * Only used when the reward is a physical object that needs to be shipped.
+     */
+    shippingAddress?: ShippingAddressJsonld | null;
 };
 
 /**
@@ -2497,6 +2551,77 @@ export type ProjectVideoJsonld = {
     src?: string | null;
     cover?: string | null;
     thumbnail?: string | null;
+};
+
+export type ShippingAddress = {
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    addressLine1: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    addressLine2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country: string;
+};
+
+export type ShippingAddressJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    addressLine1: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    addressLine2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country: string;
 };
 
 export type Territory = {
@@ -5336,6 +5461,11 @@ export type ApiProjectRewardClaimsGetCollectionData = {
         'charge[]'?: Array<string>;
         reward?: string;
         'reward[]'?: Array<string>;
+        status?: string;
+        'status[]'?: Array<string>;
+        'shippingAddress.city'?: string;
+        'shippingAddress.postCode'?: string;
+        'shippingAddress.country'?: string;
     };
     url: '/v4/project_reward_claims';
 };
@@ -5395,6 +5525,10 @@ export type ApiProjectRewardClaimsIdDeleteData = {
 
 export type ApiProjectRewardClaimsIdDeleteErrors = {
     /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
      * Not found
      */
     404: ErrorJsonld;
@@ -5440,6 +5574,47 @@ export type ApiProjectRewardClaimsIdGetResponses = {
 };
 
 export type ApiProjectRewardClaimsIdGetResponse = ApiProjectRewardClaimsIdGetResponses[keyof ApiProjectRewardClaimsIdGetResponses];
+
+export type ApiProjectRewardClaimsIdPatchData = {
+    /**
+     * The updated ProjectRewardClaim resource
+     */
+    body: ProjectRewardClaimRewardClaimUpdationDto;
+    path: {
+        /**
+         * ProjectRewardClaim identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_reward_claims/{id}';
+};
+
+export type ApiProjectRewardClaimsIdPatchErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiProjectRewardClaimsIdPatchError = ApiProjectRewardClaimsIdPatchErrors[keyof ApiProjectRewardClaimsIdPatchErrors];
+
+export type ApiProjectRewardClaimsIdPatchResponses = {
+    /**
+     * ProjectRewardClaim resource updated
+     */
+    200: ProjectRewardClaim;
+};
+
+export type ApiProjectRewardClaimsIdPatchResponse = ApiProjectRewardClaimsIdPatchResponses[keyof ApiProjectRewardClaimsIdPatchResponses];
 
 export type ApiProjectSupportsGetCollectionData = {
     body?: never;

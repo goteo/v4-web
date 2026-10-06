@@ -9,6 +9,7 @@
     import TopRewards from "./TopRewards.svelte";
     import { languagesList } from "../../i18n/locales";
     import { locale, setLocale, t } from "../../i18n/store";
+    import { escapeHTML } from "../../i18n/utils";
     import {
         type Project,
         type Accounting,
@@ -155,7 +156,7 @@
                     <Thtml
                         key="pages.project.view.owner"
                         vars={{
-                            owner: `<span class="font-bold text-black underline">${owner.displayName}</span>`,
+                            owner: `<a href="/user/${escapeHTML(owner.handle)}" class="font-bold text-black underline">${escapeHTML(owner.displayName ?? "")}</a>`,
                         }}
                     />
                 </p>
@@ -192,7 +193,10 @@
                 src={project.video?.src || ""}
                 title={project.title || ""}
                 thumbnails={project.video?.thumbnail || ""}
-                poster={{ src: project.video?.cover || "", alt: "" }}
+                poster={{
+                    src: project.cover || project.video?.cover || "",
+                    alt: project.title || "",
+                }}
             />
         </div>
         <div class="flex h-auto w-full flex-col gap-4 lg:h-full lg:w-[30%]">
