@@ -24,7 +24,7 @@
     import TextInput from "../../../library/inputs/TextInput.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { HomeHeroRecord } from "../../../../repositories/homeHero";
+    import type { HeroTranslations, HomeHeroRecord } from "../../../../repositories/homeHero";
     import type { UploadedObject } from "../../../../utils/media/objectStorage.types";
 
     interface Props {
@@ -78,6 +78,19 @@
         };
     }
 
+    function fieldsFromTranslations(
+        overrides: NonNullable<HomeHeroRecord["translations"]>[string] | undefined,
+    ): HeroFields {
+        return {
+            title: overrides?.title ?? "",
+            content: overrides?.content ?? "",
+            primaryCtaText: overrides?.primaryCtaText ?? "",
+            primaryCtaLink: overrides?.primaryCtaLink ?? "",
+            secondaryCtaText: overrides?.secondaryCtaText ?? "",
+            secondaryCtaLink: overrides?.secondaryCtaLink ?? "",
+        };
+    }
+
     type HeroMedia = Pick<UploadedObject, "url" | "type" | "name">;
 
     type FieldName =
@@ -96,14 +109,26 @@
     const contentId = $props.id();
 
     // All languages are equal: there is no "base" language, only a default one
-    // (the platform language) used to seed the form. An existing block keeps
-    // the language it was authored in, and the default can be removed like any
-    // other language once a second one exists.
+    // (the platform language) used to seed a blank block. An existing block is
+    // opened with every language it is available in, prefilled from its stored
+    // translations, and the default can be removed like any other language
+    // once a second one exists.
     const defaultLanguage = getDefaultLanguage();
-    const initialLanguage = hero?.language || defaultLanguage;
+    const baseLanguage = hero?.language || defaultLanguage;
+    const languagesSeed = hero
+        ? [...new Set([baseLanguage, ...(hero.languages ?? []).filter((code) => code !== baseLanguage)])]
+        : [defaultLanguage];
 
-    let languages = $state<string[]>([initialLanguage]);
-    let selectedLanguage = $state<string>(initialLanguage);
+    const initialFieldValues: Record<string, HeroFields> = {};
+    for (const lang of languagesSeed) {
+        initialFieldValues[lang] =
+            lang === baseLanguage && hero
+                ? fieldsFromRecord(hero)
+                : fieldsFromTranslations(hero?.translations?.[lang]);
+    }
+
+    let languages = $state<string[]>(languagesSeed);
+    let selectedLanguage = $state<string>(languagesSeed[0]);
 
     let isAddModalOpen = $state(false);
     let languageSearch = $state("");
@@ -112,9 +137,7 @@
 
     let isRemoveModalOpen = $state(false);
 
-    let fieldValues = $state<Record<string, HeroFields>>({
-        [initialLanguage]: hero ? fieldsFromRecord(hero) : emptyFields(),
-    });
+    let fieldValues = $state<Record<string, HeroFields>>(initialFieldValues);
 
     // The stored row must be authored in exactly one language. The platform
     // language keeps that role while it is present; otherwise the first chosen
@@ -221,8 +244,37 @@
     const currentFields = $derived(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage]);
 
     function openPreview() {
+        // The preview carries every selected language so the modal can switch
+        // between them; languages other than the one being edited are stored as
+        // translations, mirroring how a persisted block looks.
+        const translations: HeroTranslations = {};
+
+        for (const lang of languages) {
+            if (lang === selectedLanguage) {
+                continue;
+            }
+
+            const fields = fieldValues[lang];
+
+            if (!fields) {
+                continue;
+            }
+
+            translations[lang] = {
+                title: fields.title || undefined,
+                content: fields.content || undefined,
+                primaryCtaText: fields.primaryCtaText.trim() || undefined,
+                primaryCtaLink: fields.primaryCtaLink.trim() || undefined,
+                secondaryCtaText: fields.secondaryCtaText.trim() || undefined,
+                secondaryCtaLink: fields.secondaryCtaLink.trim() || undefined,
+            };
+        }
+
+        const previewTranslations =
+            Object.keys(translations).length > 0 ? translations : undefined;
+
         previewHero = {
-            id: 0,
+            id: hero?.id ?? 0,
             language: selectedLanguage,
             title: currentFields.title.trim(),
             content: currentFields.content,
@@ -234,6 +286,8 @@
             mediaType: media?.type ?? null,
             startsAt,
             dateCreated: new Date(),
+            languages: languages,
+            translations: previewTranslations,
         };
         isPreviewOpen = true;
     }
@@ -244,19 +298,40 @@
 
     function validate(): boolean {
         const errors: FieldErrors = {};
-        const primary = fieldValues[primaryLanguage] ?? emptyFields();
+        const missingLanguages = new Set<string>();
 
-        if (!primary.title.trim()) {
-            errors.title = "system.constraint.text.notEmpty";
-        }
+        for (const lang of languages) {
+            const fields = fieldValues[lang];
 
-        if (!primary.content.trim()) {
-            errors.content = "system.constraint.text.notEmpty";
+            if (!fields?.title.trim() || !fields?.content.trim()) {
+                missingLanguages.add(lang);
+            }
+
+            if (lang === selectedLanguage) {
+                if (!fields?.title.trim()) {
+                    errors.title = "system.constraint.text.notEmpty";
+                }
+
+                if (!fields?.content.trim()) {
+                    errors.content = "system.constraint.text.notEmpty";
+                }
+            }
         }
 
         fieldErrors = errors;
 
-        return Object.keys(errors).length === 0;
+        if (missingLanguages.size > 0) {
+            errorMessage = $t("pages.admin.home.hero.errors.incompleteLanguages", {
+                languages: [...missingLanguages]
+                    .map((code) => getLanguageDisplayName(code) ?? code)
+                    .join(", "),
+            });
+            showError = true;
+
+            return false;
+        }
+
+        return true;
     }
 
     async function submit() {
@@ -305,8 +380,15 @@
             data.set("translations", JSON.stringify(translations));
         }
 
+        if (typeof hero?.id === "number") {
+            data.set("id", String(hero.id));
+        }
+
         try {
-            const { error } = await actions.createHomeHero(data);
+            const { error } =
+                typeof hero?.id === "number"
+                    ? await actions.updateHomeHero(data)
+                    : await actions.createHomeHero(data);
 
             if (error) {
                 if (!isInputError(error)) {
@@ -350,7 +432,7 @@
         <TextInput
             value={fields.title}
             onInput={(value) => (fields.title = String(value))}
-            required={selectedLanguage === primaryLanguage}
+            required
             placeholder={$t("pages.admin.home.hero.fields.titlePlaceholder")}
             error={fieldErrors.title && $t(fieldErrors.title)}
         />
@@ -360,7 +442,6 @@
             value={fields.content}
             onChange={(value) => (fields.content = value)}
             format="markdown"
-            showFontSize={false}
             showAlignment={false}
             placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}
             error={fieldErrors.content && $t(fieldErrors.content)}

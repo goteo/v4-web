@@ -1436,7 +1436,8 @@
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
             "invalidUrl": "La URL del enlace no es válida",
-            "invalidTranslations": "Las traducciones enviadas no son válidas"
+            "invalidTranslations": "Las traducciones enviadas no son válidas",
+            "incompleteLanguages": "Faltan campos obligatorios en: {{ languages }}"
           },
           "addTranslation": "Añadir traducción",
           "addTranslationModal": {
