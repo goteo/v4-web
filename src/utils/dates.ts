@@ -11,6 +11,21 @@ export function formatDate(date: Date, locale: Locale) {
 }
 
 /**
+ * The clock time a moment fell on, without the date.
+ * @param date The moment to write out
+ * @param locale Active locale, which sets the time separator
+ * @returns The hours and minutes, as "HH:mm"
+ */
+export function formatTime(date: Date, locale: Locale) {
+    const options: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+    };
+
+    return date.toLocaleTimeString(locale, options);
+}
+
+/**
  * The first instant of the day for the given date (midnight, 00:00).
  * @param date The date to normalize
  * @returns A new Date set to the start of the given day
