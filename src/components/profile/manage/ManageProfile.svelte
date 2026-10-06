@@ -22,6 +22,7 @@
     import Linkedin from "../../icons/social/Linkedin.svelte";
     import X from "../../icons/social/X.svelte";
     import Warning from "../../icons/status/Warning.svelte";
+    import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
@@ -121,9 +122,7 @@
         return $t(issue.message);
     }
 
-    async function handleSubmit(event: SubmitEvent) {
-        event.preventDefault();
-
+    async function save() {
         validation = {};
         showSuccess = false;
         showError = false;
@@ -185,7 +184,8 @@
     </Button>
 </div>
 
-<form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
+<!-- Enter clicks the submit button, so saving always goes through its `action` -->
+<form class="flex flex-col gap-6" onsubmit={(event) => event.preventDefault()} novalidate>
     <div class="flex flex-col items-stretch gap-6 lg:flex-row">
         <ProfileImageCard
             bind:avatar={form.avatar}
@@ -386,8 +386,8 @@
     </Toast>
 
     <div class="flex justify-end">
-        <Button type="submit" kind="primary" disabled={isSubmitting}>
+        <ActionableButton type="submit" kind="primary" class="w-auto" action={save} autoreset={0}>
             {$t("pages.me.manage.save")}
-        </Button>
+        </ActionableButton>
     </div>
 </form>

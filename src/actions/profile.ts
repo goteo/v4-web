@@ -3,12 +3,16 @@ import { ActionError, defineAction } from "astro:actions";
 import { setSession } from "../auth/session.ts";
 import {
     apiUsersIdOrHandleGet,
+    apiUsersIdorganizationGet,
     apiUsersIdorganizationPatch,
     apiUsersIdPatch,
+    apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
 } from "../openapi/client/index.ts";
 import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
 import { zProfileForm } from "../validation/profileValidation.ts";
+
+import type { Organization } from "../openapi/client/index.ts";
 
 export const updateProfile = defineAction({
     accept: "json",
@@ -38,27 +42,58 @@ export const updateProfile = defineAction({
             }),
         ];
 
+        // Only send what changed: the API re-validates and re-encrypts every field it gets
+        const changed = <T extends object>(values: T, current: Partial<T> = {}) =>
+            Object.fromEntries(
+                Object.entries(values).filter(
+                    ([key, value]) => value !== (current[key as keyof T] ?? ""),
+                ),
+            ) as Partial<T>;
+
+        const current = session.user;
+        const territory = {
+            country: input.country,
+            subLvl1: input.subLvl1 || null,
+            subLvl2: input.subLvl2 || null,
+            address: input.address.trim() || null,
+        };
+        const territoryChanged =
+            JSON.stringify(territory) !==
+            JSON.stringify({
+                country: current.territory?.country ?? "",
+                subLvl1: current.territory?.subLvl1 || null,
+                subLvl2: current.territory?.subLvl2 || null,
+                address: current.territory?.address || null,
+            });
+
         try {
+            const [{ data: person }, { data: organization }] = await Promise.all([
+                apiUsersIdpersonGet({ path: { id }, headers }),
+                // 404 for individual users, resolved as `undefined`
+                current.type === "organization"
+                    ? apiUsersIdorganizationGet({ path: { id }, headers })
+                    : Promise.resolve({ data: undefined }),
+            ]);
+
             // User first: switching to `organization` makes the API create the Organization record
             const { error: userError } = await apiUsersIdPatch({
                 path: { id },
                 headers,
                 body: {
                     // The API rejects a handle already in the DB, including the User's own
-                    ...(input.handle !== session.user.handle && { handle: input.handle }),
-                    avatar: input.avatar,
-                    description: input.description.trim(),
-                    type: input.type,
+                    ...changed(
+                        {
+                            handle: input.handle,
+                            ...(input.avatar && { avatar: input.avatar }),
+                            description: input.description.trim(),
+                            type: input.type,
+                        },
+                        current,
+                    ),
+                    // Always sent: the API resets an omitted list to empty
                     links,
                     // A missing country is stored as "ZZ", which the API rejects as invalid
-                    ...(input.country && {
-                        territory: {
-                            country: input.country,
-                            subLvl1: input.subLvl1 || null,
-                            subLvl2: input.subLvl2 || null,
-                            address: input.address.trim() || null,
-                        },
-                    }),
+                    ...(input.country && territoryChanged && { territory }),
                 },
             });
 
@@ -66,30 +101,42 @@ export const updateProfile = defineAction({
                 throw userError;
             }
 
-            const { error: personError } = await apiUsersIdpersonPatch({
-                path: { id },
-                headers,
-                body: {
+            const personBody = changed(
+                {
                     firstName: input.firstName.trim(),
                     lastName: input.lastName.trim(),
                     // For organizations the tax id belongs to the legal entity, not the representative
-                    ...(isOrganization ? {} : { taxId: input.taxId.trim() }),
+                    ...(!isOrganization && { taxId: input.taxId.trim() }),
                 },
-            });
+                person,
+            );
 
-            if (personError) {
-                throw personError;
+            if (Object.keys(personBody).length > 0) {
+                const { error: personError } = await apiUsersIdpersonPatch({
+                    path: { id },
+                    headers,
+                    body: personBody,
+                });
+
+                if (personError) {
+                    throw personError;
+                }
             }
 
-            if (isOrganization) {
+            const organizationBody = changed(
+                {
+                    taxId: input.taxId.trim(),
+                    legalName: input.legalName.trim(),
+                    businessName: input.businessName.trim(),
+                },
+                organization,
+            );
+
+            if (isOrganization && Object.keys(organizationBody).length > 0) {
                 const { error: organizationError } = await apiUsersIdorganizationPatch({
                     path: { id },
                     headers,
-                    body: {
-                        taxId: input.taxId.trim(),
-                        legalName: input.legalName.trim(),
-                        businessName: input.businessName.trim(),
-                    },
+                    body: organizationBody as Organization,
                 });
 
                 if (organizationError) {
