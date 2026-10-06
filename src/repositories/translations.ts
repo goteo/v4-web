@@ -84,6 +84,19 @@ class TranslationRepository {
             ),
         );
     }
+
+    /**
+     * Remove every stored translation of one row. Used when overwriting a block
+     * so locales dropped by the editor do not keep stale translations.
+     * @param tableName The translated table
+     * @param rowId The row whose translations are replaced
+     */
+    public async deleteByRow(tableName: string, rowId: number): Promise<void> {
+        await this.db
+            .prepare(`DELETE FROM translations WHERE table_name = ? AND row_id = ?`)
+            .bind(tableName, rowId)
+            .run();
+    }
 }
 
 export const translationRepository = new TranslationRepository(env.DB);

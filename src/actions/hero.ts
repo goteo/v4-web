@@ -66,18 +66,90 @@ const TRANSLATION_COLUMNS: Record<keyof z.infer<typeof translationFields>, strin
     secondaryCtaLink: "secondary_cta_link",
 };
 
+// The locale written into the base row. The editor sends the authoring
+// language (the platform language while present, otherwise the first selected
+// one) and defaults to the platform language when absent.
+const languageField = z.string().optional();
+
+const heroInputSchema = z.object({
+    ...baseFields.shape,
+    mediaUrl: optionalUrl,
+    mediaType: optionalText,
+    startsAt: scheduledDate,
+    language: languageField,
+    // JSON payload with the translations of every added locale.
+    translations: z.string().optional(),
+});
+
+type Translator = (key: string, vars?: Record<string, string | number>) => string;
+
+function parseTranslations(
+    raw: string | undefined,
+    t: Translator,
+): Record<string, z.infer<typeof translationFields>> {
+    if (!raw) {
+        return {};
+    }
+
+    let parsed: unknown;
+
+    try {
+        parsed = JSON.parse(raw);
+    } catch {
+        throw new ActionError({
+            code: "BAD_REQUEST",
+            message: t("pages.admin.home.hero.errors.invalidTranslations"),
+        });
+    }
+
+    const result = translationsSchema.safeParse(parsed);
+
+    if (!result.success) {
+        throw new ActionError({
+            code: "BAD_REQUEST",
+            message: t("pages.admin.home.hero.errors.invalidTranslations"),
+        });
+    }
+
+    return Object.fromEntries(
+        Object.entries(result.data).filter(([locale]) => LANGUAGE_CODE_PATTERN.test(locale)),
+    );
+}
+
+function translationColumnValues(
+    fields: z.infer<typeof translationFields>,
+): Record<string, string> {
+    const values: Record<string, string> = {};
+
+    for (const [field, value] of Object.entries(fields)) {
+        const text = value?.trim();
+
+        if (text) {
+            values[TRANSLATION_COLUMNS[field as keyof typeof TRANSLATION_COLUMNS]] = text;
+        }
+    }
+
+    return values;
+}
+
+async function storeTranslations(
+    heroId: number,
+    translations: Record<string, z.infer<typeof translationFields>>,
+): Promise<void> {
+    for (const [locale, fields] of Object.entries(translations)) {
+        const values = translationColumnValues(fields);
+
+        if (Object.keys(values).length === 0) {
+            continue;
+        }
+
+        await translationRepository.set(HOME_HERO_TABLE, heroId, locale, values);
+    }
+}
+
 export const createHomeHero = defineAction({
     accept: "form",
-    input: z.object({
-        ...baseFields.shape,
-        mediaUrl: optionalUrl,
-        mediaType: optionalText,
-        startsAt: scheduledDate,
-        // The locale the base row is written in (the admin UI language).
-        language: z.string().optional(),
-        // JSON payload with the translations of every added locale.
-        translations: z.string().optional(),
-    }),
+    input: heroInputSchema,
     handler: async (input, context) => {
         const { session, t } = context.locals;
 
@@ -90,35 +162,7 @@ export const createHomeHero = defineAction({
             });
         }
 
-        let translations: Record<string, z.infer<typeof translationFields>> = {};
-
-        if (input.translations) {
-            let parsed: unknown;
-
-            try {
-                parsed = JSON.parse(input.translations);
-            } catch {
-                throw new ActionError({
-                    code: "BAD_REQUEST",
-                    message: t("pages.admin.home.hero.errors.invalidTranslations"),
-                });
-            }
-
-            const result = translationsSchema.safeParse(parsed);
-
-            if (!result.success) {
-                throw new ActionError({
-                    code: "BAD_REQUEST",
-                    message: t("pages.admin.home.hero.errors.invalidTranslations"),
-                });
-            }
-
-            translations = Object.fromEntries(
-                Object.entries(result.data).filter(([locale]) =>
-                    LANGUAGE_CODE_PATTERN.test(locale),
-                ),
-            );
-        }
+        const translations = parseTranslations(input.translations, t);
 
         const heroId = await homeHeroRepository.create({
             language: input.language || import.meta.env.PUBLIC_DEFAULT_LANGUAGE,
@@ -134,23 +178,46 @@ export const createHomeHero = defineAction({
             dateCreated: new Date(),
         });
 
-        for (const [locale, fields] of Object.entries(translations)) {
-            const values: Record<string, string> = {};
+        await storeTranslations(heroId, translations);
+    },
+});
 
-            for (const [field, value] of Object.entries(fields)) {
-                const text = value?.trim();
+export const updateHomeHero = defineAction({
+    accept: "form",
+    input: heroInputSchema.extend({
+        id: z.coerce.number().int().positive(),
+    }),
+    handler: async (input, context) => {
+        const { session, t } = context.locals;
 
-                if (text) {
-                    values[TRANSLATION_COLUMNS[field as keyof typeof TRANSLATION_COLUMNS]] = text;
-                }
-            }
-
-            if (Object.keys(values).length === 0) {
-                continue;
-            }
-
-            await translationRepository.set(HOME_HERO_TABLE, heroId, locale, values);
+        // Actions are posted to /_actions/*, which the /admin firewall rule does not
+        // match, so the role has to be checked here.
+        if (!session?.user.roles?.includes("ROLE_ADMIN")) {
+            throw new ActionError({
+                code: "FORBIDDEN",
+                message: t("pages.admin.home.hero.errors.forbidden"),
+            });
         }
+
+        const translations = parseTranslations(input.translations, t);
+
+        await homeHeroRepository.update(input.id, {
+            language: input.language || import.meta.env.PUBLIC_DEFAULT_LANGUAGE,
+            title: input.title,
+            content: input.content,
+            primaryCtaText: input.primaryCtaText || null,
+            primaryCtaLink: input.primaryCtaLink || null,
+            secondaryCtaText: input.secondaryCtaText || null,
+            secondaryCtaLink: input.secondaryCtaLink || null,
+            mediaUrl: input.mediaUrl || null,
+            mediaType: input.mediaType || null,
+            startsAt: input.startsAt,
+        });
+
+        // Replace the stored translations so locales dropped from the editor do
+        // not keep stale rows. Depends on the D1 FK to home_hero (CASCADE).
+        await translationRepository.deleteByRow(HOME_HERO_TABLE, input.id);
+        await storeTranslations(input.id, translations);
     },
 });
 

@@ -7,6 +7,26 @@ import {
     translationRepository,
 } from "./translations";
 
+/**
+ * The stored translations of one hero row, keyed by locale. Only the columns a
+ * locale actually translates are present. Populated by `getAll()` and used to
+ * re-open the editor and to preview a language without merging into the row.
+ */
+export type HeroTranslations = Record<
+    string,
+    Partial<
+        Pick<
+            HomeHeroRecord,
+            | "title"
+            | "content"
+            | "primaryCtaText"
+            | "primaryCtaLink"
+            | "secondaryCtaText"
+            | "secondaryCtaLink"
+        >
+    >
+>;
+
 export interface HomeHeroRecord {
     id: number;
     /**
@@ -33,6 +53,11 @@ export interface HomeHeroRecord {
      * plus every locale with a stored translation row. Populated by `getAll()`.
      */
     languages?: string[];
+    /**
+     * Stored translations per locale. Populated by `getAll()` — the editor
+     * seeds its per-language fields from here when a stored block is edited.
+     */
+    translations?: HeroTranslations;
 }
 
 const COLUMNS = `id,
@@ -87,32 +112,47 @@ class HomeHeroRepository {
 
         const { results: translationRows } = await this.db
             .prepare(
-                `SELECT row_id AS rowId, locale
+                `SELECT row_id AS rowId, locale, column_name AS columnName, value
                  FROM translations
                  WHERE table_name = ?`,
             )
             .bind(HOME_HERO_TABLE)
-            .all<{ rowId: number; locale: string }>();
+            .all<{ rowId: number; locale: string; columnName: string; value: string }>();
 
-        const localesByRow: Record<number, string[]> = {};
+        const translatedByRow: Record<number, HeroTranslations> = {};
 
         for (const translation of translationRows) {
-            (localesByRow[translation.rowId] ??= []).push(translation.locale);
+            const property =
+                HOME_HERO_COLUMN_TO_PROPERTY[
+                    translation.columnName as (typeof HOME_HERO_TRANSLATABLE_COLUMNS)[number]
+                ];
+
+            if (!property) {
+                continue;
+            }
+
+            (translatedByRow[translation.rowId] ??= {});
+            (translatedByRow[translation.rowId][translation.locale] ??= {});
+            translatedByRow[translation.rowId][translation.locale][
+                property as keyof NonNullable<HeroTranslations[string]>
+            ] = translation.value;
         }
 
         const defaultLocale = import.meta.env.PUBLIC_DEFAULT_LANGUAGE;
 
         for (const hero of heroes) {
             const baseLocale = hero.language || defaultLocale;
-            // One `translations` row exists per translated column, so the
-            // locales must be deduplicated: a locale is added once, not once
-            // per translated field.
-            const translationLocales = [...new Set(localesByRow[hero.id] ?? [])];
+            const translations = translatedByRow[hero.id] ?? {};
+            const translationLocales = Object.keys(translations);
 
             hero.languages = [
                 baseLocale,
-                ...translationLocales.filter((locale) => locale !== baseLocale),
+                ...new Set(translationLocales.filter((locale) => locale !== baseLocale)),
             ];
+
+            if (translationLocales.length > 0) {
+                hero.translations = translations;
+            }
         }
 
         return heroes;
@@ -213,6 +253,58 @@ class HomeHeroRepository {
         }
 
         return Number(result.meta.last_row_id);
+    }
+
+    /**
+     * Overwrite an existing hero block.
+     * @param id The hero to overwrite
+     * @param hero The new values
+     */
+    public async update(
+        id: number,
+        hero: Pick<
+            HomeHeroRecord,
+            | "language"
+            | "title"
+            | "content"
+            | "primaryCtaText"
+            | "primaryCtaLink"
+            | "secondaryCtaText"
+            | "secondaryCtaLink"
+            | "mediaUrl"
+            | "mediaType"
+            | "startsAt"
+        >,
+    ): Promise<void> {
+        await this.db
+            .prepare(
+                `UPDATE home_hero SET
+                    language = ?,
+                    title = ?,
+                    content = ?,
+                    primary_cta_text = ?,
+                    primary_cta_link = ?,
+                    secondary_cta_text = ?,
+                    secondary_cta_link = ?,
+                    media_url = ?,
+                    media_type = ?,
+                    starts_at = ?
+                 WHERE id = ?`,
+            )
+            .bind(
+                hero.language,
+                hero.title,
+                hero.content,
+                hero.primaryCtaText,
+                hero.primaryCtaLink,
+                hero.secondaryCtaText,
+                hero.secondaryCtaLink,
+                hero.mediaUrl,
+                hero.mediaType,
+                hero.startsAt.getTime(),
+                id,
+            )
+            .run();
     }
 
     /**
