@@ -1,0 +1,21 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import App from "../../../../../layouts/App.svelte";
+import WithSidebar from "../../../../../layouts/WithSidebar.svelte";
+import BlogList from "../../../../../components/admin/comm/blog/BlogList.svelte";
+import { blogPostRepository } from "../../../../../repositories/blogPosts";
+import { SUBSECTIONS } from "../subsections";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/comm/blog";
+
+const posts = await blogPostRepository.getAll();
+---
+
+<Layout title={t("pages.admin.comm.blog.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+            <BlogList client:load {posts} />
+        </WithSidebar>
+    </App>
+</Layout>

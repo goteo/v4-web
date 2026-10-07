@@ -1,0 +1,27 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import App from "../../../../../layouts/App.svelte";
+import WithSidebar from "../../../../../layouts/WithSidebar.svelte";
+import BlogForm from "../../../../../components/admin/comm/blog/BlogForm.svelte";
+import { blogPostRepository } from "../../../../../repositories/blogPosts";
+import { SUBSECTIONS } from "../subsections";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/comm/blog";
+
+// "/admin/comm/blog/new" creates a post, any other segment is the id of the post to edit.
+const { id } = Astro.params;
+const post = id === "new" ? null : await blogPostRepository.getById(Number(id));
+
+if (id !== "new" && !post) {
+    return Astro.rewrite("/404");
+}
+---
+
+<Layout title={t("pages.admin.comm.blog.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+            <BlogForm client:load {post} />
+        </WithSidebar>
+    </App>
+</Layout>
