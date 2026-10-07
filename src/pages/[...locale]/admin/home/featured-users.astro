@@ -1,0 +1,46 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import FeaturedUsersForm from "../../../../components/admin/home/FeaturedUsersForm.svelte";
+import { apiUsersIdOrHandleGet } from "../../../../openapi/client/sdk.gen";
+import { featuredUserRepository } from "../../../../repositories/featuredUsers";
+import { getBaseUrl } from "../../../../utils/consts";
+import { SUBSECTIONS } from "./subsections";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/home/featured-users";
+
+const records = await featuredUserRepository.getAll();
+
+const config = {
+    slots: await Promise.all(
+        records.map(async (record) => {
+            const { data: user } = await apiUsersIdOrHandleGet({
+                baseUrl: getBaseUrl(),
+                path: { idOrHandle: String(record.userId) },
+                headers: { "Accept-Language": lang },
+            });
+
+            return {
+                position: record.position,
+                userId: record.userId,
+                name: user?.displayName ?? String(record.userId),
+                handle: user?.handle ?? String(record.userId),
+                avatar: user?.avatar ?? null,
+            };
+        }),
+    ),
+};
+---
+
+<Layout
+    title={t("pages.admin.home.featuredUsers.title")}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+            <FeaturedUsersForm client:load {config} />
+        </WithSidebar>
+    </App>
+</Layout>

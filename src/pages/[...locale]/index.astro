@@ -5,7 +5,7 @@ import Hero from "../../components/hero/Hero.svelte";
 import Campaigns from "../../components/home/Campaigns.astro";
 import CampaignsTabs from "../../components/home/CampaignsTabs.astro";
 import Stats from "../../components/home/Stats.astro";
-import FeaturedPromoters from "../../components/home/FeaturedPromoters.astro";
+import FeaturedUsers from "../../components/home/FeaturedUsers.svelte";
 import Blog from "../../components/home/Blog.astro";
 import Matchfunding from "../../components/home/Matchfunding.astro";
 import Banners from "../../components/home/HomeBanners.svelte";
@@ -15,6 +15,11 @@ import Banners from "../../components/home/HomeBanners.svelte";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
 import { homeHeroRepository } from "../../repositories/homeHero";
+import { featuredUserRepository } from "../../repositories/featuredUsers";
+import { apiUsersIdOrHandleGet } from "../../openapi/client/sdk.gen";
+import { summarizeOwnerProjects } from "../../services/userProjects";
+import { getLanguage } from "../../middleware/utils";
+import { getBaseUrl } from "../../utils/consts";
 import { renderMarkdown } from "../../utils/renderMarkdown";
 
 const { locale } = Astro.params;
@@ -29,6 +34,34 @@ const activeBanners = await bannerRepository.getActive();
 const hero = await homeHeroRepository.getActive();
 // Authored in the admin as Markdown. Only ROLE_ADMIN can write it.
 const heroContent = hero ? await renderMarkdown(hero.content) : null;
+
+// Featured users are curated from /admin/home/featured-users. Identity, the avatar and the
+// stats all come from the API so they never go stale.
+const featuredRecords = await featuredUserRepository.getAll();
+
+// Resolved once: the locale is the same for every record in the batch.
+const apiLanguage = getLanguage(Astro);
+
+const featuredUsers = await Promise.all(
+    featuredRecords.map(async (record) => {
+        const { data: user } = await apiUsersIdOrHandleGet({
+            baseUrl: getBaseUrl(),
+            path: { idOrHandle: String(record.userId) },
+            headers: { "Accept-Language": apiLanguage },
+        });
+
+        const summary = await summarizeOwnerProjects(String(record.userId), apiLanguage);
+
+        return {
+            id: record.id,
+            name: user?.displayName ?? user?.handle ?? String(record.userId),
+            image: user?.avatar ?? null,
+            ownProjects: summary.totalProjects,
+            capitalRaised: summary.amount,
+            currency: summary.currency,
+        };
+    }),
+);
 ---
 
 <Layout title={t("pages.index.title")} description={t("pages.metadata.description")}>
@@ -42,7 +75,7 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
         <Matchfunding />
         <!-- Uncomment the matching import at the top when enabling either of these. -->
         <!-- <Stories client:load /> -->
-        <FeaturedPromoters />
+        {featuredUsers.length > 0 && <FeaturedUsers users={featuredUsers} client:visible />}
         <!-- <Resources /> -->
     </App>
 </Layout>
