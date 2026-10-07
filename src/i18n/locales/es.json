@@ -1965,6 +1965,7 @@
         "title": "Comunicación",
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
+          "blog": "Blog",
           "banners": "Anuncios",
           "newsletter": "Boletín"
         },
@@ -2010,6 +2011,61 @@
             "deleteModal": {
               "title": "¿Borrar este anuncio?",
               "description": "El anuncio se eliminará de forma permanente y desaparecerá del histórico. Esta acción no se puede deshacer."
+            }
+          }
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Los administradores pueden gestionar entradas del blog, crear nuevo contenido y modificar artículos.",
+          "errors": {
+            "forbidden": "No tienes permisos para gestionar el blog",
+            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo"
+          },
+          "list": {
+            "new": "Nuevo post",
+            "total": "Total: {{ total }} resultados",
+            "searchPlaceholder": "ID, título, subtítulo o texto",
+            "noData": "No hay entradas en el blog",
+            "draft": "Borrador",
+            "edit": "Editar",
+            "headers": {
+              "id": "ID",
+              "title": "Título",
+              "info": "Información",
+              "translations": "Traducciones",
+              "published": "Publicado"
+            }
+          },
+          "form": {
+            "addTranslation": "Añadir traducción",
+            "titleSection": "Título y subtítulo",
+            "titlePlaceholder": "Añade el título",
+            "subtitlePlaceholder": "Añade el subtítulo",
+            "authorSection": "Autor y fecha de publicación",
+            "authorPlaceholder": "Autor",
+            "datePlaceholder": "Fecha de publicación",
+            "headerSection": "Imagen de cabecera",
+            "contentSection": "Texto",
+            "contentPlaceholder": "Escribe aquí el texto de la entrada",
+            "videoSection": "Añade un vídeo (Youtube, Vimeo)",
+            "videoPlaceholder": "Añade el enlace del vídeo",
+            "sectionSection": "Sección",
+            "sections": {
+              "news": "Novedades",
+              "stories": "Historias",
+              "resources": "Recursos",
+              "newsletter": "Boletín"
+            },
+            "commentsSection": "¿Permite comentarios?",
+            "commentsYes": "Sí",
+            "commentsNo": "No",
+            "saveAndExit": "Guardar y salir",
+            "publish": "Publicar entrada",
+            "translationModal": {
+              "title": "Añade una nueva traducción",
+              "description": "Selecciona el idioma al que quieres traducir esta entrada.",
+              "placeholder": "Selecciona un idioma",
+              "apply": "Aplicar acción"
             }
           }
         }
