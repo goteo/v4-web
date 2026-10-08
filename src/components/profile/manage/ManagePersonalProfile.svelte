@@ -12,6 +12,13 @@
     import FormNotice from "./FormNotice.svelte";
     import ProfileHeader from "./ProfileHeader.svelte";
     import { locale, t } from "../../../i18n/store";
+    import {
+        apiUsersIdOrHandleGet,
+        type Organization,
+        type Person,
+        type Territory,
+        type User,
+    } from "../../../openapi/client";
     import { getCountries } from "../../../utils/countries";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
@@ -28,13 +35,6 @@
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import {
-        apiUsersIdOrHandleGet,
-        type Organization,
-        type Person,
-        type Territory,
-        type User,
-    } from "../../../openapi/client";
     import type z from "zod";
 
     type FieldName = keyof PersonalProfileForm;

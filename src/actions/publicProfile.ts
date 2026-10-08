@@ -1,12 +1,7 @@
 import { ActionError, defineAction } from "astro:actions";
 
 import { setSession } from "../auth/session.ts";
-import {
-    apiUsersIdOrHandleGet,
-    apiUsersIdorganizationPatch,
-    apiUsersIdPatch,
-    apiUsersIdpersonPatch,
-} from "../openapi/client/index.ts";
+import { apiUsersIdOrHandleGet, apiUsersIdPatch } from "../openapi/client/index.ts";
 import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
 import { zProfileForm } from "../validation/publicProfileValidation.ts";
 
