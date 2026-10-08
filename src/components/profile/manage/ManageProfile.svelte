@@ -22,6 +22,7 @@
     import Linkedin from "../../icons/social/Linkedin.svelte";
     import X from "../../icons/social/X.svelte";
     import Warning from "../../icons/status/Warning.svelte";
+    import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
@@ -51,7 +52,7 @@
     const country =
         user.territory?.country === UNKNOWN_COUNTRY ? "" : (user.territory?.country ?? "");
 
-    let form: ProfileForm = $state({
+    let values: ProfileForm = $state({
         handle: user.handle,
         avatar: user.avatar || undefined,
         description: user.description ?? "",
@@ -66,6 +67,16 @@
         businessName: organization?.businessName ?? "",
         taxId: (user.type === "organization" ? organization?.taxId : person?.taxId) ?? "",
         links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
+    });
+
+    // Fields written since the last save, so the payload carries only what the user edited
+    // ponytail: top-level fields only (`links` is always sent), observable-slim if nested tracking is needed
+    const changed = new Set<FieldName>();
+    const form = new Proxy(values, {
+        set(target, key, value) {
+            changed.add(key as FieldName);
+            return Reflect.set(target, key, value);
+        },
     });
 
     let displayName = $state(user.displayName ?? user.handle);
@@ -121,9 +132,7 @@
         return $t(issue.message);
     }
 
-    async function handleSubmit(event: SubmitEvent) {
-        event.preventDefault();
-
+    async function save() {
         validation = {};
         showSuccess = false;
         showError = false;
@@ -141,7 +150,10 @@
 
         isSubmitting = true;
 
-        const { data, error } = await actions.updateProfile(result.data);
+        const { data, error } = await actions.updateProfile({
+            form: result.data,
+            changed: [...changed],
+        });
 
         isSubmitting = false;
 
@@ -164,6 +176,7 @@
         // The API resolves each link (scheme, redirects), show what was stored
         form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
         profileHandle = data.user.handle;
+        changed.clear();
         showSuccess = true;
     }
 </script>
@@ -185,7 +198,8 @@
     </Button>
 </div>
 
-<form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
+<!-- Enter clicks the submit button, so saving always goes through its `action` -->
+<form class="flex flex-col gap-6" onsubmit={(event) => event.preventDefault()} novalidate>
     <div class="flex flex-col items-stretch gap-6 lg:flex-row">
         <ProfileImageCard
             bind:avatar={form.avatar}
@@ -386,8 +400,8 @@
     </Toast>
 
     <div class="flex justify-end">
-        <Button type="submit" kind="primary" disabled={isSubmitting}>
+        <ActionableButton type="submit" kind="primary" class="w-auto" action={save} autoreset={0}>
             {$t("pages.me.manage.save")}
-        </Button>
+        </ActionableButton>
     </div>
 </form>
