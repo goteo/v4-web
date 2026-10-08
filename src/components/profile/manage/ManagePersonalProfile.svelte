@@ -11,11 +11,9 @@
 
     import FormNotice from "./FormNotice.svelte";
     import ProfileHeader from "./ProfileHeader.svelte";
-    import ProfileIdentityRow from "./ProfileIdentityRow.svelte";
-    import ProfileSocialsCard from "./ProfileSocialsCard.svelte";
     import { locale, t } from "../../../i18n/store";
     import { getCountries } from "../../../utils/countries";
-    import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
+    import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import {
         zPersonalProfileForm,
@@ -50,8 +48,6 @@
     const isOrganization = user.type === "organization";
 
     let form: PersonalProfileForm = $state({
-        avatar: user.avatar || undefined,
-        description: user.description ?? "",
         firstName: person?.firstName ?? "",
         lastName: person?.lastName ?? "",
         taxId: isOrganization ? "" : (person?.taxId ?? ""),
@@ -60,11 +56,7 @@
         subLvl2: user.territory?.subLvl2 ?? "",
         address: user.territory?.address ?? "",
         type: isOrganization ? "organization" : "individual",
-        links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
     });
-
-    let displayName = $state(user.displayName ?? user.handle);
-    let profileHandle = $state(user.handle);
 
     // Not persisted: the API has no visibility or anonymity flag
     let shareLocation = $state(false);
@@ -153,14 +145,7 @@
             form.taxId = data.person.taxId ?? "";
         }
 
-        displayName = data.user.displayName ?? data.user.handle;
-        form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
-        profileHandle = data.user.handle;
         showSuccess = true;
-    }
-
-    function getSocialError(network: SocialNetwork): string {
-        return getValidationMessage("links", network);
     }
 </script>
 
@@ -174,18 +159,10 @@
 <ProfileHeader
     title={$t("pages.me.manage.personal.title")}
     subtitle={$t("pages.me.manage.personal.subtitle")}
-    handle={profileHandle}
+    handle={user.handle}
 />
 
 <form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
-    <ProfileIdentityRow
-        bind:avatar={form.avatar}
-        bind:description={form.description}
-        {displayName}
-        type={form.type}
-        disabled={isSubmitting}
-    />
-
     <Card class="items-start gap-6 p-8">
         {@render cardHeader(
             $t("pages.me.manage.personal.info.title"),
@@ -311,13 +288,6 @@
 
         <FormNotice text={$t("pages.me.manage.location.disclaimer")} />
     </Card>
-
-    <ProfileSocialsCard
-        bind:links={form.links}
-        getError={getSocialError}
-        onInput={() => validate("links")}
-        disabled={isSubmitting}
-    />
 
     {#if showSuccess}
         <Toast variant="success" bind:showToast={showSuccess}>

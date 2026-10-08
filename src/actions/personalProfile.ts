@@ -8,7 +8,6 @@ import {
     apiUsersIdpersonPatch,
     type UserUserUpdationDto,
 } from "../openapi/client/index.ts";
-import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
 import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
 
 /**
@@ -34,44 +33,8 @@ export const updatePersonalProfile = defineAction({
         const headers = session.token.asHttpHeaders;
         const isOrganization = input.type === "organization";
 
-        // PATCH replaces the whole list, keep the links the form does not manage (websites, etc.)
-        const currentLinks = (session.user.links ?? []).flatMap((link) => link.url ?? []);
-        const links = [
-            ...currentLinks.filter((url) => !getSocialNetwork(url)),
-            ...SOCIAL_NETWORKS.flatMap((network) => {
-                const url = input.links[network].trim();
-
-                return (url && toSocialLinkUrl(network, url)) || [];
-            }),
-        ];
-
         try {
             const userPatch: Partial<UserUserUpdationDto> = {};
-
-            if (input.avatar !== session.user.avatar) {
-                userPatch.avatar = input.avatar;
-            }
-
-            const trimmedDescription = input.description.trim();
-            if (trimmedDescription !== (session.user.description ?? "")) {
-                userPatch.description = trimmedDescription || undefined;
-            } else if (session.user.description && !input.description.trim()) {
-                userPatch.description = undefined;
-            }
-
-            // PATCH replaces the whole list, keep the links the form does not manage (websites, etc.)
-            const currentLinks = (session.user.links ?? []).flatMap((link) => link.url ?? []);
-            const newSocialLinks = SOCIAL_NETWORKS.flatMap((network) => {
-                const url = input.links[network].trim();
-                return (url && toSocialLinkUrl(network, url)) || [];
-            });
-            const newLinks = [
-                ...currentLinks.filter((url) => !getSocialNetwork(url)),
-                ...newSocialLinks,
-            ];
-            if (JSON.stringify(newLinks) !== JSON.stringify(currentLinks)) {
-                userPatch.links = newLinks.length > 0 ? newLinks : undefined;
-            }
 
             if (input.country) {
                 const currentTerritory = session.user.territory;

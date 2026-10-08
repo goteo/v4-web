@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks";
 import { isValidTaxId } from "../utils/taxId";
 
 /**
@@ -17,8 +16,6 @@ import { isValidTaxId } from "../utils/taxId";
  */
 export const zPersonalProfileForm = z
     .object({
-        avatar: z.url().optional(),
-        description: z.string(),
         firstName: z.string(),
         lastName: z.string(),
         taxId: z.string(),
@@ -27,27 +24,8 @@ export const zPersonalProfileForm = z
         subLvl2: z.string(),
         address: z.string(),
         type: z.enum(["individual", "organization"]),
-        links: z.object({
-            instagram: z.string(),
-            facebook: z.string(),
-            x: z.string(),
-            linkedin: z.string(),
-        }),
     })
     .superRefine((data, ctx) => {
-        // A username or a link of this network; one from another network would land in the wrong field
-        for (const network of SOCIAL_NETWORKS) {
-            const url = data.links[network].trim();
-
-            if (url && !toSocialLinkUrl(network, url)) {
-                ctx.addIssue({
-                    code: "custom",
-                    path: ["links", network],
-                    message: "pages.me.manage.validation.linkInvalid",
-                });
-            }
-        }
-
         // For organizations the tax id belongs to the legal entity, which the public section owns
         if (data.type === "organization") {
             return;

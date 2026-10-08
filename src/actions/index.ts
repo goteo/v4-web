@@ -3,12 +3,12 @@ import { createHomeHero, deleteHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updatePersonalProfile } from "./personalProfile";
-import { updatePublicProfile } from "./publicProfile";
 import {
     sendReviewAreaComment,
     updateReviewAreaRisk,
     updateReviewProjectStatus,
 } from "./projectReview";
+import { updatePublicProfile } from "./publicProfile";
 import { register } from "./register";
 
 export const server = {

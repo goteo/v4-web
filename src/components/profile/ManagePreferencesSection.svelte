@@ -1,10 +1,10 @@
 <script lang="ts">
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
+    import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
     import { languagesList } from "../../i18n/locales";
     import { locale, t } from "../../i18n/store";
     import { getCookie, setCookie } from "../../utils/cookies";
-    import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Select from "../library/inputs/Select.svelte";
