@@ -28,7 +28,13 @@
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { Organization, Person, Territory, User } from "../../../openapi/client";
+    import {
+        apiUsersIdOrHandleGet,
+        type Organization,
+        type Person,
+        type Territory,
+        type User,
+    } from "../../../openapi/client";
     import type z from "zod";
 
     type FieldName = keyof PersonalProfileForm;
@@ -63,15 +69,10 @@
 
     // Not persisted: the API has no visibility or anonymity flag
     let shareLocation = $state(false);
-    let anonymousDonation = $state(false);
 
     // Subdivisions are ISO codes, show them as "Subdivision, Country" in the search box
     let locality = $state(country ? getTerritoryDisplayName(user.territory!, $locale) : "");
-
     let countries = $derived(getCountries($locale));
-
-    // The API has no birth year, the DateInput needs a date to render the placeholder
-    const emptyDate = new Date("");
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);
@@ -147,6 +148,11 @@
             form.lastName = data.person.lastName ?? "";
             form.taxId = data.person.taxId ?? "";
         }
+
+        user = await apiUsersIdOrHandleGet({
+            baseUrl: "/api/relay",
+            path: { idOrHandle: String(user.id) },
+        }).then(({ data }) => data!);
 
         showSuccess = true;
     }
@@ -302,12 +308,12 @@
     </Card>
 
     {#if showSuccess}
-        <Toast variant="success" bind:showToast={showSuccess}>
+        <Toast floating variant="success" bind:showToast={showSuccess}>
             {$t("pages.me.manage.personal.success")}
         </Toast>
     {/if}
     {#if showError}
-        <Toast variant="error" bind:showToast={showError}>
+        <Toast floating variant="error" bind:showToast={showError}>
             {formError}
         </Toast>
     {/if}

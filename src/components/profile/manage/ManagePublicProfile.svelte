@@ -39,7 +39,6 @@
     });
 
     let displayName = $state(user.displayName ?? user.handle);
-    let profileHandle = $state(user.handle);
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);
@@ -106,7 +105,6 @@
         displayName = data.user.displayName ?? data.user.handle;
         // The API resolves each link (scheme, redirects), show what was stored
         form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
-        profileHandle = data.user.handle;
         showSuccess = true;
     }
 
@@ -125,7 +123,7 @@
 <ProfileHeader
     title={$t("pages.me.manage.title")}
     subtitle={$t("pages.me.manage.subtitle")}
-    handle={profileHandle}
+    handle={user.handle}
 />
 
 <form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
