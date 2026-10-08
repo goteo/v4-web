@@ -1,4 +1,3 @@
-import { getSession } from "../auth/session";
 import { getMatchingACL, isAuthorized } from "../firewall";
 import { isSameHost } from "../utils/requests";
 
@@ -91,7 +90,7 @@ export async function withACL(context: APIContext): Promise<FirewallResult | nul
         return null;
     }
 
-    const session = await getSession(context.cookies);
+    const session = context.locals.session;
 
     if (!session || session.user.roles === undefined) {
         return { type: "unauthorized" };
