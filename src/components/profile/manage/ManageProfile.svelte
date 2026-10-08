@@ -52,7 +52,7 @@
     const country =
         user.territory?.country === UNKNOWN_COUNTRY ? "" : (user.territory?.country ?? "");
 
-    let form: ProfileForm = $state({
+    let values: ProfileForm = $state({
         handle: user.handle,
         avatar: user.avatar || undefined,
         description: user.description ?? "",
@@ -67,6 +67,16 @@
         businessName: organization?.businessName ?? "",
         taxId: (user.type === "organization" ? organization?.taxId : person?.taxId) ?? "",
         links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
+    });
+
+    // Fields written since the last save, so the payload carries only what the user edited
+    // ponytail: top-level fields only (`links` is always sent), observable-slim if nested tracking is needed
+    const changed = new Set<FieldName>();
+    const form = new Proxy(values, {
+        set(target, key, value) {
+            changed.add(key as FieldName);
+            return Reflect.set(target, key, value);
+        },
     });
 
     let displayName = $state(user.displayName ?? user.handle);
@@ -140,7 +150,10 @@
 
         isSubmitting = true;
 
-        const { data, error } = await actions.updateProfile(result.data);
+        const { data, error } = await actions.updateProfile({
+            form: result.data,
+            changed: [...changed],
+        });
 
         isSubmitting = false;
 
@@ -163,6 +176,7 @@
         // The API resolves each link (scheme, redirects), show what was stored
         form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
         profileHandle = data.user.handle;
+        changed.clear();
         showSuccess = true;
     }
 </script>

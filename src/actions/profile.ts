@@ -1,12 +1,11 @@
 import { ActionError, defineAction } from "astro:actions";
+import { z } from "zod";
 
 import { setSession } from "../auth/session.ts";
 import {
     apiUsersIdOrHandleGet,
-    apiUsersIdorganizationGet,
     apiUsersIdorganizationPatch,
     apiUsersIdPatch,
-    apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
 } from "../openapi/client/index.ts";
 import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
@@ -16,8 +15,12 @@ import type { Organization } from "../openapi/client/index.ts";
 
 export const updateProfile = defineAction({
     accept: "json",
-    input: zProfileForm,
-    handler: async (input, context) => {
+    input: z.object({
+        form: zProfileForm,
+        // Fields the user edited, recorded as they were written
+        changed: z.array(zProfileForm.keyof()),
+    }),
+    handler: async ({ form: input, changed: changedFields }, context) => {
         const { t, session } = context.locals;
 
         if (!session) {
@@ -42,54 +45,38 @@ export const updateProfile = defineAction({
             }),
         ];
 
-        // Only send what changed: the API re-validates and re-encrypts every field it gets
-        const changed = <T extends object>(values: T, current: Partial<T> = {}) =>
+        // Only send what the user edited: the API re-validates and re-encrypts every field it gets
+        const changed = new Set<string>(changedFields);
+        // Switching type moves the tax id and creates the Organization record, send all its fields
+        const typeChanged = changed.has("type");
+        const pick = <T extends object>(values: T, all = false) =>
             Object.fromEntries(
-                Object.entries(values).filter(
-                    ([key, value]) => value !== (current[key as keyof T] ?? ""),
-                ),
+                Object.entries(values).filter(([key]) => all || changed.has(key)),
             ) as Partial<T>;
 
-        const current = session.user;
+        const territoryChanged = ["country", "subLvl1", "subLvl2", "address"].some((field) =>
+            changed.has(field),
+        );
         const territory = {
             country: input.country,
             subLvl1: input.subLvl1 || null,
             subLvl2: input.subLvl2 || null,
             address: input.address.trim() || null,
         };
-        const territoryChanged =
-            JSON.stringify(territory) !==
-            JSON.stringify({
-                country: current.territory?.country ?? "",
-                subLvl1: current.territory?.subLvl1 || null,
-                subLvl2: current.territory?.subLvl2 || null,
-                address: current.territory?.address || null,
-            });
 
         try {
-            const [{ data: person }, { data: organization }] = await Promise.all([
-                apiUsersIdpersonGet({ path: { id }, headers }),
-                // 404 for individual users, resolved as `undefined`
-                current.type === "organization"
-                    ? apiUsersIdorganizationGet({ path: { id }, headers })
-                    : Promise.resolve({ data: undefined }),
-            ]);
-
             // User first: switching to `organization` makes the API create the Organization record
             const { error: userError } = await apiUsersIdPatch({
                 path: { id },
                 headers,
                 body: {
                     // The API rejects a handle already in the DB, including the User's own
-                    ...changed(
-                        {
-                            handle: input.handle,
-                            ...(input.avatar && { avatar: input.avatar }),
-                            description: input.description.trim(),
-                            type: input.type,
-                        },
-                        current,
-                    ),
+                    ...pick({
+                        handle: input.handle,
+                        ...(input.avatar && { avatar: input.avatar }),
+                        description: input.description.trim(),
+                        type: input.type,
+                    }),
                     // Always sent: the API resets an omitted list to empty
                     links,
                     // A missing country is stored as "ZZ", which the API rejects as invalid
@@ -101,14 +88,14 @@ export const updateProfile = defineAction({
                 throw userError;
             }
 
-            const personBody = changed(
+            const personBody = pick(
                 {
                     firstName: input.firstName.trim(),
                     lastName: input.lastName.trim(),
                     // For organizations the tax id belongs to the legal entity, not the representative
                     ...(!isOrganization && { taxId: input.taxId.trim() }),
                 },
-                person,
+                typeChanged,
             );
 
             if (Object.keys(personBody).length > 0) {
@@ -123,13 +110,13 @@ export const updateProfile = defineAction({
                 }
             }
 
-            const organizationBody = changed(
+            const organizationBody = pick(
                 {
                     taxId: input.taxId.trim(),
                     legalName: input.legalName.trim(),
                     businessName: input.businessName.trim(),
                 },
-                organization,
+                typeChanged,
             );
 
             if (isOrganization && Object.keys(organizationBody).length > 0) {
