@@ -34,7 +34,7 @@ export const updatePersonalProfile = defineAction({
         const isOrganization = input.type === "organization";
 
         try {
-            const userPatch: Partial<UserUserUpdationDto> = {};
+            const userPatch: Partial<UserUserUpdationDto> = input;
 
             if (input.country) {
                 const currentTerritory = session.user.territory;

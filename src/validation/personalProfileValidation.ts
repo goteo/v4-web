@@ -2,6 +2,11 @@ import { z } from "zod";
 
 import { isValidTaxId } from "../utils/taxId";
 
+const zRequiredField = () =>
+    z.string().refine((value) => value.trim().length > 0, {
+        error: "pages.me.manage.validation.required",
+    });
+
 /**
  * The private half of the promoter profile: the `Person` record (names and tax id) plus the
  * `Territory` living on the `User`. Every field here is only exposed by the API to the owner and
@@ -16,21 +21,21 @@ import { isValidTaxId } from "../utils/taxId";
  */
 export const zPersonalProfileForm = z
     .object({
+        handle: z.string().regex(/^[a-z0-9_]{4,30}$/, {
+            error: "pages.me.manage.validation.handleInvalid",
+        }),
         firstName: z.string(),
         lastName: z.string(),
         taxId: z.string(),
+        type: z.enum(["individual", "organization"]),
+        legalName: z.string(),
+        businessName: z.string(),
         country: z.string().length(2).or(z.literal("")),
         subLvl1: z.string(),
         subLvl2: z.string(),
         address: z.string(),
-        type: z.enum(["individual", "organization"]),
     })
     .superRefine((data, ctx) => {
-        // For organizations the tax id belongs to the legal entity, which the public section owns
-        if (data.type === "organization") {
-            return;
-        }
-
         const taxId = data.taxId.trim();
 
         if (data.country && taxId && isValidTaxId(data.country, data.type, taxId) === false) {
@@ -39,6 +44,21 @@ export const zPersonalProfileForm = z
                 path: ["taxId"],
                 message: "pages.me.manage.validation.taxIdInvalid",
             });
+        }
+
+        if (data.type !== "organization") {
+            return;
+        }
+
+        // The API requires both fields on the Organization record
+        const result = z
+            .object({ legalName: zRequiredField(), taxId: zRequiredField() })
+            .safeParse({ legalName: data.legalName, taxId: data.taxId });
+
+        if (!result.success) {
+            for (const issue of result.error.issues) {
+                ctx.addIssue({ ...issue, path: [issue.path[0]!] });
+            }
         }
     });
 

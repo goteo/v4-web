@@ -23,13 +23,12 @@
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
-    import DateInput from "../../library/inputs/DateInput.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TerritoryInput from "../../library/inputs/TerritoryInput.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { Person, Territory, User } from "../../../openapi/client";
+    import type { Organization, Person, Territory, User } from "../../../openapi/client";
     import type z from "zod";
 
     type FieldName = keyof PersonalProfileForm;
@@ -37,9 +36,10 @@
     interface Props {
         user: User;
         person?: Person;
+        organization?: Organization;
     }
 
-    let { user, person }: Props = $props();
+    let { user, person, organization }: Props = $props();
 
     const country =
         user.territory?.country === UNKNOWN_COUNTRY_CODE ? "" : (user.territory?.country ?? "");
@@ -48,14 +48,17 @@
     const isOrganization = user.type === "organization";
 
     let form: PersonalProfileForm = $state({
+        handle: user.handle,
         firstName: person?.firstName ?? "",
         lastName: person?.lastName ?? "",
         taxId: isOrganization ? "" : (person?.taxId ?? ""),
+        type: isOrganization ? "organization" : "individual",
+        legalName: organization?.legalName ?? "",
+        businessName: organization?.businessName ?? "",
         country,
         subLvl1: user.territory?.subLvl1 ?? "",
         subLvl2: user.territory?.subLvl2 ?? "",
         address: user.territory?.address ?? "",
-        type: isOrganization ? "organization" : "individual",
     });
 
     // Not persisted: the API has no visibility or anonymity flag
@@ -164,32 +167,52 @@
 
 <form class="flex flex-col gap-6" onsubmit={handleSubmit} novalidate>
     <Card class="items-start gap-6 p-8">
-        {@render cardHeader(
-            $t("pages.me.manage.personal.info.title"),
-            $t("pages.me.manage.personal.info.subtitle"),
-        )}
+        {@render cardHeader($t("pages.me.manage.info.title"), $t("pages.me.manage.info.subtitle"))}
 
         <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
-            {#if isOrganization}
-                <h3 class="text-secondary text-lg leading-6 font-bold md:col-span-2">
-                    {$t("pages.me.manage.info.representative")}
-                </h3>
+            <TextInput
+                bind:value={form.handle}
+                labelText={$t("pages.me.manage.info.handle")}
+                error={getValidationMessage("handle")}
+                class="h-14"
+                onInput={() => validate("handle")}
+                disabled={isSubmitting}
+                required
+            />
+            {#if form.type === "individual"}
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <TextInput
+                        bind:value={form.firstName}
+                        labelText={$t("pages.me.manage.info.firstName")}
+                        class="h-14"
+                        disabled={isSubmitting}
+                    />
+                    <TextInput
+                        bind:value={form.lastName}
+                        labelText={$t("pages.me.manage.info.lastName")}
+                        class="h-14"
+                        disabled={isSubmitting}
+                    />
+                </div>
+            {:else}
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <TextInput
+                        bind:value={form.legalName}
+                        labelText={$t("pages.me.manage.info.legalName")}
+                        error={getValidationMessage("legalName")}
+                        class="h-14"
+                        onInput={() => validate("legalName")}
+                        disabled={isSubmitting}
+                        required
+                    />
+                    <TextInput
+                        bind:value={form.businessName}
+                        labelText={$t("pages.me.manage.info.businessName")}
+                        class="h-14"
+                        disabled={isSubmitting}
+                    />
+                </div>
             {/if}
-
-            <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <TextInput
-                    bind:value={form.firstName}
-                    labelText={$t("pages.me.manage.info.firstName")}
-                    class="h-14"
-                    disabled={isSubmitting}
-                />
-                <TextInput
-                    bind:value={form.lastName}
-                    labelText={$t("pages.me.manage.info.lastName")}
-                    class="h-14"
-                    disabled={isSubmitting}
-                />
-            </div>
 
             <Select
                 bind:value={form.country}
@@ -215,13 +238,7 @@
                     onInput={handleLocality}
                 />
             </div>
-
-            <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <TextInput
-                    labelText={$t("pages.me.manage.personal.info.postalCode")}
-                    class="h-14"
-                    disabled
-                />
+            <div class="md:col-span-2">
                 <TextInput
                     bind:value={form.address}
                     labelText={$t("pages.me.manage.info.address")}
@@ -235,55 +252,50 @@
                     bind:checked={shareLocation}
                     label={$t("pages.me.manage.location.share")}
                     class="gap-2"
-                    disabled
-                />
-                <Checkbox
-                    bind:checked={anonymousDonation}
-                    label={$t("pages.me.manage.personal.info.anonymousDonation")}
-                    class="gap-2"
-                    disabled
-                />
-            </div>
-
-            <div class="w-full">
-                <Select
-                    labelText={$t("pages.me.manage.personal.info.howDidYouMeet")}
-                    value=""
-                    disabled
-                >
-                    <option value="">{$t("common.select")}</option>
-                </Select>
-            </div>
-
-            <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <Select
-                    labelText={$t("pages.me.manage.personal.info.documentType")}
-                    value=""
-                    disabled
-                >
-                    <option value="">{$t("common.select")}</option>
-                </Select>
-                <TextInput
-                    bind:value={form.taxId}
-                    labelText={$t("pages.me.manage.info.taxId")}
-                    error={getValidationMessage("taxId")}
-                    class="h-14"
-                    onInput={() => validate("taxId")}
                     disabled={isSubmitting}
                 />
             </div>
 
-            <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
-                <DateInput
-                    value={emptyDate}
-                    labelText={$t("pages.me.manage.personal.info.birthYear")}
-                    placeholder={$t("pages.me.manage.personal.info.birthYear")}
-                    disabled
+            <Select
+                bind:value={form.type}
+                labelText={$t("pages.me.manage.info.type")}
+                onChange={() => validate("taxId")}
+                disabled={isSubmitting}
+            >
+                <option value="individual">
+                    {$t("pages.checkout.register.form.userType.individual")}
+                </option>
+                <option value="organization">
+                    {$t("pages.checkout.register.form.userType.organization")}
+                </option>
+            </Select>
+            <TextInput
+                bind:value={form.taxId}
+                labelText={$t("pages.me.manage.info.taxId")}
+                error={getValidationMessage("taxId")}
+                class="h-14"
+                onInput={() => validate("taxId")}
+                disabled={isSubmitting}
+                required={form.type === "organization"}
+            />
+
+            {#if form.type === "organization"}
+                <h3 class="text-secondary text-lg leading-6 font-bold md:col-span-2">
+                    {$t("pages.me.manage.info.representative")}
+                </h3>
+                <TextInput
+                    bind:value={form.firstName}
+                    labelText={$t("pages.me.manage.info.firstName")}
+                    class="h-14"
+                    disabled={isSubmitting}
                 />
-                <Select labelText={$t("pages.me.manage.personal.info.gender")} value="" disabled>
-                    <option value="">{$t("common.select")}</option>
-                </Select>
-            </div>
+                <TextInput
+                    bind:value={form.lastName}
+                    labelText={$t("pages.me.manage.info.lastName")}
+                    class="h-14"
+                    disabled={isSubmitting}
+                />
+            {/if}
         </div>
 
         <FormNotice text={$t("pages.me.manage.location.disclaimer")} />
