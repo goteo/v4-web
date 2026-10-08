@@ -649,12 +649,10 @@
         "obtained": "Obtenido",
         "minimum": "Mínimo",
         "optimum": "Óptimo",
-        "daysRemaining": "Quedan {{days}} días",
+        "daysRemaining": "Faltan {{days}} días",
+        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "status": {
-          "minimumReached": "¡Mínimo conseguido!",
-          "goForMinimum": "¡A por el mínimo!"
-        },
+        "minimumExceeded": "¡Mínimo superado!",
         "userDonations": "Tus donaciones:"
       },
       "blog": {

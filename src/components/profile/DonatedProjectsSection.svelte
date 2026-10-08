@@ -134,14 +134,6 @@
                                 // Only show projects that are in campaign
                                 if (project.status !== "in_campaign") return null;
 
-                                // Calculate days remaining
-                                let daysRemaining: number | undefined;
-                                if (project.calendar?.minimum) {
-                                    const endDate = new Date(project.calendar.minimum);
-                                    const today = new Date();
-                                    const diffTime = endDate.getTime() - today.getTime();
-                                    daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                }
                                 return {
                                     ...project,
                                     slug: project.slug!,
@@ -151,7 +143,6 @@
                                     optimum: project.budget?.optimum?.money,
                                     obtained: accounting.balance as Money,
                                     category: project.categories?.[0], // Get first category
-                                    daysRemaining,
                                     userDonations: projectDonations.get(accountingIRI) ?? {
                                         amount: 0,
                                         currency: getDefaultCurrency(),
