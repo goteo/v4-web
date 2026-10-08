@@ -2235,8 +2235,9 @@
             "preferences": "Preferencias"
           },
           "languages": {
-            "title": "Idiomas",
-            "preferred": "Selecciona tu idioma"
+            "title": "Idioma de la interfaz",
+            "label": "Selecciona un idioma",
+            "helper": "La aplicación usará este idioma para la interfaz e intentará servirte contenido primero en este idioma"
           },
           "save": "Guardar preferencias",
           "toast": {

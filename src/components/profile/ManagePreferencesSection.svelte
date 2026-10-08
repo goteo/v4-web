@@ -88,7 +88,8 @@
             <div class="w-full">
                 <Select
                     name="language"
-                    labelText={$t("pages.me.manage.preferences.languages.preferred")}
+                    labelText={$t("pages.me.manage.preferences.languages.label")}
+                    helperText={$t("pages.me.manage.preferences.languages.helper")}
                     bind:value={language}
                 >
                     {#each Object.entries(languagesList) as [code, name] (code)}
