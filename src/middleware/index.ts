@@ -1,8 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 
-import { checkAuth } from "./firewall";
+import { checkAuth, resolveSession } from "./firewall";
 import { getLanguage, getUserLangPreferences, persistLanguage } from "./utils";
-import { getFreshSession, getSession } from "../auth/session";
 import { useTranslations } from "../i18n/utils";
 import { goto } from "../utils/navigation";
 
@@ -10,12 +9,9 @@ import type { Locale } from "../i18n/locales/index";
 import type { APIContext } from "astro";
 
 export const onRequest = defineMiddleware(async (context: APIContext, next) => {
-    // The relay only needs the token, so it skips re-fetching the User on every API call.
-    context.locals.session = context.url.pathname.startsWith("/api/relay")
-        ? await getSession(context.cookies)
-        : await getFreshSession(context.cookies);
+    const session = await resolveSession(context);
 
-    const auth = await checkAuth(context);
+    const auth = await checkAuth(context, session);
     switch (auth.type) {
         case "basic-auth":
             return auth.response;
@@ -40,6 +36,7 @@ export const onRequest = defineMiddleware(async (context: APIContext, next) => {
         context.locals.lang = lang;
         context.locals.langs = langs;
         context.locals.t = useTranslations(lang);
+        context.locals.session = session;
     } catch (e) {
         if (e instanceof Response) {
             return e;

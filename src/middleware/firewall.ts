@@ -1,6 +1,8 @@
-import { getMatchingACL, isAuthorized } from "../firewall";
+import { getFreshSession, getSession } from "../auth/session";
+import { allowsCachedSession, getMatchingACL, isAuthorized } from "../firewall";
 import { isSameHost } from "../utils/requests";
 
+import type { Session } from "../auth/types";
 import type { APIContext } from "astro";
 
 export type FirewallResult =
@@ -9,7 +11,20 @@ export type FirewallResult =
     | { type: "forbidden" }
     | { type: "basic-auth"; response: Response };
 
-export async function checkAuth(context: APIContext): Promise<FirewallResult> {
+/**
+ * Load the session for this request, re-fetching the User from the API unless the path
+ * is listed in `CACHED_SESSION_PATHS`.
+ */
+export async function resolveSession(context: APIContext): Promise<Session | undefined> {
+    return allowsCachedSession(context.url.pathname)
+        ? await getSession(context.cookies)
+        : await getFreshSession(context.cookies);
+}
+
+export async function checkAuth(
+    context: APIContext,
+    session: Session | undefined,
+): Promise<FirewallResult> {
     const exemptAuth = withAuthExemption(context);
     if (exemptAuth) {
         return exemptAuth;
@@ -20,7 +35,7 @@ export async function checkAuth(context: APIContext): Promise<FirewallResult> {
         return basicAuth;
     }
 
-    const aclAuth = await withACL(context);
+    const aclAuth = withACL(context, session);
     if (aclAuth) {
         return aclAuth;
     }
@@ -83,14 +98,12 @@ export function withBasicAuth(context: APIContext): FirewallResult | null {
     return null;
 }
 
-export async function withACL(context: APIContext): Promise<FirewallResult | null> {
+export function withACL(context: APIContext, session: Session | undefined): FirewallResult | null {
     const acl = getMatchingACL(context.url.pathname);
 
     if (!acl) {
         return null;
     }
-
-    const session = context.locals.session;
 
     if (!session || session.user.roles === undefined) {
         return { type: "unauthorized" };
