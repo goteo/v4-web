@@ -6,6 +6,7 @@ import {
     apiUsersIdPatch,
     apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
+    type UserUserUpdationDto,
 } from "../openapi/client/index.ts";
 import { getSocialNetwork, SOCIAL_NETWORKS, toSocialLinkUrl } from "../utils/socialLinks.ts";
 import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
@@ -45,39 +46,98 @@ export const updatePersonalProfile = defineAction({
         ];
 
         try {
-            const { error: userError } = await apiUsersIdPatch({
-                path: { id },
-                headers,
-                body: {
-                    avatar: input.avatar,
-                    description: input.description.trim(),
-                    links,
-                    // A missing country is stored as "ZZ", which the API rejects as invalid
-                    ...(input.country && {
-                        territory: {
-                            country: input.country,
-                            subLvl1: input.subLvl1 || null,
-                            subLvl2: input.subLvl2 || null,
-                            address: input.address.trim() || null,
-                        },
-                    }),
-                },
+            const userPatch: Partial<UserUserUpdationDto> = {};
+
+            if (input.avatar !== session.user.avatar) {
+                userPatch.avatar = input.avatar;
+            }
+
+            const trimmedDescription = input.description.trim();
+            if (trimmedDescription !== (session.user.description ?? "")) {
+                userPatch.description = trimmedDescription || undefined;
+            } else if (session.user.description && !input.description.trim()) {
+                userPatch.description = undefined;
+            }
+
+            // PATCH replaces the whole list, keep the links the form does not manage (websites, etc.)
+            const currentLinks = (session.user.links ?? []).flatMap((link) => link.url ?? []);
+            const newSocialLinks = SOCIAL_NETWORKS.flatMap((network) => {
+                const url = input.links[network].trim();
+                return (url && toSocialLinkUrl(network, url)) || [];
             });
+            const newLinks = [
+                ...currentLinks.filter((url) => !getSocialNetwork(url)),
+                ...newSocialLinks,
+            ];
+            if (JSON.stringify(newLinks) !== JSON.stringify(currentLinks)) {
+                userPatch.links = newLinks.length > 0 ? newLinks : undefined;
+            }
+
+            if (input.country) {
+                const currentTerritory = session.user.territory;
+                const newTerritory = {
+                    country: input.country,
+                    subLvl1: input.subLvl1 || null,
+                    subLvl2: input.subLvl2 || null,
+                    address: input.address.trim() || null,
+                };
+                if (
+                    !currentTerritory ||
+                    currentTerritory.country !== newTerritory.country ||
+                    (currentTerritory.subLvl1 ?? null) !== newTerritory.subLvl1 ||
+                    (currentTerritory.subLvl2 ?? null) !== newTerritory.subLvl2 ||
+                    (currentTerritory.address ?? null) !== newTerritory.address
+                ) {
+                    userPatch.territory = newTerritory;
+                }
+            } else if (session.user.territory?.country) {
+                // Country cleared in the form: do not send territory at all
+                userPatch.territory = undefined;
+            }
+
+            let userError: unknown;
+            if (Object.keys(userPatch).length > 0) {
+                const { error } = await apiUsersIdPatch({
+                    path: { id },
+                    headers,
+                    body: userPatch as UserUserUpdationDto,
+                });
+                userError = error;
+            }
 
             if (userError) {
                 throw userError;
             }
 
-            const { error: personError } = await apiUsersIdpersonPatch({
-                path: { id },
-                headers,
-                body: {
-                    firstName: input.firstName.trim(),
-                    lastName: input.lastName.trim(),
-                    // For organizations the tax id belongs to the legal entity, not the representative
-                    ...(isOrganization ? {} : { taxId: input.taxId.trim() }),
-                },
-            });
+            let personError: unknown;
+            if (!isOrganization) {
+                const currentPerson = await apiUsersIdpersonGet({ path: { id }, headers }).then(
+                    (r) => r.data,
+                );
+                const personPatch: Record<string, unknown> = {};
+                const firstNameTrim = input.firstName.trim();
+                if ((currentPerson?.firstName ?? "") !== firstNameTrim) {
+                    personPatch.firstName = firstNameTrim;
+                }
+                const lastNameTrim = input.lastName.trim();
+                if ((currentPerson?.lastName ?? "") !== lastNameTrim) {
+                    personPatch.lastName = lastNameTrim;
+                }
+                const taxIdTrim = input.taxId.trim();
+                if ((currentPerson?.taxId ?? "") !== taxIdTrim) {
+                    personPatch.taxId = taxIdTrim;
+                }
+                if (Object.keys(personPatch).length > 0) {
+                    const { error } = await apiUsersIdpersonPatch({
+                        path: { id },
+                        headers,
+                        body: personPatch as any,
+                    });
+                    personError = error;
+                }
+            } else {
+                personError = null;
+            }
 
             if (personError) {
                 throw personError;
