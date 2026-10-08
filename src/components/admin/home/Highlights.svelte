@@ -279,7 +279,7 @@
     </section>
 </div>
 
-<Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 
 <Modal
     bind:open={addOpen}

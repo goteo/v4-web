@@ -1164,6 +1164,49 @@
           "not-found": "Disculpa, esta campaña no tiene vídeo de presentación",
           "not-supported": "No ha sido posible cargar el vídeo. Por favor, revisa el enlace o contacta con el administrador de la campaña."
         }
+      },
+      "manage": {
+        "title": "Gestionando proyecto: {{ project }}",
+        "subtitle": "Consulta tu actividad en Goteo",
+        "editProject": "Editar proyecto",
+        "itemsPerPage": "Líneas por página:",
+        "error": "No se ha podido guardar el cambio",
+        "rewards": {
+          "title": "Recompensas"
+        },
+        "claims": {
+          "title": "Gestión de recompensas",
+          "search": "Busca usuario...",
+          "noData": "Todavía no hay recompensas reclamadas",
+          "headers": {
+            "user": "Usuario",
+            "address": "Dirección de envío",
+            "reward": "Recompensa",
+            "status": "Estado",
+            "action": "Acción"
+          },
+          "changeStatus": "Cambiar estado",
+          "statuses": {
+            "fulfilled": "Entregada",
+            "in_pending": "Pendiente"
+          },
+          "modal": {
+            "title": "Cambiar estado de recompensa",
+            "current": "Actualmente la recompensa está en estado {{ status }}",
+            "placeholder": "Selecciona el estado",
+            "save": "Guardar estado"
+          }
+        },
+        "collaborations": {
+          "title": "Gestión de colaboraciones",
+          "noData": "Todavía no hay candidaturas a colaboraciones",
+          "headers": {
+            "user": "Usuario",
+            "type": "Tipo de colaboración",
+            "assign": "Asignar"
+          },
+          "search": "Busca usuario..."
+        }
       }
     },
     "about": {
@@ -1250,15 +1293,50 @@
       }
     },
     "review": {
+      "title": "Revisión de {{ project }} - Goteo",
+      "titlePromoter": "Asesoría con @{{ reviewer }} para {{ project }}",
+      "titleReviewer": "Asesoría con @{{ promoter }} del proyecto {{ project }}",
+      "titleFallback": "Asesoría del proyecto {{ project }}",
+      "subtitleReviewer": "Aquí encontrarás toda la información sobre esta conversación con {{ promoter }}",
+      "subtitlePromoter": "Aquí encontrarás toda la información sobre esta conversación con {{ reviewer }}",
+      "subtitleFallback": "Aquí encontrarás toda la información sobre esta conversación",
+      "project": {
+        "label": "Proyecto"
+      },
+      "status": {
+        "label": "Estado de la revisión"
+      },
+      "areas": {
+        "title": "Áreas de riesgo",
+        "empty": "Esta revisión todavía no tiene áreas de riesgo."
+      },
       "btns": {
-        "seeChat": "Ver conversación",
-        "changeRisk": "Cambiar riesgo"
+        "seeChat": "Ver detalle",
+        "changeRisk": "Cambiar riesgo",
+        "changeStatus": "Cambiar estado",
+        "back": "Volver a la revisión"
       },
       "card": {
-        "activity": "{{ count }} chats. Última actividad {{ date }}"
+        "activity": "{{ count }} mensajes. Última actividad {{ date }}"
       },
       "chat": {
-        "placeholder": "Escribe un mensaje…"
+        "title": "{{ area }} · {{ project }} - Goteo",
+        "placeholder": "Escribe un mensaje…",
+        "send": "Enviar mensaje",
+        "empty": "Todavía no hay mensajes en esta conversación. Empieza tú.",
+        "today": "Hoy",
+        "yesterday": "Ayer",
+        "day": "{{ date }}",
+        "riskChange": {
+          "title": "El proyecto ha cambiado el riesgo",
+          "description": "La asesora asignada ha modificado el riesgo del proyecto, de {{from}} a {{to}}"
+        }
+      },
+      "errors": {
+        "forbidden": "No tienes permiso para realizar esta acción.",
+        "notFound": "La revisión no existe.",
+        "areaNotFound": "El área de riesgo no existe.",
+        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto."
       }
     },
     "search": {
@@ -1412,7 +1490,8 @@
         "projects": "Proyectos",
         "users": "Usuarios",
         "comm": "Comunicación",
-        "home": "Portada"
+        "home": "Portada",
+        "reviews": "Revisiones"
       },
       "sidebar": {
         "aria": {
@@ -1970,6 +2049,48 @@
             }
           }
         }
+      },
+      "reviews": {
+        "description": "Revisa los proyectos enviados a revisión y gestiona su estado.",
+        "projects": {
+          "title": "Revisión de Proyectos",
+          "description": "Gestiona y supervisa el estado de tus proyectos de crowdfunding de forma centralizada.",
+          "list": "Listado de proyectos:",
+          "totalizers": {
+            "selected": "Proyectos seleccionados:"
+          },
+          "table": {
+            "headers": {
+              "name": "Proyecto",
+              "promoter": "Impulsor",
+              "dateSubmitted": "Envío a revisión",
+              "status": "Estado",
+              "advisor": "Asesor"
+            },
+            "rows": {
+              "unassigned": "Sin asignar",
+              "details": {
+                "email": "Contacto mail:",
+                "phone": "Teléfono:",
+                "dateRelease": "Lanzamiento",
+                "dateCreated": "Creación",
+                "lastInteraction": "Última interacción",
+                "risk": "Riesgo",
+                "pendingMessages": "Mensajes pendientes",
+                "minOptim": "Mínimo - Óptimo:",
+                "lastModified": "Última modificación:",
+                "btns": {
+                  "preview": "Preview proyecto",
+                  "promoter": "Perfil de impulsor",
+                  "config": "Config. proyecto",
+                  "advisory": "Asesoría de proyecto",
+                  "assignAdvisor": "Asignar asesor",
+                  "annotations": "Anotaciones"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "static": {
@@ -1989,9 +2110,10 @@
       "noProjects": "No hay proyectos impulsados aún.",
       "noBio": "Todavía no hay información sobre este perfil.",
       "donorType": {
+        "noProjects": "Aún no ha donado a ningún proyecto.",
         "fan": {
           "title": "Fan",
-          "description": "Este donante ha invertido más de 25€",
+          "description": "Este donante ha invertido {{ amount }}",
           "projectsDonated": "Proyectos donados",
           "moneyDonated": "Dinero donado"
         },

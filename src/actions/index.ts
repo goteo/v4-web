@@ -4,6 +4,11 @@ import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updatePersonalProfile } from "./personalProfile";
 import { updatePublicProfile } from "./publicProfile";
+import {
+    sendReviewAreaComment,
+    updateReviewAreaRisk,
+    updateReviewProjectStatus,
+} from "./projectReview";
 import { register } from "./register";
 
 export const server = {
@@ -17,4 +22,7 @@ export const server = {
     deleteHighlights,
     updatePublicProfile,
     updatePersonalProfile,
+    updateReviewAreaRisk,
+    updateReviewProjectStatus,
+    sendReviewAreaComment,
 };

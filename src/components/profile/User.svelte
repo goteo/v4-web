@@ -16,7 +16,8 @@
 
     interface Props {
         user: User;
-        campaigns?: Campaign[];
+        ownedCampaigns?: Campaign[];
+        donatedCampaigns?: Campaign[];
         projectsDonated?: number;
         moneyDonatedAmount?: number;
         moneyDonatedCurrency?: string;
@@ -24,7 +25,8 @@
 
     let {
         user,
-        campaigns = [],
+        ownedCampaigns = [],
+        donatedCampaigns = [],
         projectsDonated = 0,
         moneyDonatedAmount = 0,
         moneyDonatedCurrency = getDefaultCurrency(),
@@ -43,6 +45,18 @@
         { id: "donorType", label: $t("pages.profile.tabs.donorType") },
     ]);
 </script>
+
+{#snippet campaignGrid(list: Campaign[], emptyKey: string)}
+    {#if list.length > 0}
+        <Grid class="grid-cols-1 gap-6 md:grid-cols-2">
+            {#each list as campaign}
+                <CampaignCard size="small" {campaign} />
+            {/each}
+        </Grid>
+    {:else}
+        <p class="text-content text-center text-base">{$t(emptyKey)}</p>
+    {/if}
+{/snippet}
 
 <div class="flex w-full flex-col items-center">
     <!-- Hero: cover + avatar + action buttons -->
@@ -110,19 +124,15 @@
         class="mx-auto mt-10 min-h-10 w-full max-w-5xl px-4"
         style="display:none"
     >
-        {#if campaigns.length > 0}
-            <Grid class="grid-cols-1 gap-6 md:grid-cols-2">
-                {#each campaigns as campaign}
-                    <CampaignCard size="small" {campaign} />
-                {/each}
-            </Grid>
-        {:else}
-            <p class="text-content text-center text-base">{$t("pages.profile.noProjects")}</p>
-        {/if}
+        {@render campaignGrid(ownedCampaigns, "pages.profile.noProjects")}
     </div>
 
     <!-- Tab: Donor type -->
     <div data-tab-content="donorType" class="w-full" style="display:none">
         <ProfileDonorType {projectsDonated} {moneyDonatedAmount} {moneyDonatedCurrency} />
+
+        <div class="mx-auto mt-10 min-h-10 w-full max-w-5xl px-4">
+            {@render campaignGrid(donatedCampaigns, "pages.profile.donorType.noProjects")}
+        </div>
     </div>
 </div>

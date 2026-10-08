@@ -317,16 +317,12 @@
         disabled={isSubmitting}
     />
 
-    {#if showSuccess}
-        <Toast variant="success" bind:showToast={showSuccess}>
-            {$t("pages.me.manage.success")}
-        </Toast>
-    {/if}
-    {#if showError}
-        <Toast variant="error" bind:showToast={showError}>
-            {formError}
-        </Toast>
-    {/if}
+    <Toast floating variant="success" bind:showToast={showSuccess}>
+        {$t("pages.me.manage.success")}
+    </Toast>
+    <Toast floating variant="error" bind:showToast={showError}>
+        {formError}
+    </Toast>
 
     <div class="flex justify-end">
         <Button type="submit" kind="primary" disabled={isSubmitting}>
