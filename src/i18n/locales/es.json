@@ -266,7 +266,7 @@
     },
     "imageUploadModal": {
       "title": "Sube tus imágenes",
-      "description": "Añade imágenes o vídeos aquí. El formato idóneo para Goteo es {{ size }}",
+      "description": "Añade imágenes o vídeos aquí. Tamaño recomendado {{ size }}",
       "dropzone": "Arrastra tus archivos aquí o <u>haz clic para seleccionarlos.</u>"
     },
     "richTextEditor": {
@@ -632,14 +632,11 @@
     },
     "home": {
       "banner": {
-        "title": "¡Renovamos Goteo!",
-        "description": "Goteo ha construido una historia única en el mundo del micromecenazgo. ¿Quieres seguir formando parte de ella?",
-        "ctaText": "Súmate a nuestra historia",
         "closeAriaLabel": "Cerrar banner"
       },
       "campaigns": {
         "title": "Campañas más recientes",
-        "tabsTitle": "Campañas en Goteo",
+        "tabsTitle": "Algunos de nuestros proyectos",
         "tabs": {
           "endingSoon": "Acaban pronto",
           "mostSuccessful": "Más exitosas",
@@ -1167,7 +1164,7 @@
       },
       "manage": {
         "title": "Gestionando proyecto: {{ project }}",
-        "subtitle": "Consulta tu actividad en Goteo",
+        "subtitle": "Consulta tu actividad",
         "editProject": "Editar proyecto",
         "itemsPerPage": "Líneas por página:",
         "error": "No se ha podido guardar el cambio",
@@ -1293,7 +1290,7 @@
       }
     },
     "review": {
-      "title": "Revisión de {{ project }} - Goteo",
+      "title": "Revisión de {{ project }}",
       "titlePromoter": "Asesoría con @{{ reviewer }} para {{ project }}",
       "titleReviewer": "Asesoría con @{{ promoter }} del proyecto {{ project }}",
       "titleFallback": "Asesoría del proyecto {{ project }}",
@@ -1320,7 +1317,7 @@
         "activity": "{{ count }} mensajes. Última actividad {{ date }}"
       },
       "chat": {
-        "title": "{{ area }} · {{ project }} - Goteo",
+        "title": "{{ area }} · {{ project }}",
         "placeholder": "Escribe un mensaje…",
         "send": "Enviar mensaje",
         "empty": "Todavía no hay mensajes en esta conversación. Empieza tú.",
@@ -1340,7 +1337,7 @@
       }
     },
     "search": {
-      "title": "Buscar Proyectos - Goteo",
+      "title": "Buscar Proyectos",
       "description": "Explora nuestro catálogo de proyectos y encuentra la que más te inspire para hacer tu donación",
       "heading": "Encuentra los Proyectos que buscas",
       "subtitle": "Explora nuestro catálogo de proyectos y elige la que más te inspire para hacer tu donación",
@@ -2141,7 +2138,7 @@
     "me": {
       "page": {
         "title": "Actividad",
-        "subtitle": "Consulta tu actividad en Goteo"
+        "subtitle": "Consulta tu actividad"
       },
       "nav": {
         "activity": "Actividad",
@@ -2151,7 +2148,7 @@
       },
       "manage": {
         "title": "Perfil de impulsor",
-        "subtitle": "Sé parte de Goteo: presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
           "publicProfile": "Perfil público",
           "personalProfile": "Perfil personal"
@@ -2187,7 +2184,7 @@
         },
         "location": {
           "share": "*Compartir mi ubicación",
-          "disclaimer": "*Compartir tu ubicación con el equipo de Goteo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+          "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
         },
         "social": {
           "title": "Redes sociales",
@@ -2204,7 +2201,7 @@
         },
         "personal": {
           "title": "Perfil personal",
-          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y el equipo de Goteo podemos verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y nuestro equipo pueden verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
           "info": {
             "title": "Información personal",
             "subtitle": "Tal y como aparecen en tu documentación.",
