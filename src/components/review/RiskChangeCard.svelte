@@ -16,14 +16,14 @@
     let { from, to }: Props = $props();
 </script>
 
-<div class="bg-secondary flex w-full flex-col gap-2 rounded-2xl p-4">
+<div class="bg-secondary flex w-full flex-col gap-2 rounded-2xl p-6">
     <div class="flex items-center gap-3">
-        <Title level={3} variant="subsection" color="white">
+        <Title level={3} variant="subsection" color="white" weight="bold">
             {$t("pages.review.chat.riskChange.title")}
         </Title>
         <Tag variant={RISK_TAG_VARIANTS[to]}>{$t(`domain.review.risks.${to}`)}</Tag>
     </div>
-    <p class="text-sm text-white">
+    <p class="text-sm/6 text-purple-soft">
         {$t("pages.review.chat.riskChange.description", {
             from: $t(`domain.review.risks.${from}`).toLowerCase(),
             to: $t(`domain.review.risks.${to}`).toLowerCase(),
