@@ -9,7 +9,7 @@ export const zProjectCampaignRelease = z
         error: "system.validation.project.release.min",
         params: { min: CAMPAIGN_MIN_START_DATE },
     })
-    .refine((release) => CAMPAIGN_MAX_END_DATE && release <= CAMPAIGN_MAX_END_DATE, {
+    .refine((release) => CAMPAIGN_MAX_END_DATE === undefined || release <= CAMPAIGN_MAX_END_DATE, {
         error: "system.validation.project.release.max",
         params: { max: CAMPAIGN_MAX_END_DATE },
     });
