@@ -5,6 +5,7 @@
     } from "./ReviewProjectsTable.svelte";
     import { t } from "../../../i18n/store";
     import {
+        apiProjectReviewsGetCollection,
         apiProjectsGetCollection,
         apiProjectsGetCollectionUrl,
         apiProjectsIdOrSlugGetUrl,
@@ -12,6 +13,7 @@
         apiProjectSupportsmoneyTotalGetCollection,
         apiUsersIdOrHandleGet,
         type Project,
+        type ProjectReview,
         type User,
     } from "../../../openapi/client/index.ts";
     import { useAdminTableState } from "../../../utils/adminTableState.svelte";
@@ -61,7 +63,7 @@
         return data;
     }
 
-    function toRow(project: Project, owner?: User): ReviewProjectRow {
+    function toRow(project: Project, owner?: User, reviewId?: number): ReviewProjectRow {
         const min = project.budget?.minimum?.money;
         const opt = project.budget?.optimum?.money;
 
@@ -80,7 +82,39 @@
                 min && opt
                     ? `${formatCurrency(min.amount, min.currency)} - ${formatCurrency(opt.amount, opt.currency)}`
                     : "—",
+            reviewId,
         };
+    }
+
+    /**
+     * Maps each project to the campaign review the API launched for it, so the table
+     * can link to the conversation of every project that has one.
+     */
+    async function fetchReviewsByProject(projectIds: number[]): Promise<Map<number, number>> {
+        const mapping = new Map<number, number>();
+
+        if (!projectIds.length) return mapping;
+
+        const { data } = await apiProjectReviewsGetCollection({
+            baseUrl: "/api/relay",
+            query: {
+                "project[]": projectIds.map((id) =>
+                    apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(id)),
+                ),
+                itemsPerPage: 100,
+            },
+            headers: { Accept: "application/ld+json" },
+        });
+
+        for (const review of toCollectionItems<ProjectReview>(data)) {
+            const projectId = extractId(review.project);
+
+            if (projectId && review.id !== undefined) {
+                mapping.set(Number(projectId), review.id);
+            }
+        }
+
+        return mapping;
     }
 
     async function loadProjects(): Promise<void> {
@@ -115,7 +149,14 @@
                 ),
             );
 
-            rows = projects.map((p) => toRow(p, p.owner ? owners.get(p.owner) : undefined));
+            const projectIds = projects
+                .map((p) => p.id)
+                .filter((id): id is number => id !== undefined);
+            const reviewsByProject = await fetchReviewsByProject(projectIds);
+
+            rows = projects.map((p) =>
+                toRow(p, p.owner ? owners.get(p.owner) : undefined, reviewsByProject.get(p.id ?? 0)),
+            );
         } finally {
             table.isLoading = false;
         }

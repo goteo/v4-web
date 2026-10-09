@@ -3,7 +3,7 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import ReviewAreas from "../../../../components/review/ReviewAreas.svelte";
 import { canAccessReview, isConsultant } from "../../../../services/reviewAccess";
-import { getReview } from "../../../../services/projectReview";
+import { getReview, getReviewAreas } from "../../../../services/projectReview";
 import { getReviewedProject } from "../../../../services/reviewProject";
 import { goto } from "../../../../utils/navigation";
 
@@ -20,7 +20,7 @@ if (!id || !/^\d+$/.test(id)) {
     return Astro.rewrite("/404");
 }
 
-const { data: review } = getReview(id);
+const { data: review } = await getReview(id, session, lang);
 
 if (!review) {
     return Astro.rewrite("/404");
@@ -29,6 +29,12 @@ if (!review) {
 // Only the consultant admin and the promoter owning the reviewed project get in.
 if (!(await canAccessReview(session, review))) {
     return Astro.rewrite("/403");
+}
+
+const { data: areas } = await getReviewAreas(id, session, lang);
+
+if (!areas) {
+    return Astro.rewrite("/404");
 }
 
 const project = await getReviewedProject(review, session, lang);
@@ -66,7 +72,7 @@ const subtitle = counterpart?.name
             <ReviewAreas
                 client:load
                 reviewId={review.id}
-                areas={review.areas}
+                areas={areas}
                 {title}
                 {subtitle}
                 projectStatus={project?.status}

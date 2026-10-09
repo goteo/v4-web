@@ -16,6 +16,8 @@
         dateUpdated: string;
         dateRelease: string;
         minOptim: string;
+        /** Identifier of the campaign review this project has, when the API has launched it. */
+        reviewId?: number;
     };
 
     const headers: DataTableHeader[] = [
@@ -190,10 +192,22 @@
                         </span>
                         <span class="font-bold">{date(project.dateUpdated)}</span>
                     </p>
-                    <Button kind="secondary" size="sm" disabled>
-                        <Comments size={20} class="shrink-0" />
-                        {btnLabel("annotations")}
-                    </Button>
+                    {#if project.reviewId}
+                        <Button
+                            kind="secondary"
+                            size="sm"
+                            href={`/${$locale}/reviews/${project.reviewId}`}
+                        >
+                            <Comments size={20} class="shrink-0" />
+                            {btnLabel("annotations")}
+                        </Button>
+                    {:else}
+                        <!-- A project only opens its review once the API has launched it. -->
+                        <Button kind="secondary" size="sm" disabled>
+                            <Comments size={20} class="shrink-0" />
+                            {btnLabel("annotations")}
+                        </Button>
+                    {/if}
                 </div>
             {/snippet}
         </DetailsRow>
