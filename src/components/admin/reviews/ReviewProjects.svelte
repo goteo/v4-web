@@ -1,4 +1,5 @@
 <script lang="ts">
+    import AssignAdvisorModal from "./AssignAdvisorModal.svelte";
     import ReviewProjectsTable, {
         type ProjectStatus,
         type ReviewProjectRow,
@@ -6,6 +7,7 @@
     import { t } from "../../../i18n/store";
     import {
         apiProjectReviewsGetCollection,
+        apiProjectReviewsIdPatch,
         apiProjectsGetCollection,
         apiProjectsGetCollectionUrl,
         apiProjectsIdOrSlugGetUrl,
@@ -63,7 +65,12 @@
         return data;
     }
 
-    function toRow(project: Project, owner?: User, reviewId?: number): ReviewProjectRow {
+    function toRow(
+        project: Project,
+        owner?: User,
+        review?: { id: number; reviewer?: string },
+        advisorName?: string,
+    ): ReviewProjectRow {
         const min = project.budget?.minimum?.money;
         const opt = project.budget?.optimum?.money;
 
@@ -82,7 +89,9 @@
                 min && opt
                     ? `${formatCurrency(min.amount, min.currency)} - ${formatCurrency(opt.amount, opt.currency)}`
                     : "—",
-            reviewId,
+            reviewId: review?.id,
+            reviewer: review?.reviewer,
+            advisor: advisorName,
         };
     }
 
@@ -90,8 +99,10 @@
      * Maps each project to the campaign review the API launched for it, so the table
      * can link to the conversation of every project that has one.
      */
-    async function fetchReviewsByProject(projectIds: number[]): Promise<Map<number, number>> {
-        const mapping = new Map<number, number>();
+    type ReviewRef = { id: number; reviewer?: string };
+
+    async function fetchReviewsByProject(projectIds: number[]): Promise<Map<number, ReviewRef>> {
+        const mapping = new Map<number, ReviewRef>();
 
         if (!projectIds.length) return mapping;
 
@@ -110,7 +121,7 @@
             const projectId = extractId(review.project);
 
             if (projectId && review.id !== undefined) {
-                mapping.set(Number(projectId), review.id);
+                mapping.set(Number(projectId), { id: review.id, reviewer: review.reviewer });
             }
         }
 
@@ -154,9 +165,31 @@
                 .filter((id): id is number => id !== undefined);
             const reviewsByProject = await fetchReviewsByProject(projectIds);
 
-            rows = projects.map((p) =>
-                toRow(p, p.owner ? owners.get(p.owner) : undefined, reviewsByProject.get(p.id ?? 0)),
+            const reviewerIris = [
+                ...new Set(
+                    [...reviewsByProject.values()]
+                        .map((ref) => ref.reviewer)
+                        .filter((iri): iri is string => Boolean(iri)),
+                ),
+            ];
+            const advisors = new Map(
+                await Promise.all(
+                    reviewerIris.map(async (iri) => [iri, await fetchOwner(iri)] as const),
+                ),
             );
+
+            rows = projects.map((p) => {
+                const review = reviewsByProject.get(p.id ?? 0);
+                const reviewerIri = review?.reviewer;
+                const advisor = reviewerIri ? advisors.get(reviewerIri) : undefined;
+
+                return toRow(
+                    p,
+                    p.owner ? owners.get(p.owner) : undefined,
+                    review,
+                    advisor ? advisor.displayName || advisor.email : undefined,
+                );
+            });
         } finally {
             table.isLoading = false;
         }
@@ -168,10 +201,42 @@
 
     async function handleStatusChange(projectId: number, status: ProjectStatus): Promise<void> {
         const { error } = await apiProjectsIdPatch({
+            baseUrl: "/api/relay",
             path: { id: String(projectId) },
             body: { status },
         });
         if (error) console.error("Failed to update project status:", error);
+        loadProjects();
+    }
+
+    let assignState = $state<{ reviewId: number; reviewer?: string; advisor?: string } | null>(null);
+    let assignModalOpen = $state(false);
+
+    function handleAssignAdvisor(project: ReviewProjectRow): void {
+        if (!project.reviewId) return;
+
+        assignState = {
+            reviewId: project.reviewId,
+            reviewer: project.reviewer,
+            advisor: project.advisor,
+        };
+        assignModalOpen = true;
+    }
+
+    async function handleAssignReviewer(iri: string): Promise<void> {
+        const state = assignState;
+        assignModalOpen = false;
+        assignState = null;
+
+        if (!state) return;
+
+        const { error } = await apiProjectReviewsIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String(state.reviewId) },
+            body: { reviewer: iri },
+        });
+        if (error) console.error("Failed to assign advisor:", error);
+        loadProjects();
     }
 
     function applyFilters(newFilters: ProjectsQuery): void {
@@ -218,5 +283,15 @@
         onItemsPerPageChange={table.handleItemsPerPageChange}
         onSortChange={table.handleSortChange}
         onStatusChange={handleStatusChange}
+        onAssignAdvisor={handleAssignAdvisor}
     />
+    {#if assignState}
+        <AssignAdvisorModal
+            bind:open={assignModalOpen}
+            title={$t("pages.admin.reviews.projects.table.rows.details.btns.assignAdvisor")}
+            currentReviewer={assignState.reviewer}
+            currentReviewerName={assignState.advisor}
+            onAssign={handleAssignReviewer}
+        />
+    {/if}
 </Dashboard>

@@ -2068,6 +2068,7 @@
           },
           "table": {
             "headers": {
+              "id": "ID",
               "name": "Proyecto",
               "promoter": "Impulsor",
               "dateSubmitted": "Envío a revisión",
@@ -2093,6 +2094,12 @@
                   "advisory": "Asesoría de proyecto",
                   "assignAdvisor": "Asignar asesor",
                   "annotations": "Anotaciones"
+                },
+                "modals": {
+                  "assignAdvisor": {
+                    "description": "Busca y selecciona la persona asesora que acompañará este proyecto en la revisión.",
+                    "searchPlaceholder": "Busca por nombre o email…"
+                  }
                 }
               }
             }
