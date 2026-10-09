@@ -6,9 +6,8 @@ import type { ProjectReviewRisk, ProjectReviewStatus, ReviewComment } from "../t
 /**
  * Whether two references point at the same User.
  *
- * IRIs arrive both absolute and relative depending on who wrote them — the API builds
- * them from its collection URL, the placeholders spell them out — so they are compared
- * by id instead of as strings.
+ * IRIs arrive both absolute and relative depending on who writes them, so they
+ * are compared by id instead of as strings.
  * @param first One User IRI
  * @param second Another User IRI
  * @returns True when both references resolve to the same id
@@ -18,12 +17,12 @@ export function isSameAuthor(first: string, second: string): boolean {
 }
 
 /** Every risk a reviewable area can be assessed with, from least to most severe. */
-export const REVIEW_RISKS: ProjectReviewRisk[] = ["low", "medium", "high"];
+export const REVIEW_RISKS: ProjectReviewRisk[] = ["low", "mid", "high"];
 
 /** Tag variant each risk level is painted with, matching `domain.review.risks.*`. */
 export const RISK_TAG_VARIANTS: Record<ProjectReviewRisk, "success" | "warning" | "error"> = {
     low: "success",
-    medium: "warning",
+    mid: "warning",
     high: "error",
 };
 

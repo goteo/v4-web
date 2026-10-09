@@ -1,4 +1,3 @@
-import { getReviewProjectPlaceholder } from "./projectReview";
 import { apiProjectsIdOrSlugGet, apiUsersGetCollectionUrl } from "../openapi/client";
 import { extractId } from "../utils/extractId";
 
@@ -49,15 +48,7 @@ export async function canAccessReview(
         headers: session.token.asHttpHeaders,
     });
 
-    if (project?.owner) {
-        return extractId(project.owner) === String(session.user.id);
-    }
-
-    // Nothing to read an owner from: fall back to the placeholder of the mocks, which
-    // is what a review of a project the API has no record of yet resolves to.
-    const placeholder = getReviewProjectPlaceholder(review);
-
-    return !!placeholder && extractId(placeholder.owner) === String(session.user.id);
+    return !!project?.owner && extractId(project.owner) === String(session.user.id);
 }
 
 /**

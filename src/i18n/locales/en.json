@@ -249,7 +249,7 @@
     "review": {
       "risks": {
         "low": "Low risk",
-        "medium": "Medium risk",
+        "mid": "Medium risk",
         "high": "High risk"
       }
     },

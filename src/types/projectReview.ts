@@ -3,7 +3,7 @@
  *
  * Values match the `domain.review.risks.*` translation keys.
  */
-export type ProjectReviewRisk = "low" | "medium" | "high";
+export type ProjectReviewRisk = "low" | "mid" | "high";
 
 /** Stage of the project life-cycle a review belongs to. */
 export type ProjectReviewType = "campaign" | "financial";
@@ -41,9 +41,9 @@ export interface ReviewSystemEvent {
 /**
  * A message exchanged between the promoter and the consultant admin about one area.
  *
- * NOTE: this is not part of the OpenAPI spec — the v4 API exposes no review
- * resources yet, so `src/openapi/client` has no generated equivalent. Replace this
- * interface with the generated type once the API ships those endpoints.
+ * The API exposes `ProjectReviewComment`; this is the same resource once it has
+ * been projected for the screens, widened with the optional `system` entry the
+ * platform publishes itself when a risk changes (see {@link ReviewComment.system}).
  */
 export interface ReviewComment {
     id: number;
@@ -68,7 +68,8 @@ export interface ReviewComment {
  * A reviewable area of a project, that is, one of the risks the consultant
  * assesses. Each area carries its own conversation between promoter and admin.
  *
- * NOTE: this is not part of the OpenAPI spec — see {@link ReviewComment}.
+ * The API exposes `ProjectReviewArea`; this is the same resource once its
+ * conversation has been embedded, which is how the review screens consume it.
  */
 export interface ReviewArea {
     id: number;
@@ -86,7 +87,9 @@ export interface ReviewArea {
 /**
  * A review of a project carried out by a consultant admin.
  *
- * NOTE: this is not part of the OpenAPI spec — see {@link ReviewComment}.
+ * The API exposes `ProjectReview` with its areas as a list of IRIs; this is the
+ * same resource without that indirection, ready to hand the screens a review
+ * whose conversations are already resolved.
  */
 export interface ProjectReview {
     id: number;

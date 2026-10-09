@@ -252,7 +252,7 @@
     "review": {
       "risks": {
         "low": "Riesgo bajo",
-        "medium": "Riesgo medio",
+        "mid": "Riesgo medio",
         "high": "Riesgo alto"
       }
     },
@@ -1336,7 +1336,8 @@
         "forbidden": "No tienes permiso para realizar esta acción.",
         "notFound": "La revisión no existe.",
         "areaNotFound": "El área de riesgo no existe.",
-        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto."
+        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto.",
+        "generic": "Se ha producido un error al realizar la operación."
       }
     },
     "search": {
