@@ -23,6 +23,7 @@ import type {
     ReviewArea,
     ReviewAuthor,
     ReviewComment,
+    ReviewSystemEvent,
 } from "../types/projectReview";
 
 /**
@@ -46,6 +47,14 @@ const NOT_FOUND: ReviewError = { status: 404 };
  * fixed number of round-trips.
  */
 const ITEMS_PER_PAGE = 100;
+
+/**
+ * Prefix marking a stored comment as a system entry the platform published, and
+ * never as a message somebody wrote. The comment API has no field for such
+ * entries, so the event travels in the body as this marker followed by the JSON
+ * the card is built from, and is decoded again when the conversation is read.
+ */
+const SYSTEM_EVENT_MARKER = "GOTEO_REVIEW_SYSTEM:";
 
 /**
  * Request headers every review endpoint expects: the session token, and the
@@ -233,9 +242,10 @@ export interface RiskChange {
  *
  * The announcement only happens on a genuine change between two assessed risks:
  * a first assessment has no previous value to name, and picking the same risk
- * again is not news. The API has no notion of an entry the platform published,
- * so the card it renders is built here and handed back to the caller rather
- * than stored as a comment.
+ * again is not news. The comment API has no field for an entry the platform
+ * published, so the entry is stored as a comment whose body carries
+ * {@link SYSTEM_EVENT_MARKER} followed by the change's detail, and is decoded
+ * again when the conversation is read.
  *
  * @param reviewId The review identifier the area must belong to
  * @param areaId The area identifier
@@ -277,7 +287,7 @@ export async function setReviewAreaRisk(
 
     const entry =
         previous && previous !== risk
-            ? systemEntry(areaId, author, previous, risk)
+            ? await persistSystemEntry(areaId, author, previous, risk, session, lang)
             : undefined;
 
     const conversations = await loadConversations([areaIri(areaId)], session, lang);
@@ -416,8 +426,40 @@ async function fetchAuthor(
 }
 
 /**
- * Builds the entry a risk change publishes in the conversation of its area,
- * in the shape the chat renders as a card.
+ * Stores the entry a risk change publishes in the conversation of its area, so
+ * both parties find it on any later visit, not only in the open conversation.
+ *
+ * The comment API expects the writer to be the authenticated User, which the
+ * consultant making the change is. When the entry cannot be stored the change
+ * falls back to an in-memory one, so the card is still announced live even if
+ * persistence fails.
+ */
+async function persistSystemEntry(
+    areaId: number | string,
+    author: string,
+    from: ProjectReviewRisk,
+    to: ProjectReviewRisk,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewComment> {
+    const body = `${SYSTEM_EVENT_MARKER}${JSON.stringify({ from, to })}`;
+
+    const { data, error } = await apiProjectReviewCommentsPost({
+        body: { area: areaIri(areaId), author, body },
+        headers: apiHeaders(session, lang),
+    });
+
+    if (data) return toComment(data);
+
+    console.error({ event: SYSTEM_EVENT_MARKER, areaId, from, to, error });
+
+    return systemEntry(areaId, author, from, to);
+}
+
+/**
+ * Builds an in-memory entry in the shape the chat renders as a card, kept as
+ * the fallback for a change that could not be stored but is still announced in
+ * the conversation already on screen.
  */
 function systemEntry(
     areaId: number | string,
@@ -451,16 +493,50 @@ function toArea(area: ApiProjectReviewArea, comments: ReviewComment[]): ReviewAr
     };
 }
 
+/** Whether the given value is one of the risks a card can announce. */
+function isReviewRisk(value: unknown): value is ProjectReviewRisk {
+    return value === "low" || value === "mid" || value === "high";
+}
+
+/**
+ * Reads the system event a stored comment was encoded with, if it is one.
+ *
+ * Comments the platform publishes (a risk change) travel under
+ * {@link SYSTEM_EVENT_MARKER} followed by the JSON the card is built from; a
+ * message that merely contains the marker without the expected shape is left as
+ * written and rendered as the text it is.
+ */
+function decodeSystemEvent(body: string): ReviewSystemEvent | undefined {
+    if (!body.startsWith(SYSTEM_EVENT_MARKER)) return undefined;
+
+    try {
+        const parsed = JSON.parse(body.slice(SYSTEM_EVENT_MARKER.length)) as {
+            from?: unknown;
+            to?: unknown;
+        };
+
+        if (!isReviewRisk(parsed.from) || !isReviewRisk(parsed.to)) return undefined;
+
+        return { from: parsed.from, to: parsed.to };
+    } catch {
+        return undefined;
+    }
+}
+
 /** Projects the comment resource onto the shape the review screens consume. */
 function toComment(comment: ApiProjectReviewComment): ReviewComment {
     const dateCreated = comment.dateCreated ?? new Date().toISOString();
+    const system = decodeSystemEvent(comment.body);
 
     return {
         id: comment.id ?? 0,
         author: comment.author,
         area: comment.area,
-        body: comment.body,
+        // System entries read their card off `system`, so the marker is not left
+        // on screen as if it were written text.
+        body: system ? "" : comment.body,
         dateCreated,
         dateUpdated: comment.dateUpdated ?? dateCreated,
+        system,
     };
 }
