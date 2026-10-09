@@ -15,9 +15,9 @@
         type Accounting,
         apiProjectsIdOrSlugGet,
         type User,
-        type ProjectCalendar,
         type AccountingBalancePoint,
     } from "../../openapi/client/index";
+    import { getCurrentDeadline } from "../../utils/campaign";
     import { getLanguageDisplayName } from "../../utils/lang";
     import LanguagesDropdown from "../header/LanguagesDropdown.svelte";
     import RememberIcon from "../icons/actions/RememberIcon.svelte";
@@ -44,26 +44,6 @@
     } = $props();
 
     const projectDeadline = $derived(getCurrentDeadline(project.calendar!));
-
-    function getCurrentDeadline(calendar: ProjectCalendar) {
-        const now = new Date();
-
-        const minimum = new Date(calendar.minimum!);
-        if (now < minimum) {
-            return minimum;
-        }
-
-        if (!calendar.optimum) {
-            return undefined;
-        }
-
-        const optimum = new Date(calendar.optimum);
-        if (now < optimum) {
-            return optimum;
-        }
-
-        return undefined;
-    }
 
     // Seeds the initial pick; the language selector owns it from then on.
     let projectLanguage = $state(untrack(() => guessProjectLanguage(project.locales!)));

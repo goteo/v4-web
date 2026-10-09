@@ -18,7 +18,6 @@ export type CampaignSize = "small" | "large";
  * - `obtained` and `minimum`: Funding amounts from project.funding
  * - `image`: Path from project.image
  * - `userDonations`: Aggregated from user's contributions
- * - `daysRemaining`: Calculated from campaign end date
  * - `hasMatchfunding`: Indicates if project participates in matchfunding
  * - `tags`: Custom display tags for the project
  * - `category`: Project category for filtering and display
@@ -42,8 +41,6 @@ export interface Campaign extends Project {
     userDonations?: Money;
     /** Project category: solidary, ecology, democracy, culture, etc. */
     category?: string;
-    /** Days remaining until campaign ends */
-    daysRemaining?: number;
     /** Whether this project participates in matchfunding */
     hasMatchfunding?: boolean;
     /** Custom display tags */

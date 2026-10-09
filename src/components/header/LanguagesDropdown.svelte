@@ -23,8 +23,6 @@
 
     function selectLanguage(code: string) {
         open = false;
-        selected = code;
-
         onSelect?.(code);
     }
     function toggleDropdown() {

@@ -57,15 +57,6 @@
                 // Transform projects to Campaign format
                 const campaigns = (await Promise.all(
                     projectItems.map(async (project) => {
-                        // Calculate days remaining
-                        let daysRemaining: number | undefined;
-                        if (project.calendar?.minimum) {
-                            const endDate = new Date(project.calendar.minimum);
-                            const today = new Date();
-                            const diffTime = endDate.getTime() - today.getTime();
-                            daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        }
-
                         return {
                             ...project,
                             slug: project.slug!,
@@ -78,7 +69,6 @@
                             minimum: project.budget?.minimum?.money,
                             optimum: project.budget?.optimum?.money,
                             category: project.categories?.[0], // Get first category
-                            daysRemaining,
                         } satisfies Campaign;
                     }),
                 )) as Campaign[];

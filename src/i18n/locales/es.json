@@ -266,7 +266,7 @@
     },
     "imageUploadModal": {
       "title": "Sube tus imágenes",
-      "description": "Añade imágenes o vídeos aquí. El formato idóneo para Goteo es {{ size }}",
+      "description": "Añade imágenes o vídeos aquí. Tamaño recomendado {{ size }}",
       "dropzone": "Arrastra tus archivos aquí o <u>haz clic para seleccionarlos.</u>"
     },
     "richTextEditor": {
@@ -632,14 +632,11 @@
     },
     "home": {
       "banner": {
-        "title": "¡Renovamos Goteo!",
-        "description": "Goteo ha construido una historia única en el mundo del micromecenazgo. ¿Quieres seguir formando parte de ella?",
-        "ctaText": "Súmate a nuestra historia",
         "closeAriaLabel": "Cerrar banner"
       },
       "campaigns": {
         "title": "Campañas más recientes",
-        "tabsTitle": "Campañas en Goteo",
+        "tabsTitle": "Algunos de nuestros proyectos",
         "tabs": {
           "endingSoon": "Acaban pronto",
           "mostSuccessful": "Más exitosas",
@@ -649,12 +646,10 @@
         "obtained": "Obtenido",
         "minimum": "Mínimo",
         "optimum": "Óptimo",
-        "daysRemaining": "Quedan {{days}} días",
+        "daysRemaining": "Faltan {{days}} días",
+        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "status": {
-          "minimumReached": "¡Mínimo conseguido!",
-          "goForMinimum": "¡A por el mínimo!"
-        },
+        "minimumExceeded": "¡Mínimo superado!",
         "userDonations": "Tus donaciones:"
       },
       "blog": {
@@ -1167,7 +1162,7 @@
       },
       "manage": {
         "title": "Gestionando proyecto: {{ project }}",
-        "subtitle": "Consulta tu actividad en Goteo",
+        "subtitle": "Consulta tu actividad",
         "editProject": "Editar proyecto",
         "itemsPerPage": "Líneas por página:",
         "error": "No se ha podido guardar el cambio",
@@ -1293,7 +1288,7 @@
       }
     },
     "review": {
-      "title": "Revisión de {{ project }} - Goteo",
+      "title": "Revisión de {{ project }}",
       "titlePromoter": "Asesoría con @{{ reviewer }} para {{ project }}",
       "titleReviewer": "Asesoría con @{{ promoter }} del proyecto {{ project }}",
       "titleFallback": "Asesoría del proyecto {{ project }}",
@@ -1320,7 +1315,7 @@
         "activity": "{{ count }} mensajes. Última actividad {{ date }}"
       },
       "chat": {
-        "title": "{{ area }} · {{ project }} - Goteo",
+        "title": "{{ area }} · {{ project }}",
         "placeholder": "Escribe un mensaje…",
         "send": "Enviar mensaje",
         "empty": "Todavía no hay mensajes en esta conversación. Empieza tú.",
@@ -1340,7 +1335,7 @@
       }
     },
     "search": {
-      "title": "Buscar Proyectos - Goteo",
+      "title": "Buscar Proyectos",
       "description": "Explora nuestro catálogo de proyectos y encuentra la que más te inspire para hacer tu donación",
       "heading": "Encuentra los Proyectos que buscas",
       "subtitle": "Explora nuestro catálogo de proyectos y elige la que más te inspire para hacer tu donación",
@@ -1514,24 +1509,42 @@
           "description": "El inicio de la portada, lo más importante.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
+            "invalidUrl": "La URL del enlace no es válida",
+            "invalidTranslations": "Las traducciones enviadas no son válidas",
+            "incompleteLanguages": "Faltan campos obligatorios en: {{ languages }}"
+          },
+          "addTranslation": "Añadir traducción",
+          "addTranslationModal": {
+            "title": "Añade una nueva traducción",
+            "description": "Busca y elige el idioma al que quieres traducir el contenido del hero",
+            "searchPlaceholder": "Busca entre todos los idiomas…",
+            "submit": "Añadir"
+          },
+          "removeTranslation": "Eliminar traducción",
+          "removeTranslationModal": {
+            "title": "¿Eliminar esta traducción?",
+            "description": "La traducción se eliminará del formulario y no se guardará.",
             "invalidUrl": "La URL del enlace no es válida"
           },
           "tabs": {
             "fields": "Nuevo",
-            "history": "Histórico"
+            "history": "Registro"
           },
           "history": {
-            "title": "Histórico de bloques",
+            "title": "Registro de bloques",
             "description": "Aquí puedes ver los bloques programados y eliminar los que no quieras publicar",
-            "noData": "No hay bloques en el histórico",
+            "noData": "No hay bloques en el registro",
             "filter": {
               "all": "Todos",
-              "upcoming": "Programado"
+              "upcoming": "Programados"
             },
+            "searchPlaceholder": "Busca por ID, título o contenido",
             "headers": {
+              "id": "ID",
               "title": "Título",
               "content": "Contenido",
               "startsAt": "Fecha de inicio",
+              "languages": "Idiomas",
               "status": "Estado"
             },
             "status": {
@@ -2141,13 +2154,20 @@
     "me": {
       "page": {
         "title": "Actividad",
-        "subtitle": "Consulta tu actividad en Goteo"
+        "subtitle": "Consulta tu actividad"
+      },
+      "nav": {
+        "activity": "Actividad",
+        "wallet": "Monedero",
+        "inbox": "Buzón",
+        "profile": "Perfil"
       },
       "manage": {
         "title": "Perfil de impulsor",
-        "subtitle": "Sé parte de Goteo: presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
-          "publicProfile": "Perfil público"
+          "publicProfile": "Perfil público",
+          "personalProfile": "Perfil personal"
         },
         "profile": {
           "uploadImage": "Sube nueva imagen",
@@ -2180,7 +2200,7 @@
         },
         "location": {
           "share": "*Compartir mi ubicación",
-          "disclaimer": "*Compartir tu ubicación con el equipo de Goteo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+          "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
         },
         "social": {
           "title": "Redes sociales",
@@ -2190,6 +2210,26 @@
           "x": "Inserte su cuenta de X",
           "linkedin": "Inserte su cuenta de Linkedin",
           "placeholder": "Usuario o enlace"
+        },
+        "motivatingProjects": {
+          "title": "Proyectos que te motivan",
+          "subtitle": "Indica el tipo de proyectos que pueden conectar con tus intereses para cofinanciarlos y/o aportar con otros recursos, conocimientos o habilidades. Estas categorías son transversales, puedes seleccionar más de una."
+        },
+        "personal": {
+          "title": "Perfil personal",
+          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y nuestro equipo pueden verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "info": {
+            "title": "Información personal",
+            "subtitle": "Tal y como aparecen en tu documentación.",
+            "postalCode": "Código postal",
+            "anonymousDonation": "Al realizar una donación mantener mi perfil anónimo",
+            "howDidYouMeet": "¿Cómo nos conociste?",
+            "documentType": "Tipo de documento",
+            "birthYear": "Año de nacimiento",
+            "gender": "Sexo"
+          },
+          "success": "Datos personales actualizados correctamente",
+          "error": "No se pudieron guardar los datos personales. Inténtalo de nuevo más tarde."
         },
         "viewProfile": "Ver mi perfil",
         "save": "Guardar cambios",
@@ -2208,8 +2248,9 @@
             "preferences": "Preferencias"
           },
           "languages": {
-            "title": "Idiomas",
-            "preferred": "Selecciona tu idioma"
+            "title": "Idioma de la interfaz",
+            "label": "Selecciona un idioma",
+            "helper": "La aplicación usará este idioma para la interfaz e intentará servirte contenido primero en este idioma"
           },
           "save": "Guardar preferencias",
           "toast": {

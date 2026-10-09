@@ -41,11 +41,7 @@
         </label>
     {:else if variant === "basic"}
         <button
-            type="button"
-            class={twJoin(
-                "flex w-full cursor-pointer items-center justify-between gap-2 p-4 text-start text-base text-black",
-                option.selected && "bg-purple-soft font-bold",
-            )}
+            class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}
             onclick={() => handleChange(option)}
         >
             <span>{@html option.label}</span>
