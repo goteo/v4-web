@@ -252,7 +252,7 @@
     "review": {
       "risks": {
         "low": "Riesgo bajo",
-        "medium": "Riesgo medio",
+        "mid": "Riesgo medio",
         "high": "Riesgo alto"
       }
     },
@@ -1319,6 +1319,12 @@
         "placeholder": "Escribe un mensaje…",
         "send": "Enviar mensaje",
         "empty": "Todavía no hay mensajes en esta conversación. Empieza tú.",
+        "mdHelpTitle": "Formato y atajos de teclado",
+        "mdHelpBold": "**negrita** — Ctrl+B",
+        "mdHelpItalic": "_cursiva_ — Ctrl+I",
+        "mdHelpStrike": "~~tachado~~ — Ctrl+Shift+S",
+        "mdHelpQuote": "> cita — Ctrl+Shift+Q",
+        "mdHelpNote": "Selecciona el texto y pulsa el atajo, o pulsa el atajo con el cursor donde quieras escribir. Enter envía y Shift+Enter hace un salto de línea.",
         "today": "Hoy",
         "yesterday": "Ayer",
         "day": "{{ date }}",
@@ -1331,7 +1337,8 @@
         "forbidden": "No tienes permiso para realizar esta acción.",
         "notFound": "La revisión no existe.",
         "areaNotFound": "El área de riesgo no existe.",
-        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto."
+        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto.",
+        "generic": "Se ha producido un error al realizar la operación."
       }
     },
     "search": {
@@ -2074,6 +2081,7 @@
           },
           "table": {
             "headers": {
+              "id": "ID",
               "name": "Proyecto",
               "promoter": "Impulsor",
               "dateSubmitted": "Envío a revisión",
@@ -2099,6 +2107,12 @@
                   "advisory": "Asesoría de proyecto",
                   "assignAdvisor": "Asignar asesor",
                   "annotations": "Anotaciones"
+                },
+                "modals": {
+                  "assignAdvisor": {
+                    "description": "Busca y selecciona la persona asesora que acompañará este proyecto en la revisión.",
+                    "searchPlaceholder": "Busca por nombre o email…"
+                  }
                 }
               }
             }

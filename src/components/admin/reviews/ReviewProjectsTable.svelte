@@ -16,9 +16,16 @@
         dateUpdated: string;
         dateRelease: string;
         minOptim: string;
+        /** Identifier of the campaign review this project has, when the API has launched it. */
+        reviewId?: number;
+        /** Iri of the reviewer assigned to the campaign review, when there is one. */
+        reviewer?: string;
+        /** Display name of the assigned reviewer, shown in the advisor column. */
+        advisor?: string;
     };
 
     const headers: DataTableHeader[] = [
+        { key: "pages.admin.reviews.projects.table.headers.id", class: "w-16" },
         { key: "pages.admin.reviews.projects.table.headers.name" },
         { key: "pages.admin.reviews.projects.table.headers.promoter" },
         { key: "pages.admin.reviews.projects.table.headers.dateSubmitted" },
@@ -57,6 +64,7 @@
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
         onStatusChange?: (projectId: number, status: ProjectStatus) => void;
+        onAssignAdvisor?: (project: ReviewProjectRow) => void;
     }
 
     let {
@@ -70,6 +78,7 @@
         onItemsPerPageChange,
         onSortChange,
         onStatusChange,
+        onAssignAdvisor,
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
@@ -81,7 +90,7 @@
 
     function detailFields(project: ReviewProjectRow): DetailsField[] {
         const label = (key: string) => $t(`pages.admin.reviews.projects.table.rows.details.${key}`);
-        // ponytail: phone, risk, pending messages and advisor have no API yet — placeholders
+        // ponytail: phone, risk and pending messages have no API yet — placeholders
         return [
             { label: label("email"), value: project.email || "—" },
             { label: label("phone"), value: "—" },
@@ -118,7 +127,10 @@
     bind:expandedRowIndex={openRow}
 >
     {#snippet children(project: ReviewProjectRow, i: number)}
-        <TableBodyCell class="border-variant1 max-w-60 rounded-l-md border-t border-b border-l p-4">
+        <TableBodyCell class="border-variant1 text-content w-16 rounded-l-md border-t border-b border-l p-4">
+            <span class="block">{project.id}</span>
+        </TableBodyCell>
+        <TableBodyCell class="border-variant1 max-w-60 border-t border-b p-4">
             <p class="text-content truncate">{project.name}</p>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
@@ -143,7 +155,7 @@
             </div>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
-            {$t("pages.admin.reviews.projects.table.rows.unassigned")}
+            {project.advisor || $t("pages.admin.reviews.projects.table.rows.unassigned")}
         </TableBodyCell>
         <TableBodyCell
             class="border-variant1 text-content rounded-r-md border-t border-r border-b p-4"
@@ -177,9 +189,30 @@
                     >
                         {btnLabel("config")}
                     </Button>
-                    <!-- ponytail: advisory/advisor endpoints don't exist yet -->
-                    <Button kind="ghost" size="sm" disabled>{btnLabel("advisory")}</Button>
-                    <Button kind="ghost" size="sm" disabled>{btnLabel("assignAdvisor")}</Button>
+                    {#if project.reviewId}
+                        <Button
+                            kind="ghost"
+                            size="sm"
+                            href={`/${$locale}/reviews/${project.reviewId}`}
+                        >
+                            {btnLabel("advisory")}
+                        </Button>
+                    {:else}
+                        <Button kind="ghost" size="sm" disabled>{btnLabel("advisory")}</Button>
+                    {/if}
+                    {#if project.reviewId}
+                        <Button
+                            kind="ghost"
+                            size="sm"
+                            onclick={() => onAssignAdvisor?.(project)}
+                        >
+                            {btnLabel("assignAdvisor")}
+                        </Button>
+                    {:else}
+                        <Button kind="ghost" size="sm" disabled>
+                            {btnLabel("assignAdvisor")}
+                        </Button>
+                    {/if}
                 </div>
             {/snippet}
             {#snippet footer()}
@@ -190,10 +223,22 @@
                         </span>
                         <span class="font-bold">{date(project.dateUpdated)}</span>
                     </p>
-                    <Button kind="secondary" size="sm" disabled>
-                        <Comments size={20} class="shrink-0" />
-                        {btnLabel("annotations")}
-                    </Button>
+                    {#if project.reviewId}
+                        <Button
+                            kind="secondary"
+                            size="sm"
+                            href={`/${$locale}/reviews/${project.reviewId}`}
+                        >
+                            <Comments size={20} class="shrink-0" />
+                            {btnLabel("annotations")}
+                        </Button>
+                    {:else}
+                        <!-- A project only opens its review once the API has launched it. -->
+                        <Button kind="secondary" size="sm" disabled>
+                            <Comments size={20} class="shrink-0" />
+                            {btnLabel("annotations")}
+                        </Button>
+                    {/if}
                 </div>
             {/snippet}
         </DetailsRow>

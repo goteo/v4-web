@@ -24,7 +24,7 @@ if (!id || !/^\d+$/.test(id) || !areaId || !/^\d+$/.test(areaId)) {
     return Astro.rewrite("/404");
 }
 
-const { data: review } = getReview(id);
+const { data: review } = await getReview(id, session, lang);
 
 if (!review) {
     return Astro.rewrite("/404");
@@ -35,13 +35,13 @@ if (!(await canAccessReview(session, review))) {
     return Astro.rewrite("/403");
 }
 
-const { data: area } = getReviewArea(id, areaId);
+const { data: area } = await getReviewArea(id, areaId, session, lang);
 
 if (!area) {
     return Astro.rewrite("/404");
 }
 
-const { data: authors } = getReviewAuthors(id);
+const { data: authors } = await getReviewAuthors(review, [area], session, lang);
 
 const project = await getReviewedProject(review, session, lang);
 

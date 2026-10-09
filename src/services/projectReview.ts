@@ -1,9 +1,25 @@
-import seed from "../mocks/projectReviews.json";
+import {
+    apiProjectReviewAreasGetCollection,
+    apiProjectReviewAreasGetCollectionUrl,
+    apiProjectReviewAreasIdGet,
+    apiProjectReviewAreasIdPatch,
+    apiProjectReviewCommentsGetCollection,
+    apiProjectReviewCommentsPost,
+    apiProjectReviewsGetCollectionUrl,
+    apiProjectReviewsIdGet,
+    apiUsersIdOrHandleGet,
+} from "../openapi/client";
+import { extractId } from "../utils/extractId";
 
+import type { Session } from "../auth/types";
+import type { Locale } from "../i18n/locales";
+import type {
+    ProjectReviewArea as ApiProjectReviewArea,
+    ProjectReviewComment as ApiProjectReviewComment,
+} from "../openapi/client";
 import type {
     ProjectReview,
     ProjectReviewRisk,
-    ProjectReviewStatus,
     ReviewArea,
     ReviewAuthor,
     ReviewComment,
@@ -25,203 +41,189 @@ export interface ReviewResult<T> {
 
 const NOT_FOUND: ReviewError = { status: 404 };
 
-/** Identifier of the review the placeholders describe, for links built outside the feature. */
-export const PLACEHOLDER_REVIEW_ID = 1;
+/**
+ * How many areas or comments a single request may carry. Conversations on a
+ * reviewable area stay well below this, and one page keeps the screens on a
+ * fixed number of round-trips.
+ */
+const ITEMS_PER_PAGE = 100;
 
 /**
- * The reviewed project, as far as it is known before the API carries it.
- *
- * Only the placeholders fill this in; a real review resolves its project through
- * `getReviewedProject` instead.
+ * Prefix marking a stored comment as a system entry the platform published, and
+ * never as a message somebody wrote. The comment API has no field for such
+ * entries, so the event travels in the body as this marker followed by the JSON
+ * the card is built from, and is decoded again when the conversation is read.
  */
-export interface ReviewProject {
-    title: string;
-    status: ProjectReviewStatus;
-    /** IRI of the User promoting the project. */
-    owner: string;
+const SYSTEM_EVENT_MARKER = "GOTEO_REVIEW_SYSTEM:";
+
+/**
+ * Request headers every review endpoint expects: the session token, and the
+ * active locale so the API answers with translated content where it has any.
+ */
+function apiHeaders(session: Session, lang: Locale): Record<string, unknown> {
+    return { ...session.token.asHttpHeaders, "Accept-Language": lang };
 }
 
 /**
- * TEMPORARY stand-in for the reviews API.
+ * Maps a failure of the generated client onto the `{ status }` callers handle.
  *
- * The v4 API is still building the review feature, so this module serves the
- * placeholders in `src/mocks/projectReviews.json` behind the same `{ data, error }`
- * envelope the generated client returns. Every function here maps one-to-one onto
- * the endpoint it will eventually become, so landing the API means replacing the
- * bodies below with `apiReviews*` calls and deleting the mocks — nothing that
- * consumes this module has to change.
- *
- * Writes mutate an in-memory copy seeded from the JSON, so they last for the
- * lifetime of the isolate and are lost on a cold start. That is enough to exercise
- * the screens while the API is missing, and it keeps the storage concern in a
- * single file.
- *
- * The placeholders name `/v4/projects/1`, so point `project` at a project that
- * exists in the environment being used, and the author IRIs at the users that will
- * sign in, otherwise the review screens answer 404.
+ * The client resolves with the error document the API sends, which carries the
+ * status itself; anything else (a network failure, an unparsable body) reads as
+ * a server error rather than pretending the resource was missing.
  */
+function toReviewError(error: unknown): ReviewError {
+    const status = Number((error as { status?: unknown } | undefined)?.status);
 
-let reviews: Map<string, ProjectReview> | undefined;
-
-const seedReviews = seed.reviews as unknown as ProjectReview[];
-
-const seedProjects = seed.projects as unknown as Record<string, ReviewProject>;
-
-/**
- * The project behind a review, as far as the placeholders know it.
- *
- * Used to render the review screens for a project the API has no record of yet.
- * @param review The review being read
- * @returns The placeholder project, or undefined when the review has none
- */
-export function getReviewProjectPlaceholder(review: ProjectReview): ReviewProject | undefined {
-    return seedProjects[review.project];
+    return { status: Number.isFinite(status) && status > 0 ? status : 500 };
 }
 
-/** Author profiles keyed by their User IRI, used to resolve chat bubbles. */
-const authors = new Map<string, ReviewAuthor>(
-    Object.entries(seed.authors).map(([author, profile]) => [
-        author,
-        { author, ...profile } as ReviewAuthor,
-    ]),
-);
+/** IRI of the User resource the given id belongs to. */
+function reviewIri(reviewId: number | string): string {
+    return `${apiProjectReviewsGetCollectionUrl}/${reviewId}`;
+}
 
-/**
- * The promoter of the reviewed project, as far as the placeholders know them.
- *
- * @param review The review being read
- * @returns The placeholder profile, or undefined when the placeholders know no author for the project's owner
- */
-export function getReviewPromoterPlaceholder(review: ProjectReview): ReviewAuthor | undefined {
-    const project = getReviewProjectPlaceholder(review);
-
-    return project ? authors.get(project.owner) : undefined;
+/** IRI of the area resource the given id belongs to. */
+function areaIri(areaId: number | string): string {
+    return `${apiProjectReviewAreasGetCollectionUrl}/${areaId}`;
 }
 
 /**
- * The consultant admin assigned to the review, as far as the placeholders know them.
+ * Reads a review without its areas.
  *
- * @param review The review being read
- * @returns The placeholder profile, or undefined when the placeholders know no author for the reviewer
+ * Access checks and the project status action only need to know which project
+ * a review belongs to, so they pay for one request instead of the three the
+ * full conversation costs.
+ * @param reviewId The review identifier, as in `/reviews/{id}`
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns The review, or the failure the API answered with
  */
-export function getReviewReviewerPlaceholder(review: ProjectReview): ReviewAuthor | undefined {
-    return authors.get(review.reviewer);
+export async function getReview(
+    reviewId: number | string,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<ProjectReview>> {
+    const { data, error } = await apiProjectReviewsIdGet({
+        path: { id: String(reviewId) },
+        headers: apiHeaders(session, lang),
+    });
+
+    if (!data) return { error: toReviewError(error) };
+
+    return {
+        data: {
+            id: data.id ?? 0,
+            project: data.project ?? "",
+            reviewer: data.reviewer ?? "",
+            type: data.type ?? "campaign",
+            areas: [],
+        },
+    };
 }
 
 /**
- * Seeds the in-memory store on first use.
- *
- * The parsed JSON is cloned so writes never reach the imported module, which the
- * runtime shares across requests handled by the same isolate.
+ * Reads the reviewable areas of a review, each with its conversation.
+ * @param reviewId The review identifier, as in `/reviews/{id}`
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns The areas, or the failure the API answered with
  */
-function store(): Map<string, ProjectReview> {
-    if (reviews === undefined) {
-        const seeded = new Map(
-            seedReviews.map((review) => [String(review.id), structuredClone(review)]),
-        );
+export async function getReviewAreas(
+    reviewId: number | string,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<ReviewArea[]>> {
+    const { data, error } = await apiProjectReviewAreasGetCollection({
+        query: {
+            review: reviewIri(reviewId),
+            itemsPerPage: ITEMS_PER_PAGE,
+            "order[dateCreated]": "asc",
+        },
+        headers: apiHeaders(session, lang),
+    });
 
-        reviews = seeded;
+    if (!data) return { error: toReviewError(error) };
 
-        return seeded;
+    const conversations = await loadConversations(areaIrisOf(data), session, lang);
+
+    if (conversations.error || !conversations.data) {
+        return { error: conversations.error ?? NOT_FOUND };
     }
 
-    return reviews;
-}
+    const byArea = conversations.data;
 
-function find(reviewId: number | string): ProjectReview | undefined {
-    return store().get(String(reviewId));
-}
-
-function findArea(review: ProjectReview, areaId: number | string): ReviewArea | undefined {
-    return review.areas.find((area) => String(area.id) === String(areaId));
+    return {
+        data: data.map((area) => toArea(area, byArea.get(String(area.id)) ?? [])),
+    };
 }
 
 /**
- * Reads a review with its areas and their conversations.
- * @param id The review identifier, as in `/reviews/{id}`
- * @returns The review, or a 404 error when no review carries that id
+ * Reads one reviewable area of a review, with its conversation.
+ *
+ * The area is refused when it belongs to another review, so the identifier a
+ * page asks for and the one the session may read cannot drift apart.
+ * @param reviewId The review identifier the area must belong to
+ * @param areaId The area identifier, as in `/reviews/{id}/{areaId}`
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns The area, or a 404 error when it does not exist or belongs elsewhere
  */
-export function getReview(id: number | string): ReviewResult<ProjectReview> {
-    const review = find(id);
-
-    return review ? { data: review } : { error: NOT_FOUND };
-}
-
-/**
- * Reads a single reviewable area, that is, one risk and its conversation.
- * @param reviewId The review identifier, as in `/reviews/{id}`
- * @param areaId The area identifier, as in `/reviews/{id}/areas/{areaId}`
- * @returns The area, or a 404 error when the review or the area does not exist
- */
-export function getReviewArea(
+export async function getReviewArea(
     reviewId: number | string,
     areaId: number | string,
-): ReviewResult<ReviewArea> {
-    const review = find(reviewId);
-    const area = review ? findArea(review, areaId) : undefined;
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<ReviewArea>> {
+    const { data: area, error: readError } = await apiProjectReviewAreasIdGet({
+        path: { id: String(areaId) },
+        headers: apiHeaders(session, lang),
+    });
 
-    return area ? { data: area } : { error: NOT_FOUND };
+    if (!area || extractId(area.review) !== String(reviewId)) {
+        return { error: readError ? toReviewError(readError) : NOT_FOUND };
+    }
+
+    const conversations = await loadConversations([areaIri(areaId)], session, lang);
+
+    if (conversations.error || !conversations.data) {
+        return { error: conversations.error ?? NOT_FOUND };
+    }
+
+    return { data: toArea(area, conversations.data.get(String(areaId)) ?? []) };
 }
 
 /**
- * Resolves the profiles of everyone who has written in a review: the consultant,
- * the promoter, and whoever else takes part in the conversation.
- * @param reviewId The review identifier, as in `/reviews/{id}`
- * @returns Every known author of the review, empty when the review does not exist
+ * Resolves the profiles of everyone who has written in a review: the consultant
+ * and whoever takes part in the conversations on screen.
+ * @param review The review being read, whose reviewer always takes part
+ * @param areas The areas whose conversations are on screen
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns Every author the API knows, without the ones it cannot resolve
  */
-export function getReviewAuthors(reviewId: number | string): ReviewResult<ReviewAuthor[]> {
-    const review = find(reviewId);
+export async function getReviewAuthors(
+    review: ProjectReview,
+    areas: ReviewArea[],
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<ReviewAuthor[]>> {
+    const iris = new Set<string>();
 
-    if (!review) return { error: NOT_FOUND };
+    if (review.reviewer) iris.add(review.reviewer);
 
-    const iris = new Set<string>([review.reviewer]);
-
-    for (const area of review.areas) {
+    for (const area of areas) {
         for (const comment of area.comments) {
             iris.add(comment.author);
         }
     }
 
+    const authors = await Promise.all(
+        [...iris].map((iri) => fetchAuthor(iri, session, lang)),
+    );
+
     return {
-        data: [...iris].flatMap((iri) => {
-            const profile = authors.get(iri);
-
-            return profile ? [profile] : [];
-        }),
+        data: authors.filter((author): author is ReviewAuthor => author !== undefined),
     };
-}
-
-/**
- * Appends an entry to the conversation of an area, keeping the id sequence and
- * the area IRI in one place whether a person or the platform writes it.
- * @param area The area whose conversation receives the entry
- * @param author IRI of the User the entry belongs to
- * @param body The message body, left empty on entries the platform published
- * @param system Set on entries published by the platform instead of a person
- * @returns The stored entry
- */
-function appendComment(
-    area: ReviewArea,
-    author: string,
-    body: string,
-    system?: ReviewSystemEvent,
-): ReviewComment {
-    const now = new Date().toISOString();
-
-    const comment: ReviewComment = {
-        id: Math.max(0, ...area.comments.map((stored) => stored.id)) + 1,
-        author,
-        body,
-        area: area.review.replace(/\/$/, "") + `/areas/${area.id}`,
-        dateCreated: now,
-        dateUpdated: now,
-    };
-
-    if (system) comment.system = system;
-
-    area.comments.push(comment);
-
-    return comment;
 }
 
 /**
@@ -240,56 +242,301 @@ export interface RiskChange {
  *
  * The announcement only happens on a genuine change between two assessed risks:
  * a first assessment has no previous value to name, and picking the same risk
- * again is not news.
+ * again is not news. The comment API has no field for an entry the platform
+ * published, so the entry is stored as a comment whose body carries
+ * {@link SYSTEM_EVENT_MARKER} followed by the change's detail, and is decoded
+ * again when the conversation is read.
  *
- * @param reviewId The review identifier, as in `/reviews/{id}/areas/{areaId}`
+ * @param reviewId The review identifier the area must belong to
  * @param areaId The area identifier
- * @param risk The assessed risk, or null to clear the assessment
+ * @param risk The assessed risk
  * @param author IRI of the User making the change, kept as the entry's author
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
  * @returns The updated area plus the entry the change published, or a 404 error
  * when the review or the area does not exist
  */
-export function setReviewAreaRisk(
+export async function setReviewAreaRisk(
     reviewId: number | string,
     areaId: number | string,
-    risk: ProjectReviewRisk | null,
+    risk: ProjectReviewRisk,
     author: string,
-): ReviewResult<RiskChange> {
-    const review = find(reviewId);
-    const area = review ? findArea(review, areaId) : undefined;
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<RiskChange>> {
+    const headers = apiHeaders(session, lang);
 
-    if (!area) return { error: NOT_FOUND };
+    const { data: current, error: readError } = await apiProjectReviewAreasIdGet({
+        path: { id: String(areaId) },
+        headers,
+    });
 
-    const previous = area.risk;
+    if (!current || extractId(current.review) !== String(reviewId)) {
+        return { error: readError ? toReviewError(readError) : NOT_FOUND };
+    }
 
-    area.risk = risk;
+    const previous = current.risk ?? null;
+
+    const { data: area, error } = await apiProjectReviewAreasIdPatch({
+        path: { id: String(areaId) },
+        body: { risk },
+        headers,
+    });
+
+    if (!area) return { error: toReviewError(error) };
 
     const entry =
-        previous && risk && previous !== risk
-            ? appendComment(area, author, "", { from: previous, to: risk })
+        previous && previous !== risk
+            ? await persistSystemEntry(areaId, author, previous, risk, session, lang)
             : undefined;
 
-    return { data: { area, entry } };
+    const conversations = await loadConversations([areaIri(areaId)], session, lang);
+
+    if (conversations.error || !conversations.data) {
+        return { error: conversations.error ?? NOT_FOUND };
+    }
+
+    return { data: { area: toArea(area, conversations.data.get(String(areaId)) ?? []), entry } };
 }
 
 /**
  * Appends a message to the conversation of an area.
- * @param reviewId The review identifier, as in `/reviews/{id}/areas/{areaId}/comments`
+ * @param reviewId The review identifier the area must belong to
  * @param areaId The area identifier
  * @param author IRI of the User writing the message
  * @param body The message body
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
  * @returns The stored message, or a 404 error when the review or the area does not exist
  */
-export function createReviewAreaComment(
+export async function createReviewAreaComment(
     reviewId: number | string,
     areaId: number | string,
     author: string,
     body: string,
-): ReviewResult<ReviewComment> {
-    const review = find(reviewId);
-    const area = review ? findArea(review, areaId) : undefined;
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<ReviewComment>> {
+    const headers = apiHeaders(session, lang);
 
-    if (!area) return { error: NOT_FOUND };
+    // Checked first so a message can never land on an area of another review.
+    const { data: area, error: readError } = await apiProjectReviewAreasIdGet({
+        path: { id: String(areaId) },
+        headers,
+    });
 
-    return { data: appendComment(area, author, body) };
+    if (!area || extractId(area.review) !== String(reviewId)) {
+        return { error: readError ? toReviewError(readError) : NOT_FOUND };
+    }
+
+    const { data, error } = await apiProjectReviewCommentsPost({
+        body: { area: areaIri(areaId), author, body },
+        headers,
+    });
+
+    if (!data) return { error: toReviewError(error) };
+
+    return { data: toComment(data) };
+}
+
+/** IRI of every area of the given list, which is what the comments filter takes. */
+function areaIrisOf(areas: ApiProjectReviewArea[]): string[] {
+    return areas.flatMap((area) => (area.id !== undefined ? [areaIri(area.id)] : []));
+}
+
+/**
+ * Reads the conversations of the given areas, grouped by area id.
+ * @param areaIris IRIs of the areas whose messages are wanted
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns Messages ordered oldest first, or the failure the API answered with
+ */
+async function loadConversations(
+    areaIris: string[],
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<Map<string, ReviewComment[]>>> {
+    const grouped = new Map<string, ReviewComment[]>(
+        areaIris.flatMap((iri) => {
+            const id = extractId(iri);
+
+            return id ? [[id, [] as ReviewComment[]]] : [];
+        }),
+    );
+
+    if (!areaIris.length) return { data: grouped };
+
+    const { data, error } = await apiProjectReviewCommentsGetCollection({
+        query: {
+            "area[]": areaIris,
+            itemsPerPage: ITEMS_PER_PAGE,
+            "order[dateCreated]": "asc",
+        },
+        headers: apiHeaders(session, lang),
+    });
+
+    if (!data) return { error: toReviewError(error) };
+
+    for (const comment of data) {
+        const id = extractId(comment.area);
+
+        if (!id) continue;
+
+        const bucket = grouped.get(id) ?? [];
+
+        bucket.push(toComment(comment));
+        grouped.set(id, bucket);
+    }
+
+    return { data: grouped };
+}
+
+/**
+ * Resolves a User IRI into the profile a chat bubble needs.
+ * @returns The profile, or undefined when the API does not know the User
+ */
+async function fetchAuthor(
+    iri: string,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewAuthor | undefined> {
+    const id = extractId(iri);
+
+    if (!id) return undefined;
+
+    const { data, error } = await apiUsersIdOrHandleGet({
+        path: { idOrHandle: id },
+        headers: apiHeaders(session, lang),
+    });
+
+    if (!data) {
+        if (error && toReviewError(error).status !== 404) {
+            console.error({ author: iri, error });
+        }
+
+        return undefined;
+    }
+
+    return {
+        author: iri,
+        handle: data.handle,
+        displayName: data.displayName ?? data.handle,
+        avatar: data.avatar,
+    };
+}
+
+/**
+ * Stores the entry a risk change publishes in the conversation of its area, so
+ * both parties find it on any later visit, not only in the open conversation.
+ *
+ * The comment API expects the writer to be the authenticated User, which the
+ * consultant making the change is. When the entry cannot be stored the change
+ * falls back to an in-memory one, so the card is still announced live even if
+ * persistence fails.
+ */
+async function persistSystemEntry(
+    areaId: number | string,
+    author: string,
+    from: ProjectReviewRisk,
+    to: ProjectReviewRisk,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewComment> {
+    const body = `${SYSTEM_EVENT_MARKER}${JSON.stringify({ from, to })}`;
+
+    const { data, error } = await apiProjectReviewCommentsPost({
+        body: { area: areaIri(areaId), author, body },
+        headers: apiHeaders(session, lang),
+    });
+
+    if (data) return toComment(data);
+
+    console.error({ event: SYSTEM_EVENT_MARKER, areaId, from, to, error });
+
+    return systemEntry(areaId, author, from, to);
+}
+
+/**
+ * Builds an in-memory entry in the shape the chat renders as a card, kept as
+ * the fallback for a change that could not be stored but is still announced in
+ * the conversation already on screen.
+ */
+function systemEntry(
+    areaId: number | string,
+    author: string,
+    from: ProjectReviewRisk,
+    to: ProjectReviewRisk,
+): ReviewComment {
+    const now = new Date().toISOString();
+
+    return {
+        // Negative, so it can never collide with an id the API assigns.
+        id: -Date.now(),
+        author,
+        area: areaIri(areaId),
+        body: "",
+        dateCreated: now,
+        dateUpdated: now,
+        system: { from, to },
+    };
+}
+
+/** Projects the area resource onto the shape the review screens consume. */
+function toArea(area: ApiProjectReviewArea, comments: ReviewComment[]): ReviewArea {
+    return {
+        id: area.id ?? 0,
+        review: area.review ?? "",
+        title: area.title ?? "",
+        summary: area.summary ?? "",
+        risk: area.risk ?? null,
+        comments,
+    };
+}
+
+/** Whether the given value is one of the risks a card can announce. */
+function isReviewRisk(value: unknown): value is ProjectReviewRisk {
+    return value === "low" || value === "mid" || value === "high";
+}
+
+/**
+ * Reads the system event a stored comment was encoded with, if it is one.
+ *
+ * Comments the platform publishes (a risk change) travel under
+ * {@link SYSTEM_EVENT_MARKER} followed by the JSON the card is built from; a
+ * message that merely contains the marker without the expected shape is left as
+ * written and rendered as the text it is.
+ */
+function decodeSystemEvent(body: string): ReviewSystemEvent | undefined {
+    if (!body.startsWith(SYSTEM_EVENT_MARKER)) return undefined;
+
+    try {
+        const parsed = JSON.parse(body.slice(SYSTEM_EVENT_MARKER.length)) as {
+            from?: unknown;
+            to?: unknown;
+        };
+
+        if (!isReviewRisk(parsed.from) || !isReviewRisk(parsed.to)) return undefined;
+
+        return { from: parsed.from, to: parsed.to };
+    } catch {
+        return undefined;
+    }
+}
+
+/** Projects the comment resource onto the shape the review screens consume. */
+function toComment(comment: ApiProjectReviewComment): ReviewComment {
+    const dateCreated = comment.dateCreated ?? new Date().toISOString();
+    const system = decodeSystemEvent(comment.body);
+
+    return {
+        id: comment.id ?? 0,
+        author: comment.author,
+        area: comment.area,
+        // System entries read their card off `system`, so the marker is not left
+        // on screen as if it were written text.
+        body: system ? "" : comment.body,
+        dateCreated,
+        dateUpdated: comment.dateUpdated ?? dateCreated,
+        system,
+    };
 }

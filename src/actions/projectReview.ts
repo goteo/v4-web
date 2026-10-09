@@ -2,7 +2,12 @@ import { ActionError, defineAction } from "astro:actions";
 import { z } from "zod";
 
 import { apiProjectsIdPatch } from "../openapi/client";
-import { createReviewAreaComment, getReview, setReviewAreaRisk } from "../services/projectReview";
+import {
+    createReviewAreaComment,
+    getReview,
+    setReviewAreaRisk,
+    type ReviewError,
+} from "../services/projectReview";
 import { canAccessReview, isConsultant, sessionUserIri } from "../services/reviewAccess";
 import { PROJECT_REVIEW_STATUSES } from "../types/projectReview";
 import { extractId } from "../utils/extractId";
@@ -14,6 +19,30 @@ import { extractId } from "../utils/extractId";
 
 const reviewId = z.coerce.number().int().positive();
 const areaId = z.coerce.number().int().positive();
+
+/**
+ * Turns a failure of the review service into the error the screens display.
+ */
+function fail(error: ReviewError | undefined, t: (key: string) => string): ActionError {
+    if (error?.status === 401 || error?.status === 403) {
+        return new ActionError({
+            code: "FORBIDDEN",
+            message: t("pages.review.errors.forbidden"),
+        });
+    }
+
+    if (error === undefined || error.status === 404) {
+        return new ActionError({
+            code: "NOT_FOUND",
+            message: t("pages.review.errors.areaNotFound"),
+        });
+    }
+
+    return new ActionError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: t("pages.review.errors.generic"),
+    });
+}
 
 /**
  * Assesses the risk of a reviewable area.
@@ -28,10 +57,10 @@ export const updateReviewAreaRisk = defineAction({
     input: z.object({
         reviewId,
         areaId,
-        risk: z.enum(["low", "medium", "high"]),
+        risk: z.enum(["low", "mid", "high"]),
     }),
     handler: async (input, context) => {
-        const { session, t } = context.locals;
+        const { session, t, lang } = context.locals;
 
         if (!isConsultant(session)) {
             throw new ActionError({
@@ -40,18 +69,17 @@ export const updateReviewAreaRisk = defineAction({
             });
         }
 
-        const { data, error } = setReviewAreaRisk(
+        const { data, error } = await setReviewAreaRisk(
             input.reviewId,
             input.areaId,
             input.risk,
             sessionUserIri(session!),
+            session!,
+            lang,
         );
 
         if (error || !data) {
-            throw new ActionError({
-                code: "NOT_FOUND",
-                message: t("pages.review.errors.areaNotFound"),
-            });
+            throw fail(error, t);
         }
 
         // The chat renders `entry` right away: the page it is showing was rendered
@@ -74,7 +102,7 @@ export const updateReviewProjectStatus = defineAction({
         status: z.enum(PROJECT_REVIEW_STATUSES),
     }),
     handler: async (input, context) => {
-        const { session, t } = context.locals;
+        const { session, t, lang } = context.locals;
 
         if (!isConsultant(session)) {
             throw new ActionError({
@@ -83,7 +111,7 @@ export const updateReviewProjectStatus = defineAction({
             });
         }
 
-        const { data: review } = getReview(input.reviewId);
+        const { data: review } = await getReview(input.reviewId, session!, lang);
 
         if (!review) {
             throw new ActionError({
@@ -137,9 +165,9 @@ export const sendReviewAreaComment = defineAction({
         body: z.string("system.constraint.text.notEmpty").trim().min(1).max(2000),
     }),
     handler: async (input, context) => {
-        const { session, t } = context.locals;
+        const { session, t, lang } = context.locals;
 
-        const { data: review } = getReview(input.reviewId);
+        const { data: review } = await getReview(input.reviewId, session!, lang);
 
         if (!review) {
             throw new ActionError({
@@ -155,18 +183,17 @@ export const sendReviewAreaComment = defineAction({
             });
         }
 
-        const { data: comment, error } = createReviewAreaComment(
+        const { data: comment, error } = await createReviewAreaComment(
             input.reviewId,
             input.areaId,
             sessionUserIri(session!),
             input.body,
+            session!,
+            lang,
         );
 
         if (error || !comment) {
-            throw new ActionError({
-                code: "NOT_FOUND",
-                message: t("pages.review.errors.areaNotFound"),
-            });
+            throw fail(error, t);
         }
 
         return { comment };
