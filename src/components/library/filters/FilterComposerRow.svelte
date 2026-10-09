@@ -1,16 +1,17 @@
 <script lang="ts">
     import { t } from "../../../i18n/store";
     import { DEFAULT_CURRENCY } from "../../../utils/currencies";
-    import { debounce } from "../../../utils/debounce";
     import Close from "../../icons/navigation/Close.svelte";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
     import CurrencyInput from "../inputs/CurrencyInput.svelte";
     import DateInput from "../inputs/DateInput.svelte";
+    import ResourceSearch from "../inputs/ResourceSearch.svelte";
     import Select from "../inputs/Select.svelte";
     import TextInput from "../inputs/TextInput.svelte";
     import AccountingOwnerBadge from "../tags/AccountingOwnerBadge.svelte";
 
     import type { FilterSubject, FilterOperator } from "../../../utils/filterComposer";
+    import type { SearchResultItem } from "../../../utils/resourceSearch";
     import type { DropdownOption } from "../dropdown/dropdown.types";
 
     interface Props {
@@ -36,16 +37,15 @@
     let singleSelect = $derived(operator === "equals" && !currentSubject?.allowsMultipleEquals);
 
     let dropdownSelected = $state<DropdownOption[]>([]);
-    let suggestOptions = $state<DropdownOption[]>([]);
+    let suggestSelected = $state<SearchResultItem[]>([]);
 
-    let staticOptions = $derived(
+    let dropdownOptions = $derived(
         currentSubject?.options?.map((option) => ({
             id: option.value,
             label: $t(option.label),
             selected: false,
         })) ?? [],
     );
-    let dropdownOptions = $derived(currentSubject?.suggest ? suggestOptions : staticOptions);
 
     let previousSubjectKey = $state("");
 
@@ -55,32 +55,17 @@
         operator = "";
         referent = "";
         dropdownSelected = [];
-        suggestOptions = [];
+        suggestSelected = [];
     });
-
-    const runSuggest = debounce(async (query: string) => {
-        const results = (await currentSubject?.suggest?.(query)) ?? [];
-        suggestOptions = results.map((result) => ({
-            id: result.value,
-            label: result.label,
-            selected: false,
-        }));
-    });
-
-    function handleSuggest(query: string) {
-        if (!query) {
-            runSuggest.cancel();
-            suggestOptions = [...dropdownSelected];
-            return;
-        }
-
-        runSuggest(query);
-    }
 
     function syncReferent() {
         referent = singleSelect
             ? (dropdownSelected[0]?.id ?? "")
             : dropdownSelected.map((option) => option.id);
+    }
+
+    function handleSuggestChange(items: SearchResultItem[]) {
+        referent = singleSelect ? (items[0]?.value ?? "") : items.map((item) => item.value);
     }
 
     function subjectLabel(key: string): string {
@@ -92,8 +77,8 @@
     }
 </script>
 
-{#snippet accountingChip(option: DropdownOption)}
-    <AccountingOwnerBadge accountingIri={option.id} class="text-xs" />
+{#snippet accountingChip(item: SearchResultItem)}
+    <AccountingOwnerBadge accountingIri={item.value} class="text-xs" />
 {/snippet}
 
 <div class="flex items-center gap-3">
@@ -147,16 +132,14 @@
                 {/each}
             </Select>
         {:else if currentSubject?.suggest && operator}
-            <DropdownMenu
-                chips
-                hasSearch
-                searchClasses="border-secondary"
-                variant={singleSelect ? "basic" : "multiselect"}
-                {singleSelect}
-                options={dropdownOptions}
-                bind:selected={dropdownSelected}
-                onSearch={handleSuggest}
-                onChange={syncReferent}
+            <ResourceSearch
+                search={currentSubject.suggest}
+                multiple={!singleSelect}
+                bind:selected={suggestSelected}
+                label={$t("domain.filterComposer.referentPlaceholder")}
+                placeholder={$t("domain.filterComposer.referentPlaceholder")}
+                highlight={false}
+                onChange={handleSuggestChange}
                 chip={currentSubject.display === "accountingOwner" ? accountingChip : undefined}
             />
         {:else if currentSubject?.type === "date"}

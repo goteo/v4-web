@@ -1,5 +1,7 @@
 <script lang="ts">
-    import TerritoryInput, { type Territories } from "../inputs/TerritoryInput.svelte";
+    import TerritoryInput from "../inputs/TerritoryInput.svelte";
+
+    import type { Territories } from "../../../utils/searchers";
 
     interface Props {
         value?: string;
