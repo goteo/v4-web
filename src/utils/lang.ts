@@ -1,8 +1,13 @@
 export function getLanguageDisplayName(lang: string): string | undefined {
-    const displayNames = new Intl.DisplayNames(lang, { type: "language" });
-    const displayName = displayNames.of(lang)!;
+    let displayName: string | undefined;
 
-    if (displayName === lang) return;
+    try {
+        displayName = new Intl.DisplayNames(lang, { type: "language" }).of(lang);
+    } catch {
+        return;
+    }
+
+    if (!displayName || displayName === lang) return;
 
     return displayName.charAt(0).toUpperCase() + displayName.slice(1);
 }

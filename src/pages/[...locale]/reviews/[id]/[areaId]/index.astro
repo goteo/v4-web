@@ -1,0 +1,68 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import App from "../../../../../layouts/App.svelte";
+import ReviewChat from "../../../../../components/review/ReviewChat.svelte";
+import {
+    canAccessReview,
+    isConsultant,
+    sessionUserIri,
+} from "../../../../../services/reviewAccess";
+import { getReview, getReviewArea, getReviewAuthors } from "../../../../../services/projectReview";
+import { getReviewedProject } from "../../../../../services/reviewProject";
+import { goto } from "../../../../../utils/navigation";
+
+const { t, lang, session } = Astro.locals;
+
+const { id, areaId } = Astro.params;
+
+if (!session) {
+    const requestUrl = new URL(Astro.request.url);
+    return goto("/login", { query: { callback: requestUrl.pathname + requestUrl.search } });
+}
+
+if (!id || !/^\d+$/.test(id) || !areaId || !/^\d+$/.test(areaId)) {
+    return Astro.rewrite("/404");
+}
+
+const { data: review } = getReview(id);
+
+if (!review) {
+    return Astro.rewrite("/404");
+}
+
+// Only the consultant admin and the promoter owning the reviewed project get in.
+if (!(await canAccessReview(session, review))) {
+    return Astro.rewrite("/403");
+}
+
+const { data: area } = getReviewArea(id, areaId);
+
+if (!area) {
+    return Astro.rewrite("/404");
+}
+
+const { data: authors } = getReviewAuthors(id);
+
+const project = await getReviewedProject(review, session, lang);
+
+// Only the consultant admin may assess risks from here, same as on the areas screen.
+const isReviewer = isConsultant(session);
+---
+
+<Layout
+    title={t("pages.review.chat.title", { area: area.title, project: project?.title ?? "" })}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session}>
+        <ReviewChat
+            client:load
+            reviewId={review.id}
+            {area}
+            authors={authors ?? []}
+            currentUserIri={sessionUserIri(session)}
+            projectTitle={project?.title ?? ""}
+            canEditRisk={isReviewer}
+            locale={lang}
+        />
+    </App>
+</Layout>

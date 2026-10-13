@@ -41,6 +41,40 @@ export async function getSession(cookies: AstroCookies): Promise<Session | undef
 }
 
 /**
+ * Retrieve the session with the User re-fetched from the API, so that role checks
+ * use the roles the API has now and not the ones stored in the cookie at login.
+ * The cookie is rewritten only when the roles changed.
+ * @param cookies AstroCookies interface
+ * @returns The Session data, or `undefined` if the User could not be fetched
+ */
+export async function getFreshSession(cookies: AstroCookies): Promise<Session | undefined> {
+    const session = await getSession(cookies);
+
+    if (!session) return undefined;
+
+    try {
+        const { data: user } = await apiUsersIdOrHandleGet({
+            path: { idOrHandle: decodeJWT(session.token.access_token).sub },
+            headers: session.token.asHttpHeaders,
+        });
+
+        if (!user) return undefined;
+
+        const fresh = { ...session, user };
+
+        if (JSON.stringify(user.roles) !== JSON.stringify(session.user.roles)) {
+            setSession(cookies, fresh);
+        }
+
+        return fresh;
+    } catch (err) {
+        console.error(err);
+
+        return undefined;
+    }
+}
+
+/**
  * Store the session data into a secure, http-only cookie
  * @param cookies AstroCookies interface
  * @param session The Session data

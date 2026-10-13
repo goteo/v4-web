@@ -7,6 +7,7 @@
     import Footer from "./Footer.svelte";
     import Header from "./Header.svelte";
     import HeaderSubmenu from "./HeaderSubmenu.svelte";
+    import MeHeader from "./MeHeader.svelte";
     import { session } from "../auth/store";
     import { locale } from "../i18n/store";
     import { CACHE_NAME } from "../openapi/cacheFetch";
@@ -22,6 +23,11 @@
         children?: Snippet;
         class?: ClassNameValue;
         admin?: boolean;
+        /**
+         * Header of the signed-in promoter area. Mutually exclusive with `admin`: the two are
+         * separate dashboards and the admin one wins if a page ever asks for both.
+         */
+        me?: boolean;
     }
 
     let {
@@ -30,6 +36,7 @@
         children,
         class: classes,
         admin = false,
+        me = false,
     }: AppState = $props();
 
     const HAD_SESSION_KEY = "goteo-had-session";
@@ -128,6 +135,8 @@
 
 {#if admin}
     <AdminHeader />
+{:else if me}
+    <MeHeader />
 {:else}
     <Header>
         <HeaderSubmenu />

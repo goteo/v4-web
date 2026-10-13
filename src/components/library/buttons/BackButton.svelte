@@ -1,10 +1,24 @@
-<script>
+<script lang="ts">
+    import { twMerge } from "tailwind-merge";
+
     import { t } from "../../../i18n/store";
+
+    import type { Snippet } from "svelte";
+    import type { ClassNameValue } from "tailwind-merge";
+
+    let {
+        href,
+        children,
+        class: classes = "",
+    }: { href?: string; children?: Snippet; class?: ClassNameValue } = $props();
 </script>
 
 <button
-    onclick={() => history.back()}
-    class="group text-content flex w-fit cursor-pointer items-center gap-2 transition-colors duration-200 hover:text-black"
+    onclick={() => (href ? (window.location.href = href) : history.back())}
+    class={twMerge(
+        "group text-content flex w-fit cursor-pointer items-center gap-2 transition-colors duration-200 hover:text-black",
+        classes,
+    )}
 >
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -14,5 +28,11 @@
             fill="#462949"
         ></path>
     </svg>
-    <span class="font-medium">{$t("common.back")}</span>
+    <span class="font-medium">
+        {#if children}
+            {@render children()}
+        {:else}
+            {$t("common.back")}
+        {/if}
+    </span>
 </button>

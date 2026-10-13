@@ -1,3 +1,5 @@
+import type { Project } from "../openapi/client/index.ts";
+
 /**
  * Public project statuses for the public search page.
  *
@@ -61,3 +63,13 @@ export function constrainToPublicStatuses(statuses: string[] = []): string[] {
     const valid = statuses.filter((status) => PUBLIC_API_STATUSES.has(status));
     return valid.length ? valid : expandPublicStatuses(ALL_PUBLIC_STATUSES);
 }
+
+/** Campaign review statuses: listed in the admin review page and selectable in its dropdown. */
+export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_review",
+    "in_campaign_review.to_change",
+    "campaign_review.rejected",
+    "to_campaign",
+];

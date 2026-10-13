@@ -26,7 +26,7 @@ if (locale && !isSupportedLocale(locale)) {
 const { t, lang } = Astro.locals;
 
 const activeBanners = await bannerRepository.getActive();
-const hero = await homeHeroRepository.getActive();
+const hero = await homeHeroRepository.getActive(lang);
 // Authored in the admin as Markdown. Only ROLE_ADMIN can write it.
 const heroContent = hero ? await renderMarkdown(hero.content) : null;
 ---

@@ -22,7 +22,7 @@ const period = Astro.url.searchParams.get("period") || new Date().getFullYear().
 ---
 
 <Layout title={t("pages.me.page.title")}>
-    <App client:load locale={lang} session={session} class="mb-20">
+    <App client:load locale={lang} session={session} class="mb-20" me>
         <div class="wrapper flex flex-col gap-10 px-4 pt-6 pb-10 md:px-10 md:pt-10 md:pb-10">
             <!-- Header with title and period dropdown -->
             <div class="flex flex-col items-start justify-between gap-6 lg:flex-row">
