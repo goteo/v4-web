@@ -57,7 +57,7 @@
         buttonClass,
     )}
 >
-    <ShareIcon />
+    <ShareIcon {...variant === "blog" && { width: 20, height: 20 }} />
     {$t("common.share")}
 </button>
 

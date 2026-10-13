@@ -4,10 +4,9 @@
     import { untrack } from "svelte";
 
     import BlogPreviewModal from "./BlogPreviewModal.svelte";
-    import { languagesList } from "../../../../i18n/locales";
     import { locale, t } from "../../../../i18n/store";
-    import { BLOG_BASE_LOCALE } from "../../../../utils/blog";
     import { formatDate } from "../../../../utils/dates";
+    import { getLanguageDisplayName } from "../../../../utils/lang";
     import Edit from "../../../icons/actions/Edit.svelte";
     import PlusIcon from "../../../icons/actions/PlusIcon.svelte";
     import Eye from "../../../icons/media/Eye.svelte";
@@ -18,11 +17,11 @@
     import DataTable from "../../../library/tables/DataTable.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { BlogPostListItem } from "../../../../repositories/blogPosts";
+    import type { BlogPost } from "../../../../repositories/blogPosts";
     import type { DataTableHeader } from "../../../library/tables/DataTable.svelte";
 
     interface Props {
-        posts: BlogPostListItem[];
+        posts: BlogPost[];
     }
 
     let { posts }: Props = $props();
@@ -71,22 +70,22 @@
         "text-secondary border-variant1 flex size-10 cursor-pointer items-center justify-center rounded-full border bg-white transition-transform duration-200 hover:scale-110";
 
     let isPreviewOpen = $state(false);
-    let postToPreview = $state<BlogPostListItem | null>(null);
+    let postToPreview = $state<BlogPost | null>(null);
 
-    function openPreview(post: BlogPostListItem) {
+    function openPreview(post: BlogPost) {
         postToPreview = post;
         isPreviewOpen = true;
     }
 
-    function translationsOf(post: BlogPostListItem): string {
-        const names = post.locales
-            .filter((code) => code !== BLOG_BASE_LOCALE)
-            .map((code) => languagesList[code]);
+    function translationsOf(post: BlogPost): string {
+        const names = post.languages
+            .filter((code) => code !== post.language)
+            .map((code) => getLanguageDisplayName(code) ?? code);
 
         return names.join(", ") || "-";
     }
 
-    async function togglePublished(post: BlogPostListItem, published: boolean) {
+    async function togglePublished(post: BlogPost, published: boolean) {
         const formData = new FormData();
         formData.set("id", String(post.id));
         formData.set("published", published ? "1" : "0");
@@ -94,7 +93,10 @@
         const { error } = await actions.setBlogPostPublished(formData);
 
         if (error) {
-            errorMessage = error.message;
+            // Unhandled failures, or a non-JSON body such as an HTML error page, arrive as
+            // INTERNAL_SERVER_ERROR with raw text; only our own ActionErrors carry a message.
+            errorMessage =
+                error.code === "INTERNAL_SERVER_ERROR" ? $t("system.error.unknown") : error.message;
             showError = true;
             failures += 1;
 
@@ -157,7 +159,7 @@
     {itemsPerPage}
     onPageChange={(page) => (currentPage = page)}
 >
-    {#snippet children(post: BlogPostListItem)}
+    {#snippet children(post: BlogPost)}
         <TableBodyCell class="border-variant1 rounded-l-md border-t border-b border-l p-4">
             {post.id}
         </TableBodyCell>

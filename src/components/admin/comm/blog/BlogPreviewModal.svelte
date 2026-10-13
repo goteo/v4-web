@@ -4,13 +4,14 @@
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { renderMarkdown } from "../../../../utils/renderMarkdown";
+    import MediaCarousel from "../../../library/layout/MediaCarousel.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { BlogPostListItem } from "../../../../repositories/blogPosts";
+    import type { BlogPost } from "../../../../repositories/blogPosts";
 
     interface Props {
         open?: boolean;
-        post: BlogPostListItem | null;
+        post: BlogPost | null;
     }
 
     let { open = $bindable(false), post }: Props = $props();
@@ -24,13 +25,8 @@
 >
     {#if post}
         <article class="flex flex-col gap-6">
-            {#if post.headerUrl}
-                {#if post.headerType?.startsWith("video/")}
-                    <!-- svelte-ignore a11y_media_has_caption -->
-                    <video src={post.headerUrl} controls class="w-full rounded-2xl"></video>
-                {:else}
-                    <img src={post.headerUrl} alt="" class="w-full rounded-2xl object-cover" />
-                {/if}
+            {#if post.headerMedia.length > 0}
+                <MediaCarousel media={post.headerMedia} alt={post.title} />
             {/if}
 
             <header class="flex flex-col gap-2">

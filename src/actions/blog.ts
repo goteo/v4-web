@@ -1,42 +1,45 @@
 import { ActionError, defineAction } from "astro:actions";
 import { z } from "zod";
 
-import { labels } from "../i18n/locales";
 import { blogPostRepository } from "../repositories/blogPosts";
-import { BLOG_BASE_LOCALE, BLOG_SECTIONS } from "../utils/blog";
+import { BLOG_SECTIONS, videoEmbedUrl } from "../utils/blog";
 
-import type { Locale } from "../i18n/locales";
 import type { ActionAPIContext } from "astro:actions";
 
 // Astro turns any empty form field into null unless the validator is optional,
 // so every field the admin may leave blank has to be declared as such.
 const optionalText = z.string().optional();
 
+// As in the hero, a post may be translated into any language, not only the UI locales.
+const languageCode = z.string().regex(/^[a-z]{2,8}([-_][a-z0-9]{2,8})*$/);
+
+const title = z.string().trim().min(1, "system.constraint.text.notEmpty");
+
+// The texts of every language other than `language`, as JSON keyed by locale.
 const translations = z
     .string()
     .transform((value) => JSON.parse(value))
     .pipe(
-        z.partialRecord(
-            z.enum(Object.keys(labels) as [Locale, ...Locale[]]),
-            z.object({
-                title: z.string().trim().min(1, "system.constraint.text.notEmpty"),
-                subtitle: z.string().nullable(),
-                content: z.string(),
-            }),
+        z.record(
+            languageCode,
+            z.object({ title, subtitle: z.string().optional(), content: z.string().optional() }),
         ),
-    )
-    .refine((value) => value[BLOG_BASE_LOCALE], "system.constraint.text.notEmpty");
+    );
+
+// Uploads are absolute URLs; site assets such as /images/... are paths.
+const mediaUrl = z.string().refine((url) => url.startsWith("/") || URL.canParse(url));
+
+const headerMedia = z
+    .string()
+    .transform((value) => JSON.parse(value))
+    .pipe(z.array(z.object({ url: mediaUrl, type: z.string() })));
 
 const flag = z.enum(["0", "1"]).transform((value) => value === "1");
 
-const VIDEO_HOSTS = ["youtube.com", "www.youtube.com", "youtu.be", "vimeo.com", "www.vimeo.com"];
-
+// Only links the post page can turn into a player.
 const videoUrl = z
-    .url("pages.admin.comm.blog.errors.invalidVideoUrl")
-    .refine(
-        (url) => VIDEO_HOSTS.includes(new URL(url).hostname),
-        "pages.admin.comm.blog.errors.invalidVideoUrl",
-    )
+    .string()
+    .refine((url) => videoEmbedUrl(url) !== null, "pages.admin.comm.blog.errors.invalidVideoUrl")
     .optional();
 
 /**
@@ -57,14 +60,16 @@ export const saveBlogPost = defineAction({
     accept: "form",
     input: z.object({
         id: z.coerce.number().int().positive().optional(),
+        language: languageCode,
+        title,
+        subtitle: optionalText,
+        content: optionalText,
         translations,
         author: optionalText,
         publishedAt: z.coerce.date().optional(),
-        headerUrl: optionalText,
-        headerType: optionalText,
+        headerMedia,
         videoUrl,
         section: z.enum(BLOG_SECTIONS),
-        allowComments: flag,
         published: flag,
     }),
     handler: async (input, context) => {
@@ -73,14 +78,16 @@ export const saveBlogPost = defineAction({
         const id = await blogPostRepository.save(
             input.id ?? null,
             {
+                language: input.language,
+                title: input.title,
+                subtitle: input.subtitle || null,
+                content: input.content ?? "",
                 author: input.author || null,
                 published: input.published,
                 publishedAt: input.publishedAt ?? null,
-                headerUrl: input.headerUrl || null,
-                headerType: input.headerType || null,
+                headerMedia: input.headerMedia,
                 videoUrl: input.videoUrl || null,
                 section: input.section,
-                allowComments: input.allowComments,
             },
             input.translations,
         );

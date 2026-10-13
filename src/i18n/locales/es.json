@@ -653,8 +653,6 @@
         "userDonations": "Tus donaciones:"
       },
       "blog": {
-        "title": "Se avecinan grandes cambios… ¡no te pierdas nada!",
-        "excerpt": "Un proceso que implica una importante migración técnica de la plataforma actual, y para hacerlo con todas las garantías de seguridad y sin pérdida de información, necesitamos llevar a cabo una transición ordenada, con fechas clave para la publicación de campañas y la realización de donaciones…",
         "readMore": "Seguir leyendo"
       },
       "matchfunding": {
@@ -2068,7 +2066,8 @@
           "description": "Los administradores pueden gestionar entradas del blog, crear nuevo contenido y modificar artículos.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el blog",
-            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo"
+            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo",
+            "incompleteLanguages": "Falta el título en: {{ languages }}"
           },
           "list": {
             "new": "Nuevo post",
@@ -2093,7 +2092,7 @@
             "authorSection": "Autor y fecha de publicación",
             "authorPlaceholder": "Autor",
             "datePlaceholder": "Fecha de publicación",
-            "headerSection": "Imagen de cabecera",
+            "headerSection": "Imágenes de cabecera",
             "contentSection": "Texto",
             "contentPlaceholder": "Escribe aquí el texto de la entrada",
             "videoSection": "Añade un vídeo (Youtube, Vimeo)",
@@ -2105,16 +2104,18 @@
               "resources": "Recursos",
               "newsletter": "Boletín"
             },
-            "commentsSection": "¿Permite comentarios?",
-            "commentsYes": "Sí",
-            "commentsNo": "No",
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada",
+            "removeTranslation": "Eliminar traducción",
             "translationModal": {
               "title": "Añade una nueva traducción",
-              "description": "Selecciona el idioma al que quieres traducir esta entrada.",
-              "placeholder": "Selecciona un idioma",
-              "apply": "Aplicar acción"
+              "description": "Busca y elige el idioma al que quieres traducir esta entrada.",
+              "searchPlaceholder": "Busca entre todos los idiomas…",
+              "submit": "Añadir"
+            },
+            "removeTranslationModal": {
+              "title": "¿Eliminar esta traducción?",
+              "description": "La traducción se eliminará del formulario y no se guardará."
             }
           }
         }
@@ -2417,6 +2418,11 @@
       }
     },
     "blog": {
+      "title": "Blog",
+      "description": "Noticias, historias y recursos sobre crowdfunding, matchfunding y las campañas de Goteo.",
+      "all": "Todas",
+      "empty": "Todavía no hay entradas publicadas",
+      "by": "Por: {{ author }}",
       "share": {
         "modal": {
           "title": "Difunde este blog por el mundo",

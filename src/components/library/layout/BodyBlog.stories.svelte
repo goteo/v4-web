@@ -7,7 +7,10 @@
         title: "Lorem ipsum dolor sit amet consectetur",
         description:
             "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.",
-        cover: "/images/home/stories-main.png",
+        media: [
+            { url: "/images/home/stories-main.png", type: "image/png" },
+            { url: "/images/promoters/promoter-1.jpg", type: "image/jpeg" },
+        ],
         date: new Date("2024-03-15"),
         author: {
             name: "Prueba",
@@ -53,9 +56,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <Story name="Default" />
 
 <Story
-    name="WithoutCover"
+    name="SingleImage"
     args={{
-        post: { ...samplePost, cover: undefined },
+        post: { ...samplePost, media: samplePost.media.slice(0, 1) },
+    }}
+/>
+
+<Story
+    name="WithoutMedia"
+    args={{
+        post: { ...samplePost, media: undefined },
     }}
 />
 

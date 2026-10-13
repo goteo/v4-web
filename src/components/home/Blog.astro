@@ -1,55 +1,55 @@
 ---
-// Blog component for the homepage
+// Latest blog post on the homepage
+import type { BlogPostRecord } from "../../repositories/blogPosts";
 
-const { t } = Astro.locals;
+interface Props {
+    post: BlogPostRecord;
+}
 
-// Blog data using translations
-const blogPost = {
-    id: "blog-migration",
-    title: t("pages.home.blog.title"),
-    excerpt: t("pages.home.blog.excerpt"),
-    buttonText: t("pages.home.blog.readMore"),
-    href: "/blog/grandes-cambios",
-};
+const { post } = Astro.props;
+const { t, lang } = Astro.locals;
+
+const cover = post.headerMedia.find((media) => media.type.startsWith("image/"));
 ---
 
 <section class="wrapper">
     <!-- Blog Entry Container -->
-    <div class="bg-purple-soft flex flex-col rounded-4xl lg:flex-row lg:items-stretch">
+    <div class="bg-variant1 flex flex-col rounded-4xl lg:flex-row lg:items-stretch">
         <!-- Content Section (Left) -->
         <div class="flex flex-col gap-6 p-10 lg:min-h-0 lg:flex-1">
             <!-- Main Content -->
             <div class="flex flex-col gap-2">
                 <h2 class="text-secondary text-4xl leading-12 font-bold">
-                    {blogPost.title}
+                    {post.title}
                 </h2>
-                <p class="text-secondary text-base leading-6">
-                    {blogPost.excerpt}
-                </p>
+                {post.subtitle && <p class="text-secondary text-base leading-6">{post.subtitle}</p>}
             </div>
 
             <!-- Button -->
             <div class="flex">
                 <a
-                    href={blogPost.href}
+                    href={`/${lang}/blog/${post.id}`}
                     class="group border-secondary hover:bg-secondary flex items-center justify-center gap-2 rounded-3xl border px-6 py-4 transition-all duration-200"
                 >
                     <span class="text-secondary text-base font-bold group-hover:text-white">
-                        {blogPost.buttonText}
+                        {t("pages.home.blog.readMore")}
                     </span>
                 </a>
             </div>
         </div>
 
         <!-- Right Side - Blog Image (background so height follows left content) -->
-        <div class="relative hidden overflow-hidden rounded-r-4xl lg:block lg:flex-1">
-            <div
-                aria-label="Technology and digital transformation"
-                role="img"
-                class="h-full w-full bg-cover bg-center"
-                style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"
-            >
-            </div>
-        </div>
+        {
+            cover && (
+                <div class="relative hidden overflow-hidden rounded-r-4xl lg:block lg:flex-1">
+                    <div
+                        role="img"
+                        aria-label={post.title}
+                        class="h-full w-full bg-cover bg-center"
+                        style={{ backgroundImage: `url(${JSON.stringify(cover.url)})` }}
+                    />
+                </div>
+            )
+        }
     </div>
 </section>
