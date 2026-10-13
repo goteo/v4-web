@@ -2420,6 +2420,11 @@
       }
     },
     "blog": {
+      "title": "Blog",
+      "description": "Noticias, historias y recursos sobre crowdfunding, matchfunding y las campañas de Goteo.",
+      "all": "Todas",
+      "empty": "Todavía no hay entradas publicadas",
+      "by": "Por: {{ author }}",
       "share": {
         "modal": {
           "title": "Difunde este blog por el mundo",
