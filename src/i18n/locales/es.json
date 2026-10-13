@@ -2068,7 +2068,8 @@
           "description": "Los administradores pueden gestionar entradas del blog, crear nuevo contenido y modificar artículos.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el blog",
-            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo"
+            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo",
+            "incompleteLanguages": "Falta el título en: {{ languages }}"
           },
           "list": {
             "new": "Nuevo post",
@@ -2105,16 +2106,18 @@
               "resources": "Recursos",
               "newsletter": "Boletín"
             },
-            "commentsSection": "¿Permite comentarios?",
-            "commentsYes": "Sí",
-            "commentsNo": "No",
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada",
+            "removeTranslation": "Eliminar traducción",
             "translationModal": {
               "title": "Añade una nueva traducción",
-              "description": "Selecciona el idioma al que quieres traducir esta entrada.",
-              "placeholder": "Selecciona un idioma",
-              "apply": "Aplicar acción"
+              "description": "Busca y elige el idioma al que quieres traducir esta entrada.",
+              "searchPlaceholder": "Busca entre todos los idiomas…",
+              "submit": "Añadir"
+            },
+            "removeTranslationModal": {
+              "title": "¿Eliminar esta traducción?",
+              "description": "La traducción se eliminará del formulario y no se guardará."
             }
           }
         }

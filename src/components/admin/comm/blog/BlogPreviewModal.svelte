@@ -7,11 +7,11 @@
     import Carousel from "../../../library/layout/Carousel.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { BlogPostListItem } from "../../../../repositories/blogPosts";
+    import type { BlogPost } from "../../../../repositories/blogPosts";
 
     interface Props {
         open?: boolean;
-        post: BlogPostListItem | null;
+        post: BlogPost | null;
     }
 
     let { open = $bindable(false), post }: Props = $props();
