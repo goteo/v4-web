@@ -121,7 +121,7 @@
             error = null;
             onUpload?.(uploaded);
         } catch (err) {
-            error = err instanceof Error ? err.message : "Upload failed";
+            error = err instanceof Error ? err.message : $t("system.error.file.uploadFailed");
             console.error("File upload error:", err);
         } finally {
             const next = new Map(uploading);

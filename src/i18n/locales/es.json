@@ -14,7 +14,8 @@
       },
       "file": {
         "sizeTooLarge": "El archivo {{ file }} supera el tamaño máximo ({{ max }})",
-        "unsupportedType": "Tipo de archivo no permitido: {{ file }}"
+        "unsupportedType": "Tipo de archivo no permitido: {{ file }}",
+        "uploadFailed": "No se pudo subir el archivo"
       }
     },
     "OAuth": {
