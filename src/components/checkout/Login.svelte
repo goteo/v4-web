@@ -22,7 +22,7 @@
         const settle = () => form.dispatchEvent(new Event("checkout:settled"));
 
         if (!acceptTerms) {
-            errorMessage = $t("system.validation.requiredFields");
+            errorMessage = $t("pages.checkout.login.error.requireTerms");
             settle();
             return;
         }
@@ -38,9 +38,11 @@
             });
 
             if (!response.ok) {
-                const { error } = (await response.json()) as { error: string };
+                const { error } = (await response.json()) as { error?: string };
 
-                throw new Error(error);
+                errorMessage = $t(error ?? "pages.checkout.login.error.unexpectedLogin");
+                settle();
+                return;
             }
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -48,8 +50,9 @@
 
             const targetUrl = callbackUrl || "/";
             navigate(targetUrl);
-        } catch (err: any) {
-            errorMessage = $t(`system.OAuth.${err.message.trim().replace(/\.$/, "")}`);
+        } catch (err) {
+            console.error(err);
+            errorMessage = $t("pages.checkout.login.error.unexpectedLogin");
             settle();
         } finally {
             isSubmitting = false;

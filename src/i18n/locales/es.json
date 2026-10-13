@@ -571,7 +571,10 @@
         "error": {
           "invalidCredentials": "Correo electrónico o contraseña inválidos.",
           "unexpectedLogin": "Error al iniciar sesión. Por favor, inténtalo de nuevo más tarde.",
-          "invalidEmail": "El correo electrónico no es válido."
+          "invalidEmail": "El correo electrónico no es válido.",
+          "clientAuthentication": "No se pudo autorizar la aplicación. Por favor, inténtalo de nuevo más tarde.",
+          "invalidRequest": "La solicitud de inicio de sesión no es válida. Revisa tus datos e inténtalo de nuevo.",
+          "requireTerms": "Debes aceptar las condiciones legales para continuar."
         }
       },
       "register": {
@@ -586,6 +589,7 @@
             "password": {
               "minLength": "*Requisitos de la contraseña: debe tener 8 caracteres"
             },
+            "passwordInvalid": "La contraseña no es válida.",
             "required": "Este campo es obligatorio",
             "emailInvalid": "El email introducido no es válido",
             "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado"
@@ -620,6 +624,8 @@
         },
         "error": {
           "unexpectedRegistration": "Error al crear la cuenta. Por favor, inténtalo de nuevo más tarde.",
+          "emailInUse": "Ya existe una cuenta con este correo electrónico. Inicia sesión o usa otro correo.",
+          "accountCreatedProfileFailed": "Hemos creado tu cuenta, pero no pudimos guardar todos tus datos. Inicia sesión y completa tu perfil.",
           "requireTerms": "Debes aceptar las condiciones para continuar."
         },
         "title": "Indícanos tus datos personales",
