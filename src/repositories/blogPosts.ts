@@ -10,14 +10,18 @@ export interface BlogPostRecord {
     author: string | null;
     published: boolean;
     publishedAt: Date | null;
-    /** Header image or video */
-    headerUrl: string | null;
-    headerType: string | null;
+    /** Header carousel of images and videos */
+    headerMedia: BlogPostMedia[];
     videoUrl: string | null;
     section: BlogSection;
     allowComments: boolean;
     dateCreated: Date;
     dateUpdated: Date;
+}
+
+export interface BlogPostMedia {
+    url: string;
+    type: string;
 }
 
 export interface BlogPostTranslation {
@@ -37,8 +41,7 @@ const COLUMNS = `p.id,
                  p.author,
                  p.published,
                  p.published_at   AS publishedAt,
-                 p.header_url     AS headerUrl,
-                 p.header_type    AS headerType,
+                 p.header_media   AS headerMedia,
                  p.video_url      AS videoUrl,
                  p.section,
                  p.allow_comments AS allowComments,
@@ -47,10 +50,11 @@ const COLUMNS = `p.id,
 
 interface BlogPostRow extends Omit<
     BlogPostRecord,
-    "published" | "publishedAt" | "allowComments" | "dateCreated" | "dateUpdated"
+    "published" | "publishedAt" | "headerMedia" | "allowComments" | "dateCreated" | "dateUpdated"
 > {
     published: number;
     publishedAt: number | null;
+    headerMedia: string;
     allowComments: number;
     dateCreated: number;
     dateUpdated: number;
@@ -67,8 +71,7 @@ function fromRow(row: BlogPostRow): BlogPostRecord {
         author: row.author,
         published: Boolean(row.published),
         publishedAt: row.publishedAt === null ? null : new Date(row.publishedAt),
-        headerUrl: row.headerUrl,
-        headerType: row.headerType,
+        headerMedia: JSON.parse(row.headerMedia),
         videoUrl: row.videoUrl,
         section: row.section,
         allowComments: Boolean(row.allowComments),
@@ -163,8 +166,7 @@ class BlogPostRepository {
             post.author,
             Number(post.published),
             post.publishedAt?.getTime() ?? null,
-            post.headerUrl,
-            post.headerType,
+            JSON.stringify(post.headerMedia),
             post.videoUrl,
             post.section,
             Number(post.allowComments),
@@ -176,17 +178,17 @@ class BlogPostRepository {
                 ? this.db
                       .prepare(
                           `INSERT INTO blog_posts (
-                            author, published, published_at, header_url, header_type,
+                            author, published, published_at, header_media,
                             video_url, section, allow_comments, date_updated, date_created
-                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                          RETURNING id`,
                       )
                       .bind(...values, now)
                 : this.db
                       .prepare(
                           `UPDATE blog_posts SET
-                            author = ?, published = ?, published_at = ?, header_url = ?,
-                            header_type = ?, video_url = ?, section = ?,
+                            author = ?, published = ?, published_at = ?, header_media = ?,
+                            video_url = ?, section = ?,
                             allow_comments = ?, date_updated = ?
                          WHERE id = ?
                          RETURNING id`,

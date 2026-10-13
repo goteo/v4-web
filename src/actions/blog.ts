@@ -27,6 +27,11 @@ const translations = z
     )
     .refine((value) => value[BLOG_BASE_LOCALE], "system.constraint.text.notEmpty");
 
+const headerMedia = z
+    .string()
+    .transform((value) => JSON.parse(value))
+    .pipe(z.array(z.object({ url: z.url(), type: z.string() })));
+
 const flag = z.enum(["0", "1"]).transform((value) => value === "1");
 
 const VIDEO_HOSTS = ["youtube.com", "www.youtube.com", "youtu.be", "vimeo.com", "www.vimeo.com"];
@@ -60,8 +65,7 @@ export const saveBlogPost = defineAction({
         translations,
         author: optionalText,
         publishedAt: z.coerce.date().optional(),
-        headerUrl: optionalText,
-        headerType: optionalText,
+        headerMedia,
         videoUrl,
         section: z.enum(BLOG_SECTIONS),
         allowComments: flag,
@@ -76,8 +80,7 @@ export const saveBlogPost = defineAction({
                 author: input.author || null,
                 published: input.published,
                 publishedAt: input.publishedAt ?? null,
-                headerUrl: input.headerUrl || null,
-                headerType: input.headerType || null,
+                headerMedia: input.headerMedia,
                 videoUrl: input.videoUrl || null,
                 section: input.section,
                 allowComments: input.allowComments,

@@ -6,15 +6,14 @@ CREATE TABLE
         author TEXT,
         published INTEGER NOT NULL DEFAULT 0,
         published_at INTEGER,
-        header_url TEXT,
-        header_type TEXT,
+        header_media TEXT NOT NULL DEFAULT '[]',
         video_url TEXT,
         section TEXT NOT NULL DEFAULT 'news' CHECK (
             section IN ('news', 'stories', 'resources', 'newsletter')
         ),
         allow_comments INTEGER NOT NULL DEFAULT 1,
-        date_created INTEGER NOT NULL DEFAULT (unixepoch() * 1000),
-        date_updated INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+        date_created INTEGER NOT NULL DEFAULT (unixepoch () * 1000),
+        date_updated INTEGER NOT NULL DEFAULT (unixepoch () * 1000)
     );
 
 -- Translatable texts, one row per locale. Every post has at least its es row.

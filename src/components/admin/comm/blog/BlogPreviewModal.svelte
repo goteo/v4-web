@@ -4,6 +4,7 @@
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { renderMarkdown } from "../../../../utils/renderMarkdown";
+    import Carousel from "../../../library/layout/Carousel.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
     import type { BlogPostListItem } from "../../../../repositories/blogPosts";
@@ -24,13 +25,17 @@
 >
     {#if post}
         <article class="flex flex-col gap-6">
-            {#if post.headerUrl}
-                {#if post.headerType?.startsWith("video/")}
-                    <!-- svelte-ignore a11y_media_has_caption -->
-                    <video src={post.headerUrl} controls class="w-full rounded-2xl"></video>
-                {:else}
-                    <img src={post.headerUrl} alt="" class="w-full rounded-2xl object-cover" />
-                {/if}
+            {#if post.headerMedia.length > 0}
+                <Carousel itemsPerGroup={1} desktopItemsToShow={1} gap={16} showDots={true}>
+                    {#each post.headerMedia as media (media.url)}
+                        {#if media.type.startsWith("video/")}
+                            <!-- svelte-ignore a11y_media_has_caption -->
+                            <video src={media.url} controls class="w-full rounded-2xl"></video>
+                        {:else}
+                            <img src={media.url} alt="" class="w-full rounded-2xl object-cover" />
+                        {/if}
+                    {/each}
+                </Carousel>
             {/if}
 
             <header class="flex flex-col gap-2">

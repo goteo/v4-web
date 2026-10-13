@@ -45,19 +45,15 @@
     let section = $state<BlogSection>(initial?.section ?? "news");
     let allowComments = $state(initial?.allowComments === false ? "0" : "1");
 
-    // Only the URL is stored, so rebuild what FileUpload needs to list the current header.
+    // Only URL and type are stored, so rebuild what FileUpload needs to list the current header.
     let header = $state<UploadedObject[]>(
-        initial?.headerUrl
-            ? [
-                  {
-                      id: initial.headerUrl,
-                      url: initial.headerUrl,
-                      type: initial.headerType ?? "image/jpeg",
-                      size: 0,
-                      name: initial.headerUrl.split("/").pop() ?? "",
-                  },
-              ]
-            : [],
+        (initial?.headerMedia ?? []).map(({ url, type }) => ({
+            id: url,
+            url,
+            type,
+            size: 0,
+            name: url.split("/").pop() ?? "",
+        })),
     );
 
     let fieldErrors: FieldErrors = $state({});
@@ -240,13 +236,16 @@
         </Title>
         <FileUpload
             bind:files={header}
-            multiple={false}
+            multiple={true}
             maxSizeMB={20}
             accept={["image/png", "image/jpeg", "video/mp4", "video/quicktime"]}
             placeholder={$t("domain.imageUploadModal.dropzone")}
         />
-        <input type="hidden" name="headerUrl" value={header[0]?.url ?? ""} />
-        <input type="hidden" name="headerType" value={header[0]?.type ?? ""} />
+        <input
+            type="hidden"
+            name="headerMedia"
+            value={JSON.stringify(header.map(({ url, type }) => ({ url, type })))}
+        />
     </fieldset>
 
     <fieldset class="flex flex-col gap-6">
