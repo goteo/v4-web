@@ -77,10 +77,8 @@
     );
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
-    let checksError = $state("");
     let formError = $state("");
     let showFormToast = $state(false);
-    let showChecksToast = $state(false);
 
     function validate(field: FieldName) {
         // taxId validity depends on country and type, so it is checked by the schema refinement
@@ -135,7 +133,6 @@
     const submit = async (formElement: HTMLFormElement) => {
         validation = {};
         showFormToast = false;
-        showChecksToast = false;
 
         const result = zRegisterForm.safeParse({
             type: form.type,
@@ -171,8 +168,8 @@
         }
 
         if (!acceptTerms) {
-            checksError = $t("pages.checkout.register.error.requireTerms");
-            showChecksToast = true;
+            formError = $t("pages.checkout.register.error.requireTerms");
+            showFormToast = true;
             return;
         }
 
@@ -442,19 +439,14 @@
                     />
                 </span>
             </Checkbox>
-
-            {#if showChecksToast}
-                <Toast variant="error" bind:showToast={showChecksToast} class="w-full">
-                    {checksError}
-                </Toast>
-            {/if}
-            {#if showFormToast}
-                <Toast variant="error" bind:showToast={showFormToast} class="w-full">
-                    {formError}
-                </Toast>
-            {/if}
         </div>
 
         <button type="submit" class="hidden" aria-hidden="true"></button>
     </form>
+
+    {#if showFormToast}
+        <Toast floating variant="error" bind:showToast={showFormToast}>
+            {formError}
+        </Toast>
+    {/if}
 </div>

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { navigate } from "astro:transitions/client";
-    import { twJoin } from "tailwind-merge";
 
     import { t } from "../../i18n/store";
+    import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
     import PasswordInput from "../library/inputs/PasswordInput.svelte";
     import TextInput from "../library/inputs/TextInput.svelte";
@@ -14,6 +14,7 @@
     let acceptTerms = $state(false);
     let isSubmitting = $state(false);
     let errorMessage = $state("");
+    let showErrorToast = $state(false);
 
     const handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault();
@@ -21,14 +22,17 @@
         const form = e.currentTarget as HTMLFormElement;
         const settle = () => form.dispatchEvent(new Event("checkout:settled"));
 
+        showErrorToast = false;
+        errorMessage = "";
+
         if (!acceptTerms) {
             errorMessage = $t("pages.checkout.login.error.requireTerms");
+            showErrorToast = true;
             settle();
             return;
         }
 
         isSubmitting = true;
-        errorMessage = "";
 
         try {
             const response = await fetch("/api/session", {
@@ -41,6 +45,7 @@
                 const { error } = (await response.json()) as { error?: string };
 
                 errorMessage = $t(error ?? "pages.checkout.login.error.unexpectedLogin");
+                showErrorToast = true;
                 settle();
                 return;
             }
@@ -53,6 +58,7 @@
         } catch (err) {
             console.error(err);
             errorMessage = $t("pages.checkout.login.error.unexpectedLogin");
+            showErrorToast = true;
             settle();
         } finally {
             isSubmitting = false;
@@ -83,12 +89,8 @@
             </a>
         </div>
 
-        <p class={twJoin("h-1", errorMessage && "text-tertiary")}>
-            {#if errorMessage}
-                {errorMessage}
-            {:else}
-                {$t("pages.checkout.login.formDescription")}
-            {/if}
+        <p class="h-1">
+            {$t("pages.checkout.login.formDescription")}
         </p>
     </div>
 
@@ -99,7 +101,6 @@
                     type="text"
                     placeholder={$t("pages.checkout.login.form.idPlaceholder")}
                     helperText={$t("pages.checkout.login.form.idHelper")}
-                    error={errorMessage}
                     bind:value={identifier}
                     disabled={isSubmitting}
                     required
@@ -108,7 +109,6 @@
                 <PasswordInput
                     placeholder={$t("pages.checkout.login.form.passwordPlaceholder")}
                     helperText={$t("pages.checkout.login.form.passwordHelper")}
-                    error={errorMessage}
                     bind:value={password}
                     disabled={isSubmitting}
                     required
@@ -146,4 +146,10 @@
 
         <button type="submit" class="hidden" aria-hidden="true"></button>
     </form>
+
+    {#if showErrorToast}
+        <Toast floating variant="error" bind:showToast={showErrorToast}>
+            {errorMessage}
+        </Toast>
+    {/if}
 </div>
