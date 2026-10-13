@@ -301,7 +301,7 @@
         {/if}
     </div>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.titleSection")}
         </Title>
@@ -319,7 +319,7 @@
         </div>
     </fieldset>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.authorSection")}
         </Title>
@@ -338,7 +338,7 @@
         </div>
     </fieldset>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.headerSection")}
         </Title>
@@ -356,7 +356,7 @@
         />
     </fieldset>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.contentSection")}
         </Title>
@@ -372,7 +372,7 @@
         {/key}
     </fieldset>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.videoSection")}
         </Title>
@@ -384,7 +384,7 @@
         />
     </fieldset>
 
-    <fieldset class="flex flex-col gap-6">
+    <fieldset class="flex min-w-0 flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.blog.form.sectionSection")}
         </Title>

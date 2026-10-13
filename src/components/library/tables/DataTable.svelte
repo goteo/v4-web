@@ -145,7 +145,7 @@
         {/if}
 
         <div class="overflow-x-auto">
-            <Table class="w-full table-fixed border-separate border-spacing-y-2">
+            <Table class="w-full min-w-200 table-fixed border-separate border-spacing-y-2">
                 <TableHead>
                     {#each headers as header, i}
                         <TableHeadCell
