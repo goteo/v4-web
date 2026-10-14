@@ -15,11 +15,25 @@
         min?: number;
     } = $props();
 
+    /**
+     * An unlimited reward is the inverse of the bound `limited` flag. Its unit
+     * count is meaningless, so `units` is normalized to 0 while infinite.
+     */
     let isInfinite: boolean = $derived(!limited);
+
     $effect(() => {
-        limited = !isInfinite;
-        units = isInfinite ? 0 : units;
+        if (isInfinite) {
+            units = 0;
+        }
     });
+
+    /**
+     * The checkbox is a one-way view of `isInfinite`. Toggling it flips the bound
+     * `limited` flag — it never writes to the `$derived` value.
+     */
+    function handleInfiniteChange(event: Event) {
+        limited = !(event.currentTarget as HTMLInputElement).checked;
+    }
 
     function increment() {
         if (limited) units += 1;
@@ -63,7 +77,7 @@
         </div>
 
         <label class="text-content flex cursor-pointer items-center gap-2 text-base font-normal">
-            <Checkbox bind:checked={isInfinite} />
+            <Checkbox checked={isInfinite} onchange={handleInfiniteChange} />
             {$t("domain.project.reward.isInfinite")}
         </label>
     </div>
