@@ -244,6 +244,7 @@ export default defineConfig({
             include: [
                 "@astrojs/cloudflare/cache/provider",
                 "@astrojs/svelte/server.js",
+                "astro/actions/runtime/entrypoints/client.js",
                 "astro/actions/runtime/entrypoints/route.js",
                 "astro/app/manifest",
                 "astro/assets/services/noop",
