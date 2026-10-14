@@ -11,14 +11,20 @@
         message: string;
         date: Date;
         photo?: string;
+        /**
+         * Renders links and images instead of degrading them. Only set for the
+         * messages the consultant admin wrote, the one author trusted to point
+         * at external content.
+         */
+        trusted?: boolean;
         class?: ClassNameValue;
     }
 
-    let { type, name, message, date, photo, class: classes }: Props = $props();
+    let { type, name, message, date, photo, trusted = false, class: classes }: Props = $props();
 
     let isOwn = $derived(type === "own");
 
-    let rendered = $derived(renderChatMarkdown(message));
+    let rendered = $derived(renderChatMarkdown(message, { allowLinksAndImages: trusted }));
 </script>
 
 {#snippet avatar(bgColor: string, iconColor: string = "var(--color-black)")}
@@ -63,7 +69,8 @@
             <span class="text-secondary self-stretch text-sm font-semibold">{name}</span>
         {/if}
         <!-- The markdown parser only emits the chat formatting whitelist, never
-            raw HTML, anchors or images, so rendering it is safe by construction. -->
+             raw HTML, and links and images only for the admin's own messages,
+             so rendering it is safe by construction. -->
         <div class="marked-content chat-bubble self-stretch text-sm leading-relaxed">
             {@html rendered}
         </div>
@@ -120,5 +127,20 @@
     :global(.chat-nolink) {
         overflow-wrap: break-word;
         word-break: break-word;
+    }
+
+    :global(.chat-bubble.marked-content .chat-link) {
+        color: inherit;
+        text-decoration: underline;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    :global(.chat-bubble.marked-content .chat-image) {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.25rem 0;
     }
 </style>

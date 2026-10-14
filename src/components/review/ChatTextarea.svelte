@@ -11,10 +11,18 @@
         /** Message being written, two-way bound so the sender can clear it. */
         value?: string;
         disabled?: boolean;
+        /** Advertises the link and image syntax, only meaningful for the admin. */
+        canInsertRich?: boolean;
         onSend?: () => void;
     }
 
-    let { class: classes = "", value = $bindable(""), disabled = false, onSend }: Props = $props();
+    let {
+        class: classes = "",
+        value = $bindable(""),
+        disabled = false,
+        canInsertRich = false,
+        onSend,
+    }: Props = $props();
 
     let textareaEl = $state<HTMLTextAreaElement | undefined>(undefined);
 
@@ -136,7 +144,7 @@
                 onkeydown={handleKeydown}
                 class="text-content bg-grey h-full w-full resize-none rounded-lg border-0 p-4 pr-10 text-base shadow-sm ring-0 disabled:cursor-not-allowed"
                 placeholder={$t("pages.review.chat.placeholder")}></textarea>
-            <ChatMarkdownHelp class="absolute right-2 top-2" />
+            <ChatMarkdownHelp class="absolute right-2 top-2" {canInsertRich} />
         </div>
         <button
             type="button"

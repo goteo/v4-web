@@ -33,6 +33,7 @@
         area,
         authors = [],
         currentUserIri,
+        reviewerIri = "",
         projectTitle = "",
         canEditRisk = false,
         locale = "es",
@@ -45,6 +46,11 @@
         authors?: ReviewAuthor[];
         /** IRI of the signed in user, which decides which bubbles are their own. */
         currentUserIri: string;
+        /**
+         * IRI of the User acting as consultant admin. Their messages are the only
+         * ones allowed to carry links and images.
+         */
+        reviewerIri?: string;
         /** Already translated on the server, since `$t` always resolves to Spanish. */
         projectTitle?: string;
         /** Only the consultant admin assesses risks; a promoter only reads them. */
@@ -76,6 +82,17 @@
     let conversation = $state<HTMLDivElement | undefined>(undefined);
 
     let authorByIri = $derived(new Map(authors.map((author) => [author.author, author])));
+
+    /**
+     * Only the review's consultant admin is trusted to write links and images;
+     * every other message keeps the degraded, plain-text rendering.
+     */
+    function isTrustedAuthor(author: string): boolean {
+        return reviewerIri !== "" && author === reviewerIri;
+    }
+
+    /** The admin is the only one whose composer advertises the link/image syntax. */
+    let isAdminViewer = $derived(isTrustedAuthor(currentUserIri));
 
     let currentRisk = $derived(chosenRisk ?? area.risk);
 
@@ -240,6 +257,7 @@
                         name={author?.displayName ?? ""}
                         photo={author?.avatar}
                         message={comment.body}
+                        trusted={isTrustedAuthor(comment.author)}
                         date={new Date(comment.dateCreated)}
                     />
                 {/if}
@@ -251,5 +269,11 @@
         {/if}
     </div>
 
-    <ChatTextarea class="mb-10 shrink-0" bind:value={draft} disabled={sending} onSend={send} />
+    <ChatTextarea
+        class="mb-10 shrink-0"
+        bind:value={draft}
+        disabled={sending}
+        canInsertRich={isAdminViewer}
+        onSend={send}
+    />
 </div>

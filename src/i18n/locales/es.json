@@ -1329,6 +1329,8 @@
         "mdHelpItalic": "_cursiva_ — Ctrl+I",
         "mdHelpStrike": "~~tachado~~ — Ctrl+Shift+S",
         "mdHelpQuote": "> cita — Ctrl+Shift+Q",
+        "mdHelpLink": "[texto](url) — enlace",
+        "mdHelpImage": "![descripción](url) — imagen",
         "mdHelpNote": "Selecciona el texto y pulsa el atajo, o pulsa el atajo con el cursor donde quieras escribir. Enter envía y Shift+Enter hace un salto de línea.",
         "today": "Hoy",
         "yesterday": "Ayer",

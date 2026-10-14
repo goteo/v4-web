@@ -5,15 +5,20 @@
 
     interface Props {
         class?: ClassNameValue;
+        /** Adds the link and image syntax, which only the admin may use. */
+        canInsertRich?: boolean;
     }
 
-    let { class: classes = "" }: Props = $props();
+    let { class: classes = "", canInsertRich = false }: Props = $props();
 
     let helpItems = $derived([
         $t("pages.review.chat.mdHelpBold"),
         $t("pages.review.chat.mdHelpItalic"),
         $t("pages.review.chat.mdHelpStrike"),
         $t("pages.review.chat.mdHelpQuote"),
+        ...(canInsertRich
+            ? [$t("pages.review.chat.mdHelpLink"), $t("pages.review.chat.mdHelpImage")]
+            : []),
     ]);
 </script>
 
