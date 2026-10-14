@@ -1317,7 +1317,8 @@
         "back": "Volver a la revisión"
       },
       "card": {
-        "activity": "{{ count }} mensajes. Última actividad {{ date }}"
+        "activity": "{{ count }} mensajes. Última actividad {{ date }}",
+        "activitySingular": "{{ count }} mensaje. Última actividad {{ date }}"
       },
       "chat": {
         "title": "{{ area }} · {{ project }} - Goteo",
