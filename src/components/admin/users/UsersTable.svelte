@@ -102,10 +102,6 @@
         default: "bg-gray-200 text-gray-700",
     };
 
-    function roleLabel(role: string): string {
-        return $t(`pages.admin.users.table.rows.roles.${role}`, { default: role });
-    }
-
     function toggleRow(_row: UserRow, index: number): void {
         openRow = openRow === index ? null : index;
     }
@@ -174,7 +170,7 @@
                         class="rounded-full px-2 py-0.5 text-xs font-medium {roleStyles[role] ??
                             roleStyles.default}"
                     >
-                        {roleLabel(role)}
+                        {role}
                     </span>
                 {/each}
             </div>
