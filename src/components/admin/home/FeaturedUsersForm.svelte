@@ -9,7 +9,6 @@
 
     import type { User } from "../../../openapi/client/types.gen";
     import type { SlotContent, SlotLabels } from "../slots/slots.types";
-    import type { ClassNameValue } from "tailwind-merge";
 
     interface SlotAssignment {
         position: number;
@@ -20,13 +19,12 @@
     }
 
     interface Props {
-        class?: ClassNameValue;
         config: {
             slots: SlotAssignment[];
         };
     }
 
-    let { class: classes = "", config }: Props = $props();
+    let { config }: Props = $props();
 
     /**
      * The editor speaks in opaque values and ordered slots; this wrapper is the
@@ -86,7 +84,6 @@
 </script>
 
 <SlotEditor
-    class={classes}
     {contents}
     maxSlots={MAX_FEATURED_USERS}
     {labels}
