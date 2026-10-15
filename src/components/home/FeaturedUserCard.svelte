@@ -88,7 +88,11 @@
                     {$t("pages.home.featuredPromoters.capitalRaised")}
                 </span>
                 <span class="text-content text-2xl leading-8 font-bold">
-                    {formatAmountWithSymbol(user.capitalRaised, user.currency, $locale)}
+                    {formatAmountWithSymbol(
+                        user.capitalRaised.amount,
+                        user.capitalRaised.currency,
+                        $locale,
+                    )}
                 </span>
             </div>
         </div>

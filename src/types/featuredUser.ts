@@ -1,3 +1,5 @@
+import type { MoneyOutput } from "../openapi/client/types.gen";
+
 /**
  * A promoter highlighted on the home page, together with a summary of their projects.
  *
@@ -19,8 +21,5 @@ export interface FeaturedUser {
     ownProjects: number;
 
     /** Funds raised by the user's projects. */
-    capitalRaised: number;
-
-    /** Currency of `capitalRaised`. */
-    currency: string;
+    capitalRaised: MoneyOutput;
 }

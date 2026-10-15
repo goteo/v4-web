@@ -18,9 +18,8 @@ const PROJECTS_PAGE_SIZE = 100;
 export interface OwnerProjectsSummary {
     /** Total projects reported by the collection, independent of the page size. */
     totalProjects: number;
-    /** Sum of the funds raised by the loaded projects. */
-    amount: number;
-    currency: string;
+    /** Funds raised by the loaded projects, as returned by the API. */
+    capitalRaised: MoneyOutput;
 }
 
 /**
@@ -78,7 +77,7 @@ export async function summarizeOwnerProjects(
     );
 
     if (raisedAccountingIds.length === 0) {
-        return { totalProjects, amount: 0, currency: getDefaultCurrency() };
+        return { totalProjects, capitalRaised: { amount: 0, currency: getDefaultCurrency() } };
     }
 
     const balances = await Promise.all(
@@ -101,7 +100,9 @@ export async function summarizeOwnerProjects(
 
     return {
         totalProjects,
-        amount: total.amount ?? 0,
-        currency: total.currency ?? getDefaultCurrency(),
+        capitalRaised: {
+            amount: total.amount ?? 0,
+            currency: total.currency ?? getDefaultCurrency(),
+        },
     };
 }

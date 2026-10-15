@@ -33,8 +33,7 @@ export async function getFeaturedUsers(acceptLanguage: string): Promise<Featured
                 name: user?.displayName ?? user?.handle ?? String(record.userId),
                 image: user?.avatar ?? null,
                 ownProjects: summary.totalProjects,
-                capitalRaised: summary.amount,
-                currency: summary.currency,
+                capitalRaised: summary.capitalRaised,
             };
         }),
     );
