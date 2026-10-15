@@ -1563,9 +1563,9 @@
             "change": "Destaca otro impulsor/a"
           },
           "modal": {
-            "title": "Añade impulsor/a",
-            "description": "Busca y añade al impulsor que quieras destacar en portada",
-            "search": "Busca un impulsor/a",
+            "title": "Añade usuario",
+            "description": "Busca y añade al usuario que quieras destacar en portada",
+            "search": "Busca un usuario",
             "submit": "Añadir"
           }
         }
