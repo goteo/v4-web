@@ -18,7 +18,6 @@ import { homeHeroRepository } from "../../repositories/homeHero";
 import { featuredUserRepository } from "../../repositories/featuredUsers";
 import { apiUsersIdOrHandleGet } from "../../openapi/client/sdk.gen";
 import { summarizeOwnerProjects } from "../../services/userProjects";
-import { getLanguage } from "../../middleware/utils";
 import { getBaseUrl } from "../../utils/consts";
 import { renderMarkdown } from "../../utils/renderMarkdown";
 
@@ -41,18 +40,15 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
 // stats all come from the API so they never go stale.
 const featuredRecords = await featuredUserRepository.getAll();
 
-// Resolved once: the locale is the same for every record in the batch.
-const apiLanguage = getLanguage(Astro);
-
 const featuredUsers = await Promise.all(
     featuredRecords.map(async (record): Promise<FeaturedUser> => {
         const { data: user } = await apiUsersIdOrHandleGet({
             baseUrl: getBaseUrl(),
             path: { idOrHandle: String(record.userId) },
-            headers: { "Accept-Language": apiLanguage },
+            headers: { "Accept-Language": lang },
         });
 
-        const summary = await summarizeOwnerProjects(String(record.userId), apiLanguage);
+        const summary = await summarizeOwnerProjects(String(record.userId), lang);
 
         return {
             id: record.id,
