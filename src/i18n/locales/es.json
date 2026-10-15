@@ -1558,7 +1558,7 @@
           "description": "Los que están al frente de nuestra iniciativa, los más destacados.",
           "selection": {
             "title": "Selecciona a los impulsores más destacados",
-            "empty": "Sube una imagen o vídeo",
+            "empty": "Busca un impulsor/a y destácalo en portada",
             "add": "Añade impulsor",
             "change": "Destaca otro impulsor/a"
           },
