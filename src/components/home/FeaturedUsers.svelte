@@ -5,14 +5,7 @@
     import { t } from "../../i18n/store";
     import Grid from "../library/layout/Grid.svelte";
 
-    interface FeaturedUser {
-        id: number;
-        name: string;
-        image: string | null;
-        ownProjects: number;
-        capitalRaised: number;
-        currency: string;
-    }
+    import type { FeaturedUser } from "../../types/featuredUser";
 
     interface Props {
         class?: ClassNameValue;

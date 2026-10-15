@@ -22,6 +22,8 @@ import { getLanguage } from "../../middleware/utils";
 import { getBaseUrl } from "../../utils/consts";
 import { renderMarkdown } from "../../utils/renderMarkdown";
 
+import type { FeaturedUser } from "../../types/featuredUser";
+
 const { locale } = Astro.params;
 
 if (locale && !isSupportedLocale(locale)) {
@@ -43,7 +45,7 @@ const featuredRecords = await featuredUserRepository.getAll();
 const apiLanguage = getLanguage(Astro);
 
 const featuredUsers = await Promise.all(
-    featuredRecords.map(async (record) => {
+    featuredRecords.map(async (record): Promise<FeaturedUser> => {
         const { data: user } = await apiUsersIdOrHandleGet({
             baseUrl: getBaseUrl(),
             path: { idOrHandle: String(record.userId) },

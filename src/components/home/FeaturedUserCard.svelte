@@ -4,13 +4,7 @@
     import { t, locale } from "../../i18n/store";
     import { formatAmountWithSymbol } from "../../utils/currencies";
 
-    interface FeaturedUser {
-        name: string;
-        image: string | null;
-        ownProjects: number;
-        capitalRaised: number;
-        currency: string;
-    }
+    import type { FeaturedUser } from "../../types/featuredUser";
 
     interface Props {
         class?: ClassNameValue;
