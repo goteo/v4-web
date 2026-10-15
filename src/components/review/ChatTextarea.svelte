@@ -14,8 +14,9 @@
         /** Advertises the link and image syntax, only meaningful for the admin. */
         canInsertRich?: boolean;
         /**
-         * How long the API requires a message to be. When given, the counter shows how
-         * close the draft is to it; nothing stops the text from being written.
+         * How long the API requires a message to be. When given, a counter shows how
+         * close the draft is to it and disappears once reached; nothing stops the text
+         * from being written.
          */
         minLength?: number;
         onSend?: () => void;
@@ -37,8 +38,17 @@
     /** How much of the draft the API would receive, since the message is trimmed before sending. */
     let length = $derived(value.trim().length);
 
-    /** Too short to be accepted: the counter reads red until the draft reaches it. */
+    /** Too short to be accepted: the ring counter is shown until the draft reaches it. */
     let isTooShort = $derived(minLength !== undefined && length < minLength);
+
+    /** Radius of the counter ring, in the units of its 32×32 viewbox. */
+    const RING_RADIUS = 14;
+    const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+    /** How much of the ring is drawn, completing as the draft reaches the minimum. */
+    let progress = $derived(minLength && minLength > 0 ? Math.min(length / minLength, 1) : 1);
+
+    let ringOffset = $derived(RING_CIRCUMFERENCE * (1 - progress));
 
     function handleSend() {
         if (disabled || isEmpty || isTooShort) return;
@@ -163,13 +173,38 @@
                 class="text-content bg-grey h-full w-full resize-none rounded-lg border-0 p-4 pr-10 text-base shadow-sm ring-0 disabled:cursor-not-allowed"
                 placeholder={$t("pages.review.chat.placeholder")}></textarea>
             <ChatMarkdownHelp class="absolute top-2 right-2" {canInsertRich} />
-            {#if minLength !== undefined}
+            {#if isTooShort}
                 <span
-                    class="absolute right-2 bottom-2 text-xs tabular-nums"
-                    class:text-tertiary={isTooShort}
-                    class:text-content={!isTooShort}
+                    class="pointer-events-none absolute right-2 bottom-2 flex size-8 items-center justify-center"
                 >
-                    {length}/{minLength}
+                    <svg class="size-8 -rotate-90" viewBox="0 0 32 32" aria-hidden="true">
+                        <circle
+                            class="text-variant1"
+                            cx="16"
+                            cy="16"
+                            r={RING_RADIUS}
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                        />
+                        <circle
+                            class="text-tertiary transition-[stroke-dashoffset] duration-200"
+                            cx="16"
+                            cy="16"
+                            r={RING_RADIUS}
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            stroke-linecap="round"
+                            stroke-dasharray={RING_CIRCUMFERENCE}
+                            stroke-dashoffset={ringOffset}
+                        />
+                    </svg>
+                    <span
+                        class="text-content absolute inset-0 flex items-center justify-center text-[9px] font-medium tabular-nums"
+                    >
+                        {length}
+                    </span>
                 </span>
             {/if}
         </div>
