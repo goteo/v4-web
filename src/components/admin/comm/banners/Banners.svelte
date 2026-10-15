@@ -6,10 +6,10 @@
     import Toast from "../../../library/feedback/Toast.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { BannerRecord } from "../../../../repositories/banners";
+    import type { Banner } from "../../../../repositories/banners";
 
     interface Props {
-        banners: BannerRecord[];
+        banners: Banner[];
     }
 
     let { banners }: Props = $props();
@@ -37,7 +37,7 @@
 <div class="flex flex-col gap-6">
     <BannersTabs currentTab={currentSubtab} onTabChange={handleTabChange} />
     {#if currentSubtab === "fields"}
-        <BannersForm />
+        <BannersForm onSaved={() => location.reload()} />
     {:else if currentSubtab === "history"}
         <BannersHistory
             rows={banners}
@@ -45,6 +45,7 @@
                 errorMessage = message;
                 showError = true;
             }}
+            onSaved={() => location.reload()}
         />
     {/if}
 </div>

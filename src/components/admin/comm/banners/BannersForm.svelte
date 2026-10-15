@@ -1,30 +1,63 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import { locale, t } from "../../../../i18n/store";
+    import { getDefaultLanguage } from "../../../../utils/consts";
     import { endOfDay, formatDate, startOfDay } from "../../../../utils/dates";
+    import { getLanguageDisplayName, primaryLanguage } from "../../../../utils/lang";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
+    import Toast from "../../../library/feedback/Toast.svelte";
     import DateInput from "../../../library/inputs/DateInput.svelte";
     import TextArea from "../../../library/inputs/TextArea.svelte";
     import TextInput from "../../../library/inputs/TextInput.svelte";
     import Title from "../../../library/typography/Title.svelte";
+    import TranslationLanguages from "../../TranslationLanguages.svelte";
+
+    import type { Banner, BannerTexts } from "../../../../repositories/banners";
 
     interface Props {
-        onSubmit?: (event: SubmitEvent) => void;
+        banner?: Banner | null;
+        onSaved?: () => void;
     }
 
-    let { onSubmit }: Props = $props();
+    let { banner = null, onSaved }: Props = $props();
 
-    let formElement: HTMLFormElement;
+    // The form edits its own copy of the banner.
+    const initial = untrack(() => banner);
 
-    type FieldName = "title" | "content" | "ctaText" | "ctaLink" | "startsAt" | "endsAt";
+    type FieldName = keyof BannerTexts | "startsAt" | "endsAt";
 
     type FieldErrors = Partial<Record<FieldName, string>>;
 
     let fieldErrors: FieldErrors = $state({});
+    let errorMessage = $state("");
+    let showError = $state(false);
 
-    let startsAt = $state(new Date());
-    let endsAt = $state(new Date());
+    let startsAt = $state(initial?.startsAt ?? new Date());
+    let endsAt = $state(initial?.endsAt ?? new Date());
+
+    const emptyTexts = (): BannerTexts => ({ title: "", content: "", ctaText: "", ctaLink: "" });
+
+    const defaultLanguage = getDefaultLanguage();
+
+    // Every language's texts live here, the base one included, and are saved together.
+    let texts = $state<Record<string, BannerTexts>>(
+        initial
+            ? Object.fromEntries(
+                  initial.languages.map((code) => [
+                      code,
+                      {
+                          ...emptyTexts(),
+                          ...(code === initial.language ? initial : initial.translations[code]),
+                      },
+                  ]),
+              )
+            : { [defaultLanguage]: emptyTexts() },
+    );
+    let languages = $state<string[]>(initial?.languages ?? [defaultLanguage]);
+    let selectedLanguage = $state(untrack(() => languages[0]));
+    const active = $derived(texts[selectedLanguage]);
 
     /**
      * Normalize a date field to the human expected true datetime
@@ -49,36 +82,101 @@
         return date;
     }
 
+    function textsOf(code: string): BannerTexts {
+        const { title, content, ctaText, ctaLink } = texts[code];
+
+        return {
+            title: title.trim(),
+            content: content.trim(),
+            ctaText: ctaText.trim(),
+            ctaLink: ctaLink.trim(),
+        };
+    }
+
     async function submit() {
         fieldErrors = {};
 
-        const { error } = await actions.createBanner(new FormData(formElement));
+        const incomplete = languages.filter((code) => Object.values(textsOf(code)).some((v) => !v));
+
+        if (incomplete.length > 0) {
+            selectedLanguage = incomplete[0];
+            fieldErrors = Object.fromEntries(
+                Object.entries(textsOf(incomplete[0]))
+                    .filter(([, value]) => !value)
+                    .map(([field]) => [field, "system.constraint.text.notEmpty"]),
+            );
+            errorMessage = $t("pages.admin.comm.banners.errors.incompleteLanguages", {
+                languages: incomplete
+                    .map((code) => getLanguageDisplayName(code) ?? code)
+                    .join(", "),
+            });
+            showError = true;
+
+            return;
+        }
+
+        const primary = primaryLanguage(languages, defaultLanguage);
+        const data = new FormData();
+
+        if (initial) {
+            data.set("id", String(initial.id));
+        }
+
+        data.set("language", primary);
+        Object.entries(textsOf(primary)).forEach(([field, value]) => data.set(field, value));
+        data.set(
+            "translations",
+            JSON.stringify(
+                Object.fromEntries(
+                    languages
+                        .filter((code) => code !== primary)
+                        .map((code) => [code, textsOf(code)]),
+                ),
+            ),
+        );
+        data.set("startsAt", startsAt.toISOString());
+        data.set("endsAt", endsAt.toISOString());
+
+        const { error } = await actions.saveBanner(data);
 
         if (error) {
-            // Only validation errors carry fields; FORBIDDEN and BAD_REQUEST
-            // come back as a bare message and are not reported here.
-            const errors = isInputError(error) ? error.fields : {};
+            if (!isInputError(error)) {
+                errorMessage =
+                    error.code === "INTERNAL_SERVER_ERROR"
+                        ? $t("system.error.unknown")
+                        : error.message;
+                showError = true;
 
+                return;
+            }
+
+            // Translation issues come back under one field; the texts were checked above.
             fieldErrors = Object.fromEntries(
-                Object.entries(errors).map(([field, issues]) => [field, issues?.[0]]),
+                Object.entries(error.fields).map(([field, issues]) => [field, issues?.[0]]),
             ) as FieldErrors;
 
             return;
         }
-    }
 
-    async function handleSubmit(event: SubmitEvent) {
-        if (onSubmit) {
-            onSubmit(event);
-            return;
-        }
-
-        event.preventDefault();
-        await submit();
+        onSaved?.();
     }
 </script>
 
-<form bind:this={formElement} onsubmit={handleSubmit} class="max-w-167 space-y-10">
+<form
+    onsubmit={(event) => {
+        event.preventDefault();
+        submit();
+    }}
+    class="max-w-167 space-y-10"
+>
+    <TranslationLanguages
+        bind:languages
+        bind:selected={selectedLanguage}
+        onAdd={(code) => (texts[code] = emptyTexts())}
+        onRemove={(code) => delete texts[code]}
+        onSelect={() => (fieldErrors = {})}
+    />
+
     <div class="flex flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.comm.banners.fields.dataTitle")}
@@ -87,7 +185,7 @@
         <div class="space-y-4">
             <TextInput
                 class="flex-1"
-                name="title"
+                bind:value={active.title}
                 required={true}
                 placeholder={$t("pages.admin.comm.banners.fields.titlePlaceholder")}
                 error={fieldErrors.title && $t(fieldErrors.title)}
@@ -95,7 +193,7 @@
 
             <TextArea
                 class="flex-1"
-                name="content"
+                bind:value={active.content}
                 placeholder={$t("pages.admin.comm.banners.fields.contentPlaceholder")}
                 error={fieldErrors.content && $t(fieldErrors.content)}
             />
@@ -103,7 +201,7 @@
             <div class="flex gap-6">
                 <div class="flex-1">
                     <TextInput
-                        name="ctaText"
+                        bind:value={active.ctaText}
                         placeholder={$t("pages.admin.comm.banners.fields.ctaPlaceholder")}
                         error={fieldErrors.ctaText && $t(fieldErrors.ctaText)}
                     />
@@ -111,7 +209,7 @@
 
                 <div class="flex-1">
                     <TextInput
-                        name="ctaLink"
+                        bind:value={active.ctaLink}
                         placeholder={$t("pages.admin.comm.banners.fields.urlPlaceholder")}
                         error={fieldErrors.ctaLink && $t(fieldErrors.ctaLink)}
                     />
@@ -152,3 +250,5 @@
         {$t("common.save")}
     </ActionableButton>
 </form>
+
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>

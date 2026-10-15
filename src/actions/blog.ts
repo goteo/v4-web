@@ -11,7 +11,7 @@ import type { ActionAPIContext } from "astro:actions";
 const optionalText = z.string().optional();
 
 // As in the hero, a post may be translated into any language, not only the UI locales.
-const languageCode = z.string().regex(/^[a-z]{2,8}([-_][a-z0-9]{2,8})*$/);
+export const languageCode = z.string().regex(/^[a-z]{2,8}([-_][a-z0-9]{2,8})*$/);
 
 const title = z.string().trim().min(1, "system.constraint.text.notEmpty");
 

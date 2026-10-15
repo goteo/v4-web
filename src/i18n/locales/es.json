@@ -311,6 +311,25 @@
       "previous": "Página anterior",
       "next": "Página siguiente",
       "page": "Página {{ page }}"
+    },
+    "translationLanguages": {
+      "add": "Añadir traducción",
+      "remove": "Eliminar traducción",
+      "removeAll": "Eliminar todas las traducciones",
+      "addModal": {
+        "title": "Añade una nueva traducción",
+        "description": "Busca y elige el idioma al que quieres traducir el contenido.",
+        "searchPlaceholder": "Busca entre todos los idiomas…",
+        "submit": "Añadir"
+      },
+      "removeModal": {
+        "title": "¿Eliminar esta traducción?",
+        "description": "La traducción se eliminará al guardar."
+      },
+      "removeAllModal": {
+        "title": "¿Eliminar todas las traducciones?",
+        "description": "Solo se conservará el texto en {{language}}. Las demás traducciones se eliminarán al guardar."
+      }
     }
   },
   "common": {
@@ -1511,19 +1530,6 @@
             "invalidTranslations": "Las traducciones enviadas no son válidas",
             "incompleteLanguages": "Faltan campos obligatorios en: {{ languages }}"
           },
-          "addTranslation": "Añadir traducción",
-          "addTranslationModal": {
-            "title": "Añade una nueva traducción",
-            "description": "Busca y elige el idioma al que quieres traducir el contenido del hero",
-            "searchPlaceholder": "Busca entre todos los idiomas…",
-            "submit": "Añadir"
-          },
-          "removeTranslation": "Eliminar traducción",
-          "removeTranslationModal": {
-            "title": "¿Eliminar esta traducción?",
-            "description": "La traducción se eliminará del formulario y no se guardará.",
-            "invalidUrl": "La URL del enlace no es válida"
-          },
           "tabs": {
             "fields": "Nuevo",
             "history": "Registro"
@@ -2022,7 +2028,8 @@
           "errors": {
             "forbidden": "No tienes permisos para gestionar anuncios",
             "invalidUrl": "La URL del anuncio no es válida",
-            "invalidDateRange": "La fecha de fin no puede ser anterior a la de inicio"
+            "invalidDateRange": "La fecha de fin no puede ser anterior a la de inicio",
+            "incompleteLanguages": "Faltan campos obligatorios en: {{languages}}"
           },
           "tabs": {
             "fields": "Nuevos",
@@ -2046,7 +2053,8 @@
               "title": "Título",
               "content": "Contenido",
               "publishedAt": "Fecha de publicación",
-              "endAt": "Fecha de finalización"
+              "endAt": "Fecha de finalización",
+              "translations": "Traducciones"
             },
             "actions": {
               "view": "Ver"
@@ -2085,7 +2093,6 @@
             }
           },
           "form": {
-            "addTranslation": "Añadir traducción",
             "titleSection": "Título y subtítulo",
             "titlePlaceholder": "Añade el título",
             "subtitlePlaceholder": "Añade el subtítulo",
@@ -2105,18 +2112,7 @@
               "newsletter": "Boletín"
             },
             "saveAndExit": "Guardar y salir",
-            "publish": "Publicar entrada",
-            "removeTranslation": "Eliminar traducción",
-            "translationModal": {
-              "title": "Añade una nueva traducción",
-              "description": "Busca y elige el idioma al que quieres traducir esta entrada.",
-              "searchPlaceholder": "Busca entre todos los idiomas…",
-              "submit": "Añadir"
-            },
-            "removeTranslationModal": {
-              "title": "¿Eliminar esta traducción?",
-              "description": "La traducción se eliminará del formulario y no se guardará."
-            }
+            "publish": "Publicar entrada"
           }
         }
       },

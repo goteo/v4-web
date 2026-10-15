@@ -2,30 +2,36 @@
     import { actions } from "astro:actions";
     import { Modal, TableBodyCell } from "flowbite-svelte";
 
+    import BannersForm from "./BannersForm.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
+    import { getLanguageDisplayName } from "../../../../utils/lang";
     import HomeBanner from "../../../home/HomeBanner.svelte";
+    import Edit from "../../../icons/actions/Edit.svelte";
     import Trash from "../../../icons/actions/Trash.svelte";
     import Chevron from "../../../icons/navigation/Chevron.svelte";
     import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
     import DataTable from "../../../library/tables/DataTable.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-    import type { BannerRecord } from "../../../../repositories/banners";
+
+    import type { Banner } from "../../../../repositories/banners";
     import type { DataTableHeader } from "../../../library/tables/DataTable.svelte";
 
     interface Props {
-        rows: BannerRecord[];
+        rows: Banner[];
         onError?: (message: string) => void;
+        onSaved?: () => void;
     }
 
-    let { rows, onError }: Props = $props();
+    let { rows, onError, onSaved }: Props = $props();
 
     let list = $state(rows);
 
     const headers: DataTableHeader[] = [
         { key: "pages.admin.comm.banners.history.headers.title", sortable: false },
         { key: "pages.admin.comm.banners.history.headers.content", sortable: false },
+        { key: "pages.admin.comm.banners.history.headers.translations", sortable: false },
         {
             key: "pages.admin.comm.banners.history.headers.publishedAt",
             sortable: false,
@@ -43,12 +49,26 @@
 
     let isLoading = $state(false);
     let isModalOpen = $state(false);
-    let selectedRow = $state<BannerRecord | null>(null);
+    let selectedRow = $state<Banner | null>(null);
 
     let isDeleteModalOpen = $state(false);
-    let rowToDelete = $state<BannerRecord | null>(null);
+    let rowToDelete = $state<Banner | null>(null);
 
-    function openModal(row: BannerRecord) {
+    let rowToEdit = $state<Banner | null>(null);
+
+    /**
+     * The languages a banner is translated into, besides its base one.
+     * @param banner The banner
+     * @returns Their names, comma separated
+     */
+    function translationNames(banner: Banner): string {
+        return banner.languages
+            .filter((code) => code !== banner.language)
+            .map((code) => getLanguageDisplayName(code) ?? code)
+            .join(", ");
+    }
+
+    function openModal(row: Banner) {
         selectedRow = row;
         isModalOpen = true;
     }
@@ -58,7 +78,7 @@
         selectedRow = null;
     }
 
-    function openDeleteModal(row: BannerRecord) {
+    function openDeleteModal(row: Banner) {
         rowToDelete = row;
         isDeleteModalOpen = true;
     }
@@ -117,6 +137,9 @@
             {row.content}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
+            {translationNames(row)}
+        </TableBodyCell>
+        <TableBodyCell class="border-variant1 border-t border-b p-4">
             {formatDate(row.startsAt, $locale)}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
@@ -132,6 +155,13 @@
                         {$t("pages.admin.comm.banners.history.actions.view")}
                     </span>
                     <Chevron direction="right" class="size-4" />
+                </button>
+                <button
+                    class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
+                    aria-label={$t("common.edit")}
+                    onclick={() => (rowToEdit = row)}
+                >
+                    <Edit class="size-5" />
                 </button>
                 <button
                     class="text-secondary cursor-pointer transition-transform duration-200 hover:scale-110"
@@ -175,6 +205,24 @@
             ctaText={selectedRow.ctaText}
             ctaLink={selectedRow.ctaLink}
             closeAriaLabel={$t("pages.home.banner.closeAriaLabel")}
+        />
+    {/if}
+</Modal>
+
+<Modal
+    open={rowToEdit !== null}
+    onclose={() => (rowToEdit = null)}
+    closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-fit max-w-[min(46rem,calc(100vw-1rem))] min-w-152 -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="border-grey max-h-[90vh] overflow-y-auto rounded-t-3xl border-b bg-white p-6"
+>
+    {#if rowToEdit}
+        <BannersForm
+            banner={rowToEdit}
+            onSaved={() => {
+                rowToEdit = null;
+                onSaved?.();
+            }}
         />
     {/if}
 </Modal>

@@ -1,8 +1,11 @@
 -- Home hero block managed from /admin/home/hero
 -- Timestamps are milliseconds (Date.getTime()), matching the repository layer.
+-- The row's texts are written in `language` (any locale, '' falls back to the
+-- platform one); the remaining locales live in the shared `translations` table.
 CREATE TABLE
     IF NOT EXISTS home_hero (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        language TEXT NOT NULL DEFAULT '',
         title TEXT NOT NULL,
         content TEXT NOT NULL,
         primary_cta_text TEXT,
@@ -19,6 +22,7 @@ CREATE TABLE
 -- as authored in the Figma home design.
 INSERT INTO
     home_hero (
+        language,
         title,
         content,
         media_url,
@@ -27,6 +31,7 @@ INSERT INTO
         date_created
     )
 SELECT
+    'es',
     'Financia el cambio que el mundo necesita',
     'Arrancamos una nueva etapa con la misma brújula que nos ha guiado desde el principio: impulsar proyectos que transformen el mundo desde la justicia social, la participación democrática y la defensa de los derechos humanos y de los ecosistemas. Únete a una comunidad que transforma realidades. ¡Sé parte de la solución!',
     '/images/home/hero.png',

@@ -26,7 +26,7 @@ if (locale && !isSupportedLocale(locale)) {
 
 const { t, lang } = Astro.locals;
 
-const activeBanners = await bannerRepository.getActive();
+const activeBanners = await bannerRepository.getActive(lang);
 const hero = await homeHeroRepository.getActive(lang);
 const {
     posts: [latestPost],
