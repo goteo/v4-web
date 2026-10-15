@@ -116,6 +116,9 @@
         "userType": "Tipo de usuario",
         "active": "Activo",
         "userRoles": "Roles",
+        "reviewType": "Tipo de revisión",
+        "project": "Proyecto",
+        "reviewer": "Asesor",
         "userTerritoryCountry": "Ubicación"
       },
       "operator": {
@@ -148,6 +151,10 @@
         "active": {
           "true": "Activo",
           "false": "Inactivo"
+        },
+        "reviewType": {
+          "campaign": "Campaña",
+          "financial": "Financiación"
         }
       }
     },

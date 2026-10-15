@@ -7,132 +7,108 @@
     import { t } from "../../../i18n/store";
     import {
         apiProjectReviewsGetCollection,
+        apiProjectReviewsGetCollectionUrl,
         apiProjectReviewsIdPatch,
-        apiProjectsGetCollection,
-        apiProjectsGetCollectionUrl,
-        apiProjectsIdOrSlugGetUrl,
         apiProjectsIdPatch,
+        apiProjectsIdOrSlugGetUrl,
         apiProjectSupportsmoneyTotalGetCollection,
-        apiUsersIdOrHandleGet,
+        apiUsersIdOrHandleGetUrl,
         type Project,
         type ProjectReview,
         type User,
     } from "../../../openapi/client/index.ts";
     import { useAdminTableState } from "../../../utils/adminTableState.svelte";
     import { formatCurrency } from "../../../utils/currencies";
+    import { invalidateProject, resolveProject, resolveUser } from "../../../utils/entityResolvers";
     import { extractId } from "../../../utils/extractId";
     import { getCollectionTotalItems, toCollectionItems } from "../../../utils/hydra";
-    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
     import Dashboard from "../AdminDashboard.svelte";
     import { projectSortMap, type ProjectSortKey } from "../projects/ProjectsTable.svelte";
 
-    import type { ApiProjectsGetCollectionData } from "../../../openapi/client/types.gen";
+    import type { ApiProjectReviewsGetCollectionData } from "../../../openapi/client/types.gen";
 
-    type ProjectsQuery = Partial<ApiProjectsGetCollectionData["query"]>;
+    type ReviewsQuery = Partial<ApiProjectReviewsGetCollectionData["query"]>;
+
+    /** Every project undergoing a review — of either kind — shows up in the table. */
+    const REVIEW_TYPES = ["campaign", "financial"];
 
     const table = useAdminTableState<ProjectSortKey>("date-desc", "review-projects-items-per-page");
 
-    let filters: ProjectsQuery = $state({});
-    let rows = $state<ReviewProjectRow[]>([]);
+    let filters: ReviewsQuery = $state({});
     let totalEarned = $state("—");
 
-    let baseQuery = $derived<ProjectsQuery>({ "status[]": CAMPAIGN_REVIEW_STATUSES, ...filters });
+    let baseQuery = $derived<ReviewsQuery>({ "type[]": REVIEW_TYPES, ...filters });
+
+    /** Raw reviews, the primary list the table is built from. */
+    let reviews = $state<ProjectReview[]>([]);
+    /** Projects and people each review points at, filled in as they resolve. */
+    let projectsByIri = $state(new Map<string, Project>());
+    let usersByIri = $state(new Map<string, User>());
+
+    /** Rows recompute on their own as the resolved projects and users arrive. */
+    let rows = $derived(reviews.map(toRow));
 
     let slides = $derived([
         { title: $t("pages.admin.reviews.projects.totalizers.selected"), amount: table.totalItems },
         { title: $t("pages.admin.projects.totalizers.totalEarned"), amount: totalEarned },
     ]);
 
-    async function fetchTotalEarned(ids: number[]) {
-        const { data } = await apiProjectSupportsmoneyTotalGetCollection({
-            baseUrl: "/api/relay",
-            query: {
-                "project[]": ids.map((id) =>
-                    apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(id)),
-                ),
-            },
-        });
-        if (data) totalEarned = formatCurrency(data.amount, data.currency);
-    }
+    function toRow(review: ProjectReview): ReviewProjectRow {
+        const projectIri = review.project ?? "";
+        const project = projectIri ? projectsByIri.get(projectIri) : undefined;
+        const owner = project?.owner ? usersByIri.get(project.owner) : undefined;
+        const reviewer = review.reviewer ? usersByIri.get(review.reviewer) : undefined;
 
-    async function fetchOwner(iri: string): Promise<User | undefined> {
-        const idOrHandle = extractId(iri);
-        if (!idOrHandle) return undefined;
-        const { data } = await apiUsersIdOrHandleGet({
-            baseUrl: "/api/relay",
-            path: { idOrHandle },
-        });
-        return data;
-    }
-
-    function toRow(
-        project: Project,
-        owner?: User,
-        review?: { id: number; reviewer?: string },
-        advisorName?: string,
-    ): ReviewProjectRow {
-        const min = project.budget?.minimum?.money;
-        const opt = project.budget?.optimum?.money;
+        const projectId = Number(extractId(projectIri));
+        const min = project?.budget?.minimum?.money;
+        const opt = project?.budget?.optimum?.money;
 
         return {
-            id: project.id ?? 0,
-            name: project.title,
-            slug: project.slug ?? String(project.id),
-            promoter: owner?.displayName ?? owner?.email ?? "—",
+            id: project?.id ?? (Number.isFinite(projectId) ? projectId : 0),
+            name: project?.title ?? "",
+            slug: project?.slug ?? "",
+            promoter: owner?.displayName ?? owner?.email ?? "",
             promoterHandle: owner?.handle ?? "",
             email: owner?.email ?? "",
-            status: project.status ?? "to_campaign_review",
-            dateCreated: project.dateCreated ?? "",
-            dateUpdated: project.dateUpdated ?? "",
-            dateRelease: project.calendar?.release ?? "",
+            status: project?.status,
+            dateCreated: project?.dateCreated ?? "",
+            dateUpdated: project?.dateUpdated ?? "",
+            dateRelease: project?.calendar?.release ?? "",
             minOptim:
                 min && opt
                     ? `${formatCurrency(min.amount, min.currency)} - ${formatCurrency(opt.amount, opt.currency)}`
                     : "—",
-            reviewId: review?.id,
-            reviewer: review?.reviewer,
-            advisor: advisorName,
+            reviewId: review.id,
+            reviewType: review.type,
+            reviewer: review.reviewer,
+            advisor: reviewer ? reviewer.displayName || reviewer.email : undefined,
+            // The review is what moves in a review, so its own activity is what the
+            // detail row reports as the last interaction.
+            lastInteraction: review.dateUpdated ?? "",
         };
     }
 
-    /**
-     * Maps each project to the campaign review the API launched for it, so the table
-     * can link to the conversation of every project that has one.
-     */
-    type ReviewRef = { id: number; reviewer?: string };
+    async function fetchTotalEarned(projectIris: string[]) {
+        if (!projectIris.length) return;
 
-    async function fetchReviewsByProject(projectIds: number[]): Promise<Map<number, ReviewRef>> {
-        const mapping = new Map<number, ReviewRef>();
-
-        if (!projectIds.length) return mapping;
-
-        const { data } = await apiProjectReviewsGetCollection({
+        const { data } = await apiProjectSupportsmoneyTotalGetCollection({
             baseUrl: "/api/relay",
-            query: {
-                "project[]": projectIds.map((id) =>
-                    apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(id)),
-                ),
-                itemsPerPage: 100,
-            },
-            headers: { Accept: "application/ld+json" },
+            query: { "project[]": projectIris },
         });
-
-        for (const review of toCollectionItems<ProjectReview>(data)) {
-            const projectId = extractId(review.project);
-
-            if (projectId && review.id !== undefined) {
-                mapping.set(Number(projectId), { id: review.id, reviewer: review.reviewer });
-            }
-        }
-
-        return mapping;
+        if (data) totalEarned = formatCurrency(data.amount, data.currency);
     }
 
-    async function loadProjects(): Promise<void> {
+    /**
+     * Loads the campaign and funding reviews pending of resolution and shows the
+     * table right away. The data each row needs beyond the review itself (project,
+     * owner, assigned reviewer) is fetched afterwards so a slow entity never holds
+     * back the whole page.
+     */
+    async function loadReviews(): Promise<void> {
         table.isLoading = true;
         try {
             const sort = projectSortMap[table.selectedSort];
-            const { data, error } = await apiProjectsGetCollection({
+            const { data, error } = await apiProjectReviewsGetCollection({
                 baseUrl: "/api/relay",
                 query: {
                     ...baseQuery,
@@ -140,63 +116,56 @@
                     itemsPerPage: table.itemsPerPage,
                     [`order[${sort.field}]`]: sort.direction,
                 },
-                headers: { Accept: "application/ld+json", "Accept-Language": " " },
+                headers: { Accept: "application/ld+json" },
             });
+
             if (error) {
-                console.error("Failed to fetch review projects:", error);
+                console.error("Failed to fetch project reviews:", error);
                 return;
             }
 
-            const projects = toCollectionItems<Project>(data);
+            reviews = toCollectionItems<ProjectReview>(data);
             table.totalItems = getCollectionTotalItems(data);
-            fetchTotalEarned(projects.map((p) => p.id).filter(Boolean) as number[]);
 
-            const ownerIris = [
-                ...new Set(projects.map((p) => p.owner).filter(Boolean)),
-            ] as string[];
-            const owners = new Map(
-                await Promise.all(
-                    ownerIris.map(async (iri) => [iri, await fetchOwner(iri)] as const),
-                ),
-            );
-
-            const projectIds = projects
-                .map((p) => p.id)
-                .filter((id): id is number => id !== undefined);
-            const reviewsByProject = await fetchReviewsByProject(projectIds);
-
-            const reviewerIris = [
-                ...new Set(
-                    [...reviewsByProject.values()]
-                        .map((ref) => ref.reviewer)
-                        .filter((iri): iri is string => Boolean(iri)),
-                ),
-            ];
-            const advisors = new Map(
-                await Promise.all(
-                    reviewerIris.map(async (iri) => [iri, await fetchOwner(iri)] as const),
-                ),
-            );
-
-            rows = projects.map((p) => {
-                const review = reviewsByProject.get(p.id ?? 0);
-                const reviewerIri = review?.reviewer;
-                const advisor = reviewerIri ? advisors.get(reviewerIri) : undefined;
-
-                return toRow(
-                    p,
-                    p.owner ? owners.get(p.owner) : undefined,
-                    review,
-                    advisor ? advisor.displayName || advisor.email : undefined,
-                );
-            });
+            hydrate(reviews);
+            fetchTotalEarned(unique(reviews.map((review) => review.project)));
         } finally {
             table.isLoading = false;
         }
     }
 
+    /**
+     * Resolves in the background the project and people behind each review. The
+     * caches in `entityResolvers` make sure repeated IRIs across rows only hit the
+     * API once.
+     */
+    function hydrate(reviewsToHydrate: ProjectReview[]): void {
+        for (const iri of unique(reviewsToHydrate.map((review) => review.project))) {
+            resolveProject(iri).then((project) => {
+                if (!project) return;
+
+                projectsByIri.set(iri, project);
+                if (project.owner) hydrateUser(project.owner);
+            });
+        }
+
+        for (const iri of unique(reviewsToHydrate.map((review) => review.reviewer))) {
+            hydrateUser(iri);
+        }
+    }
+
+    function hydrateUser(iri: string): void {
+        resolveUser(iri).then((user) => {
+            if (user) usersByIri.set(iri, user);
+        });
+    }
+
+    function unique(values: (string | undefined)[]): string[] {
+        return [...new Set(values.filter((iri): iri is string => Boolean(iri)))];
+    }
+
     $effect(() => {
-        loadProjects();
+        loadReviews();
     });
 
     async function handleStatusChange(projectId: number, status: ProjectStatus): Promise<void> {
@@ -206,7 +175,9 @@
             body: { status },
         });
         if (error) console.error("Failed to update project status:", error);
-        loadProjects();
+
+        invalidateProject(apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(projectId)));
+        loadReviews();
     }
 
     let assignState = $state<{ reviewId: number; reviewer?: string; advisor?: string } | null>(
@@ -238,12 +209,24 @@
             body: { reviewer: iri },
         });
         if (error) console.error("Failed to assign advisor:", error);
-        loadProjects();
+        loadReviews();
     }
 
-    function applyFilters(newFilters: ProjectsQuery): void {
+    function applyFilters(newFilters: ReviewsQuery): void {
         filters = { ...filters, ...newFilters };
         table.currentPage = 1;
+    }
+
+    function projectFilter(project: { ["@id"]?: string; id?: number }): ReviewsQuery {
+        const iri =
+            project["@id"] ?? apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(project.id));
+        return { "project[]": [iri] };
+    }
+
+    function reviewerFilter(user: { ["@id"]?: string; id?: number }): ReviewsQuery {
+        const iri =
+            user["@id"] ?? apiUsersIdOrHandleGetUrl.replace("{idOrHandle}", String(user.id));
+        return { "reviewer[]": [iri] };
     }
 </script>
 
@@ -251,23 +234,24 @@
     title={$t("pages.admin.reviews.projects.title")}
     description={$t("pages.admin.reviews.projects.description")}
     filters={{
-        resource: "projects",
+        resource: "project_reviews",
         filters,
         onApplyFilters: applyFilters,
         searchPlaceholder: $t("pages.admin.projects.filters.search.placeholder"),
-        onSelectProject: (p: Project) => applyFilters({ title: p.title }),
+        onSelectProject: (p) => applyFilters(projectFilter(p)),
+        onSelectUser: (u) => applyFilters(reviewerFilter(u)),
     }}
     filterTags={{
         title: $t("pages.admin.reviews.projects.list"),
         filters,
-        onCloseFilter: (newFilters: ProjectsQuery) => {
+        onCloseFilter: (newFilters: ReviewsQuery) => {
             filters = { ...newFilters };
             table.currentPage = 1;
         },
-        resource: "projects",
+        resource: "project_reviews",
     }}
     csv={{
-        endpoint: apiProjectsGetCollectionUrl,
+        endpoint: apiProjectReviewsGetCollectionUrl,
         filenamePrefix: "review-projects",
         queryParams: baseQuery,
         totalItems: table.totalItems,

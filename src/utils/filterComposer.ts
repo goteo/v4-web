@@ -11,6 +11,8 @@ import {
     suggestProjectsBySubtitle,
     suggestProjectsByDescription,
     suggestProjectsBySlug,
+    suggestProjectIris,
+    suggestReviewerIris,
     suggestUserHandle,
     suggestUserEmail,
 } from "./filterSuggestions";
@@ -39,7 +41,7 @@ export type FilterOperator =
     | "lte"
     | "lt";
 
-export type FilterResource = "projects" | "gateway_charges" | "users";
+export type FilterResource = "projects" | "gateway_charges" | "users" | "project_reviews";
 
 export interface FilterOption {
     value: string;
@@ -73,6 +75,11 @@ const gatewayChargeStatuses: FilterOption[] = [
 const chargeTypes: FilterOption[] = [
     { value: "single", label: "Single" },
     { value: "recurring", label: "Recurring" },
+];
+
+const reviewTypes: FilterOption[] = [
+    { value: "campaign", label: "domain.filterComposer.subjectOption.reviewType.campaign" },
+    { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
 ];
 
 const projectStatuses: FilterOption[] = [
@@ -222,17 +229,42 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["gte", "gt", "lte", "lt"],
         resources: ["gateway_charges"],
     },
+    reviewType: {
+        key: "reviewType",
+        param: "type",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        options: reviewTypes,
+        allowsMultipleEquals: true,
+    },
+    project: {
+        key: "project",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        suggest: suggestProjectIris,
+        allowsMultipleEquals: true,
+    },
+    reviewer: {
+        key: "reviewer",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        suggest: suggestReviewerIris,
+        allowsMultipleEquals: true,
+    },
     dateCreated: {
         key: "dateCreated",
         type: "date",
         compatibleOperators: ["before", "after", "strictly_before", "strictly_after"],
-        resources: ["projects", "gateway_charges", "users"],
+        resources: ["projects", "gateway_charges", "users", "project_reviews"],
     },
     dateUpdated: {
         key: "dateUpdated",
         type: "date",
         compatibleOperators: ["before", "after", "strictly_before", "strictly_after"],
-        resources: ["projects", "gateway_charges", "users"],
+        resources: ["projects", "gateway_charges", "users", "project_reviews"],
     },
     handle: {
         key: "handle",

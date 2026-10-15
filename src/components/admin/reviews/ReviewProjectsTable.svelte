@@ -1,5 +1,5 @@
 <script lang="ts" module>
-    import type { Project } from "../../../openapi/client/index.ts";
+    import type { Project, ProjectReview } from "../../../openapi/client/index.ts";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
 
     export type ProjectStatus = NonNullable<Project["status"]>;
@@ -11,17 +11,22 @@
         promoter: string;
         promoterHandle: string;
         email: string;
-        status: ProjectStatus;
+        /** Unknown until the project behind the review has been resolved. */
+        status?: ProjectStatus;
         dateCreated: string;
         dateUpdated: string;
         dateRelease: string;
         minOptim: string;
         /** Identifier of the campaign review this project has, when the API has launched it. */
         reviewId?: number;
+        /** Kind of review the project is going through; decides the selectable statuses. */
+        reviewType?: ProjectReview["type"];
         /** Iri of the reviewer assigned to the campaign review, when there is one. */
         reviewer?: string;
         /** Display name of the assigned reviewer, shown in the advisor column. */
         advisor?: string;
+        /** Last activity of the campaign review, taken from the review rather than the project. */
+        lastInteraction: string;
     };
 
     const headers: DataTableHeader[] = [
@@ -41,7 +46,7 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
+    import { REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -86,19 +91,28 @@
     const statusLabel = (status: string) =>
         $t(`domain.project.status.${status.replaceAll(".", "_")}`);
 
+    /**
+     * Statuses a project can move to for the kind of review it is going through.
+     * Whatever status the project holds is always offered, so a review that
+     * predates the current flow still displays its real state.
+     */
+    function statusOptions(project: ReviewProjectRow): ProjectStatus[] {
+        const base = REVIEW_STATUSES_BY_TYPE[project.reviewType ?? "campaign"];
+        return project.status && !base.includes(project.status) ? [project.status, ...base] : base;
+    }
+
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
 
     function detailFields(project: ReviewProjectRow): DetailsField[] {
         const label = (key: string) => $t(`pages.admin.reviews.projects.table.rows.details.${key}`);
-        // ponytail: phone, risk and pending messages have no API yet — placeholders
+        // ponytail: risk and phone have no API yet — placeholders
         return [
             { label: label("email"), value: project.email || "—" },
             { label: label("phone"), value: "—" },
             { label: label("dateRelease"), value: date(project.dateRelease) },
             { label: label("dateCreated"), value: date(project.dateCreated) },
-            { label: label("lastInteraction"), value: date(project.dateUpdated) },
+            { label: label("lastInteraction"), value: date(project.lastInteraction) },
             { label: label("risk"), value: "—" },
-            { label: label("pendingMessages"), value: "—" },
             { label: label("minOptim"), value: project.minOptim },
         ];
     }
@@ -133,10 +147,10 @@
             <span class="block">{project.id}</span>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 max-w-60 border-t border-b p-4">
-            <p class="text-content truncate">{project.name}</p>
+            <p class="text-content truncate">{project.name || "—"}</p>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
-            <span class="block truncate">{project.promoter}</span>
+            <span class="block truncate">{project.promoter || "—"}</span>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
             {date(project.dateUpdated)}
@@ -144,13 +158,17 @@
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             <div onclick={(e) => e.stopPropagation()} role="presentation">
                 <select
-                    class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm"
-                    value={project.status}
+                    class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
+                    value={project.status ?? ""}
+                    disabled={!project.status}
                     aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
                     onchange={(e) =>
                         onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
                 >
-                    {#each CAMPAIGN_REVIEW_STATUSES as status (status)}
+                    {#if !project.status}
+                        <option value="">—</option>
+                    {/if}
+                    {#each statusOptions(project) as status (status)}
                         <option value={status}>{statusLabel(status)}</option>
                     {/each}
                 </select>

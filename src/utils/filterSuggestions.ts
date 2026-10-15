@@ -6,6 +6,10 @@ import {
     apiUsersGetCollection,
     apiCategoriesGetCollection,
 } from "../openapi/client";
+import {
+    apiProjectsIdOrSlugGetUrl,
+    apiUsersIdOrHandleGetUrl,
+} from "../openapi/client/operation-paths.gen";
 
 import type { FilterOption } from "./filterComposer";
 
@@ -163,6 +167,34 @@ export async function suggestUserEmail(q: string): Promise<FilterOption[]> {
     return data.map((u) => ({
         value: u.email ?? "",
         label: u.email ?? "",
+    }));
+}
+
+/** Suggests project IRIs, the values the `project[]` filter of ProjectReviews expects. */
+export async function suggestProjectIris(q: string): Promise<FilterOption[]> {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) return [];
+
+    const { data } = await apiProjectsGetCollection({ query: { title: trimmed } });
+    if (!data) return [];
+
+    return data.map((p) => ({
+        value: apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(p.id)),
+        label: p.title ?? p.slug ?? "",
+    }));
+}
+
+/** Suggests user IRIs, the values the `reviewer[]` filter of ProjectReviews expects. */
+export async function suggestReviewerIris(q: string): Promise<FilterOption[]> {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) return [];
+
+    const { data } = await apiUsersGetCollection({ query: { q: trimmed, itemsPerPage: 5 } });
+    if (!data) return [];
+
+    return data.map((u) => ({
+        value: apiUsersIdOrHandleGetUrl.replace("{idOrHandle}", String(u.id)),
+        label: u.displayName ?? u.handle ?? "",
     }));
 }
 

@@ -34,7 +34,7 @@
         searchPlaceholder?: string;
         onSelectProject?: (project: ProjectJsonld) => void;
         onSelectUser?: (user: UserJsonld) => void;
-        resource?: "projects" | "gateway_charges" | "users";
+        resource?: "projects" | "gateway_charges" | "users" | "project_reviews";
     } = $props();
 
     let query = $state("");
@@ -46,10 +46,18 @@
     let debounceTimeout: ReturnType<typeof setTimeout>;
 
     const showProjects = $derived(
-        !resource || resource === "gateway_charges" || resource === "projects",
+        !resource ||
+            resource === "gateway_charges" ||
+            resource === "projects" ||
+            resource === "project_reviews",
     );
     const showTipjars = $derived(!resource || resource === "gateway_charges");
-    const showUsers = $derived(!resource || resource === "gateway_charges" || resource === "users");
+    const showUsers = $derived(
+        !resource ||
+            resource === "gateway_charges" ||
+            resource === "users" ||
+            resource === "project_reviews",
+    );
 
     async function fetchResults(text: string) {
         const trimmed = text.trim();
