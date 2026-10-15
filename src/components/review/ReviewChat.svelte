@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { actions } from "astro:actions";
+    import { actions, isInputError } from "astro:actions";
 
     import ChatMessage from "./ChatMessage.svelte";
     import ChatTextarea from "./ChatTextarea.svelte";
@@ -15,6 +15,7 @@
         REVIEW_RISKS,
         RISK_TAG_VARIANTS,
     } from "../../utils/review";
+    import { REVIEW_COMMENT_MIN_LENGTH } from "../../validation/reviewValidation";
     import BackButton from "../library/buttons/BackButton.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Toast from "../library/feedback/Toast.svelte";
@@ -131,6 +132,17 @@
     }
 
     /**
+     * Reads the message off a rejected action. Our own rules carry the translation
+     * key and its variables on the issue, so the value they quote (a maximum length,
+     * for one) always matches the one the schema enforced.
+     */
+    function failFrom(error: { message: string }) {
+        const issue = isInputError(error) ? error.issues[0] : undefined;
+
+        fail(issue?.code === "custom" ? $t(issue.message, issue.params) : error.message);
+    }
+
+    /**
      * Assesses the risk of this area through the same action the areas screen uses, so
      * the consultant-only rule is enforced on the server for both screens.
      */
@@ -150,7 +162,7 @@
 
         if (error) {
             chosenRisk = previous ?? undefined;
-            fail(error.message);
+            failFrom(error);
 
             return;
         }
@@ -178,7 +190,7 @@
         sending = false;
 
         if (error) {
-            fail(error.message);
+            failFrom(error);
 
             return;
         }
@@ -274,6 +286,7 @@
         bind:value={draft}
         disabled={sending}
         canInsertRich={isAdminViewer}
+        minLength={REVIEW_COMMENT_MIN_LENGTH}
         onSend={send}
     />
 </div>

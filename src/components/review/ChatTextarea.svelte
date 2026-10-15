@@ -13,6 +13,11 @@
         disabled?: boolean;
         /** Advertises the link and image syntax, only meaningful for the admin. */
         canInsertRich?: boolean;
+        /**
+         * How long the API requires a message to be. When given, the counter shows how
+         * close the draft is to it; nothing stops the text from being written.
+         */
+        minLength?: number;
         onSend?: () => void;
     }
 
@@ -21,6 +26,7 @@
         value = $bindable(""),
         disabled = false,
         canInsertRich = false,
+        minLength,
         onSend,
     }: Props = $props();
 
@@ -28,8 +34,14 @@
 
     let isEmpty = $derived(!value.trim());
 
+    /** How much of the draft the API would receive, since the message is trimmed before sending. */
+    let length = $derived(value.trim().length);
+
+    /** Too short to be accepted: the counter reads red until the draft reaches it. */
+    let isTooShort = $derived(minLength !== undefined && length < minLength);
+
     function handleSend() {
-        if (disabled || isEmpty) return;
+        if (disabled || isEmpty || isTooShort) return;
 
         onSend?.();
     }
@@ -151,10 +163,19 @@
                 class="text-content bg-grey h-full w-full resize-none rounded-lg border-0 p-4 pr-10 text-base shadow-sm ring-0 disabled:cursor-not-allowed"
                 placeholder={$t("pages.review.chat.placeholder")}></textarea>
             <ChatMarkdownHelp class="absolute top-2 right-2" {canInsertRich} />
+            {#if minLength !== undefined}
+                <span
+                    class="absolute right-2 bottom-2 text-xs tabular-nums"
+                    class:text-tertiary={isTooShort}
+                    class:text-content={!isTooShort}
+                >
+                    {length}/{minLength}
+                </span>
+            {/if}
         </div>
         <button
             type="button"
-            disabled={disabled || isEmpty}
+            disabled={disabled || isEmpty || isTooShort}
             onclick={handleSend}
             class="border-grey flex aspect-square size-10 shrink-0 cursor-pointer items-center justify-center rounded-[80px] border bg-white p-2 shadow-[0_2px_4px_0_rgba(0,0,0,0.16)] disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={$t("pages.review.chat.send")}

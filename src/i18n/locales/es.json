@@ -56,6 +56,12 @@
           "max": "La fecha de salida no puede ser después de {{ max }}"
         }
       },
+      "review": {
+        "status": "El estado de la revisión no es válido",
+        "comment": {
+          "max": "El mensaje no puede superar los {{ max }} caracteres"
+        }
+      },
       "errors": {
         "summary": {
           "title": "Corrige los siguientes errores:"

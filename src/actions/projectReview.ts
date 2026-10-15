@@ -1,5 +1,4 @@
 import { ActionError, defineAction } from "astro:actions";
-import { z } from "zod";
 
 import { apiProjectsIdPatch } from "../openapi/client";
 import {
@@ -9,16 +8,17 @@ import {
     type ReviewError,
 } from "../services/projectReview";
 import { canAccessReview, isConsultant, sessionUserIri } from "../services/reviewAccess";
-import { PROJECT_REVIEW_STATUSES } from "../types/projectReview";
 import { extractId } from "../utils/extractId";
+import {
+    zSendReviewAreaCommentInput,
+    zUpdateReviewAreaRiskInput,
+    zUpdateReviewProjectStatusInput,
+} from "../validation/reviewValidation";
 
 /**
  * Every action below posts to /_actions/*, which no firewall rule matches, so the
  * permissions of the reviews feature are enforced here rather than by the ACL.
  */
-
-const reviewId = z.coerce.number().int().positive();
-const areaId = z.coerce.number().int().positive();
 
 /**
  * Turns a failure of the review service into the error the screens display.
@@ -54,11 +54,7 @@ function fail(error: ReviewError | undefined, t: (key: string) => string): Actio
  */
 export const updateReviewAreaRisk = defineAction({
     accept: "json",
-    input: z.object({
-        reviewId,
-        areaId,
-        risk: z.enum(["low", "mid", "high"]),
-    }),
+    input: zUpdateReviewAreaRiskInput,
     handler: async (input, context) => {
         const { session, t, lang } = context.locals;
 
@@ -97,10 +93,7 @@ export const updateReviewAreaRisk = defineAction({
  */
 export const updateReviewProjectStatus = defineAction({
     accept: "json",
-    input: z.object({
-        reviewId,
-        status: z.enum(PROJECT_REVIEW_STATUSES),
-    }),
+    input: zUpdateReviewProjectStatusInput,
     handler: async (input, context) => {
         const { session, t, lang } = context.locals;
 
@@ -159,11 +152,7 @@ export const updateReviewProjectStatus = defineAction({
  */
 export const sendReviewAreaComment = defineAction({
     accept: "json",
-    input: z.object({
-        reviewId,
-        areaId,
-        body: z.string("system.constraint.text.notEmpty").trim().min(1).max(2000),
-    }),
+    input: zSendReviewAreaCommentInput,
     handler: async (input, context) => {
         const { session, t, lang } = context.locals;
 
