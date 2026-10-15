@@ -266,7 +266,7 @@
     },
     "imageUploadModal": {
       "title": "Sube tus imágenes",
-      "description": "Añade imágenes o vídeos aquí. El formato idóneo para Goteo es {{ size }}",
+      "description": "Añade imágenes o vídeos aquí. Tamaño recomendado {{ size }}",
       "dropzone": "Arrastra tus archivos aquí o <u>haz clic para seleccionarlos.</u>"
     },
     "richTextEditor": {
@@ -632,14 +632,11 @@
     },
     "home": {
       "banner": {
-        "title": "¡Renovamos Goteo!",
-        "description": "Goteo ha construido una historia única en el mundo del micromecenazgo. ¿Quieres seguir formando parte de ella?",
-        "ctaText": "Súmate a nuestra historia",
         "closeAriaLabel": "Cerrar banner"
       },
       "campaigns": {
         "title": "Campañas más recientes",
-        "tabsTitle": "Campañas en Goteo",
+        "tabsTitle": "Algunos de nuestros proyectos",
         "tabs": {
           "endingSoon": "Acaban pronto",
           "mostSuccessful": "Más exitosas",
@@ -649,17 +646,13 @@
         "obtained": "Obtenido",
         "minimum": "Mínimo",
         "optimum": "Óptimo",
-        "daysRemaining": "Quedan {{days}} días",
+        "daysRemaining": "Faltan {{days}} días",
+        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "status": {
-          "minimumReached": "¡Mínimo conseguido!",
-          "goForMinimum": "¡A por el mínimo!"
-        },
+        "minimumExceeded": "¡Mínimo superado!",
         "userDonations": "Tus donaciones:"
       },
       "blog": {
-        "title": "Se avecinan grandes cambios… ¡no te pierdas nada!",
-        "excerpt": "Un proceso que implica una importante migración técnica de la plataforma actual, y para hacerlo con todas las garantías de seguridad y sin pérdida de información, necesitamos llevar a cabo una transición ordenada, con fechas clave para la publicación de campañas y la realización de donaciones…",
         "readMore": "Seguir leyendo"
       },
       "matchfunding": {
@@ -1166,7 +1159,7 @@
       },
       "manage": {
         "title": "Gestionando proyecto: {{ project }}",
-        "subtitle": "Consulta tu actividad en Goteo",
+        "subtitle": "Consulta tu actividad",
         "editProject": "Editar proyecto",
         "itemsPerPage": "Líneas por página:",
         "error": "No se ha podido guardar el cambio",
@@ -1292,19 +1285,54 @@
       }
     },
     "review": {
+      "title": "Revisión de {{ project }}",
+      "titlePromoter": "Asesoría con @{{ reviewer }} para {{ project }}",
+      "titleReviewer": "Asesoría con @{{ promoter }} del proyecto {{ project }}",
+      "titleFallback": "Asesoría del proyecto {{ project }}",
+      "subtitleReviewer": "Aquí encontrarás toda la información sobre esta conversación con {{ promoter }}",
+      "subtitlePromoter": "Aquí encontrarás toda la información sobre esta conversación con {{ reviewer }}",
+      "subtitleFallback": "Aquí encontrarás toda la información sobre esta conversación",
+      "project": {
+        "label": "Proyecto"
+      },
+      "status": {
+        "label": "Estado de la revisión"
+      },
+      "areas": {
+        "title": "Áreas de riesgo",
+        "empty": "Esta revisión todavía no tiene áreas de riesgo."
+      },
       "btns": {
-        "seeChat": "Ver conversación",
-        "changeRisk": "Cambiar riesgo"
+        "seeChat": "Ver detalle",
+        "changeRisk": "Cambiar riesgo",
+        "changeStatus": "Cambiar estado",
+        "back": "Volver a la revisión"
       },
       "card": {
-        "activity": "{{ count }} chats. Última actividad {{ date }}"
+        "activity": "{{ count }} mensajes. Última actividad {{ date }}"
       },
       "chat": {
-        "placeholder": "Escribe un mensaje…"
+        "title": "{{ area }} · {{ project }}",
+        "placeholder": "Escribe un mensaje…",
+        "send": "Enviar mensaje",
+        "empty": "Todavía no hay mensajes en esta conversación. Empieza tú.",
+        "today": "Hoy",
+        "yesterday": "Ayer",
+        "day": "{{ date }}",
+        "riskChange": {
+          "title": "El proyecto ha cambiado el riesgo",
+          "description": "La asesora asignada ha modificado el riesgo del proyecto, de {{from}} a {{to}}"
+        }
+      },
+      "errors": {
+        "forbidden": "No tienes permiso para realizar esta acción.",
+        "notFound": "La revisión no existe.",
+        "areaNotFound": "El área de riesgo no existe.",
+        "statusNotUpdated": "No se ha podido actualizar el estado del proyecto."
       }
     },
     "search": {
-      "title": "Buscar Proyectos - Goteo",
+      "title": "Buscar Proyectos",
       "description": "Explora nuestro catálogo de proyectos y encuentra la que más te inspire para hacer tu donación",
       "heading": "Encuentra los Proyectos que buscas",
       "subtitle": "Explora nuestro catálogo de proyectos y elige la que más te inspire para hacer tu donación",
@@ -1454,7 +1482,8 @@
         "projects": "Proyectos",
         "users": "Usuarios",
         "comm": "Comunicación",
-        "home": "Portada"
+        "home": "Portada",
+        "reviews": "Revisiones"
       },
       "sidebar": {
         "aria": {
@@ -1478,24 +1507,42 @@
           "description": "El inicio de la portada, lo más importante.",
           "errors": {
             "forbidden": "No tienes permisos para gestionar el hero de la portada",
+            "invalidUrl": "La URL del enlace no es válida",
+            "invalidTranslations": "Las traducciones enviadas no son válidas",
+            "incompleteLanguages": "Faltan campos obligatorios en: {{ languages }}"
+          },
+          "addTranslation": "Añadir traducción",
+          "addTranslationModal": {
+            "title": "Añade una nueva traducción",
+            "description": "Busca y elige el idioma al que quieres traducir el contenido del hero",
+            "searchPlaceholder": "Busca entre todos los idiomas…",
+            "submit": "Añadir"
+          },
+          "removeTranslation": "Eliminar traducción",
+          "removeTranslationModal": {
+            "title": "¿Eliminar esta traducción?",
+            "description": "La traducción se eliminará del formulario y no se guardará.",
             "invalidUrl": "La URL del enlace no es válida"
           },
           "tabs": {
             "fields": "Nuevo",
-            "history": "Histórico"
+            "history": "Registro"
           },
           "history": {
-            "title": "Histórico de bloques",
+            "title": "Registro de bloques",
             "description": "Aquí puedes ver los bloques programados y eliminar los que no quieras publicar",
-            "noData": "No hay bloques en el histórico",
+            "noData": "No hay bloques en el registro",
             "filter": {
               "all": "Todos",
-              "upcoming": "Programado"
+              "upcoming": "Programados"
             },
+            "searchPlaceholder": "Busca por ID, título o contenido",
             "headers": {
+              "id": "ID",
               "title": "Título",
               "content": "Contenido",
               "startsAt": "Fecha de inicio",
+              "languages": "Idiomas",
               "status": "Estado"
             },
             "status": {
@@ -1980,6 +2027,7 @@
         "title": "Comunicación",
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
+          "blog": "Blog",
           "banners": "Anuncios",
           "newsletter": "Boletín"
         },
@@ -2027,6 +2075,106 @@
               "description": "El anuncio se eliminará de forma permanente y desaparecerá del histórico. Esta acción no se puede deshacer."
             }
           }
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Los administradores pueden gestionar entradas del blog, crear nuevo contenido y modificar artículos.",
+          "errors": {
+            "forbidden": "No tienes permisos para gestionar el blog",
+            "invalidVideoUrl": "El enlace debe ser un vídeo de YouTube o Vimeo",
+            "incompleteLanguages": "Falta el título en: {{ languages }}"
+          },
+          "list": {
+            "new": "Nuevo post",
+            "total": "Total: {{ total }} resultados",
+            "searchPlaceholder": "ID, título, subtítulo o texto",
+            "noData": "No hay entradas en el blog",
+            "draft": "Borrador",
+            "edit": "Editar",
+            "headers": {
+              "id": "ID",
+              "title": "Título",
+              "info": "Información",
+              "translations": "Traducciones",
+              "published": "Publicado"
+            }
+          },
+          "form": {
+            "addTranslation": "Añadir traducción",
+            "titleSection": "Título y subtítulo",
+            "titlePlaceholder": "Añade el título",
+            "subtitlePlaceholder": "Añade el subtítulo",
+            "authorSection": "Autor y fecha de publicación",
+            "authorPlaceholder": "Autor",
+            "datePlaceholder": "Fecha de publicación",
+            "headerSection": "Imágenes de cabecera",
+            "contentSection": "Texto",
+            "contentPlaceholder": "Escribe aquí el texto de la entrada",
+            "videoSection": "Añade un vídeo (Youtube, Vimeo)",
+            "videoPlaceholder": "Añade el enlace del vídeo",
+            "sectionSection": "Sección",
+            "sections": {
+              "news": "Novedades",
+              "stories": "Historias",
+              "resources": "Recursos",
+              "newsletter": "Boletín"
+            },
+            "saveAndExit": "Guardar y salir",
+            "publish": "Publicar entrada",
+            "removeTranslation": "Eliminar traducción",
+            "translationModal": {
+              "title": "Añade una nueva traducción",
+              "description": "Busca y elige el idioma al que quieres traducir esta entrada.",
+              "searchPlaceholder": "Busca entre todos los idiomas…",
+              "submit": "Añadir"
+            },
+            "removeTranslationModal": {
+              "title": "¿Eliminar esta traducción?",
+              "description": "La traducción se eliminará del formulario y no se guardará."
+            }
+          }
+        }
+      },
+      "reviews": {
+        "description": "Revisa los proyectos enviados a revisión y gestiona su estado.",
+        "projects": {
+          "title": "Revisión de Proyectos",
+          "description": "Gestiona y supervisa el estado de tus proyectos de crowdfunding de forma centralizada.",
+          "list": "Listado de proyectos:",
+          "totalizers": {
+            "selected": "Proyectos seleccionados:"
+          },
+          "table": {
+            "headers": {
+              "name": "Proyecto",
+              "promoter": "Impulsor",
+              "dateSubmitted": "Envío a revisión",
+              "status": "Estado",
+              "advisor": "Asesor"
+            },
+            "rows": {
+              "unassigned": "Sin asignar",
+              "details": {
+                "email": "Contacto mail:",
+                "phone": "Teléfono:",
+                "dateRelease": "Lanzamiento",
+                "dateCreated": "Creación",
+                "lastInteraction": "Última interacción",
+                "risk": "Riesgo",
+                "pendingMessages": "Mensajes pendientes",
+                "minOptim": "Mínimo - Óptimo:",
+                "lastModified": "Última modificación:",
+                "btns": {
+                  "preview": "Preview proyecto",
+                  "promoter": "Perfil de impulsor",
+                  "config": "Config. proyecto",
+                  "advisory": "Asesoría de proyecto",
+                  "assignAdvisor": "Asignar asesor",
+                  "annotations": "Anotaciones"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -2047,9 +2195,10 @@
       "noProjects": "No hay proyectos impulsados aún.",
       "noBio": "Todavía no hay información sobre este perfil.",
       "donorType": {
+        "noProjects": "Aún no ha donado a ningún proyecto.",
         "fan": {
           "title": "Fan",
-          "description": "Este donante ha invertido más de 25€",
+          "description": "Este donante ha invertido {{ amount }}",
           "projectsDonated": "Proyectos donados",
           "moneyDonated": "Dinero donado"
         },
@@ -2077,13 +2226,20 @@
     "me": {
       "page": {
         "title": "Actividad",
-        "subtitle": "Consulta tu actividad en Goteo"
+        "subtitle": "Consulta tu actividad"
+      },
+      "nav": {
+        "activity": "Actividad",
+        "wallet": "Monedero",
+        "inbox": "Buzón",
+        "profile": "Perfil"
       },
       "manage": {
         "title": "Perfil de impulsor",
-        "subtitle": "Sé parte de Goteo: presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
-          "publicProfile": "Perfil público"
+          "publicProfile": "Perfil público",
+          "personalProfile": "Perfil personal"
         },
         "profile": {
           "uploadImage": "Sube nueva imagen",
@@ -2116,7 +2272,7 @@
         },
         "location": {
           "share": "*Compartir mi ubicación",
-          "disclaimer": "*Compartir tu ubicación con el equipo de Goteo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+          "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
         },
         "social": {
           "title": "Redes sociales",
@@ -2126,6 +2282,26 @@
           "x": "Inserte su cuenta de X",
           "linkedin": "Inserte su cuenta de Linkedin",
           "placeholder": "Usuario o enlace"
+        },
+        "motivatingProjects": {
+          "title": "Proyectos que te motivan",
+          "subtitle": "Indica el tipo de proyectos que pueden conectar con tus intereses para cofinanciarlos y/o aportar con otros recursos, conocimientos o habilidades. Estas categorías son transversales, puedes seleccionar más de una."
+        },
+        "personal": {
+          "title": "Perfil personal",
+          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y nuestro equipo pueden verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "info": {
+            "title": "Información personal",
+            "subtitle": "Tal y como aparecen en tu documentación.",
+            "postalCode": "Código postal",
+            "anonymousDonation": "Al realizar una donación mantener mi perfil anónimo",
+            "howDidYouMeet": "¿Cómo nos conociste?",
+            "documentType": "Tipo de documento",
+            "birthYear": "Año de nacimiento",
+            "gender": "Sexo"
+          },
+          "success": "Datos personales actualizados correctamente",
+          "error": "No se pudieron guardar los datos personales. Inténtalo de nuevo más tarde."
         },
         "viewProfile": "Ver mi perfil",
         "save": "Guardar cambios",
@@ -2144,8 +2320,9 @@
             "preferences": "Preferencias"
           },
           "languages": {
-            "title": "Idiomas",
-            "preferred": "Selecciona tu idioma"
+            "title": "Idioma de la interfaz",
+            "label": "Selecciona un idioma",
+            "helper": "La aplicación usará este idioma para la interfaz e intentará servirte contenido primero en este idioma"
           },
           "save": "Guardar preferencias",
           "toast": {
@@ -2256,6 +2433,11 @@
       }
     },
     "blog": {
+      "title": "Blog",
+      "description": "Noticias, historias y recursos sobre crowdfunding, matchfunding y las campañas de Goteo.",
+      "all": "Todas",
+      "empty": "Todavía no hay entradas publicadas",
+      "by": "Por: {{ author }}",
       "share": {
         "modal": {
           "title": "Difunde este blog por el mundo",

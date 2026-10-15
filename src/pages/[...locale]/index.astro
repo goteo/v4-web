@@ -14,6 +14,7 @@ import Banners from "../../components/home/HomeBanners.svelte";
 // import Resources from "../../components/home/Resources.astro";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
+import { blogPostRepository } from "../../repositories/blogPosts";
 import { homeHeroRepository } from "../../repositories/homeHero";
 import { getFeaturedUsers } from "../../services/featuredUsers";
 import { renderMarkdown } from "../../utils/renderMarkdown";
@@ -27,7 +28,10 @@ if (locale && !isSupportedLocale(locale)) {
 const { t, lang } = Astro.locals;
 
 const activeBanners = await bannerRepository.getActive();
-const hero = await homeHeroRepository.getActive();
+const hero = await homeHeroRepository.getActive(lang);
+const {
+    posts: [latestPost],
+} = await blogPostRepository.getPublished(lang, { section: null, page: 1, perPage: 1 });
 // Authored in the admin as Markdown. Only ROLE_ADMIN can write it.
 const heroContent = hero ? await renderMarkdown(hero.content) : null;
 
@@ -41,7 +45,7 @@ const featuredUsers = await getFeaturedUsers(lang);
         <Hero {hero} content={heroContent} />
         <Banners banners={activeBanners} client:visible />
         <Campaigns />
-        <Blog />
+        {latestPost && <Blog post={latestPost} />}
         <Stats />
         <CampaignsTabs />
         <Matchfunding />

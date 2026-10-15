@@ -166,6 +166,87 @@ export type AccountingTransactionJsonld = {
     target?: string;
 };
 
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type Address = {
+    readonly id?: number;
+    user: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country: string;
+};
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type AddressJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    readonly id?: number;
+    user: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country: string;
+};
+
 export type Budget = {
     /**
      * A summary of the minimum budget. As described by items with specified minimum money.
@@ -241,9 +322,8 @@ export type BudgetSummaryJsonld = {
 };
 
 /**
- * A Category can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 Categories, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
  * \
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
@@ -268,9 +348,8 @@ export type Category = {
 };
 
 /**
- * A Category can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 Categories, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
  * \
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
@@ -1380,7 +1459,7 @@ export type MoneyOutputJsonld = {
 export type Organization = {
     readonly user?: string;
     /**
-     * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
+     * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
     taxId: string;
     /**
@@ -1415,7 +1494,7 @@ export type OrganizationJsonld = {
     readonly '@type'?: string;
     readonly user?: string;
     /**
-     * ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
+     * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
      */
     taxId: string;
     /**
@@ -1453,7 +1532,7 @@ export type Person = {
     firstName?: string;
     /**
      * Last-part of the name of the person,
-     * in most western conventions this is the family name(s). e.g: Smith, Herrera García, etc.
+     * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
 };
@@ -1486,7 +1565,7 @@ export type PersonJsonld = {
     firstName?: string;
     /**
      * Last-part of the name of the person,
-     * in most western conventions this is the family name(s). e.g: Smith, Herrera García, etc.
+     * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
 };
@@ -1557,6 +1636,10 @@ export type Project = {
      * A list of the available Categories of this Project.
      */
     categories: Array<string>;
+    /**
+     * A list of the available Themes of this Project.
+     */
+    themes: Array<string>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -1636,6 +1719,10 @@ export type ProjectProjectCreationDto = {
      */
     categories: Array<string>;
     /**
+     * List of Themes.
+     */
+    themes?: Array<string>;
+    /**
      * ISO 3166 data about the Project's territory of interest.
      */
     territory: Territory;
@@ -1662,6 +1749,10 @@ export type ProjectProjectCreationDtoJsonld = {
      * List of Categories.
      */
     categories: Array<string>;
+    /**
+     * List of Themes.
+     */
+    themes?: Array<string>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -1694,6 +1785,10 @@ export type ProjectProjectUpdationDto = {
      * List of Categories.
      */
     categories?: Array<string>;
+    /**
+     * List of Themes.
+     */
+    themes?: Array<string>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -1784,6 +1879,10 @@ export type ProjectJsonld = {
      * A list of the available Categories of this Project.
      */
     categories: Array<string>;
+    /**
+     * A list of the available Themes of this Project.
+     */
+    themes: Array<string>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -2085,6 +2184,127 @@ export type ProjectCollaborationCandidacyJsonld = {
 };
 
 /**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export type ProjectReview = {
+    readonly id?: number;
+    project?: string;
+    reviewer?: string;
+    type?: 'campaign' | 'financial';
+    areas?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export type ProjectReviewJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    readonly id?: number;
+    project?: string;
+    reviewer?: string;
+    type?: 'campaign' | 'financial';
+    areas?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export type ProjectReviewArea = {
+    readonly id?: number;
+    review?: string;
+    title?: string;
+    summary?: string;
+    risk?: 'low' | 'mid' | 'high';
+    comments?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export type ProjectReviewAreaJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    readonly id?: number;
+    review?: string;
+    title?: string;
+    summary?: string;
+    risk?: 'low' | 'mid' | 'high';
+    comments?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export type ProjectReviewComment = {
+    readonly id?: number;
+    area: string;
+    author: string;
+    body: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export type ProjectReviewCommentJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    readonly id?: number;
+    area: string;
+    author: string;
+    body: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
 export type ProjectReward = {
@@ -2218,7 +2438,7 @@ export type ProjectRewardClaim = {
     /**
      * Only used when the reward is a physical object that needs to be shipped.
      */
-    shippingAddress?: ShippingAddress | null;
+    address?: Address | null;
 };
 
 /**
@@ -2239,7 +2459,7 @@ export type ProjectRewardClaimRewardClaimCreationDto = {
     /**
      * If the reward is a physical object that needs to be delivered to an specific place.
      */
-    shippingAddress?: ShippingAddress | null;
+    address?: string | null;
 };
 
 /**
@@ -2260,7 +2480,7 @@ export type ProjectRewardClaimRewardClaimCreationDtoJsonld = {
     /**
      * If the reward is a physical object that needs to be delivered to an specific place.
      */
-    shippingAddress?: ShippingAddressJsonld | null;
+    address?: string | null;
 };
 
 /**
@@ -2278,7 +2498,7 @@ export type ProjectRewardClaimRewardClaimUpdationDto = {
     /**
      * If the reward is a physical object that needs to be delivered to an specific place.
      */
-    shippingAddress?: ShippingAddress | null;
+    address?: string | null;
 };
 
 /**
@@ -2315,7 +2535,7 @@ export type ProjectRewardClaimJsonld = {
     /**
      * Only used when the reward is a physical object that needs to be shipped.
      */
-    shippingAddress?: ShippingAddressJsonld | null;
+    address?: AddressJsonld | null;
 };
 
 /**
@@ -2553,77 +2773,6 @@ export type ProjectVideoJsonld = {
     thumbnail?: string | null;
 };
 
-export type ShippingAddress = {
-    /**
-     * First name(s) of the person receiving the shipment.
-     */
-    firstName: string;
-    /**
-     * Last name(s) of the person receiving the shipment.
-     */
-    lastName: string;
-    /**
-     * Line 1: usually street name and number.
-     */
-    addressLine1: string;
-    /**
-     * Line 2: additional data like apartment number, door, etc.
-     */
-    addressLine2?: string | null;
-    /**
-     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
-     */
-    city: string;
-    /**
-     * Postal/PIN/ZIP code to which the address lines belong.
-     */
-    postCode: string;
-    /**
-     * ISO 3166-1 alpha-2 two-letter country code.\
-     * e.g: ES (Spain).
-     */
-    country: string;
-};
-
-export type ShippingAddressJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
-    /**
-     * First name(s) of the person receiving the shipment.
-     */
-    firstName: string;
-    /**
-     * Last name(s) of the person receiving the shipment.
-     */
-    lastName: string;
-    /**
-     * Line 1: usually street name and number.
-     */
-    addressLine1: string;
-    /**
-     * Line 2: additional data like apartment number, door, etc.
-     */
-    addressLine2?: string | null;
-    /**
-     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
-     */
-    city: string;
-    /**
-     * Postal/PIN/ZIP code to which the address lines belong.
-     */
-    postCode: string;
-    /**
-     * ISO 3166-1 alpha-2 two-letter country code.\
-     * e.g: ES (Spain).
-     */
-    country: string;
-};
-
 export type Territory = {
     /**
      * ISO 3166-1 alpha-2 two-letter country code.\
@@ -2675,6 +2824,65 @@ export type TerritoryJsonld = {
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
     address?: string | null;
+};
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type Theme = {
+    /**
+     * This value will identify this Theme in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Theme.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Theme is about.
+     */
+    name: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type ThemeJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    /**
+     * This value will identify this Theme in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Theme.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Theme is about.
+     */
+    name: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
 };
 
 /**
@@ -3226,6 +3434,164 @@ export type ApiAccountingTransactionsIdGetResponses = {
 };
 
 export type ApiAccountingTransactionsIdGetResponse = ApiAccountingTransactionsIdGetResponses[keyof ApiAccountingTransactionsIdGetResponses];
+
+export type ApiAddressesGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * The collection page number
+         */
+        page?: number;
+        /**
+         * The number of items per page
+         */
+        itemsPerPage?: number;
+    };
+    url: '/v4/addresses';
+};
+
+export type ApiAddressesGetCollectionResponses = {
+    /**
+     * Address collection
+     */
+    200: Array<Address>;
+};
+
+export type ApiAddressesGetCollectionResponse = ApiAddressesGetCollectionResponses[keyof ApiAddressesGetCollectionResponses];
+
+export type ApiAddressesPostData = {
+    /**
+     * The new Address resource
+     */
+    body: Address;
+    path?: never;
+    query?: never;
+    url: '/v4/addresses';
+};
+
+export type ApiAddressesPostErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiAddressesPostError = ApiAddressesPostErrors[keyof ApiAddressesPostErrors];
+
+export type ApiAddressesPostResponses = {
+    /**
+     * Address resource created
+     */
+    201: Address;
+};
+
+export type ApiAddressesPostResponse = ApiAddressesPostResponses[keyof ApiAddressesPostResponses];
+
+export type ApiAddressesIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Address identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/addresses/{id}';
+};
+
+export type ApiAddressesIdDeleteErrors = {
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiAddressesIdDeleteError = ApiAddressesIdDeleteErrors[keyof ApiAddressesIdDeleteErrors];
+
+export type ApiAddressesIdDeleteResponses = {
+    /**
+     * Address resource deleted
+     */
+    204: void;
+};
+
+export type ApiAddressesIdDeleteResponse = ApiAddressesIdDeleteResponses[keyof ApiAddressesIdDeleteResponses];
+
+export type ApiAddressesIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Address identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/addresses/{id}';
+};
+
+export type ApiAddressesIdGetErrors = {
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiAddressesIdGetError = ApiAddressesIdGetErrors[keyof ApiAddressesIdGetErrors];
+
+export type ApiAddressesIdGetResponses = {
+    /**
+     * Address resource
+     */
+    200: Address;
+};
+
+export type ApiAddressesIdGetResponse = ApiAddressesIdGetResponses[keyof ApiAddressesIdGetResponses];
+
+export type ApiAddressesIdPatchData = {
+    /**
+     * The updated Address resource
+     */
+    body: Address;
+    path: {
+        /**
+         * Address identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/addresses/{id}';
+};
+
+export type ApiAddressesIdPatchErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiAddressesIdPatchError = ApiAddressesIdPatchErrors[keyof ApiAddressesIdPatchErrors];
+
+export type ApiAddressesIdPatchResponses = {
+    /**
+     * Address resource updated
+     */
+    200: Address;
+};
+
+export type ApiAddressesIdPatchResponse = ApiAddressesIdPatchResponses[keyof ApiAddressesIdPatchResponses];
 
 export type ApiCategoriesGetCollectionData = {
     body?: never;
@@ -4570,6 +4936,8 @@ export type ApiProjectsGetCollectionData = {
         subtitle?: string;
         categories?: string;
         'categories[]'?: Array<string>;
+        themes?: string;
+        'themes[]'?: Array<string>;
         'territory.country'?: string;
         'territory.country[]'?: Array<string>;
         'territory.subLvl1'?: string;
@@ -5269,6 +5637,473 @@ export type ApiProjectCollaborationCandidaciesIdPatchResponses = {
 
 export type ApiProjectCollaborationCandidaciesIdPatchResponse = ApiProjectCollaborationCandidaciesIdPatchResponses[keyof ApiProjectCollaborationCandidaciesIdPatchResponses];
 
+export type ApiProjectReviewsGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * The collection page number
+         */
+        page?: number;
+        /**
+         * The number of items per page
+         */
+        itemsPerPage?: number;
+        project?: string;
+        'project[]'?: Array<string>;
+        reviewer?: string;
+        'reviewer[]'?: Array<string>;
+        type?: string;
+        'type[]'?: Array<string>;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/project_reviews';
+};
+
+export type ApiProjectReviewsGetCollectionResponses = {
+    /**
+     * ProjectReview collection
+     */
+    200: Array<ProjectReview>;
+};
+
+export type ApiProjectReviewsGetCollectionResponse = ApiProjectReviewsGetCollectionResponses[keyof ApiProjectReviewsGetCollectionResponses];
+
+export type ApiProjectReviewsIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReview identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_reviews/{id}';
+};
+
+export type ApiProjectReviewsIdDeleteErrors = {
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewsIdDeleteError = ApiProjectReviewsIdDeleteErrors[keyof ApiProjectReviewsIdDeleteErrors];
+
+export type ApiProjectReviewsIdDeleteResponses = {
+    /**
+     * ProjectReview resource deleted
+     */
+    204: void;
+};
+
+export type ApiProjectReviewsIdDeleteResponse = ApiProjectReviewsIdDeleteResponses[keyof ApiProjectReviewsIdDeleteResponses];
+
+export type ApiProjectReviewsIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReview identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_reviews/{id}';
+};
+
+export type ApiProjectReviewsIdGetErrors = {
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewsIdGetError = ApiProjectReviewsIdGetErrors[keyof ApiProjectReviewsIdGetErrors];
+
+export type ApiProjectReviewsIdGetResponses = {
+    /**
+     * ProjectReview resource
+     */
+    200: ProjectReview;
+};
+
+export type ApiProjectReviewsIdGetResponse = ApiProjectReviewsIdGetResponses[keyof ApiProjectReviewsIdGetResponses];
+
+export type ApiProjectReviewsIdPatchData = {
+    /**
+     * The updated ProjectReview resource
+     */
+    body: ProjectReview;
+    path: {
+        /**
+         * ProjectReview identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_reviews/{id}';
+};
+
+export type ApiProjectReviewsIdPatchErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiProjectReviewsIdPatchError = ApiProjectReviewsIdPatchErrors[keyof ApiProjectReviewsIdPatchErrors];
+
+export type ApiProjectReviewsIdPatchResponses = {
+    /**
+     * ProjectReview resource updated
+     */
+    200: ProjectReview;
+};
+
+export type ApiProjectReviewsIdPatchResponse = ApiProjectReviewsIdPatchResponses[keyof ApiProjectReviewsIdPatchResponses];
+
+export type ApiProjectReviewAreasGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * The collection page number
+         */
+        page?: number;
+        /**
+         * The number of items per page
+         */
+        itemsPerPage?: number;
+        review?: string;
+        'review[]'?: Array<string>;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/project_review_areas';
+};
+
+export type ApiProjectReviewAreasGetCollectionResponses = {
+    /**
+     * ProjectReviewArea collection
+     */
+    200: Array<ProjectReviewArea>;
+};
+
+export type ApiProjectReviewAreasGetCollectionResponse = ApiProjectReviewAreasGetCollectionResponses[keyof ApiProjectReviewAreasGetCollectionResponses];
+
+export type ApiProjectReviewAreasPostData = {
+    /**
+     * The new ProjectReviewArea resource
+     */
+    body: ProjectReviewArea;
+    path?: never;
+    query?: never;
+    url: '/v4/project_review_areas';
+};
+
+export type ApiProjectReviewAreasPostErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiProjectReviewAreasPostError = ApiProjectReviewAreasPostErrors[keyof ApiProjectReviewAreasPostErrors];
+
+export type ApiProjectReviewAreasPostResponses = {
+    /**
+     * ProjectReviewArea resource created
+     */
+    201: ProjectReviewArea;
+};
+
+export type ApiProjectReviewAreasPostResponse = ApiProjectReviewAreasPostResponses[keyof ApiProjectReviewAreasPostResponses];
+
+export type ApiProjectReviewAreasIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReviewArea identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_review_areas/{id}';
+};
+
+export type ApiProjectReviewAreasIdDeleteErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewAreasIdDeleteError = ApiProjectReviewAreasIdDeleteErrors[keyof ApiProjectReviewAreasIdDeleteErrors];
+
+export type ApiProjectReviewAreasIdDeleteResponses = {
+    /**
+     * ProjectReviewArea resource deleted
+     */
+    204: void;
+};
+
+export type ApiProjectReviewAreasIdDeleteResponse = ApiProjectReviewAreasIdDeleteResponses[keyof ApiProjectReviewAreasIdDeleteResponses];
+
+export type ApiProjectReviewAreasIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReviewArea identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_review_areas/{id}';
+};
+
+export type ApiProjectReviewAreasIdGetErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewAreasIdGetError = ApiProjectReviewAreasIdGetErrors[keyof ApiProjectReviewAreasIdGetErrors];
+
+export type ApiProjectReviewAreasIdGetResponses = {
+    /**
+     * ProjectReviewArea resource
+     */
+    200: ProjectReviewArea;
+};
+
+export type ApiProjectReviewAreasIdGetResponse = ApiProjectReviewAreasIdGetResponses[keyof ApiProjectReviewAreasIdGetResponses];
+
+export type ApiProjectReviewAreasIdPatchData = {
+    /**
+     * The updated ProjectReviewArea resource
+     */
+    body: ProjectReviewArea;
+    path: {
+        /**
+         * ProjectReviewArea identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_review_areas/{id}';
+};
+
+export type ApiProjectReviewAreasIdPatchErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiProjectReviewAreasIdPatchError = ApiProjectReviewAreasIdPatchErrors[keyof ApiProjectReviewAreasIdPatchErrors];
+
+export type ApiProjectReviewAreasIdPatchResponses = {
+    /**
+     * ProjectReviewArea resource updated
+     */
+    200: ProjectReviewArea;
+};
+
+export type ApiProjectReviewAreasIdPatchResponse = ApiProjectReviewAreasIdPatchResponses[keyof ApiProjectReviewAreasIdPatchResponses];
+
+export type ApiProjectReviewCommentsGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * The collection page number
+         */
+        page?: number;
+        /**
+         * The number of items per page
+         */
+        itemsPerPage?: number;
+        area?: string;
+        'area[]'?: Array<string>;
+        author?: string;
+        'author[]'?: Array<string>;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/project_review_comments';
+};
+
+export type ApiProjectReviewCommentsGetCollectionResponses = {
+    /**
+     * ProjectReviewComment collection
+     */
+    200: Array<ProjectReviewComment>;
+};
+
+export type ApiProjectReviewCommentsGetCollectionResponse = ApiProjectReviewCommentsGetCollectionResponses[keyof ApiProjectReviewCommentsGetCollectionResponses];
+
+export type ApiProjectReviewCommentsPostData = {
+    /**
+     * The new ProjectReviewComment resource
+     */
+    body: ProjectReviewComment;
+    path?: never;
+    query?: never;
+    url: '/v4/project_review_comments';
+};
+
+export type ApiProjectReviewCommentsPostErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiProjectReviewCommentsPostError = ApiProjectReviewCommentsPostErrors[keyof ApiProjectReviewCommentsPostErrors];
+
+export type ApiProjectReviewCommentsPostResponses = {
+    /**
+     * ProjectReviewComment resource created
+     */
+    201: ProjectReviewComment;
+};
+
+export type ApiProjectReviewCommentsPostResponse = ApiProjectReviewCommentsPostResponses[keyof ApiProjectReviewCommentsPostResponses];
+
+export type ApiProjectReviewCommentsIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReviewComment identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_review_comments/{id}';
+};
+
+export type ApiProjectReviewCommentsIdDeleteErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewCommentsIdDeleteError = ApiProjectReviewCommentsIdDeleteErrors[keyof ApiProjectReviewCommentsIdDeleteErrors];
+
+export type ApiProjectReviewCommentsIdDeleteResponses = {
+    /**
+     * ProjectReviewComment resource deleted
+     */
+    204: void;
+};
+
+export type ApiProjectReviewCommentsIdDeleteResponse = ApiProjectReviewCommentsIdDeleteResponses[keyof ApiProjectReviewCommentsIdDeleteResponses];
+
+export type ApiProjectReviewCommentsIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * ProjectReviewComment identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/project_review_comments/{id}';
+};
+
+export type ApiProjectReviewCommentsIdGetErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiProjectReviewCommentsIdGetError = ApiProjectReviewCommentsIdGetErrors[keyof ApiProjectReviewCommentsIdGetErrors];
+
+export type ApiProjectReviewCommentsIdGetResponses = {
+    /**
+     * ProjectReviewComment resource
+     */
+    200: ProjectReviewComment;
+};
+
+export type ApiProjectReviewCommentsIdGetResponse = ApiProjectReviewCommentsIdGetResponses[keyof ApiProjectReviewCommentsIdGetResponses];
+
 export type ApiProjectRewardsGetCollectionData = {
     body?: never;
     path?: never;
@@ -5463,9 +6298,9 @@ export type ApiProjectRewardClaimsGetCollectionData = {
         'reward[]'?: Array<string>;
         status?: string;
         'status[]'?: Array<string>;
-        'shippingAddress.city'?: string;
-        'shippingAddress.postCode'?: string;
-        'shippingAddress.country'?: string;
+        'address.city'?: string;
+        'address.postCode'?: string;
+        'address.country'?: string;
     };
     url: '/v4/project_reward_claims';
 };
@@ -5917,6 +6752,179 @@ export type ApiProjectUpdatesIdPatchResponses = {
 };
 
 export type ApiProjectUpdatesIdPatchResponse = ApiProjectUpdatesIdPatchResponses[keyof ApiProjectUpdatesIdPatchResponses];
+
+export type ApiThemesGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * The collection page number
+         */
+        page?: number;
+        /**
+         * The number of items per page
+         */
+        itemsPerPage?: number;
+        slug?: string;
+        'slug[]'?: Array<string>;
+        name?: string;
+    };
+    url: '/v4/themes';
+};
+
+export type ApiThemesGetCollectionResponses = {
+    /**
+     * Theme collection
+     */
+    200: Array<Theme>;
+};
+
+export type ApiThemesGetCollectionResponse = ApiThemesGetCollectionResponses[keyof ApiThemesGetCollectionResponses];
+
+export type ApiThemesPostData = {
+    /**
+     * The new Theme resource
+     */
+    body: Theme;
+    path?: never;
+    query?: never;
+    url: '/v4/themes';
+};
+
+export type ApiThemesPostErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiThemesPostError = ApiThemesPostErrors[keyof ApiThemesPostErrors];
+
+export type ApiThemesPostResponses = {
+    /**
+     * Theme resource created
+     */
+    201: Theme;
+};
+
+export type ApiThemesPostResponse = ApiThemesPostResponses[keyof ApiThemesPostResponses];
+
+export type ApiThemesIdOrSlugGetData = {
+    body?: never;
+    path: {
+        /**
+         * Theme identifier or slug
+         */
+        idOrSlug: string;
+    };
+    query?: never;
+    url: '/v4/themes/{idOrSlug}';
+};
+
+export type ApiThemesIdOrSlugGetErrors = {
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiThemesIdOrSlugGetError = ApiThemesIdOrSlugGetErrors[keyof ApiThemesIdOrSlugGetErrors];
+
+export type ApiThemesIdOrSlugGetResponses = {
+    /**
+     * Theme resource
+     */
+    200: Theme;
+};
+
+export type ApiThemesIdOrSlugGetResponse = ApiThemesIdOrSlugGetResponses[keyof ApiThemesIdOrSlugGetResponses];
+
+export type ApiThemesIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Theme identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/themes/{id}';
+};
+
+export type ApiThemesIdDeleteErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+};
+
+export type ApiThemesIdDeleteError = ApiThemesIdDeleteErrors[keyof ApiThemesIdDeleteErrors];
+
+export type ApiThemesIdDeleteResponses = {
+    /**
+     * Theme resource deleted
+     */
+    204: void;
+};
+
+export type ApiThemesIdDeleteResponse = ApiThemesIdDeleteResponses[keyof ApiThemesIdDeleteResponses];
+
+export type ApiThemesIdPatchData = {
+    /**
+     * The updated Theme resource
+     */
+    body: Theme;
+    path: {
+        /**
+         * Theme identifier
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/v4/themes/{id}';
+};
+
+export type ApiThemesIdPatchErrors = {
+    /**
+     * Invalid input
+     */
+    400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
+     * Not found
+     */
+    404: ErrorJsonld;
+    /**
+     * An error occurred
+     */
+    422: ConstraintViolationJsonldJsonld;
+};
+
+export type ApiThemesIdPatchError = ApiThemesIdPatchErrors[keyof ApiThemesIdPatchErrors];
+
+export type ApiThemesIdPatchResponses = {
+    /**
+     * Theme resource updated
+     */
+    200: Theme;
+};
+
+export type ApiThemesIdPatchResponse = ApiThemesIdPatchResponses[keyof ApiThemesIdPatchResponses];
 
 export type ApiTipjarsGetCollectionData = {
     body?: never;

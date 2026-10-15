@@ -23,8 +23,6 @@
 
     function selectLanguage(code: string) {
         open = false;
-        selected = code;
-
         onSelect?.(code);
     }
     function toggleDropdown() {
@@ -50,7 +48,7 @@
 
     {#if open}
         <div
-            class="absolute z-10 mt-1 max-h-96 w-full overflow-scroll rounded-md border border-gray-200 bg-white shadow-md"
+            class="absolute z-10 mt-1 max-h-96 w-full overflow-y-auto rounded-md border border-gray-200 bg-white shadow-md"
         >
             {#each languages as lang (lang)}
                 <button

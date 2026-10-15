@@ -1,0 +1,120 @@
+{
+  "projects": {
+    "/v4/projects/1": {
+      "title": "Proyecto de ejemplo para revisar",
+      "status": "in_campaign_review",
+      "owner": "/v4/users/1"
+    }
+  },
+  "reviews": [
+    {
+      "id": 1,
+      "project": "/v4/projects/1",
+      "reviewer": "/v4/users/94182",
+      "type": "campaign",
+      "areas": [
+        {
+          "id": 1,
+          "review": "/v4/reviews/1",
+          "title": "Área de riesgo 1",
+          "summary": "Resumen provisional del área de riesgo 1. Texto de ejemplo para validar el diseño de la card y su legibilidad con el resumen completo.",
+          "risk": "low",
+          "comments": [
+            {
+              "id": 1,
+              "author": "/v4/users/94182",
+              "body": "Mensaje de ejemplo del administrador consultor sobre el área de riesgo 1.",
+              "area": "/v4/reviews/1/areas/1",
+              "dateCreated": "2026-09-14T09:12:00+00:00",
+              "dateUpdated": "2026-09-14T09:12:00+00:00"
+            },
+            {
+              "id": 2,
+              "author": "/v4/users/1",
+              "body": "Respuesta de ejemplo del impulsor al mensaje anterior.",
+              "area": "/v4/reviews/1/areas/1",
+              "dateCreated": "2026-09-14T11:40:00+00:00",
+              "dateUpdated": "2026-09-14T11:40:00+00:00"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "review": "/v4/reviews/1",
+          "title": "Área de riesgo 2",
+          "summary": "Resumen provisional del área de riesgo 2. Texto de ejemplo para validar el diseño de la card y su legibilidad con el resumen completo.",
+          "risk": "medium",
+          "comments": [
+            {
+              "id": 3,
+              "author": "/v4/users/94182",
+              "body": "Mensaje de ejemplo del administrador consultor sobre el área de riesgo 2.",
+              "area": "/v4/reviews/1/areas/2",
+              "dateCreated": "2026-09-15T08:05:00+00:00",
+              "dateUpdated": "2026-09-15T08:05:00+00:00"
+            },
+            {
+              "id": 4,
+              "author": "/v4/users/94182",
+              "body": "Segundo mensaje de ejemplo del administrador consultor, para comprobar el agrupado de la conversación.",
+              "area": "/v4/reviews/1/areas/2",
+              "dateCreated": "2026-09-15T08:09:00+00:00",
+              "dateUpdated": "2026-09-15T08:09:00+00:00"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "review": "/v4/reviews/1",
+          "title": "Área de riesgo 3",
+          "summary": "Resumen provisional del área de riesgo 3. Texto de ejemplo para validar el diseño de la card y su legibilidad con el resumen completo.",
+          "risk": "high",
+          "comments": [
+            {
+              "id": 5,
+              "author": "/v4/users/94182",
+              "body": "Mensaje de ejemplo del administrador consultor sobre el área de riesgo 3.",
+              "area": "/v4/reviews/1/areas/3",
+              "dateCreated": "2026-09-16T16:30:00+00:00",
+              "dateUpdated": "2026-09-16T16:30:00+00:00"
+            },
+            {
+              "id": 6,
+              "author": "/v4/users/1",
+              "body": "Respuesta de ejemplo del impulsor, con un texto algo más largo para comprobar cómo se comporta el mensaje cuando ocupa varias líneas dentro de la burbuja del chat.",
+              "area": "/v4/reviews/1/areas/3",
+              "dateCreated": "2026-09-17T07:20:00+00:00",
+              "dateUpdated": "2026-09-17T07:20:00+00:00"
+            },
+            {
+              "id": 7,
+              "author": "/v4/users/94182",
+              "body": "Cierre de ejemplo del administrador consultor.",
+              "area": "/v4/reviews/1/areas/3",
+              "dateCreated": "2026-09-17T10:02:00+00:00",
+              "dateUpdated": "2026-09-17T10:02:00+00:00"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "review": "/v4/reviews/1",
+          "title": "Área de riesgo 4",
+          "summary": "Resumen provisional del área de riesgo 4. Todavía sin evaluar, para comprobar el estado inicial de la card cuando el riesgo es nulo.",
+          "risk": null,
+          "comments": []
+        }
+      ]
+    }
+  ],
+  "authors": {
+    "/v4/users/1": {
+      "handle": "impulsor",
+      "displayName": "Impulsor del proyecto"
+    },
+    "/v4/users/94182": {
+      "handle": "consultora",
+      "displayName": "Administrador consultor"
+    }
+  }
+}

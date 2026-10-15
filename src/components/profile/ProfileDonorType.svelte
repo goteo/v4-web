@@ -11,8 +11,8 @@
     }
 
     let {
-        projectsDonated = 1,
-        moneyDonatedAmount = 500,
+        projectsDonated = 0,
+        moneyDonatedAmount = 0,
         moneyDonatedCurrency = getDefaultCurrency(),
     }: Props = $props();
 
@@ -32,7 +32,7 @@
                         {$t("pages.profile.donorType.fan.title")}
                     </p>
                     <p class="text-base leading-normal">
-                        {$t("pages.profile.donorType.fan.description")}
+                        {$t("pages.profile.donorType.fan.description", { amount: formattedMoney })}
                     </p>
                 </div>
                 <div class="size-25">

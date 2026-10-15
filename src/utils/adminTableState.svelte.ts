@@ -1,24 +1,17 @@
 import {
     ADMIN_ITEMS_PER_PAGE_COOKIE,
-    DEFAULT_ITEMS_PER_PAGE,
+    getInitialItemsPerPage,
     isValidItemsPerPage,
     type AdminItemsPerPage,
 } from "./adminTable";
-import { getCookie, setCookie } from "./cookies";
+import { setCookie } from "./cookies";
 
-function getInitialItemsPerPage(): AdminItemsPerPage {
-    if (typeof document === "undefined") return DEFAULT_ITEMS_PER_PAGE;
-
-    const raw = getCookie(ADMIN_ITEMS_PER_PAGE_COOKIE);
-    if (!raw) return DEFAULT_ITEMS_PER_PAGE;
-
-    const parsed = Number(raw);
-    return isValidItemsPerPage(parsed) ? parsed : DEFAULT_ITEMS_PER_PAGE;
-}
-
-export function useAdminTableState<T extends string>(initialSort: T) {
+export function useAdminTableState<T extends string>(
+    initialSort: T,
+    cookie = ADMIN_ITEMS_PER_PAGE_COOKIE,
+) {
     let currentPage = $state(1);
-    let itemsPerPage = $state<AdminItemsPerPage>(getInitialItemsPerPage());
+    let itemsPerPage = $state<AdminItemsPerPage>(getInitialItemsPerPage(cookie));
     let selectedSort = $state<T>(initialSort);
     let isLoading = $state(false);
     let isFirstLoad = $state(true);
@@ -67,7 +60,7 @@ export function useAdminTableState<T extends string>(initialSort: T) {
         handleItemsPerPageChange(perPage: number) {
             if (isValidItemsPerPage(perPage)) {
                 itemsPerPage = perPage;
-                setCookie(ADMIN_ITEMS_PER_PAGE_COOKIE, String(perPage));
+                setCookie(cookie, String(perPage));
                 currentPage = 1;
             }
         },

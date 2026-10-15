@@ -1,3 +1,5 @@
+import type { Project } from "../openapi/client/index.ts";
+
 /**
  * Public project statuses for the public search page.
  *
@@ -95,3 +97,13 @@ export const RAISED_STATUSES = new Set<string>([
     "in_funding",
     "funding.paid",
 ]);
+
+/** Campaign review statuses: listed in the admin review page and selectable in its dropdown. */
+export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_review",
+    "in_campaign_review.to_change",
+    "campaign_review.rejected",
+    "to_campaign",
+];
