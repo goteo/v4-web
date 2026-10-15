@@ -17,6 +17,24 @@ export function isConsultant(session?: Session): boolean {
 }
 
 /**
+ * Whether the signed in user is the consultant assigned to a review.
+ *
+ * A review names one consultant admin as its reviewer. Holding the admin role is
+ * not enough: a promoter that also happens to be an admin must not be mistaken for
+ * the reviewer of their own review.
+ * @param session The current session
+ * @param review The review being accessed
+ * @returns True when the signed in user is the review's assigned reviewer
+ */
+export function isAssignedReviewer(session: Session | undefined, review: ProjectReview): boolean {
+    if (!session) return false;
+
+    const reviewerId = extractId(review.reviewer);
+
+    return !!reviewerId && reviewerId === String(session.user.id);
+}
+
+/**
  * Whether the signed in user may read a review.
  *
  * A review is visible to the consultant admin carrying it out and to the promoter

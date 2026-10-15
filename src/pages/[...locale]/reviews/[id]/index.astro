@@ -2,7 +2,11 @@
 import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import ReviewAreas from "../../../../components/review/ReviewAreas.svelte";
-import { canAccessReview, isConsultant } from "../../../../services/reviewAccess";
+import {
+    canAccessReview,
+    isAssignedReviewer,
+    isConsultant,
+} from "../../../../services/reviewAccess";
 import { getReview, getReviewAreas } from "../../../../services/projectReview";
 import { getReviewedProject } from "../../../../services/reviewProject";
 import { goto } from "../../../../utils/navigation";
@@ -39,10 +43,14 @@ if (!areas) {
 
 const project = await getReviewedProject(review, session, lang);
 
-const isReviewer = isConsultant(session);
+// Only the consultant admin may assess risks and move the review along, but the side
+// the header names depends on who the signed in user actually is: a promoter that is
+// also an admin reads the review as the promoter, not as its assigned reviewer.
+const canManage = isConsultant(session);
+const isReviewer = isAssignedReviewer(session, review);
 
-// Each side reads the other one first: the consultant is named for the promoter and
-// the promoter for the consultant. Without one of them the copy falls back to a
+// Each side reads the other one first: the reviewer is named for the promoter and
+// the promoter for the reviewer. Without one of them the copy falls back to a
 // version with no hole in it.
 const counterpart = isReviewer ? project?.promoter : project?.reviewer;
 
@@ -76,8 +84,8 @@ const subtitle = counterpart?.name
                 {title}
                 {subtitle}
                 projectStatus={project?.status}
-                canAssessRisks={isReviewer}
-                canChangeStatus={isReviewer}
+                canAssessRisks={canManage}
+                canChangeStatus={canManage}
                 locale={lang}
             />
         </div>
