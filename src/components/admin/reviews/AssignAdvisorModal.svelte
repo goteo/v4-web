@@ -63,7 +63,13 @@
         if (open) {
             searchValue = "";
             selected = currentReviewer
-                ? [{ id: currentReviewer, label: currentReviewerName || currentReviewer, selected: true }]
+                ? [
+                      {
+                          id: currentReviewer,
+                          label: currentReviewerName || currentReviewer,
+                          selected: true,
+                      },
+                  ]
                 : [];
             searchUsers("");
         }
@@ -103,7 +109,9 @@
         variant="basic"
         singleSelect
         hasSearch
-        searchPlaceholder={$t("pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.searchPlaceholder")}
+        searchPlaceholder={$t(
+            "pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.searchPlaceholder",
+        )}
         onSearch={handleSearch}
         label={title}
         selectedFirst

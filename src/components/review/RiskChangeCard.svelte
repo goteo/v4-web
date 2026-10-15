@@ -23,7 +23,7 @@
         </Title>
         <Tag variant={RISK_TAG_VARIANTS[to]}>{$t(`domain.review.risks.${to}`)}</Tag>
     </div>
-    <p class="text-sm/6 text-purple-soft">
+    <p class="text-purple-soft text-sm/6">
         {$t("pages.review.chat.riskChange.description", {
             from: $t(`domain.review.risks.${from}`).toLowerCase(),
             to: $t(`domain.review.risks.${to}`).toLowerCase(),

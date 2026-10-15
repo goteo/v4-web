@@ -127,7 +127,9 @@
     bind:expandedRowIndex={openRow}
 >
     {#snippet children(project: ReviewProjectRow, i: number)}
-        <TableBodyCell class="border-variant1 text-content w-16 rounded-l-md border-t border-b border-l p-4">
+        <TableBodyCell
+            class="border-variant1 text-content w-16 rounded-l-md border-t border-b border-l p-4"
+        >
             <span class="block">{project.id}</span>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 max-w-60 border-t border-b p-4">
@@ -201,11 +203,7 @@
                         <Button kind="ghost" size="sm" disabled>{btnLabel("advisory")}</Button>
                     {/if}
                     {#if project.reviewId}
-                        <Button
-                            kind="ghost"
-                            size="sm"
-                            onclick={() => onAssignAdvisor?.(project)}
-                        >
+                        <Button kind="ghost" size="sm" onclick={() => onAssignAdvisor?.(project)}>
                             {btnLabel("assignAdvisor")}
                         </Button>
                     {:else}

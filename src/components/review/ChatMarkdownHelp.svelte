@@ -36,7 +36,7 @@
     <div
         id="chat-markdown-help"
         role="dialog"
-        class="border-variant1 bg-grey absolute bottom-full right-0 z-50 mb-2 hidden w-72 rounded-xl border p-3 shadow-lg group-hover:block group-focus-within:block"
+        class="border-variant1 bg-grey absolute right-0 bottom-full z-50 mb-2 hidden w-72 rounded-xl border p-3 shadow-lg group-focus-within:block group-hover:block"
     >
         <p class="text-content mb-2 text-xs font-semibold">
             {$t("pages.review.chat.mdHelpTitle")}

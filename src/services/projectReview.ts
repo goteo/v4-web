@@ -217,9 +217,7 @@ export async function getReviewAuthors(
         }
     }
 
-    const authors = await Promise.all(
-        [...iris].map((iri) => fetchAuthor(iri, session, lang)),
-    );
+    const authors = await Promise.all([...iris].map((iri) => fetchAuthor(iri, session, lang)));
 
     return {
         data: authors.filter((author): author is ReviewAuthor => author !== undefined),

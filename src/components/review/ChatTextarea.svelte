@@ -109,7 +109,13 @@
         const prefixed = new RegExp(`^\\s*${escapeRegExp(prefix)}`);
         const applied = lines.every((line) => line.trim() === "" || prefixed.test(line));
         const next = lines
-            .map((line) => (line.trim() === "" ? line : applied ? line.replace(prefixed, "") : `${prefix}${line}`))
+            .map((line) =>
+                line.trim() === ""
+                    ? line
+                    : applied
+                      ? line.replace(prefixed, "")
+                      : `${prefix}${line}`,
+            )
             .join("\n");
 
         value = `${value.slice(0, blockStart)}${next}${value.slice(blockEnd)}`;
@@ -144,7 +150,7 @@
                 onkeydown={handleKeydown}
                 class="text-content bg-grey h-full w-full resize-none rounded-lg border-0 p-4 pr-10 text-base shadow-sm ring-0 disabled:cursor-not-allowed"
                 placeholder={$t("pages.review.chat.placeholder")}></textarea>
-            <ChatMarkdownHelp class="absolute right-2 top-2" {canInsertRich} />
+            <ChatMarkdownHelp class="absolute top-2 right-2" {canInsertRich} />
         </div>
         <button
             type="button"

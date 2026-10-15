@@ -209,7 +209,9 @@
         loadProjects();
     }
 
-    let assignState = $state<{ reviewId: number; reviewer?: string; advisor?: string } | null>(null);
+    let assignState = $state<{ reviewId: number; reviewer?: string; advisor?: string } | null>(
+        null,
+    );
     let assignModalOpen = $state(false);
 
     function handleAssignAdvisor(project: ReviewProjectRow): void {
