@@ -79,7 +79,7 @@
         modalTitle: $t("pages.admin.home.featuredUsers.modal.title"),
         modalDescription: $t("pages.admin.home.featuredUsers.modal.description"),
         searchPlaceholder: $t("pages.admin.home.featuredUsers.modal.search"),
-        submit: $t("pages.admin.home.featuredUsers.modal.submit"),
+        submit: $t("common.add"),
     });
 </script>
 

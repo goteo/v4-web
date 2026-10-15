@@ -1565,8 +1565,7 @@
           "modal": {
             "title": "Añade usuario",
             "description": "Busca y añade al usuario que quieras destacar en portada",
-            "search": "Busca un usuario",
-            "submit": "Añadir"
+            "search": "Busca un usuario"
           }
         }
       },
