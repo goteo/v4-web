@@ -15,13 +15,8 @@ import Banners from "../../components/home/HomeBanners.svelte";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
 import { homeHeroRepository } from "../../repositories/homeHero";
-import { featuredUserRepository } from "../../repositories/featuredUsers";
-import { apiUsersIdOrHandleGet } from "../../openapi/client/sdk.gen";
-import { summarizeOwnerProjects } from "../../services/userProjects";
-import { getBaseUrl } from "../../utils/consts";
+import { getFeaturedUsers } from "../../services/featuredUsers";
 import { renderMarkdown } from "../../utils/renderMarkdown";
-
-import type { FeaturedUser } from "../../types/featuredUser";
 
 const { locale } = Astro.params;
 
@@ -38,28 +33,7 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
 
 // Featured users are curated from /admin/home/featured-users. Identity, the avatar and the
 // stats all come from the API so they never go stale.
-const featuredRecords = await featuredUserRepository.getAll();
-
-const featuredUsers = await Promise.all(
-    featuredRecords.map(async (record): Promise<FeaturedUser> => {
-        const { data: user } = await apiUsersIdOrHandleGet({
-            baseUrl: getBaseUrl(),
-            path: { idOrHandle: String(record.userId) },
-            headers: { "Accept-Language": lang },
-        });
-
-        const summary = await summarizeOwnerProjects(String(record.userId), lang);
-
-        return {
-            id: record.id,
-            name: user?.displayName ?? user?.handle ?? String(record.userId),
-            image: user?.avatar ?? null,
-            ownProjects: summary.totalProjects,
-            capitalRaised: summary.amount,
-            currency: summary.currency,
-        };
-    }),
-);
+const featuredUsers = await getFeaturedUsers(lang);
 ---
 
 <Layout title={t("pages.index.title")} description={t("pages.metadata.description")}>
