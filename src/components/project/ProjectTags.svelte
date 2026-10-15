@@ -1,5 +1,5 @@
 <script lang="ts">
-    import CategoryTag from "./CategoryTag.svelte";
+    import ThemeTag from "./ThemeTag.svelte";
     import TerritoryTag from "./TerritoryTag.svelte";
 
     import type { Project } from "../../openapi/client";
@@ -8,8 +8,8 @@
 </script>
 
 <div class="flex w-auto gap-2">
-    {#each project.categories as category}
-        <CategoryTag iri={category} />
+    {#each project.themes as theme}
+        <ThemeTag iri={theme} />
     {/each}
     <TerritoryTag territory={project.territory} iconSize="24" />
 </div>

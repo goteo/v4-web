@@ -3,9 +3,47 @@
 import * as z from 'zod';
 
 /**
- * A Category can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 Categories, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddress = z.object({
+    id: z.int().readonly().optional(),
+    user: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    line1: z.string(),
+    line2: z.string().nullish(),
+    city: z.string(),
+    postCode: z.string(),
+    country: z.string()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    user: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    line1: z.string(),
+    line2: z.string().nullish(),
+    city: z.string(),
+    postCode: z.string(),
+    country: z.string()
+});
+
+/**
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
  * \
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
@@ -18,9 +56,8 @@ export const zCategory = z.object({
 });
 
 /**
- * A Category can be used by other resources as a "topic intent".\
- * For example. Projects might relate with up to 2 Categories, which are used by the Project
- * as a way to describe itself and can be used to discover similar Projects.\
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
  * \
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
@@ -480,9 +517,9 @@ export const zMatchStrategyJsonld = z.object({
  */
 export const zOrganization = z.object({
     user: z.string().readonly().optional(),
-    taxId: z.string(),
-    legalName: z.string(),
-    businessName: z.string().optional()
+    taxId: z.string().min(2),
+    legalName: z.string().min(1),
+    businessName: z.string().min(1).optional()
 });
 
 /**
@@ -504,9 +541,9 @@ export const zOrganizationJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     user: z.string().readonly().optional(),
-    taxId: z.string(),
-    legalName: z.string(),
-    businessName: z.string().optional()
+    taxId: z.string().min(2),
+    legalName: z.string().min(1),
+    businessName: z.string().min(1).optional()
 });
 
 /**
@@ -519,9 +556,9 @@ export const zOrganizationJsonld = z.object({
  */
 export const zPerson = z.object({
     user: z.string().readonly().optional(),
-    taxId: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional()
+    taxId: z.string().min(2).optional(),
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().min(1).optional()
 });
 
 /**
@@ -543,9 +580,9 @@ export const zPersonJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     user: z.string().readonly().optional(),
-    taxId: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional()
+    taxId: z.string().min(2).optional(),
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().min(1).optional()
 });
 
 export const zPing = z.object({
@@ -720,6 +757,141 @@ export const zProjectCollaborationCandidacyJsonld = z.object({
 });
 
 /**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export const zProjectReview = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    reviewer: z.string().optional(),
+    type: z.enum(['campaign', 'financial']).optional(),
+    areas: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export const zProjectReviewJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    reviewer: z.string().optional(),
+    type: z.enum(['campaign', 'financial']).optional(),
+    areas: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export const zProjectReviewArea = z.object({
+    id: z.int().readonly().optional(),
+    review: z.string().optional(),
+    title: z.string().optional(),
+    summary: z.string().optional(),
+    risk: z.enum([
+        'low',
+        'mid',
+        'high'
+    ]).optional(),
+    comments: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export const zProjectReviewAreaJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    review: z.string().optional(),
+    title: z.string().optional(),
+    summary: z.string().optional(),
+    risk: z.enum([
+        'low',
+        'mid',
+        'high'
+    ]).optional(),
+    comments: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export const zProjectReviewComment = z.object({
+    id: z.int().readonly().optional(),
+    area: z.string(),
+    author: z.string(),
+    body: z.string().min(15),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export const zProjectReviewCommentJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    area: z.string(),
+    author: z.string(),
+    body: z.string().min(15),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
 export const zProjectReward = z.object({
@@ -764,6 +936,80 @@ export const zProjectRewardJsonld = z.object({
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaim = z.object({
+    id: z.int().readonly().optional(),
+    owner: z.string().optional(),
+    charge: z.string().optional(),
+    reward: z.string().optional(),
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    address: zAddress.nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimCreationDto = z.object({
+    charge: z.string(),
+    reward: z.string(),
+    address: z.string().nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimCreationDtoJsonld = z.object({
+    charge: z.string(),
+    reward: z.string(),
+    address: z.string().nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimRewardClaimUpdationDto = z.object({
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    address: z.string().nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.int().readonly().optional(),
+    owner: z.string().optional(),
+    charge: z.string().optional(),
+    reward: z.string().optional(),
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    address: zAddressJsonld.nullish()
 });
 
 /**
@@ -862,109 +1108,6 @@ export const zProjectVideoJsonld = z.object({
     thumbnail: z.string().nullish()
 });
 
-export const zShippingAddress = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    addressLine1: z.string(),
-    addressLine2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
-    country: z.string()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaim = z.object({
-    id: z.int().readonly().optional(),
-    owner: z.string().optional(),
-    charge: z.string().optional(),
-    reward: z.string().optional(),
-    status: z.enum(['in_pending', 'fulfilled']).optional(),
-    shippingAddress: zShippingAddress.nullish()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimCreationDto = z.object({
-    charge: z.string(),
-    reward: z.string(),
-    shippingAddress: zShippingAddress.nullish()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimUpdationDto = z.object({
-    status: z.enum(['in_pending', 'fulfilled']).optional(),
-    shippingAddress: zShippingAddress.nullish()
-});
-
-export const zShippingAddressJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    firstName: z.string(),
-    lastName: z.string(),
-    addressLine1: z.string(),
-    addressLine2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
-    country: z.string()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimCreationDtoJsonld = z.object({
-    charge: z.string(),
-    reward: z.string(),
-    shippingAddress: zShippingAddressJsonld.nullish()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaimJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    id: z.int().readonly().optional(),
-    owner: z.string().optional(),
-    charge: z.string().optional(),
-    reward: z.string().optional(),
-    status: z.enum(['in_pending', 'fulfilled']).optional(),
-    shippingAddress: zShippingAddressJsonld.nullish()
-});
-
 export const zTerritory = z.object({
     country: z.string().nullable(),
     subLvl1: z.string().nullish(),
@@ -1012,6 +1155,7 @@ export const zProjectProjectCreationDto = z.object({
     title: z.string().min(3).regex(/^(.*[a-zA-Z]{1,}.*)$/),
     subtitle: z.string(),
     categories: z.array(z.string()).min(1).max(2),
+    themes: z.array(z.string()).max(1).optional(),
     territory: zTerritory,
     calendar: zProjectCalendar,
     status: z.enum([
@@ -1045,6 +1189,7 @@ export const zProjectProjectUpdationDto = z.object({
     subtitle: z.string().optional(),
     cover: z.url().optional(),
     categories: z.array(z.string()).min(1).max(2).optional(),
+    themes: z.array(z.string()).max(1).optional(),
     territory: zTerritory.optional(),
     descBrief: z.string().min(20).optional(),
     descAbout: z.string().min(20).optional(),
@@ -1140,6 +1285,7 @@ export const zProjectProjectCreationDtoJsonld = z.object({
     title: z.string().min(3).regex(/^(.*[a-zA-Z]{1,}.*)$/),
     subtitle: z.string(),
     categories: z.array(z.string()).min(1).max(2),
+    themes: z.array(z.string()).max(1).optional(),
     territory: zTerritoryJsonld,
     calendar: zProjectCalendarJsonld,
     status: z.enum([
@@ -1162,6 +1308,43 @@ export const zProjectProjectCreationDtoJsonld = z.object({
         'in_funding',
         'funding.paid'
     ]).readonly().optional().default('in_draft')
+});
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export const zTheme = z.object({
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string(),
+    locales: z.array(z.string()).readonly().optional()
+});
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export const zThemeJsonld = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string().readonly().optional(),
+    '@type': z.string().readonly().optional(),
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string(),
+    locales: z.array(z.string()).readonly().optional()
 });
 
 /**
@@ -1717,6 +1900,7 @@ export const zProject = z.object({
     deadline: z.enum(['minimum', 'optimum']).readonly().optional(),
     calendar: zProjectCalendar.readonly().optional(),
     categories: z.array(z.string()),
+    themes: z.array(z.string()),
     territory: zTerritory,
     descBrief: z.string().optional(),
     descAbout: z.string().optional(),
@@ -1778,6 +1962,7 @@ export const zProjectJsonld = z.object({
     deadline: z.enum(['minimum', 'optimum']).readonly().optional(),
     calendar: zProjectCalendarJsonld.readonly().optional(),
     categories: z.array(z.string()),
+    themes: z.array(z.string()),
     territory: zTerritoryJsonld,
     descBrief: z.string().optional(),
     descAbout: z.string().optional(),
@@ -1862,6 +2047,58 @@ export const zProjectSupportJsonld = z.object({
     matchfunding: z.boolean().readonly().optional(),
     message: z.string().nullish()
 });
+
+export const zApiAddressesGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30)
+});
+
+/**
+ * Address collection
+ */
+export const zApiAddressesGetCollectionResponse = z.array(zAddress);
+
+/**
+ * The new Address resource
+ */
+export const zApiAddressesPostBody = zAddress;
+
+/**
+ * Address resource created
+ */
+export const zApiAddressesPostResponse = zAddress;
+
+export const zApiAddressesIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * Address resource deleted
+ */
+export const zApiAddressesIdDeleteResponse = z.void();
+
+export const zApiAddressesIdGetPath = z.object({
+    id: z.string()
+});
+
+/**
+ * Address resource
+ */
+export const zApiAddressesIdGetResponse = zAddress;
+
+/**
+ * The updated Address resource
+ */
+export const zApiAddressesIdPatchBody = zAddress;
+
+export const zApiAddressesIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * Address resource updated
+ */
+export const zApiAddressesIdPatchResponse = zAddress;
 
 export const zApiCategoriesGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
@@ -2436,6 +2673,180 @@ export const zApiProjectCollaborationCandidaciesIdPatchPath = z.object({
  */
 export const zApiProjectCollaborationCandidaciesIdPatchResponse = zProjectCollaborationCandidacy;
 
+export const zApiProjectReviewsGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    project: z.string().optional(),
+    'project[]': z.array(z.string()).optional(),
+    reviewer: z.string().optional(),
+    'reviewer[]': z.array(z.string()).optional(),
+    type: z.string().optional(),
+    'type[]': z.array(z.string()).optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * ProjectReview collection
+ */
+export const zApiProjectReviewsGetCollectionResponse = z.array(zProjectReview);
+
+export const zApiProjectReviewsIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReview resource deleted
+ */
+export const zApiProjectReviewsIdDeleteResponse = z.void();
+
+export const zApiProjectReviewsIdGetPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReview resource
+ */
+export const zApiProjectReviewsIdGetResponse = zProjectReview;
+
+/**
+ * The updated ProjectReview resource
+ */
+export const zApiProjectReviewsIdPatchBody = zProjectReview;
+
+export const zApiProjectReviewsIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReview resource updated
+ */
+export const zApiProjectReviewsIdPatchResponse = zProjectReview;
+
+export const zApiProjectReviewAreasGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    review: z.string().optional(),
+    'review[]': z.array(z.string()).optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * ProjectReviewArea collection
+ */
+export const zApiProjectReviewAreasGetCollectionResponse = z.array(zProjectReviewArea);
+
+/**
+ * The new ProjectReviewArea resource
+ */
+export const zApiProjectReviewAreasPostBody = zProjectReviewArea;
+
+/**
+ * ProjectReviewArea resource created
+ */
+export const zApiProjectReviewAreasPostResponse = zProjectReviewArea;
+
+export const zApiProjectReviewAreasIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReviewArea resource deleted
+ */
+export const zApiProjectReviewAreasIdDeleteResponse = z.void();
+
+export const zApiProjectReviewAreasIdGetPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReviewArea resource
+ */
+export const zApiProjectReviewAreasIdGetResponse = zProjectReviewArea;
+
+/**
+ * The updated ProjectReviewArea resource
+ */
+export const zApiProjectReviewAreasIdPatchBody = zProjectReviewArea;
+
+export const zApiProjectReviewAreasIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReviewArea resource updated
+ */
+export const zApiProjectReviewAreasIdPatchResponse = zProjectReviewArea;
+
+export const zApiProjectReviewCommentsGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    area: z.string().optional(),
+    'area[]': z.array(z.string()).optional(),
+    author: z.string().optional(),
+    'author[]': z.array(z.string()).optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * ProjectReviewComment collection
+ */
+export const zApiProjectReviewCommentsGetCollectionResponse = z.array(zProjectReviewComment);
+
+/**
+ * The new ProjectReviewComment resource
+ */
+export const zApiProjectReviewCommentsPostBody = zProjectReviewComment;
+
+/**
+ * ProjectReviewComment resource created
+ */
+export const zApiProjectReviewCommentsPostResponse = zProjectReviewComment;
+
+export const zApiProjectReviewCommentsIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReviewComment resource deleted
+ */
+export const zApiProjectReviewCommentsIdDeleteResponse = z.void();
+
+export const zApiProjectReviewCommentsIdGetPath = z.object({
+    id: z.string()
+});
+
+/**
+ * ProjectReviewComment resource
+ */
+export const zApiProjectReviewCommentsIdGetResponse = zProjectReviewComment;
+
 export const zApiProjectRewardsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
     itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
@@ -2515,9 +2926,9 @@ export const zApiProjectRewardClaimsGetCollectionQuery = z.object({
     'reward[]': z.array(z.string()).optional(),
     status: z.string().optional(),
     'status[]': z.array(z.string()).optional(),
-    'shippingAddress.city': z.string().optional(),
-    'shippingAddress.postCode': z.string().optional(),
-    'shippingAddress.country': z.string().optional()
+    'address.city': z.string().optional(),
+    'address.postCode': z.string().optional(),
+    'address.country': z.string().optional()
 });
 
 /**
@@ -2647,6 +3058,61 @@ export const zApiProjectUpdatesIdPatchPath = z.object({
  * ProjectUpdate resource updated
  */
 export const zApiProjectUpdatesIdPatchResponse = zProjectUpdate;
+
+export const zApiThemesGetCollectionQuery = z.object({
+    page: z.int().optional().default(1),
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    slug: z.string().optional(),
+    'slug[]': z.array(z.string()).optional(),
+    name: z.string().optional()
+});
+
+/**
+ * Theme collection
+ */
+export const zApiThemesGetCollectionResponse = z.array(zTheme);
+
+/**
+ * The new Theme resource
+ */
+export const zApiThemesPostBody = zTheme;
+
+/**
+ * Theme resource created
+ */
+export const zApiThemesPostResponse = zTheme;
+
+export const zApiThemesIdOrSlugGetPath = z.object({
+    idOrSlug: z.string()
+});
+
+/**
+ * Theme resource
+ */
+export const zApiThemesIdOrSlugGetResponse = zTheme;
+
+export const zApiThemesIdDeletePath = z.object({
+    id: z.string()
+});
+
+/**
+ * Theme resource deleted
+ */
+export const zApiThemesIdDeleteResponse = z.void();
+
+/**
+ * The updated Theme resource
+ */
+export const zApiThemesIdPatchBody = zTheme;
+
+export const zApiThemesIdPatchPath = z.object({
+    id: z.string()
+});
+
+/**
+ * Theme resource updated
+ */
+export const zApiThemesIdPatchResponse = zTheme;
 
 export const zApiTipjarsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
@@ -2998,6 +3464,8 @@ export const zApiProjectsGetCollectionQuery = z.object({
     subtitle: z.string().optional(),
     categories: z.string().optional(),
     'categories[]': z.array(z.string()).optional(),
+    themes: z.string().optional(),
+    'themes[]': z.array(z.string()).optional(),
     'territory.country': z.string().optional(),
     'territory.country[]': z.array(z.string()).optional(),
     'territory.subLvl1': z.string().optional(),
