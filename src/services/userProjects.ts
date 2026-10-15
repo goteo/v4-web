@@ -5,6 +5,7 @@ import { getBaseUrl, getDefaultCurrency } from "../utils/consts";
 import { extractId } from "../utils/extractId";
 import { toCollectionItems } from "../utils/hydra";
 import { sumMoney } from "../utils/money";
+import { RAISED_STATUSES } from "../utils/projectStatus";
 
 import type { MoneyOutput, Project } from "../openapi/client/types.gen";
 
@@ -13,44 +14,6 @@ import type { MoneyOutput, Project } from "../openapi/client/types.gen";
  * used across the app; owners with more projects than this report a capped amount.
  */
 const PROJECTS_PAGE_SIZE = 100;
-
-/** The lifecycle statuses defined by the API. */
-type ApiProjectStatus = NonNullable<Project["status"]>;
-
-/**
- * Statuses whose accounting holds money the project actually raised.
- *
- * Everything before this set either was never public (`in_draft`, `to_campaign_review`,
- * `in_campaign_review*`, `campaign_review.rejected`) so no funds were ever collected, or
- * ended in `campaign.failed` / `campaign.cancelled`, whose money is handed back to the
- * contributors and therefore must not count as raised.
- *
- * This set is deliberately written out rather than derived from the groupings in
- * `utils/ownedProjectCards.ts`. It happens to be exactly `tabStatusGroups.active` plus
- * `tabStatusGroups.funding` plus `funding.paid`, but those describe which tab a project
- * lands in for the admin "Tus Proyectos" section, not what counts as raised:
- *
- * - `showMoney` in the same file marks `funding.paid` as `false`, because a funded project
- *   is archived and its money has already been disbursed, so the card stops showing an
- *   amount. That is a display rule. A project that reached funding *did* raise the money,
- *   so it must still be summed here.
- * - `PUBLIC_STATUSES_TO_STATUSES` in `utils/projectStatus.ts` groups the same statuses
- *   differently again, for the public search filter.
- *
- * Coupling a figure shown on the home page to a tab grouping would let a UI change alter
- * it silently. The three groupings answer three different questions, so each stays next
- * to the feature that asks it.
- */
-const RAISED_STATUSES = new Set<ApiProjectStatus>([
-    "in_campaign",
-    "to_funding_review",
-    "in_funding_review",
-    "in_funding_review.to_change",
-    "in_funding_review.to_review",
-    "to_funding",
-    "in_funding",
-    "funding.paid",
-]);
 
 export interface OwnerProjectsSummary {
     /** Total projects reported by the collection, independent of the page size. */
@@ -105,7 +68,10 @@ export async function summarizeOwnerProjects(
     const raisedAccountingIds = Array.from(
         new Set(
             projects
-                .filter((project) => RAISED_STATUSES.has(project.status as ApiProjectStatus))
+                .filter(
+                    (project) =>
+                        project.status !== undefined && RAISED_STATUSES.has(project.status),
+                )
                 .map((project) => extractId(project.accounting))
                 .filter((id): id is string => Boolean(id)),
         ),
