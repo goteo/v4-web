@@ -22,7 +22,6 @@
 
     let { navItems, activePath, class: classes = "" }: Props = $props();
 
-    let hoverOpen = $state(false);
     let isMobileOpen = $state(false);
 
     function toggleMobile() {
@@ -37,11 +36,10 @@
         return item.href === activePath;
     }
 
-    function navItemClass(item: AdminSidebarItem): ClassNameValue {
+    function navItemClass(item: AdminSidebarItem): string {
         return twMerge(
-            "hover:bg-variant1 flex content-center items-center w-fit gap-2 rounded-lg px-4 py-2 text-base font-bold transition-colors duration-300 text-secondary",
+            "hover:bg-variant1 flex content-center items-center w-fit gap-2 rounded-lg px-4 py-2 text-base font-bold whitespace-nowrap transition-colors duration-300 text-secondary",
             isActive(item) && "bg-variant2 hover:bg-variant3",
-            !hoverOpen && "justify-center mx-1 w-auto",
         );
     }
 </script>
@@ -49,36 +47,27 @@
 <!-- Desktop sidebar -->
 <aside
     class={twMerge(
-        "bg-purple-soft z-30 hidden shrink-0 flex-col items-start rounded-2xl py-10 pr-10 pl-5 shadow-sm transition-all duration-300 lg:sticky lg:top-(--sticky-top) lg:flex lg:h-[calc(100vh-var(--sticky-top)-1rem)]",
-        hoverOpen ? "w-56.75" : "w-15 items-center px-0",
+        "bg-purple-soft z-30 hidden min-w-58 shrink-0 flex-col rounded-2xl py-10 pr-10 pl-5 shadow-sm lg:sticky lg:top-(--sticky-top) lg:flex lg:max-h-[calc(100vh-var(--sticky-top)-1rem)]",
         classes,
     )}
-    onmouseenter={() => (hoverOpen = true)}
-    onmouseleave={() => (hoverOpen = false)}
 >
-    <div class={twMerge("absolute top-1 flex items-center p-2", hoverOpen ? "right-2" : "right-3")}>
-        <Chevron direction={hoverOpen ? "left" : "right"} width="20" height="20" />
-    </div>
-
     <nav class="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
-        {#each navItems as item}
-            <a href={`/${$locale}${item.href}`} class={navItemClass(item) || ""}>
-                {#if hoverOpen}
-                    {#if item.icon}
-                        <item.icon class="size-5 shrink-0" />
-                    {/if}
-                    <span>{$t(item.label)}</span>
-                {:else if item.icon}
-                    <item.icon class="size-5" />
-                {:else}
-                    <span class="text-secondary truncate text-sm font-bold" title={$t(item.label)}>
-                        {$t(item.label).charAt(0)}
-                    </span>
+        {#each navItems as item (item.href)}
+            <a
+                href={`/${$locale}${item.href}`}
+                class={navItemClass(item)}
+                aria-current={isActive(item) ? "page" : undefined}
+            >
+                {#if item.icon}
+                    <item.icon class="size-5 shrink-0" />
                 {/if}
+                <span>{$t(item.label)}</span>
             </a>
         {/each}
     </nav>
 </aside>
+
+<svelte:window onkeydown={(event) => event.key === "Escape" && closeMobile()} />
 
 <!-- Mobile backdrop -->
 {#if isMobileOpen}
@@ -106,6 +95,7 @@
                         isActive(item) && "bg-variant2 hover:bg-variant3",
                     )}
                     onclick={closeMobile}
+                    aria-current={isActive(item) ? "page" : undefined}
                 >
                     {#if item.icon}
                         <item.icon class="size-5 shrink-0" />

@@ -9,11 +9,13 @@ Converted from CampaignCard.astro to maintain exact functionality
     import Clock from "../../components/icons/Clock.svelte";
     import { t } from "../../i18n/store";
     import { apiAccountingsIdGet, type Money } from "../../openapi/client";
+    import { getDaysRemaining } from "../../utils/campaign";
     import { formatCurrency } from "../../utils/currencies";
     import { extractId } from "../../utils/extractId";
     import { gte } from "../../utils/money";
-    import CampaignStatusBadge from "../home/CampaignStatusBadge.svelte";
+    import { PUBLIC_STATUSES_TO_STATUSES } from "../../utils/projectStatus";
     import Flames from "../icons/status/Flames.svelte";
+    import Ok from "../icons/status/Ok.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -68,158 +70,142 @@ Converted from CampaignCard.astro to maintain exact functionality
         }
     });
 
-    // Define responsive classes based on size
-    // Large cards span 2 columns in lg+ (3-column grid), 2 columns in md (2-column grid), full width on mobile
-    const sizeClasses = $derived(
-        size === "large" ? "col-span-1 md:col-span-2 lg:col-span-2" : "col-span-1",
-    );
+    // Large cards span 2 columns in md+, full width on mobile
+    const sizeClasses = $derived(size === "large" ? "col-span-1 md:col-span-2" : "col-span-1");
 
-    const imageHeight = "h-53.75"; // More rectangular proportions matching design
-
-    // Calculate funding status and remaining amount
     const hasReachedMinimum = $derived(
         obtained != null && campaign.minimum != null ? gte(obtained, campaign.minimum) : false,
     );
 
-    // Determine status badge text based on funding level
-    // Using lookup pattern for consistency with other i18n implementations
-    const statusBadgeText = $derived.by(() => {
-        const key = hasReachedMinimum ? "minimumReached" : "goForMinimum";
-        return $t(`pages.home.campaigns.status.${key}`);
+    const isFinished = $derived(
+        [...PUBLIC_STATUSES_TO_STATUSES.funded, ...PUBLIC_STATUSES_TO_STATUSES.archived].includes(
+            campaign.status ?? "",
+        ),
+    );
+    const daysRemaining = $derived(getDaysRemaining(campaign.calendar));
+    const hasMatchfunding = $derived(
+        campaign.hasMatchfunding ?? !!campaign.matchCallSubmissions?.length,
+    );
+
+    // Two-phase bar: red fill towards the minimum; once reached it resets to a full green first
+    // third plus a green fill towards the optimum (additive on top of the minimum). Overflow is
+    // clamped so it never shows.
+    const ratio = (part = 0, total = 0) => (total > 0 ? Math.min(Math.max(part / total, 0), 1) : 1);
+    const barFill = $derived.by(() => {
+        const raised = obtained?.amount ?? 0;
+        const minimum = campaign.minimum?.amount ?? 0;
+        return hasReachedMinimum
+            ? ratio(raised - minimum, campaign.optimum?.amount)
+            : ratio(raised, minimum);
     });
 
-    // Get first category only (as per review comments)
-    const firstCategory = $derived(() => {
-        if (Array.isArray(campaign.category)) {
-            return campaign.category[0] || null;
-        }
-        return campaign.category || null;
-    });
+    // Right-hand amount: the minimum until it's reached, then the optimum
+    const goal = $derived(
+        campaign.optimum && hasReachedMinimum
+            ? { key: "optimum", money: campaign.optimum }
+            : { key: "minimum", money: campaign.minimum },
+    );
 </script>
 
 <div
     class={twMerge(
-        "border-grey grow basis-0 rounded-4xl border bg-white p-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)]",
+        "border-grey grow basis-0 rounded-4xl border bg-white px-4 pt-4 pb-6 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.1)] md:p-6",
         sizeClasses,
         className,
     )}
     data-testid="campaign-card"
 >
     <a href="/project/{campaign.slug}">
-        <div class="flex flex-col gap-4 md:gap-6">
-            <!-- Project Image -->
-            <div
-                class="relative {imageHeight} w-full rounded-3xl bg-cover bg-center"
-                style="background-image: url('{campaign.image}')"
-            >
-                <!-- Tags Overlay (top-left) -->
+        <div class="flex flex-col gap-6">
+            <div class="relative">
+                <img
+                    src={campaign.image}
+                    alt={campaign.title}
+                    class="h-80 w-full rounded-3xl object-cover md:h-97.25"
+                />
+
                 <div class="absolute top-4 left-4 flex flex-wrap gap-2">
-                    <!-- Matchfunding Tag (conditional) -->
-                    {#if campaign.hasMatchfunding}
-                        <Tag>
-                            <Flames />
+                    {#if ownedConfig?.tagLabel}
+                        <Tag variant="bold">{ownedConfig.tagLabel}</Tag>
+                    {/if}
+                    {#if isFinished}
+                        <Tag variant="bold">
+                            <Ok width={16} height={16} />
+                            <span>{$t("pages.home.campaigns.finished")}</span>
+                        </Tag>
+                    {:else if daysRemaining !== undefined}
+                        <Tag variant="bold">
+                            <Clock width={16} height={16} />
+                            <span>
+                                {$t("pages.home.campaigns.daysRemaining", { days: daysRemaining })}
+                            </span>
+                        </Tag>
+                    {/if}
+                    {#if hasMatchfunding}
+                        <Tag variant="bold">
+                            <Flames width={16} height={16} />
                             <span>{$t("pages.home.campaigns.matchfunding")}</span>
                         </Tag>
                     {/if}
-
-                    <!-- Additional Tags -->
-                    {#if campaign.tags}
-                        {#each campaign.tags as tag}
-                            <Tag>
-                                {tag}
-                            </Tag>
-                        {/each}
-                    {/if}
+                    {#each campaign.tags ?? [] as tag}
+                        <Tag variant="bold">{tag}</Tag>
+                    {/each}
                 </div>
 
-                <!-- Status Badge (top-right) -->
-                {#if campaign.status === "in_campaign"}
-                    <div class="absolute top-4 right-4">
-                        <CampaignStatusBadge text={statusBadgeText} />
-                    </div>
+                {#if hasReachedMinimum}
+                    <span
+                        class="border-secondary text-secondary absolute bottom-4 left-4 rounded-lg border bg-white px-2 py-1 text-xs font-medium"
+                    >
+                        {$t("pages.home.campaigns.minimumExceeded")}
+                    </span>
                 {/if}
             </div>
 
-            <!-- Project Content -->
-            <div class="flex flex-col gap-4 md:gap-6">
-                <!-- Days Remaining & Category -->
-                <div class="flex items-center gap-2 md:gap-4">
-                    <!-- Status Tag (owned projects section) -->
-                    {#if ownedConfig?.tagLabel}
-                        <Tag>
-                            {ownedConfig.tagLabel}
-                        </Tag>
-                    {/if}
-                    <!-- Days Remaining -->
-                    {#if campaign.daysRemaining !== undefined}
-                        <Tag variant="bold">
-                            <Clock />
-                            <span class="text-sm text-black">
-                                {$t("pages.home.campaigns.daysRemaining", {
-                                    days: campaign.daysRemaining,
-                                })}
-                            </span>
-                        </Tag>
-                    {/if}
-
-                    <!-- Category (display only first) -->
-                    {#if firstCategory()}
-                        <Tag variant="bold">
-                            <Clock />
-                            <span class="text-sm text-black">
-                                {$t(`categories.${firstCategory()}`)}
-                            </span>
-                        </Tag>
-                    {/if}
-                </div>
-
-                <!-- Title -->
+            <div class="flex flex-col gap-4">
                 <Title
                     level={3}
                     variant="subsection"
                     color="secondary"
-                    class="h-16 overflow-hidden leading-8"
+                    class="line-clamp-2 h-16 leading-8"
                 >
                     {campaign.title}
                 </Title>
 
-                <!-- Funding Information -->
                 {#if !ownedConfig || ownedConfig.showMoney !== false}
-                    <div class="flex flex-col gap-2">
-                        <!-- Obtained Amount -->
-                        <div class="flex items-start justify-between">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-base text-black"
-                                    >{$t("pages.home.campaigns.obtained")}</span
-                                >
-                                <span class="text-double leading-10 font-bold text-black">
-                                    {#if obtained}
-                                        {formatCurrency(obtained)}
-                                    {:else}
-                                        <span class="text-content text-sm"
-                                            >{$t("system.loading")}</span
-                                        >
-                                    {/if}
-                                </span>
+                    {#if obtained}
+                        <div class="flex h-4 gap-1">
+                            {#if hasReachedMinimum}
+                                <div class="bg-primary h-full w-1/3 rounded-2xl"></div>
+                            {/if}
+                            <div
+                                class="border-variant1 h-full flex-1 overflow-hidden rounded-2xl border bg-white"
+                            >
+                                <div
+                                    class="h-full rounded-2xl {hasReachedMinimum
+                                        ? 'bg-primary'
+                                        : 'bg-tertiary'}"
+                                    style="width: {barFill * 100}%"
+                                ></div>
                             </div>
-                            <!-- Remaining to Goal -->
-                            <div class="flex flex-col gap-2 text-right">
-                                {#if campaign.optimum && hasReachedMinimum}
-                                    <span class="text-base text-black">
-                                        {$t("pages.home.campaigns.optimum")}
-                                    </span>
-                                    <span class="text-2xl font-bold text-black">
-                                        {formatCurrency(campaign.optimum)}
-                                    </span>
+                        </div>
+                    {/if}
+
+                    <div class="flex items-start justify-between text-black">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-base">{$t("pages.home.campaigns.obtained")}</span>
+                            <span class="text-2xl leading-8 font-bold">
+                                {#if obtained}
+                                    {formatCurrency(obtained)}
                                 {:else}
-                                    <span class="text-base text-black">
-                                        {$t("pages.home.campaigns.minimum")}
-                                    </span>
-                                    <span class="text-2xl font-bold text-black">
-                                        {formatCurrency(campaign.minimum)}
-                                    </span>
+                                    <span class="text-content text-sm">{$t("system.loading")}</span>
                                 {/if}
-                            </div>
+                            </span>
+                        </div>
+                        <div class="flex flex-col gap-1 text-right">
+                            <span class="text-base">{$t(`pages.home.campaigns.${goal.key}`)}</span>
+                            <span class="text-2xl leading-8 font-bold">
+                                {formatCurrency(goal.money)}
+                            </span>
                         </div>
                     </div>
                 {/if}

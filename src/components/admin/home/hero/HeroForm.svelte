@@ -3,7 +3,12 @@
 
     import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
+    import { getDefaultLanguage } from "../../../../utils/consts";
     import { formatDate, startOfDay } from "../../../../utils/dates";
+    import {
+        getLanguageDisplayName,
+        primaryLanguage as pickPrimaryLanguage,
+    } from "../../../../utils/lang";
     import Eye from "../../../icons/media/Eye.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Button from "../../../library/buttons/Button.svelte";
@@ -13,15 +18,62 @@
     import RichTextEditor from "../../../library/inputs/RichTextEditor.svelte";
     import TextInput from "../../../library/inputs/TextInput.svelte";
     import Title from "../../../library/typography/Title.svelte";
+    import TranslationLanguages from "../../TranslationLanguages.svelte";
 
-    import type { HomeHeroRecord } from "../../../../repositories/homeHero";
+    import type { HeroTranslations, HomeHeroRecord } from "../../../../repositories/homeHero";
     import type { UploadedObject } from "../../../../utils/media/objectStorage.types";
 
     interface Props {
         hero?: HomeHeroRecord | null;
+        onSaved?: () => void;
     }
 
-    let { hero = null }: Props = $props();
+    let { hero = null, onSaved }: Props = $props();
+
+    /** The six text fields that exist per language. */
+    interface HeroFields {
+        title: string;
+        content: string;
+        primaryCtaText: string;
+        primaryCtaLink: string;
+        secondaryCtaText: string;
+        secondaryCtaLink: string;
+    }
+
+    function emptyFields(): HeroFields {
+        return {
+            title: "",
+            content: "",
+            primaryCtaText: "",
+            primaryCtaLink: "",
+            secondaryCtaText: "",
+            secondaryCtaLink: "",
+        };
+    }
+
+    function fieldsFromRecord(record: HomeHeroRecord): HeroFields {
+        return {
+            title: record.title,
+            content: record.content,
+            primaryCtaText: record.primaryCtaText ?? "",
+            primaryCtaLink: record.primaryCtaLink ?? "",
+            secondaryCtaText: record.secondaryCtaText ?? "",
+            secondaryCtaLink: record.secondaryCtaLink ?? "",
+        };
+    }
+
+    function fieldsFromTranslations(
+        overrides: NonNullable<HomeHeroRecord["translations"]>[string] | undefined,
+    ): HeroFields {
+        return {
+            title: overrides?.title ?? "",
+            content: overrides?.content ?? "",
+            primaryCtaText: overrides?.primaryCtaText ?? "",
+            primaryCtaLink: overrides?.primaryCtaLink ?? "",
+            secondaryCtaText: overrides?.secondaryCtaText ?? "",
+            secondaryCtaLink: overrides?.secondaryCtaLink ?? "",
+        };
+    }
 
     type HeroMedia = Pick<UploadedObject, "url" | "type" | "name">;
 
@@ -39,7 +91,40 @@
     let formElement: HTMLFormElement;
 
     const contentId = $props.id();
-    let content = $state(hero?.content ?? "");
+
+    // All languages are equal: there is no "base" language, only a default one
+    // (the platform language) used to seed a blank block. An existing block is
+    // opened with every language it is available in, prefilled from its stored
+    // translations, and the default can be removed like any other language
+    // once a second one exists.
+    const defaultLanguage = getDefaultLanguage();
+    const baseLanguage = hero?.language || defaultLanguage;
+    const languagesSeed = hero
+        ? [
+              ...new Set([
+                  baseLanguage,
+                  ...(hero.languages ?? []).filter((code) => code !== baseLanguage),
+              ]),
+          ]
+        : [defaultLanguage];
+
+    const initialFieldValues: Record<string, HeroFields> = {};
+    for (const lang of languagesSeed) {
+        initialFieldValues[lang] =
+            lang === baseLanguage && hero
+                ? fieldsFromRecord(hero)
+                : fieldsFromTranslations(hero?.translations?.[lang]);
+    }
+
+    let languages = $state<string[]>(languagesSeed);
+    let selectedLanguage = $state<string>(languagesSeed[0]);
+
+    let fieldValues = $state<Record<string, HeroFields>>(initialFieldValues);
+
+    // The stored row must be authored in exactly one language. The platform
+    // language keeps that role while it is present; otherwise the first chosen
+    // language becomes the authoring language.
+    const primaryLanguage = $derived(pickPrimaryLanguage(languages, defaultLanguage));
 
     let fieldErrors: FieldErrors = $state({});
     let errorMessage = $state("");
@@ -69,22 +154,52 @@
         };
     }
 
+    const currentFields = $derived(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage]);
+
     function openPreview() {
-        const data = new FormData(formElement);
-        const field = (name: FieldName) => String(data.get(name) ?? "").trim() || null;
+        // The preview carries every selected language so the modal can switch
+        // between them; languages other than the one being edited are stored as
+        // translations, mirroring how a persisted block looks.
+        const translations: HeroTranslations = {};
+
+        for (const lang of languages) {
+            if (lang === selectedLanguage) {
+                continue;
+            }
+
+            const fields = fieldValues[lang];
+
+            if (!fields) {
+                continue;
+            }
+
+            translations[lang] = {
+                title: fields.title || undefined,
+                content: fields.content || undefined,
+                primaryCtaText: fields.primaryCtaText.trim() || undefined,
+                primaryCtaLink: fields.primaryCtaLink.trim() || undefined,
+                secondaryCtaText: fields.secondaryCtaText.trim() || undefined,
+                secondaryCtaLink: fields.secondaryCtaLink.trim() || undefined,
+            };
+        }
+
+        const previewTranslations = Object.keys(translations).length > 0 ? translations : undefined;
 
         previewHero = {
-            id: 0,
-            title: field("title") ?? "",
-            content,
-            primaryCtaText: field("primaryCtaText"),
-            primaryCtaLink: field("primaryCtaLink"),
-            secondaryCtaText: field("secondaryCtaText"),
-            secondaryCtaLink: field("secondaryCtaLink"),
+            id: hero?.id ?? 0,
+            language: selectedLanguage,
+            title: currentFields.title.trim(),
+            content: currentFields.content,
+            primaryCtaText: currentFields.primaryCtaText.trim() || null,
+            primaryCtaLink: currentFields.primaryCtaLink.trim() || null,
+            secondaryCtaText: currentFields.secondaryCtaText.trim() || null,
+            secondaryCtaLink: currentFields.secondaryCtaLink.trim() || null,
             mediaUrl: media?.url ?? null,
             mediaType: media?.type ?? null,
             startsAt,
             dateCreated: new Date(),
+            languages: languages,
+            translations: previewTranslations,
         };
         isPreviewOpen = true;
     }
@@ -93,49 +208,129 @@
         media = files[0];
     }
 
-    function validate(data: FormData): boolean {
+    function validate(): boolean {
         const errors: FieldErrors = {};
+        const missingLanguages = new Set<string>();
 
-        if (!String(data.get("title") ?? "").trim()) {
-            errors.title = "system.constraint.text.notEmpty";
-        }
+        for (const lang of languages) {
+            const fields = fieldValues[lang];
 
-        if (!String(data.get("content") ?? "").trim()) {
-            errors.content = "system.constraint.text.notEmpty";
+            if (!fields?.title.trim() || !fields?.content.trim()) {
+                missingLanguages.add(lang);
+            }
+
+            if (lang === selectedLanguage) {
+                if (!fields?.title.trim()) {
+                    errors.title = "system.constraint.text.notEmpty";
+                }
+
+                if (!fields?.content.trim()) {
+                    errors.content = "system.constraint.text.notEmpty";
+                }
+            }
         }
 
         fieldErrors = errors;
 
-        return Object.keys(errors).length === 0;
+        if (missingLanguages.size > 0) {
+            errorMessage = $t("pages.admin.home.hero.errors.incompleteLanguages", {
+                languages: [...missingLanguages]
+                    .map((code) => getLanguageDisplayName(code) ?? code)
+                    .join(", "),
+            });
+            showError = true;
+
+            return false;
+        }
+
+        return true;
     }
 
     async function submit() {
         fieldErrors = {};
 
-        const data = new FormData(formElement);
-
-        if (!validate(data)) {
+        if (!validate()) {
             return;
         }
 
-        const { error } = await actions.createHomeHero(data);
+        const data = new FormData(formElement);
 
-        if (error) {
-            if (!isInputError(error)) {
-                errorMessage = error.message;
-                showError = true;
+        const primary = fieldValues[primaryLanguage] ?? emptyFields();
+
+        data.set("language", primaryLanguage);
+        data.set("title", primary.title.trim());
+        data.set("content", primary.content.trim());
+        data.set("primaryCtaText", primary.primaryCtaText.trim());
+        data.set("primaryCtaLink", primary.primaryCtaLink.trim());
+        data.set("secondaryCtaText", primary.secondaryCtaText.trim());
+        data.set("secondaryCtaLink", primary.secondaryCtaLink.trim());
+
+        const translations: Record<string, HeroFields> = {};
+
+        for (const lang of languages) {
+            if (lang === primaryLanguage) {
+                continue;
+            }
+
+            const fields = fieldValues[lang];
+
+            if (!fields) {
+                continue;
+            }
+
+            translations[lang] = {
+                title: fields.title.trim(),
+                content: fields.content.trim(),
+                primaryCtaText: fields.primaryCtaText.trim(),
+                primaryCtaLink: fields.primaryCtaLink.trim(),
+                secondaryCtaText: fields.secondaryCtaText.trim(),
+                secondaryCtaLink: fields.secondaryCtaLink.trim(),
+            };
+        }
+
+        if (Object.keys(translations).length > 0) {
+            data.set("translations", JSON.stringify(translations));
+        }
+
+        if (typeof hero?.id === "number") {
+            data.set("id", String(hero.id));
+        }
+
+        try {
+            const { error } =
+                typeof hero?.id === "number"
+                    ? await actions.updateHomeHero(data)
+                    : await actions.createHomeHero(data);
+
+            if (error) {
+                if (!isInputError(error)) {
+                    errorMessage = error.message;
+                    showError = true;
+
+                    return;
+                }
+
+                fieldErrors = Object.fromEntries(
+                    Object.entries(error.fields).map(([field, issues]) => [field, issues?.[0]]),
+                ) as FieldErrors;
 
                 return;
             }
-
-            fieldErrors = Object.fromEntries(
-                Object.entries(error.fields).map(([field, issues]) => [field, issues?.[0]]),
-            ) as FieldErrors;
+        } catch (e) {
+            // The action call itself threw (e.g. a network failure); do not
+            // let ActionableButton swallow it silently.
+            errorMessage = e instanceof Error ? e.message : String(e);
+            showError = true;
 
             return;
         }
 
-        location.reload();
+        try {
+            onSaved?.();
+        } catch (e) {
+            // Refreshing the history must not be reported as a save failure.
+            console.error(e);
+        }
     }
 
     async function handleSubmit(event: SubmitEvent) {
@@ -144,74 +339,84 @@
     }
 </script>
 
+{#snippet textFields(fields: HeroFields)}
+    <div class="space-y-4">
+        <TextInput
+            value={fields.title}
+            onInput={(value) => (fields.title = String(value))}
+            required
+            placeholder={$t("pages.admin.home.hero.fields.titlePlaceholder")}
+            error={fieldErrors.title && $t(fieldErrors.title)}
+        />
+
+        <RichTextEditor
+            id={`${contentId}-${selectedLanguage}`}
+            value={fields.content}
+            onChange={(value) => (fields.content = value)}
+            format="markdown"
+            showAlignment={false}
+            placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}
+            error={fieldErrors.content && $t(fieldErrors.content)}
+        />
+
+        <div class="flex flex-col gap-6 sm:flex-row">
+            <div class="flex-1">
+                <TextInput
+                    value={fields.primaryCtaText}
+                    onInput={(value) => (fields.primaryCtaText = String(value))}
+                    placeholder={$t("pages.admin.home.hero.fields.primaryCtaPlaceholder")}
+                    error={fieldErrors.primaryCtaText && $t(fieldErrors.primaryCtaText)}
+                />
+            </div>
+
+            <div class="flex-1">
+                <TextInput
+                    value={fields.primaryCtaLink}
+                    onInput={(value) => (fields.primaryCtaLink = String(value))}
+                    placeholder={$t("pages.admin.home.hero.fields.urlPlaceholder")}
+                    error={fieldErrors.primaryCtaLink && $t(fieldErrors.primaryCtaLink)}
+                />
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-6 sm:flex-row">
+            <div class="flex-1">
+                <TextInput
+                    value={fields.secondaryCtaText}
+                    onInput={(value) => (fields.secondaryCtaText = String(value))}
+                    placeholder={$t("pages.admin.home.hero.fields.secondaryCtaPlaceholder")}
+                    error={fieldErrors.secondaryCtaText && $t(fieldErrors.secondaryCtaText)}
+                />
+            </div>
+
+            <div class="flex-1">
+                <TextInput
+                    value={fields.secondaryCtaLink}
+                    onInput={(value) => (fields.secondaryCtaLink = String(value))}
+                    placeholder={$t("pages.admin.home.hero.fields.urlPlaceholder")}
+                    error={fieldErrors.secondaryCtaLink && $t(fieldErrors.secondaryCtaLink)}
+                />
+            </div>
+        </div>
+    </div>
+{/snippet}
+
 <form bind:this={formElement} onsubmit={handleSubmit} class="flex max-w-167 flex-col gap-10">
+    <TranslationLanguages
+        bind:languages
+        bind:selected={selectedLanguage}
+        onAdd={(lang) => (fieldValues[lang] ??= emptyFields())}
+        onRemove={(lang) => delete fieldValues[lang]}
+    />
+
     <div class="flex flex-col gap-6">
         <Title level={3} variant="subsection">
             {$t("pages.admin.home.hero.fields.textsTitle")}
         </Title>
 
-        <div class="space-y-4">
-            <TextInput
-                name="title"
-                value={hero?.title ?? ""}
-                required={true}
-                placeholder={$t("pages.admin.home.hero.fields.titlePlaceholder")}
-                error={fieldErrors.title && $t(fieldErrors.title)}
-            />
-
-            <RichTextEditor
-                id={contentId}
-                value={content}
-                onChange={(value) => (content = value)}
-                format="markdown"
-                showTextStyle={false}
-                showAlignment={false}
-                showImage={false}
-                placeholder={$t("pages.admin.home.hero.fields.contentPlaceholder")}
-                error={fieldErrors.content && $t(fieldErrors.content)}
-            />
-            <input type="hidden" name="content" value={content.trim()} />
-
-            <div class="flex flex-col gap-6 sm:flex-row">
-                <div class="flex-1">
-                    <TextInput
-                        name="primaryCtaText"
-                        value={hero?.primaryCtaText ?? ""}
-                        placeholder={$t("pages.admin.home.hero.fields.primaryCtaPlaceholder")}
-                        error={fieldErrors.primaryCtaText && $t(fieldErrors.primaryCtaText)}
-                    />
-                </div>
-
-                <div class="flex-1">
-                    <TextInput
-                        name="primaryCtaLink"
-                        value={hero?.primaryCtaLink ?? ""}
-                        placeholder={$t("pages.admin.home.hero.fields.urlPlaceholder")}
-                        error={fieldErrors.primaryCtaLink && $t(fieldErrors.primaryCtaLink)}
-                    />
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-6 sm:flex-row">
-                <div class="flex-1">
-                    <TextInput
-                        name="secondaryCtaText"
-                        value={hero?.secondaryCtaText ?? ""}
-                        placeholder={$t("pages.admin.home.hero.fields.secondaryCtaPlaceholder")}
-                        error={fieldErrors.secondaryCtaText && $t(fieldErrors.secondaryCtaText)}
-                    />
-                </div>
-
-                <div class="flex-1">
-                    <TextInput
-                        name="secondaryCtaLink"
-                        value={hero?.secondaryCtaLink ?? ""}
-                        placeholder={$t("pages.admin.home.hero.fields.urlPlaceholder")}
-                        error={fieldErrors.secondaryCtaLink && $t(fieldErrors.secondaryCtaLink)}
-                    />
-                </div>
-            </div>
-        </div>
+        {#key selectedLanguage}
+            {@render textFields(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage])}
+        {/key}
     </div>
 
     <div class="flex flex-col gap-6">

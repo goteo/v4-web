@@ -39,7 +39,9 @@
     let showUploadModal = $state(false);
     let coverSize = $state<number>();
 
-    function handleContinue() {}
+    function handleContinue() {
+        onContinue?.();
+    }
 
     function handleImageUpload(image: UploadedObject) {
         coverSize = image.size;

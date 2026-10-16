@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type ClassNameValue } from "tailwind-merge";
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { locale } from "../../i18n/store";
     import { getTerritoryDisplayName } from "../../utils/territory";
@@ -19,7 +19,7 @@
     } = $props();
 </script>
 
-<Tag class={classes}>
+<Tag class={twMerge("border border-black", classes)}>
     <MapIcon width={iconSize} height={iconSize} />
     <span>{getTerritoryDisplayName(territory, $locale)}</span>
 </Tag>

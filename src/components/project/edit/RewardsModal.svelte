@@ -33,12 +33,19 @@
         onDelete?: (reward: ProjectReward) => void;
     } = $props();
 
-    let isFinite = $derived(reward?.isFinite || false);
-    let unitsTotal = $derived(reward?.unitsTotal || 0);
+    /**
+     * Reward being edited in the form. `unitsTotal` is normalized to a number so
+     * it can be two-way bound to `RewardItemsSelector`.
+     */
+    type RewardForm = Omit<ProjectReward, "unitsTotal"> & { unitsTotal: number };
 
-    let data: ProjectReward = $derived.by(() => {
+    /**
+     * Builds the initial form values from the edited Reward, or sensible
+     * defaults when creating a new one.
+     */
+    function initialData(): RewardForm {
         if (reward) {
-            return { ...reward, isFinite, unitsTotal };
+            return { ...reward, unitsTotal: reward.unitsTotal ?? 0 };
         }
 
         return {
@@ -50,10 +57,18 @@
             description: "",
             cover: undefined,
             money: { amount: 0, currency: DEFAULT_CURRENCY },
-            isFinite,
-            unitsTotal,
+            isFinite: false,
+            unitsTotal: 0,
         };
-    });
+    }
+
+    /**
+     * Editable form state. It must be `$state` (not `$derived`): derived values
+     * are recomputed whenever their dependencies change, which would wipe the
+     * user's input — e.g. toggling the "is infinite" checkbox changes
+     * `isFinite`/`unitsTotal`.
+     */
+    let data = $state<RewardForm>(initialData());
 
     let validation: Partial<Record<keyof typeof data, string>> = $state({});
 
@@ -193,7 +208,7 @@
                     helperText={$t("pages.project.edit.rewards.modal.form.coverHelper")}
                     error={getValidationMessage("cover")}
                 />
-                <RewardItemsSelector bind:units={unitsTotal} bind:limited={isFinite} />
+                <RewardItemsSelector bind:units={data.unitsTotal} bind:limited={data.isFinite} />
             </div>
         </div>
         <div class="flex items-center justify-end gap-4">

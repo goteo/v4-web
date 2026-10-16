@@ -121,7 +121,7 @@
             error = null;
             onUpload?.(uploaded);
         } catch (err) {
-            error = err instanceof Error ? err.message : "Upload failed";
+            error = err instanceof Error ? err.message : $t("system.error.file.uploadFailed");
             console.error("File upload error:", err);
         } finally {
             const next = new Map(uploading);
@@ -297,7 +297,10 @@
 
                         <div class="min-w-0 flex-1 text-left">
                             <p class="truncate text-sm font-medium">{file.name}</p>
-                            <p class="text-content text-xs">{formatFileSize(file.size)}</p>
+                            <!-- Files listed from a stored URL have no known size. -->
+                            {#if file.size > 0}
+                                <p class="text-content text-xs">{formatFileSize(file.size)}</p>
+                            {/if}
                         </div>
 
                         <Button
@@ -320,7 +323,7 @@
     </div>
 
     <!-- Constraints -->
-    <div class="text-content flex justify-between text-sm/4 font-medium">
+    <div class="text-content flex flex-wrap justify-between gap-2 text-sm/4 font-medium">
         <div class="flex items-center gap-2">
             <WarningIcon width="16" height="16" />
             <span>{$t("system.constraint.file.supportedTypes", { types: supportedTypes })}</span>

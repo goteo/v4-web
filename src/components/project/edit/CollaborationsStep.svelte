@@ -11,7 +11,7 @@
 
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
-    let { draft }: { draft: ProjectDraftStore } = $props();
+    let { draft, onContinue }: { draft: ProjectDraftStore; onContinue?: () => void } = $props();
 
     let collabs = $state(loadCollabs());
 
@@ -65,7 +65,7 @@
 
     <!-- Continue Button -->
     <div class="flex justify-start">
-        <Button kind="secondary" size="md">
+        <Button kind="secondary" size="md" onclick={() => onContinue?.()}>
             {$t("pages.project.edit.collaborations.continue")}
         </Button>
     </div>

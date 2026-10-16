@@ -2,14 +2,21 @@
     import { marked } from "marked";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
+    import MediaCarousel from "./MediaCarousel.svelte";
+    import { locale, t } from "../../../i18n/store";
+    import { formatDate } from "../../../utils/dates";
+    import DefaultAvatar from "../../icons/DefaultAvatar.svelte";
     import ShareButton from "../share/ShareButton.svelte";
 
     interface BlogPost {
         title?: string;
         description?: string;
-        cover?: string;
+        /** Embeddable player URL, shown above the media */
+        video?: string;
+        /** Header carousel of images and videos */
+        media?: { url: string; type: string }[];
         date: Date;
-        author?: { name: string; avatar: string };
+        author?: { name: string; avatar?: string };
         body?: string;
     }
 
@@ -20,33 +27,62 @@
 
     let { post, class: className = "" }: Props = $props();
 
-    const containerClasses = $derived(twMerge("flex justify-center min-h-screen", className));
+    const containerClasses = $derived(
+        twMerge("flex min-h-screen flex-col items-center", className),
+    );
     const parsedBody = $derived(marked(post.body ?? ""));
 </script>
 
 <div class={containerClasses}>
-    <div class="w-full max-w-4xl p-4" id="top">
+    <div class="w-full max-w-[898px] pt-4" id="top">
         <h1>{post.title}</h1>
         <p class="text-content pb-4">
             {post.description}
         </p>
+    </div>
 
-        {#if post.cover}
-            <img src={post.cover} class="big-img" alt={post.title} />
-        {/if}
+    {#if post.video}
+        <iframe
+            src={post.video}
+            title={post.title}
+            class="mt-2 mb-6 aspect-video w-full max-w-[898px] rounded-2xl"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowfullscreen
+            loading="lazy"
+        ></iframe>
+    {/if}
 
+    <!-- Outside the text column so the previous and next items can peek in at the sides. -->
+    {#if post.media?.length}
+        <MediaCarousel media={post.media} alt={post.title} class="pt-2" />
+    {/if}
+
+    <div class="w-full max-w-[898px] pb-4">
         <div class="meta-container pt-6">
             <div class="profile-section">
                 {#if post.author?.avatar}
-                    <img src={post.author.avatar} class="avatar" alt={post.author?.name} />
+                    <img src={post.author.avatar} class="avatar" alt={post.author.name} />
+                {:else}
+                    <DefaultAvatar width="64" height="64" class="rounded-lg" />
                 {/if}
                 <div class="info">
-                    <p class="author-name">{post.author?.name}</p>
-                    <p class="date">{post.date}</p>
+                    {#if post.author}
+                        <p class="author-name">
+                            {$t("pages.blog.by", { author: post.author.name })}
+                        </p>
+                    {/if}
+                    <time class="date" datetime={post.date.toISOString()}>
+                        {formatDate(post.date, $locale)}
+                    </time>
                 </div>
             </div>
 
-            <ShareButton shareText={post.title ?? ""} variant="blog" />
+            <!-- Transparent border so the hover one does not shift the layout. -->
+            <ShareButton
+                shareText={post.title ?? ""}
+                variant="blog"
+                buttonClass="hover:border-secondary rounded-2xl border border-transparent px-4 transition-colors duration-200"
+            />
         </div>
 
         <div
@@ -65,14 +101,6 @@
         font-size: 40px;
         font-weight: var(--font-weight-black);
         line-height: 1.2;
-    }
-
-    .big-img {
-        width: 100%;
-        max-width: 898px;
-        height: 400px;
-        border-radius: 16px;
-        object-fit: cover;
     }
 
     .meta-container {
@@ -101,6 +129,7 @@
     }
 
     .date {
+        display: block;
         color: #575757;
         font-size: 14px;
         margin: 0;
