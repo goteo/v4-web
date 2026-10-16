@@ -20,6 +20,7 @@ export const PROJECT_REVIEW_STATUSES = [
     "in_campaign_review.to_change",
     "in_campaign_review.to_review",
     "campaign_review.rejected",
+    "to_campaign"
 ] as const;
 
 export type ProjectReviewStatus = (typeof PROJECT_REVIEW_STATUSES)[number];
