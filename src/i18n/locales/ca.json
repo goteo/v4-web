@@ -182,8 +182,8 @@
         }
       },
       "reward": {
-        "byAtLeast": "Per {{ amount }}",
-        "byAtLeastOrMore": "Per {{ amount }} o més",
+        "forAtLeast": "Per {{ amount }}",
+        "forAtLeastOrMore": "Per {{ amount }} o més",
         "donation": "Donació",
         "unitsTotal": {
           "single": "Hi ha una unitat",
@@ -1965,7 +1965,11 @@
             "title": "Ordena per",
             "options": {
               "handle-asc": "Nom d'usuari A–Z",
-              "handle-desc": "Nom d'usuari Z–A"
+              "handle-desc": "Nom d'usuari Z–A",
+              "dateCreated-desc": "Creació: més recents",
+              "dateCreated-asc": "Creació: més antics",
+              "dateUpdated-desc": "Actualització: més recents",
+              "dateUpdated-asc": "Actualització: més antics"
             }
           },
           "itemsPerPage": {
@@ -1989,11 +1993,6 @@
               "individual": "Individual",
               "organization": "Organització"
             },
-            "roles": {
-              "ROLE_USER": "Usuari",
-              "ROLE_ADMIN": "Administrador",
-              "ROLE_SUPER_ADMIN": "Superadministrador"
-            },
             "details": {
               "id": "ID",
               "handle": "Usuari",
@@ -2003,7 +2002,17 @@
               "active": "Actiu",
               "totalCollected": "Total cobrat",
               "recentCharges": "Últims cobraments",
-              "noRecentCharges": "No s'han trobat cobraments recents"
+              "dateCreated": "Data d'alta",
+              "dateUpdated": "Última actualització",
+              "btns": {
+                "charges": "Veure cobraments",
+                "roles": "Actualitzar rols"
+              },
+              "roles": {
+                "title": "Rols",
+                "placeholder": "Cerca o escriu un rol",
+                "save": "Desar rols"
+              }
             }
           }
         }
