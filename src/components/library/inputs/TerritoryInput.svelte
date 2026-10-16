@@ -31,6 +31,7 @@
         placeholder?: string;
         helperText?: string;
         error?: string;
+        disabled?: boolean;
         onInput?: (territory: Territory) => void;
         onBlur?: () => void;
         multiple?: boolean;
@@ -45,6 +46,7 @@
         placeholder,
         helperText,
         error = undefined,
+        disabled = false,
         onInput = undefined,
         onBlur = undefined,
         multiple = false,
@@ -165,7 +167,7 @@
     }
 </script>
 
-<div class={twMerge("relative w-full", classes)}>
+<div class={twMerge("relative w-full", disabled && "opacity-50", classes)} inert={disabled}>
     <DropdownMenu
         class={multiple ? "border" : undefined}
         variant={multiple ? "multiselect" : "basic"}
