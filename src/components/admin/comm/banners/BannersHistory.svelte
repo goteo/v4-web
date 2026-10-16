@@ -14,7 +14,6 @@
     import DataTable from "../../../library/tables/DataTable.svelte";
     import Title from "../../../library/typography/Title.svelte";
 
-
     import type { Banner } from "../../../../repositories/banners";
     import type { DataTableHeader } from "../../../library/tables/DataTable.svelte";
 
