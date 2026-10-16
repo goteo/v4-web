@@ -75,6 +75,14 @@ const chargeTypes: FilterOption[] = [
     { value: "recurring", label: "Recurring" },
 ];
 
+// Roles are a closed set with no listing endpoint, so the composer offers them as options.
+// The labels reuse the already translated admin users table keys to avoid duplicating them.
+const userRoleOptions: FilterOption[] = [
+    { value: "ROLE_USER", label: "pages.admin.users.table.rows.roles.ROLE_USER" },
+    { value: "ROLE_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_ADMIN" },
+    { value: "ROLE_SUPER_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_SUPER_ADMIN" },
+];
+
 const projectStatuses: FilterOption[] = [
     { value: "in_draft", label: "In draft" },
     { value: "to_campaign_review", label: "To campaign review" },
@@ -273,6 +281,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
+        options: userRoleOptions,
         allowsMultipleEquals: true,
     },
     territory: {
