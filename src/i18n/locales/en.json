@@ -14,7 +14,8 @@
       },
       "file": {
         "sizeTooLarge": "{{ file }} exceeds the maximum size ({{ max }})",
-        "unsupportedType": "Unsupported file type: {{ file }}"
+        "unsupportedType": "Unsupported file type: {{ file }}",
+        "uploadFailed": "The file could not be uploaded"
       }
     },
     "OAuth": {
@@ -56,6 +57,12 @@
           "max": "The launch date cannot be after {{ max }}"
         }
       },
+      "review": {
+        "status": "The review status is invalid",
+        "comment": {
+          "max": "The message cannot exceed {{ max }} characters"
+        }
+      },
       "errors": {
         "summary": {
           "title": "Correct the following errors:"
@@ -71,7 +78,9 @@
     "search": {
       "bar": {
         "placeholder": "Search..."
-      }
+      },
+      "noResults": "No results found",
+      "removeItem": "Remove {{ label }}"
     },
     "carousel": {
       "empty": "No items to display"
@@ -110,6 +119,9 @@
         "userType": "User type",
         "active": "Active",
         "userRoles": "Roles",
+        "reviewType": "Review type",
+        "project": "Project",
+        "reviewer": "Advisor",
         "userTerritoryCountry": "Location"
       },
       "operator": {
@@ -142,6 +154,10 @@
         "active": {
           "true": "Active",
           "false": "Inactive"
+        },
+        "reviewType": {
+          "campaign": "Campaign",
+          "financial": "Funding"
         }
       }
     },
@@ -197,7 +213,7 @@
       "status": {
         "all": "All statuses",
         "in_draft": "Draft",
-        "to_campaign_review": "Pending submission for review",
+        "to_campaign_review": "Ready for review",
         "in_campaign_review": "Under review",
         "in_campaign_review_to_change": "Under review: changes required",
         "in_campaign_review_to_review": "Under review: pending review",
@@ -206,12 +222,12 @@
         "in_campaign": "In campaign",
         "campaign_failed": "Failed campaign",
         "campaign_cancelled": "Cancelled campaign",
-        "to_funding_review": "Pending funding review",
-        "in_funding_review": "Under funding review",
-        "in_funding_review_to_change": "Under funding review: changes required",
-        "in_funding_review_to_review": "Under funding review: pending review",
-        "funding_review_rejected": "Rejected during funding review",
-        "to_funding": "Pending funding",
+        "to_funding_review": "Ready for funding review",
+        "in_funding_review": "In funding review",
+        "in_funding_review_to_change": "In funding review: requires changes",
+        "in_funding_review_to_review": "In funding review: pending review",
+        "funding_review_rejected": "Rejected in funding review",
+        "to_funding": "Ready for funding",
         "in_funding": "In funding",
         "funding_paid": "Funding paid",
         "funded": "Funded",
@@ -252,7 +268,7 @@
     "review": {
       "risks": {
         "low": "Low risk",
-        "medium": "Medium risk",
+        "mid": "Medium risk",
         "high": "High risk"
       }
     },
@@ -311,6 +327,25 @@
       "previous": "Previous page",
       "next": "Next page",
       "page": "Page {{ page }}"
+    },
+    "translationLanguages": {
+      "add": "Add translation",
+      "remove": "Remove translation",
+      "removeAll": "Remove all translations",
+      "addModal": {
+        "title": "Add a new translation",
+        "description": "Search for and choose the language you want to translate the content into.",
+        "searchPlaceholder": "Search all languages…",
+        "submit": "Add"
+      },
+      "removeModal": {
+        "title": "Remove this translation?",
+        "description": "The translation will be removed when you save."
+      },
+      "removeAllModal": {
+        "title": "Remove all translations?",
+        "description": "Only the text in {{language}} will be kept. The other translations will be removed when you save."
+      }
     }
   },
   "common": {
@@ -720,8 +755,7 @@
       },
       "featuredPromoters": {
         "title": "Featured promoters",
-        "viewAll": "View all",
-        "projectsPromoted": "Projects promoted",
+        "projectsPromoted": "Own projects",
         "capitalRaised": "Capital raised",
         "promoterImage": "Promoter photo",
         "shareProfile": "Share {{name}}'s profile"
@@ -1310,13 +1344,22 @@
         "back": "Back to review"
       },
       "card": {
-        "activity": "{{ count }} chats. Last activity {{ date }}"
+        "activity": "{{ count }} chats. Last activity {{ date }}",
+        "activitySingular": "{{ count }} message. Last activity {{ date }}"
       },
       "chat": {
         "title": "{{ area }} · {{ project }}",
         "placeholder": "Write a message…",
         "send": "Send message",
         "empty": "There are no messages in this conversation yet. You start.",
+        "mdHelpTitle": "Formatting and keyboard shortcuts",
+        "mdHelpBold": "**bold** — Ctrl+B",
+        "mdHelpItalic": "_italic_ — Ctrl+I",
+        "mdHelpStrike": "~~strikethrough~~ — Ctrl+Shift+S",
+        "mdHelpQuote": "> quote — Ctrl+Shift+Q",
+        "mdHelpLink": "[text](url) — link",
+        "mdHelpImage": "![description](url) — image",
+        "mdHelpNote": "Select the text and press the shortcut, or press the shortcut with the cursor where you want to type. Enter sends and Shift+Enter adds a line break.",
         "today": "Today",
         "yesterday": "Yesterday",
         "day": "{{ date }}",
@@ -1329,7 +1372,8 @@
         "forbidden": "You do not have permission to perform this action.",
         "notFound": "The review does not exist.",
         "areaNotFound": "The risk area does not exist.",
-        "statusNotUpdated": "The project status could not be updated."
+        "statusNotUpdated": "The project status could not be updated.",
+        "generic": "An error occurred while performing the operation."
       }
     },
     "search": {
@@ -1500,7 +1544,8 @@
         "description": "Choose what is displayed on the home page.",
         "tabs": {
           "hero": "Hero",
-          "highlights": "Featured Projects"
+          "highlights": "Featured Projects",
+          "featuredUsers": "Promoters"
         },
         "hero": {
           "title": "Hero",
@@ -1510,19 +1555,6 @@
             "invalidUrl": "The link URL is not valid",
             "invalidTranslations": "The submitted translations are invalid",
             "incompleteLanguages": "Required fields are missing in: {{ languages }}"
-          },
-          "addTranslation": "Add translation",
-          "addTranslationModal": {
-            "title": "Add a new translation",
-            "description": "Search for and choose the language you want to translate the hero content into",
-            "searchPlaceholder": "Search all languages…",
-            "submit": "Add"
-          },
-          "removeTranslation": "Remove translation",
-          "removeTranslationModal": {
-            "title": "Remove this translation?",
-            "description": "The translation will be removed from the form and will not be saved.",
-            "invalidUrl": "The link URL is invalid"
           },
           "tabs": {
             "fields": "New",
@@ -1598,6 +1630,21 @@
               "search": "Search for a project",
               "submit": "Add"
             }
+          }
+        },
+        "featuredUsers": {
+          "title": "Promoters",
+          "description": "Those leading our initiative, the most outstanding ones.",
+          "selection": {
+            "title": "Select the most outstanding promoters",
+            "empty": "Search for a promoter and feature them on the homepage",
+            "add": "Add promoter",
+            "change": "Feature another promoter"
+          },
+          "modal": {
+            "title": "Add user",
+            "description": "Search for and add the user you want to feature on the homepage",
+            "search": "Search for a user"
           }
         }
       },
@@ -2031,7 +2078,8 @@
           "errors": {
             "forbidden": "You do not have permission to manage ads",
             "invalidUrl": "The ad URL is invalid",
-            "invalidDateRange": "The end date cannot be earlier than the start date"
+            "invalidDateRange": "The end date cannot be earlier than the start date",
+            "incompleteLanguages": "Required fields are missing in: {{languages}}"
           },
           "tabs": {
             "fields": "New",
@@ -2055,7 +2103,8 @@
               "title": "Title",
               "content": "Content",
               "publishedAt": "Publication date",
-              "endAt": "End date"
+              "endAt": "End date",
+              "translations": "Translations"
             },
             "actions": {
               "view": "View"
@@ -2094,7 +2143,6 @@
             }
           },
           "form": {
-            "addTranslation": "Add translation",
             "titleSection": "Title and subtitle",
             "titlePlaceholder": "Add the title",
             "subtitlePlaceholder": "Add the subtitle",
@@ -2114,18 +2162,7 @@
               "newsletter": "Newsletter"
             },
             "saveAndExit": "Save and exit",
-            "publish": "Publish post",
-            "removeTranslation": "Remove translation",
-            "translationModal": {
-              "title": "Add a new translation",
-              "description": "Search for and choose the language you want to translate this post into.",
-              "searchPlaceholder": "Search all languages…",
-              "submit": "Add"
-            },
-            "removeTranslationModal": {
-              "title": "Remove this translation?",
-              "description": "The translation will be removed from the form and will not be saved."
-            }
+            "publish": "Publish post"
           }
         }
       },
@@ -2140,6 +2177,7 @@
           },
           "table": {
             "headers": {
+              "id": "ID",
               "name": "Project",
               "promoter": "Promoter",
               "dateSubmitted": "Submitted for review",
@@ -2154,7 +2192,7 @@
                 "dateRelease": "Launch",
                 "dateCreated": "Creation",
                 "lastInteraction": "Last interaction",
-                "risk": "Risk",
+                "risk": "Risks",
                 "pendingMessages": "Pending messages",
                 "minOptim": "Minimum - Optimum:",
                 "lastModified": "Last modification:",
@@ -2165,6 +2203,12 @@
                   "advisory": "Project advisory",
                   "assignAdvisor": "Assign advisor",
                   "annotations": "Annotations"
+                },
+                "modals": {
+                  "assignAdvisor": {
+                    "description": "Search for and select the advisor who will support this project during the review.",
+                    "searchPlaceholder": "Search by name or email…"
+                  }
                 }
               }
             }
