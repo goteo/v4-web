@@ -1,5 +1,5 @@
 <script lang="ts">
-    import UsersTable, { type UserRow, type UserSortKey } from "./UsersTable.svelte";
+    import UsersTable, { type UserRow, type UserSortKey, userSortMap } from "./UsersTable.svelte";
     import { t } from "../../../i18n/store";
     import { apiUsersGetCollection, type User } from "../../../openapi/client/index.ts";
     import { apiUsersGetCollectionUrl } from "../../../openapi/client/operation-paths.gen.ts";
@@ -25,17 +25,10 @@
               )
             : { filters: {}, order: {} };
 
-    const sortFieldMap: Record<
-        UserSortKey,
-        { field: "handle" | "email"; direction: "asc" | "desc" }
-    > = {
-        "handle-asc": { field: "handle", direction: "asc" },
-        "handle-desc": { field: "handle", direction: "desc" },
-    };
-
-    const initialSort = ((Object.keys(sortFieldMap) as UserSortKey[]).find(
-        (key) => initialParams.order[sortFieldMap[key].field] === sortFieldMap[key].direction,
-    ) ?? "handle-asc") as UserSortKey;
+    const initialSort =
+        (Object.keys(userSortMap) as UserSortKey[]).find(
+            (key) => initialParams.order[userSortMap[key].field] === userSortMap[key].direction,
+        ) ?? "handle-asc";
 
     const table = useAdminTableState<UserSortKey>(initialSort);
 
@@ -45,16 +38,6 @@
     let userSlides = $derived([
         { title: $t("pages.admin.users.totalizers.selected"), amount: table.totalItems },
     ]);
-
-    const sortMap: Record<string, { field: "handle"; direction: "asc" | "desc" }> = {
-        "handle-asc": { field: "handle", direction: "asc" },
-        "handle-desc": { field: "handle", direction: "desc" },
-    };
-
-    const initialSortKey = Object.keys(sortMap).find(
-        (key) => initialParams.order[sortMap[key].field] === sortMap[key].direction,
-    ) as UserSortKey | undefined;
-    if (initialSortKey) table.selectedSort = initialSortKey;
 
     function buildUsersQuery(
         filters: UsersQuery,
@@ -68,7 +51,7 @@
             ...filters,
         } as UsersQuery & Record<string, unknown>;
 
-        const sortOption = sortFieldMap[sort];
+        const sortOption = userSortMap[sort];
         if (sortOption) {
             query[`order[${sortOption.field}]`] = sortOption.direction;
         }
@@ -135,6 +118,8 @@
                     roles: user.roles ?? [],
                     territory: user.territory?.country ?? "—",
                     accounting: user.accounting ?? "—",
+                    dateCreated: user.dateCreated,
+                    dateUpdated: user.dateUpdated,
                 };
             });
         } finally {
@@ -153,7 +138,7 @@
     });
 
     $effect(() => {
-        const sortOption = sortFieldMap[table.selectedSort as UserSortKey];
+        const sortOption = userSortMap[table.selectedSort];
 
         syncQueryFiltersToUrl(
             filters as Record<string, unknown>,
@@ -164,6 +149,11 @@
     async function handleApplyFilters(newFilters: UsersQuery): Promise<void> {
         filters = { ...filters, ...newFilters };
         table.currentPage = 1;
+    }
+
+    function handleRolesUpdated(id: number, roles: string[]): void {
+        const row = userRows.find((r) => r.id === id);
+        if (row) row.roles = roles;
     }
 
     function handleCloseFilter(newFilters: any): void {
@@ -212,5 +202,6 @@
         onPageChange={table.handlePageChange}
         onItemsPerPageChange={table.handleItemsPerPageChange}
         onSortChange={table.handleSortChange}
+        onRolesUpdated={handleRolesUpdated}
     />
 </Dashboard>

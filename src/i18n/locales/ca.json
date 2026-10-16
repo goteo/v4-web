@@ -73,6 +73,9 @@
         "placeholder": "Cercar..."
       }
     },
+    "carousel": {
+      "empty": "No hi ha articles per mostrar"
+    },
     "filterComposer": {
       "title": "Filtres personalitzats",
       "addFilter": "Afegir filtre",
@@ -268,12 +271,23 @@
     },
     "richTextEditor": {
       "toolbar": "Barra de format de text",
-      "fontSize": "Mida de la lletra",
+      "textStyle": "Estil de text",
+      "paragraph": "Text normal",
+      "heading": "Títol {{ level }}",
       "bold": "Negreta",
       "italic": "Cursiva",
       "alignLeft": "Alinea a l'esquerra",
       "alignCenter": "Centra",
       "alignRight": "Alinea a la dreta",
+      "image": "Insereix una imatge",
+      "link": "Insereix un enllaç",
+      "linkUrl": "URL de l'enllaç",
+      "linkApply": "Aplica",
+      "linkRemove": "Elimina l'enllaç",
+      "linkCancel": "Cancel·lar",
+      "bulletList": "Llista amb pics",
+      "orderedList": "Llista numerada",
+      "quote": "Citació",
       "characterCount": "{{ current }} / {{ max }} caràcters"
     },
     "export": {
@@ -288,6 +302,15 @@
       "previousMonth": "Mes anterior",
       "nextMonth": "Mes següent",
       "close": "Tanca"
+    },
+    "pagination": {
+      "showing": "Mostrant {{ from }}–{{ to }} de {{ total }}",
+      "unloaded": "Mostrant...",
+      "noResults": "No hi ha resultats",
+      "label": "Paginació",
+      "previous": "Pàgina anterior",
+      "next": "Pàgina següent",
+      "page": "Pàgina {{ page }}"
     }
   },
   "common": {
@@ -319,15 +342,11 @@
     "login": "Iniciar sessió",
     "goHome": "Ves a la pàgina d'inici",
     "viewAll": "Veure-ho tot",
-    "pagination": {
-      "showing": "Mostrant {{ items }} de {{ total }}",
-      "unloaded": "Mostrant...",
-      "noResults": "No hi ha resultats"
-    },
     "viewMore": "Veure més",
     "viewLess": "Veure menys",
     "share": "Comparteix",
     "noData": "No hi ha dades disponibles",
+    "noOptions": "No hi ha opcions disponibles",
     "tooltip": {
       "copied": "Copiat!"
     },
@@ -377,6 +396,22 @@
       },
       "platoniq": {
         "foundation": "Fundació"
+      },
+      "a11y": {
+        "footerHeading": "Peu de pàgina",
+        "fundingPartners": "Organitzacions finançadores",
+        "partnerOrganizations": "Organitzacions associades",
+        "footerNavigation": "Navegació del peu de pàgina",
+        "legalNavigation": "Navegació legal",
+        "legalAndSocial": "Enllaços legals i xarxes socials",
+        "socialLinks": "Enllaços a xarxes socials",
+        "social": {
+          "email": "Envia'ns un correu a info@goteo.org",
+          "instagram": "Segueix-nos a Instagram",
+          "facebook": "Segueix-nos a Facebook",
+          "x": "Segueix-nos a X (abans Twitter)",
+          "linkedin": "Connecta amb nosaltres a LinkedIn"
+        }
       }
     },
     "saved": "Desat"
@@ -597,9 +632,6 @@
     },
     "home": {
       "banner": {
-        "title": "Renovem Goteo!",
-        "description": "Goteo ha construït una història única en el món del micromecenatge. Vols continuar formant-ne part?",
-        "ctaText": "Uneix-te a la nostra història",
         "closeAriaLabel": "Tancar bàner"
       },
       "campaigns": {
@@ -615,16 +647,12 @@
         "minimum": "Mínim",
         "optimum": "Òptim",
         "daysRemaining": "Queden {{days}} dies",
+        "finished": "Finalitzada",
         "matchfunding": "Matchfunding",
-        "status": {
-          "minimumReached": "Mínim aconseguit!",
-          "goForMinimum": "A pel mínim!"
-        },
+        "minimumExceeded": "Mínim superat!",
         "userDonations": "Les teves donacions:"
       },
       "blog": {
-        "title": "S'acosten grans canvis… no et perdis res!",
-        "excerpt": "Un procés que implica una important migració tècnica de la plataforma actual, i per fer-ho amb totes les garanties de seguretat i sense pèrdua d'informació, necessitem dur a terme una transició ordenada, amb dates clau per a la publicació de campanyes i la realització de donacions…",
         "readMore": "Continuar llegint"
       },
       "matchfunding": {
@@ -865,6 +893,14 @@
           "modal": {
             "title": "Afegir col·laboracions",
             "description": "Indica el tipus de col·laboració que necessites",
+            "form": {
+              "titleLabel": "Títol de la col·laboració",
+              "titlePlaceholder": "Títol de la col·laboració",
+              "titleHelper": "El títol es mostrarà a totes les targetes d'aquesta col·laboració",
+              "descriptionLabel": "Descripció de la col·laboració",
+              "descriptionPlaceholder": "Descripció de la col·laboració",
+              "descriptionHelper": "La descripció pot contenir text enriquit, però es truncarà a les targetes petites"
+            },
             "placeholders": {
               "title": "Títol de la col·laboració",
               "description": "Descripció de la col·laboració"
@@ -1121,6 +1157,49 @@
           "not-found": "Disculpa, aquesta campanya no té vídeo de presentació",
           "not-supported": "No ha estat possible carregar el vídeo. Si us plau, revisa l'enllaç o contacta amb l'administrador de la campanya."
         }
+      },
+      "manage": {
+        "title": "Gestionant projecte: {{ project }}",
+        "subtitle": "Consulta la teva activitat",
+        "editProject": "Editar projecte",
+        "itemsPerPage": "Línies per pàgina:",
+        "error": "No s'ha pogut desar el canvi",
+        "rewards": {
+          "title": "Recompenses"
+        },
+        "claims": {
+          "title": "Gestió de recompenses",
+          "search": "Cerca usuari...",
+          "noData": "Encara no hi ha recompenses reclamades",
+          "headers": {
+            "user": "Usuari",
+            "address": "Adreça d'enviament",
+            "reward": "Recompensa",
+            "status": "Estat",
+            "action": "Acció"
+          },
+          "changeStatus": "Canviar estat",
+          "statuses": {
+            "fulfilled": "Entregada",
+            "in_pending": "Pendent"
+          },
+          "modal": {
+            "title": "Canviar l'estat de la recompensa",
+            "current": "Actualment la recompensa està en estat {{ status }}",
+            "placeholder": "Selecciona l'estat",
+            "save": "Desar estat"
+          }
+        },
+        "collaborations": {
+          "title": "Gestió de col·laboracions",
+          "noData": "Encara no hi ha candidatures a col·laboracions",
+          "headers": {
+            "user": "Usuari",
+            "type": "Tipus de col·laboració",
+            "assign": "Assignar"
+          },
+          "search": "Cerca usuari..."
+        }
       }
     },
     "about": {
@@ -1207,15 +1286,50 @@
       }
     },
     "review": {
+      "title": "Revisió de {{ project }}",
+      "titlePromoter": "Assessorament amb @{{ reviewer }} per a {{ project }}",
+      "titleReviewer": "Assessorament amb @{{ promoter }} del projecte {{ project }}",
+      "titleFallback": "Assessorament del projecte {{ project }}",
+      "subtitleReviewer": "Aquí trobaràs tota la informació sobre aquesta conversa amb {{ promoter }}",
+      "subtitlePromoter": "Aquí trobaràs tota la informació sobre aquesta conversa amb {{ reviewer }}",
+      "subtitleFallback": "Aquí trobaràs tota la informació sobre aquesta conversa",
+      "project": {
+        "label": "Projecte"
+      },
+      "status": {
+        "label": "Estat de la revisió"
+      },
+      "areas": {
+        "title": "Àrees de risc",
+        "empty": "Aquesta revisió encara no té àrees de risc."
+      },
       "btns": {
         "seeChat": "Veure conversa",
-        "changeRisk": "Canviar risc"
+        "changeRisk": "Canviar risc",
+        "changeStatus": "Canviar l'estat",
+        "back": "Tornar a la revisió"
       },
       "card": {
         "activity": "{{ count }} xats. Darrera activitat {{ date }}"
       },
       "chat": {
-        "placeholder": "Escriu un missatge…"
+        "title": "{{ area }} · {{ project }}",
+        "placeholder": "Escriu un missatge…",
+        "send": "Enviar missatge",
+        "empty": "Encara no hi ha missatges en aquesta conversa. Comença tu.",
+        "today": "Avui",
+        "yesterday": "Ahir",
+        "day": "{{ date }}",
+        "riskChange": {
+          "title": "El projecte ha canviat el risc",
+          "description": "L'assessora assignada ha modificat el risc del projecte, de {{from}} a {{to}}"
+        }
+      },
+      "errors": {
+        "forbidden": "No tens permís per realitzar aquesta acció.",
+        "notFound": "La revisió no existeix.",
+        "areaNotFound": "L'àrea de risc no existeix.",
+        "statusNotUpdated": "No s'ha pogut actualitzar l'estat del projecte."
       }
     },
     "search": {
@@ -1369,7 +1483,8 @@
         "projects": "Projectes",
         "users": "Usuaris",
         "comm": "Comunicació",
-        "home": "Inici"
+        "home": "Inici",
+        "reviews": "Revisions"
       },
       "sidebar": {
         "aria": {
@@ -1393,7 +1508,52 @@
           "errors": {
             "forbidden": "No tens permisos per gestionar el bloc hero de la portada",
             "invalidUrl": "L'URL de l'enllaç no és vàlid",
-            "invalidDateRange": "La data de fi no pot ser anterior a la d'inici"
+            "invalidTranslations": "Les traduccions enviades no són vàlides",
+            "incompleteLanguages": "Falten camps obligatoris a: {{ languages }}"
+          },
+          "addTranslation": "Afegir traducció",
+          "addTranslationModal": {
+            "title": "Afegeix una nova traducció",
+            "description": "Cerca i tria l'idioma al qual vols traduir el contingut del hero",
+            "searchPlaceholder": "Cerca entre tots els idiomes…",
+            "submit": "Afegir"
+          },
+          "removeTranslation": "Eliminar traducció",
+          "removeTranslationModal": {
+            "title": "Voleu eliminar aquesta traducció?",
+            "description": "La traducció s'eliminarà del formulari i no es desarà.",
+            "invalidUrl": "L'URL de l'enllaç no és vàlid"
+          },
+          "tabs": {
+            "fields": "Nou",
+            "history": "Registre"
+          },
+          "history": {
+            "title": "Registre de blocs",
+            "description": "Aquí pots veure els blocs programats i eliminar els que no vulguis publicar",
+            "noData": "No hi ha blocs al registre",
+            "filter": {
+              "all": "Tots",
+              "upcoming": "Programats"
+            },
+            "searchPlaceholder": "Cerca per ID, títol o contingut",
+            "headers": {
+              "id": "ID",
+              "title": "Títol",
+              "content": "Contingut",
+              "startsAt": "Data d'inici",
+              "languages": "Idiomes",
+              "status": "Estat"
+            },
+            "status": {
+              "active": "Actiu",
+              "upcoming": "Programat",
+              "past": "Passat"
+            },
+            "deleteModal": {
+              "title": "Vols esborrar aquest bloc?",
+              "description": "El bloc s'eliminarà de manera permanent i deixarà de mostrar-se a la portada. Aquesta acció no es pot desfer."
+            }
           },
           "fields": {
             "textsTitle": "Textos del bloc",
@@ -1404,7 +1564,6 @@
             "urlPlaceholder": "URL",
             "scheduleTitle": "Programa la pujada del bloc",
             "startDatePlaceholder": "Indica la data d'inici",
-            "endDatePlaceholder": "Indica la data de fi",
             "mediaTitle": "Hora de pujar les imatges",
             "mediaLabel": "Imatge 01",
             "mediaHint": "Puja una imatge o un vídeo",
@@ -1853,6 +2012,7 @@
         "title": "Comunicació",
         "description": "Administra la comunicació de la plataforma",
         "tabs": {
+          "blog": "Blog",
           "banners": "Anuncis",
           "newsletter": "Butlletí"
         },
@@ -1900,6 +2060,106 @@
               "description": "L'anunci se suprimirà permanentment i desapareixerà de l'historial. Aquesta acció no es pot desfer."
             }
           }
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Els administradors poden gestionar entrades del blog, crear contingut nou i modificar articles.",
+          "errors": {
+            "forbidden": "No tens permisos per gestionar el blog",
+            "invalidVideoUrl": "L'enllaç ha de ser un vídeo de YouTube o Vimeo",
+            "incompleteLanguages": "Falta el títol a: {{ languages }}"
+          },
+          "list": {
+            "new": "Nova entrada",
+            "total": "Total: {{ total }} resultats",
+            "searchPlaceholder": "ID, títol, subtítol o text",
+            "noData": "No hi ha entrades al blog",
+            "draft": "Esborrany",
+            "edit": "Edita",
+            "headers": {
+              "id": "ID",
+              "title": "Títol",
+              "info": "Informació",
+              "translations": "Traduccions",
+              "published": "Publicat"
+            }
+          },
+          "form": {
+            "addTranslation": "Afegir traducció",
+            "titleSection": "Títol i subtítol",
+            "titlePlaceholder": "Afegeix el títol",
+            "subtitlePlaceholder": "Afegeix el subtítol",
+            "authorSection": "Autor i data de publicació",
+            "authorPlaceholder": "Autor",
+            "datePlaceholder": "Data de publicació",
+            "headerSection": "Imatges de capçalera",
+            "contentSection": "Text",
+            "contentPlaceholder": "Escriu aquí el text de l'entrada",
+            "videoSection": "Afegeix un vídeo (Youtube, Vimeo)",
+            "videoPlaceholder": "Afegeix l'enllaç del vídeo",
+            "sectionSection": "Secció",
+            "sections": {
+              "news": "Novetats",
+              "stories": "Històries",
+              "resources": "Recursos",
+              "newsletter": "Butlletí"
+            },
+            "saveAndExit": "Desa i surt",
+            "publish": "Publica l'entrada",
+            "removeTranslation": "Eliminar traducció",
+            "translationModal": {
+              "title": "Afegeix una traducció nova",
+              "description": "Cerca i tria l'idioma al qual vols traduir aquesta entrada.",
+              "searchPlaceholder": "Cerca entre tots els idiomes…",
+              "submit": "Afegir"
+            },
+            "removeTranslationModal": {
+              "title": "Eliminar aquesta traducció?",
+              "description": "La traducció s'eliminarà del formulari i no es desarà."
+            }
+          }
+        }
+      },
+      "reviews": {
+        "description": "Revisa els projectes enviats a revisió i gestiona'n l'estat.",
+        "projects": {
+          "title": "Revisió de projectes",
+          "description": "Gestiona i supervisa l'estat dels teus projectes de micromecenatge de manera centralitzada.",
+          "list": "Llistat de projectes:",
+          "totalizers": {
+            "selected": "Projectes seleccionats:"
+          },
+          "table": {
+            "headers": {
+              "name": "Projecte",
+              "promoter": "Promotor",
+              "dateSubmitted": "Enviament a revisió",
+              "status": "Estat",
+              "advisor": "Assessor"
+            },
+            "rows": {
+              "unassigned": "Sense assignar",
+              "details": {
+                "email": "Correu de contacte:",
+                "phone": "Telèfon:",
+                "dateRelease": "Llançament",
+                "dateCreated": "Creació",
+                "lastInteraction": "Última interacció",
+                "risk": "Risc",
+                "pendingMessages": "Missatges pendents",
+                "minOptim": "Mínim - Òptim:",
+                "lastModified": "Última modificació:",
+                "btns": {
+                  "preview": "Previsualització del projecte",
+                  "promoter": "Perfil de l'impulsor",
+                  "config": "Config. del projecte",
+                  "advisory": "Assessorament del projecte",
+                  "assignAdvisor": "Assignar assessor",
+                  "annotations": "Anotacions"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1920,6 +2180,7 @@
       "noProjects": "Encara no hi ha projectes impulsats.",
       "noBio": "Encara no hi ha informació sobre aquest perfil.",
       "donorType": {
+        "noProjects": "Encara no ha donat a cap projecte.",
         "fan": {
           "title": "Fan",
           "description": "Aquest donant ha invertit més de 25 €",
@@ -1951,6 +2212,108 @@
       "page": {
         "title": "Activitat",
         "subtitle": "Consulta la teva activitat a Goteo"
+      },
+      "nav": {
+        "activity": "Activitat",
+        "wallet": "Moneder",
+        "inbox": "Bústia",
+        "profile": "Perfil"
+      },
+      "manage": {
+        "title": "Perfil d'impulsor",
+        "subtitle": "Presenta projectes o finança iniciatives. Completa el teu perfil amb una bona presentació, enllaços rellevants i una foto que t'identifiqui.",
+        "sidebar": {
+          "publicProfile": "Perfil públic",
+          "personalProfile": "Perfil personal"
+        },
+        "profile": {
+          "uploadImage": "Puja una imatge nova",
+          "avatarAlt": "Imatge de perfil",
+          "type": {
+            "individual": "Perfil impulsor · Persona física",
+            "organization": "Perfil impulsor · Persona jurídica"
+          }
+        },
+        "bio": {
+          "title": "Biografia",
+          "subtitle": "Explica'ns alguna cosa sobre tu",
+          "placeholder": "Escriu una breu presentació"
+        },
+        "info": {
+          "title": "Informació de l'impulsor",
+          "subtitle": "Explica'ns alguna cosa sobre tu",
+          "handle": "Nom d'usuari",
+          "firstName": "Nom",
+          "lastName": "Cognoms",
+          "legalName": "Raó social",
+          "businessName": "Nom comercial",
+          "country": "País",
+          "locality": "Localitat",
+          "localityPlaceholder": "Busca la teva localitat",
+          "address": "Adreça (indica si és carrer, plaça, avinguda, etc.)",
+          "type": "Forma jurídica",
+          "taxId": "Número de document",
+          "representative": "Dades del representant"
+        },
+        "location": {
+          "share": "*Compartir la meva ubicació",
+          "disclaimer": "*Compartir la teva ubicació amb el nostre equip servirà per generar informació (anònima, sense revelar mai a tercers les teves dades personals), així com indicadors d'impacte que facin més eficaç la nostra feina i el suport a projectes."
+        },
+        "social": {
+          "title": "Xarxes socials",
+          "subtitle": "Afegeix les teves xarxes per mostrar-les al món",
+          "instagram": "Insereix el teu compte d'Instagram",
+          "facebook": "Insereix el teu compte de Facebook",
+          "x": "Insereix el teu compte d'X",
+          "linkedin": "Insereix el teu compte de LinkedIn",
+          "placeholder": "Usuari o enllaç"
+        },
+        "motivatingProjects": {
+          "title": "Projectes que et motiven",
+          "subtitle": "Indica el tipus de projectes que poden connectar amb els teus interessos per cofinançar-los i/o aportar-hi altres recursos, coneixements o habilitats. Aquestes categories són transversals, en pots seleccionar més d'una."
+        },
+        "personal": {
+          "title": "Perfil personal",
+          "subtitle": "Aquestes dades no es mostren al teu perfil públic. Només tu i el nostre equip les podeu veure, i les fem servir per gestionar els teus impostos, factures i certificats.",
+          "info": {
+            "title": "Informació personal",
+            "subtitle": "Tal com apareixen a la teva documentació.",
+            "postalCode": "Codi postal",
+            "anonymousDonation": "En fer una donació, mantenir el meu perfil anònim",
+            "howDidYouMeet": "Com ens vas conèixer?",
+            "documentType": "Tipus de document",
+            "birthYear": "Any de naixement",
+            "gender": "Sexe"
+          },
+          "success": "Dades personals actualitzades correctament",
+          "error": "No s'han pogut desar les dades personals. Torna-ho a intentar més tard."
+        },
+        "viewProfile": "Veure el meu perfil",
+        "save": "Desa els canvis",
+        "success": "Perfil actualitzat correctament",
+        "error": "No s'ha pogut desar el perfil. Torna-ho a provar més tard.",
+        "validation": {
+          "required": "Aquest camp és obligatori",
+          "handleInvalid": "Només es permeten minúscules, números i guions baixos (4-30 caràcters)",
+          "taxIdInvalid": "El número no té un format vàlid per al país seleccionat",
+          "linkInvalid": "Introdueix el teu usuari o un enllaç al teu perfil d'aquesta xarxa social"
+        },
+        "preferences": {
+          "title": "Preferències",
+          "subtitle": "Gestiona les teves preferències de perfil perquè tot flueixi al teu gust",
+          "nav": {
+            "preferences": "Preferències"
+          },
+          "languages": {
+            "title": "Idioma de la interfície",
+            "label": "Selecciona un idioma",
+            "helper": "L'aplicació utilitzarà aquest idioma per a la interfície i intentarà oferir-te el contingut primer en aquest idioma"
+          },
+          "save": "Desa les preferències",
+          "toast": {
+            "saved": "Preferències desades correctament"
+          }
+        }
       },
       "period": {
         "label": "Període",
@@ -2055,6 +2418,11 @@
       }
     },
     "blog": {
+      "title": "Blog",
+      "description": "Notícies, històries i recursos sobre crowdfunding, matchfunding i les campanyes de Goteo.",
+      "all": "Totes",
+      "empty": "Encara no hi ha entrades publicades",
+      "by": "Per: {{ author }}",
       "share": {
         "modal": {
           "title": "Difon aquest blog pel món",

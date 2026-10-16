@@ -182,8 +182,8 @@
         }
       },
       "reward": {
-        "byAtLeast": "Por {{ amount }}",
-        "byAtLeastOrMore": "Por {{ amount }} o más",
+        "forAtLeast": "Por {{ amount }}",
+        "forAtLeastOrMore": "Por {{ amount }} o más",
         "donation": "Donación",
         "unitsTotal": {
           "single": "Hay una unidad",
@@ -1971,7 +1971,11 @@
             "title": "Ordenar por",
             "options": {
               "handle-asc": "Nombre de usuario A–Z",
-              "handle-desc": "Nombre de usuario Z–A"
+              "handle-desc": "Nombre de usuario Z–A",
+              "dateCreated-desc": "Creación: más recientes",
+              "dateCreated-asc": "Creación: más antiguos",
+              "dateUpdated-desc": "Actualización: más recientes",
+              "dateUpdated-asc": "Actualización: más antiguos"
             }
           },
           "itemsPerPage": {
@@ -1995,11 +1999,6 @@
               "individual": "Individual",
               "organization": "Organización"
             },
-            "roles": {
-              "ROLE_USER": "Usuario",
-              "ROLE_ADMIN": "Administrador",
-              "ROLE_SUPER_ADMIN": "Super Admin"
-            },
             "details": {
               "id": "ID",
               "handle": "Usuario",
@@ -2009,7 +2008,17 @@
               "active": "Activo",
               "totalCollected": "Total cobrado",
               "recentCharges": "Últimos cobros",
-              "noRecentCharges": "No se encontraron cobros recientes"
+              "dateCreated": "Fecha de alta",
+              "dateUpdated": "Última actualización",
+              "btns": {
+                "charges": "Ver cobros",
+                "roles": "Actualizar roles"
+              },
+              "roles": {
+                "title": "Roles",
+                "placeholder": "Busca o escribe un rol",
+                "save": "Guardar roles"
+              }
             }
           }
         }

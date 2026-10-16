@@ -11,17 +11,31 @@
         roles: string[];
         territory: string;
         accounting?: string;
+        dateCreated?: string;
+        dateUpdated?: string;
     };
 
-    export type UserSortKey = "handle-asc" | "handle-desc";
+    export type UserSortKey =
+        | "handle-asc"
+        | "handle-desc"
+        | "dateCreated-desc"
+        | "dateCreated-asc"
+        | "dateUpdated-desc"
+        | "dateUpdated-asc";
 
     export const USER_ITEMS_PER_PAGE_LABEL = "pages.admin.users.filters.itemsPerPage.title";
 
-    export const userSortMap: Record<UserSortKey, { field: "handle"; direction: "asc" | "desc" }> =
-        {
-            "handle-asc": { field: "handle", direction: "asc" },
-            "handle-desc": { field: "handle", direction: "desc" },
-        };
+    export const userSortMap: Record<
+        UserSortKey,
+        { field: "handle" | "dateCreated" | "dateUpdated"; direction: "asc" | "desc" }
+    > = {
+        "handle-asc": { field: "handle", direction: "asc" },
+        "handle-desc": { field: "handle", direction: "desc" },
+        "dateCreated-desc": { field: "dateCreated", direction: "desc" },
+        "dateCreated-asc": { field: "dateCreated", direction: "asc" },
+        "dateUpdated-desc": { field: "dateUpdated", direction: "desc" },
+        "dateUpdated-asc": { field: "dateUpdated", direction: "asc" },
+    };
 
     export const userSortOptions: SortOption[] = (Object.keys(userSortMap) as UserSortKey[]).map(
         (key) => ({
@@ -65,6 +79,7 @@
         onPageChange,
         onItemsPerPageChange,
         onSortChange,
+        onRolesUpdated,
     }: {
         users: UserRow[];
         currentPage: number;
@@ -75,6 +90,7 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: AdminItemsPerPage) => void;
         onSortChange?: (sort: UserSortKey) => void;
+        onRolesUpdated?: (id: number, roles: string[]) => void;
     } = $props();
 
     let openRow = $state<number | null>(null);
@@ -85,10 +101,6 @@
         ROLE_SUPER_ADMIN: "bg-red-100 text-red-800",
         default: "bg-gray-200 text-gray-700",
     };
-
-    function roleLabel(role: string): string {
-        return $t(`pages.admin.users.table.rows.roles.${role}`, { default: role });
-    }
 
     function toggleRow(_row: UserRow, index: number): void {
         openRow = openRow === index ? null : index;
@@ -158,7 +170,7 @@
                         class="rounded-full px-2 py-0.5 text-xs font-medium {roleStyles[role] ??
                             roleStyles.default}"
                     >
-                        {roleLabel(role)}
+                        {role}
                     </span>
                 {/each}
             </div>
@@ -175,6 +187,6 @@
         </TableBodyCell>
     {/snippet}
     {#snippet details(user)}
-        <UsersDetailsRow {user} />
+        <UsersDetailsRow {user} {onRolesUpdated} />
     {/snippet}
 </DataTable>
