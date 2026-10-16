@@ -4,6 +4,10 @@
     export interface DetailsField {
         label: string;
         value: string | number | undefined;
+        /** Hover text; defaults to the value. */
+        title?: string;
+        /** Renders the value as a button, e.g. to open a modal with the full list. */
+        onclick?: () => void;
     }
 
     let {
@@ -39,9 +43,20 @@
             {#each fields as field (field.label)}
                 <div class="flex min-w-0 flex-col gap-2">
                     <p class="font-bold">{field.label}</p>
-                    <span class="truncate" title={String(field.value ?? "")}>
-                        {field.value ?? "—"}
-                    </span>
+                    {#if field.onclick}
+                        <button
+                            type="button"
+                            class="text-secondary cursor-pointer truncate text-start underline"
+                            title={field.title ?? String(field.value ?? "")}
+                            onclick={field.onclick}
+                        >
+                            {field.value ?? "—"}
+                        </button>
+                    {:else}
+                        <span class="truncate" title={field.title ?? String(field.value ?? "")}>
+                            {field.value ?? "—"}
+                        </span>
+                    {/if}
                 </div>
             {/each}
         </div>

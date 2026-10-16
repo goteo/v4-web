@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { twJoin, twMerge, type ClassNameValue } from "tailwind-merge";
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import Check from "../../icons/actions/Check.svelte";
 
