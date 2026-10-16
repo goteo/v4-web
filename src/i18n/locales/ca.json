@@ -14,7 +14,8 @@
       },
       "file": {
         "sizeTooLarge": "El fitxer {{ file }} supera la mida màxima ({{ max }})",
-        "unsupportedType": "Tipus de fitxer no permès: {{ file }}"
+        "unsupportedType": "Tipus de fitxer no permès: {{ file }}",
+        "uploadFailed": "No s'ha pogut pujar el fitxer"
       }
     },
     "OAuth": {
@@ -56,6 +57,12 @@
           "max": "La data de llançament no pot ser posterior a {{ max }}"
         }
       },
+      "review": {
+        "status": "L'estat de la revisió no és vàlid",
+        "comment": {
+          "max": "El missatge no pot superar els {{ max }} caràcters"
+        }
+      },
       "errors": {
         "summary": {
           "title": "Corregeix els errors següents:"
@@ -71,7 +78,9 @@
     "search": {
       "bar": {
         "placeholder": "Cercar..."
-      }
+      },
+      "noResults": "No s'han trobat resultats",
+      "removeItem": "Treu {{ label }}"
     },
     "carousel": {
       "empty": "No hi ha articles per mostrar"
@@ -110,6 +119,9 @@
         "userType": "Tipus d'usuari",
         "active": "Actiu",
         "userRoles": "Rols",
+        "reviewType": "Tipus de revisió",
+        "project": "Projecte",
+        "reviewer": "Assessor",
         "userTerritoryCountry": "Ubicació"
       },
       "operator": {
@@ -142,6 +154,10 @@
         "active": {
           "true": "Actiu",
           "false": "Inactiu"
+        },
+        "reviewType": {
+          "campaign": "Campanya",
+          "financial": "Finançament"
         }
       }
     },
@@ -197,7 +213,7 @@
       "status": {
         "all": "Tots els estats",
         "in_draft": "Esborrany",
-        "to_campaign_review": "Pendent d'enviar a revisió",
+        "to_campaign_review": "A punt per a la revisió",
         "in_campaign_review": "En revisió",
         "in_campaign_review_to_change": "En revisió: requereix canvis",
         "in_campaign_review_to_review": "En revisió: pendent de revisar",
@@ -206,12 +222,12 @@
         "in_campaign": "En campanya",
         "campaign_failed": "Campanya fallida",
         "campaign_cancelled": "Campanya cancel·lada",
-        "to_funding_review": "Pendent de revisió de finançament",
-        "in_funding_review": "En revisió de finançament",
-        "in_funding_review_to_change": "En revisió de finançament: requereix canvis",
-        "in_funding_review_to_review": "En revisió de finançament: pendent de revisar",
-        "funding_review_rejected": "Rebutjat en revisió de finançament",
-        "to_funding": "Pendent de finançament",
+        "to_funding_review": "A punt per a la revisió financera",
+        "in_funding_review": "En revisió financera",
+        "in_funding_review_to_change": "En revisió financera: requereix canvis",
+        "in_funding_review_to_review": "En revisió financera: pendent de revisar",
+        "funding_review_rejected": "Rebutjat en la revisió financera",
+        "to_funding": "A punt per al finançament",
         "in_funding": "En finançament",
         "funding_paid": "Finançament pagat",
         "funded": "Finançats",
@@ -252,7 +268,7 @@
     "review": {
       "risks": {
         "low": "Risc baix",
-        "medium": "Risc mitjà",
+        "mid": "Risc mitjà",
         "high": "Risc alt"
       }
     },
@@ -311,6 +327,25 @@
       "previous": "Pàgina anterior",
       "next": "Pàgina següent",
       "page": "Pàgina {{ page }}"
+    },
+    "translationLanguages": {
+      "add": "Afegir traducció",
+      "remove": "Eliminar traducció",
+      "removeAll": "Eliminar totes les traduccions",
+      "addModal": {
+        "title": "Afegeix una traducció nova",
+        "description": "Cerca i tria l’idioma al qual vols traduir el contingut.",
+        "searchPlaceholder": "Cerca entre tots els idiomes…",
+        "submit": "Afegir"
+      },
+      "removeModal": {
+        "title": "Vols eliminar aquesta traducció?",
+        "description": "La traducció s’eliminarà en desar."
+      },
+      "removeAllModal": {
+        "title": "Vols eliminar totes les traduccions?",
+        "description": "Només es conservarà el text en {{language}}. Les altres traduccions s’eliminaran en desar."
+      }
     }
   },
   "common": {
@@ -720,8 +755,7 @@
       },
       "featuredPromoters": {
         "title": "Impulsors destacats",
-        "viewAll": "Veure'ls tots",
-        "projectsPromoted": "Projectes impulsats",
+        "projectsPromoted": "Projectes propis",
         "capitalRaised": "Capital recaptat",
         "promoterImage": "Foto de l'impulsor",
         "shareProfile": "Comparteix el perfil de {{name}}"
@@ -1310,13 +1344,22 @@
         "back": "Tornar a la revisió"
       },
       "card": {
-        "activity": "{{ count }} xats. Darrera activitat {{ date }}"
+        "activity": "{{ count }} xats. Darrera activitat {{ date }}",
+        "activitySingular": "{{ count }} missatge. Darrera activitat {{ date }}"
       },
       "chat": {
         "title": "{{ area }} · {{ project }}",
         "placeholder": "Escriu un missatge…",
         "send": "Enviar missatge",
         "empty": "Encara no hi ha missatges en aquesta conversa. Comença tu.",
+        "mdHelpTitle": "Format i dreceres de teclat",
+        "mdHelpBold": "**negreta** — Ctrl+B",
+        "mdHelpItalic": "_cursiva_ — Ctrl+I",
+        "mdHelpStrike": "~~ratllat~~ — Ctrl+Shift+S",
+        "mdHelpQuote": "> cita — Ctrl+Maj+Q",
+        "mdHelpLink": "[text](url) — enllaç",
+        "mdHelpImage": "![descripció](url) — imatge",
+        "mdHelpNote": "Selecciona el text i prem la drecera, o prem la drecera amb el cursor on vulguis escriure. Enter envia i Shift+Enter fa un salt de línia.",
         "today": "Avui",
         "yesterday": "Ahir",
         "day": "{{ date }}",
@@ -1329,7 +1372,8 @@
         "forbidden": "No tens permís per realitzar aquesta acció.",
         "notFound": "La revisió no existeix.",
         "areaNotFound": "L'àrea de risc no existeix.",
-        "statusNotUpdated": "No s'ha pogut actualitzar l'estat del projecte."
+        "statusNotUpdated": "No s'ha pogut actualitzar l'estat del projecte.",
+        "generic": "S'ha produït un error en realitzar l'operació."
       }
     },
     "search": {
@@ -1500,7 +1544,8 @@
         "description": "Tria què es mostra a la portada.",
         "tabs": {
           "hero": "Heroi",
-          "highlights": "P. destacats"
+          "highlights": "P. destacats",
+          "featuredUsers": "Impulsors"
         },
         "hero": {
           "title": "Heroi",
@@ -1510,19 +1555,6 @@
             "invalidUrl": "L'URL de l'enllaç no és vàlid",
             "invalidTranslations": "Les traduccions enviades no són vàlides",
             "incompleteLanguages": "Falten camps obligatoris a: {{ languages }}"
-          },
-          "addTranslation": "Afegir traducció",
-          "addTranslationModal": {
-            "title": "Afegeix una nova traducció",
-            "description": "Cerca i tria l'idioma al qual vols traduir el contingut del hero",
-            "searchPlaceholder": "Cerca entre tots els idiomes…",
-            "submit": "Afegir"
-          },
-          "removeTranslation": "Eliminar traducció",
-          "removeTranslationModal": {
-            "title": "Voleu eliminar aquesta traducció?",
-            "description": "La traducció s'eliminarà del formulari i no es desarà.",
-            "invalidUrl": "L'URL de l'enllaç no és vàlid"
           },
           "tabs": {
             "fields": "Nou",
@@ -1598,6 +1630,21 @@
               "search": "Cerca un projecte",
               "submit": "Afegir"
             }
+          }
+        },
+        "featuredUsers": {
+          "title": "Impulsors",
+          "description": "Els que estan al capdavant de la nostra iniciativa, els més destacats.",
+          "selection": {
+            "title": "Selecciona els impulsors més destacats",
+            "empty": "Cerca un impulsor/a i destaca'l a la portada",
+            "add": "Afegeix impulsor",
+            "change": "Destaca un altre impulsor/a"
+          },
+          "modal": {
+            "title": "Afegeix usuari",
+            "description": "Cerca i afegeix l'usuari que vulguis destacar a la portada",
+            "search": "Cerca un usuari"
           }
         }
       },
@@ -2031,7 +2078,8 @@
           "errors": {
             "forbidden": "No tens permisos per gestionar anuncis",
             "invalidUrl": "L'URL de l'anunci no és vàlida",
-            "invalidDateRange": "La data de fi no pot ser anterior a la d'inici"
+            "invalidDateRange": "La data de fi no pot ser anterior a la d'inici",
+            "incompleteLanguages": "Falten camps obligatoris a: {{languages}}"
           },
           "tabs": {
             "fields": "Nous",
@@ -2055,7 +2103,8 @@
               "title": "Títol",
               "content": "Contingut",
               "publishedAt": "Data de publicació",
-              "endAt": "Data de finalització"
+              "endAt": "Data de finalització",
+              "translations": "Traduccions"
             },
             "actions": {
               "view": "Veure"
@@ -2094,7 +2143,6 @@
             }
           },
           "form": {
-            "addTranslation": "Afegir traducció",
             "titleSection": "Títol i subtítol",
             "titlePlaceholder": "Afegeix el títol",
             "subtitlePlaceholder": "Afegeix el subtítol",
@@ -2114,18 +2162,7 @@
               "newsletter": "Butlletí"
             },
             "saveAndExit": "Desa i surt",
-            "publish": "Publica l'entrada",
-            "removeTranslation": "Eliminar traducció",
-            "translationModal": {
-              "title": "Afegeix una traducció nova",
-              "description": "Cerca i tria l'idioma al qual vols traduir aquesta entrada.",
-              "searchPlaceholder": "Cerca entre tots els idiomes…",
-              "submit": "Afegir"
-            },
-            "removeTranslationModal": {
-              "title": "Eliminar aquesta traducció?",
-              "description": "La traducció s'eliminarà del formulari i no es desarà."
-            }
+            "publish": "Publica l'entrada"
           }
         }
       },
@@ -2140,6 +2177,7 @@
           },
           "table": {
             "headers": {
+              "id": "ID",
               "name": "Projecte",
               "promoter": "Promotor",
               "dateSubmitted": "Enviament a revisió",
@@ -2154,7 +2192,7 @@
                 "dateRelease": "Llançament",
                 "dateCreated": "Creació",
                 "lastInteraction": "Última interacció",
-                "risk": "Risc",
+                "risk": "Riscos",
                 "pendingMessages": "Missatges pendents",
                 "minOptim": "Mínim - Òptim:",
                 "lastModified": "Última modificació:",
@@ -2165,6 +2203,12 @@
                   "advisory": "Assessorament del projecte",
                   "assignAdvisor": "Assignar assessor",
                   "annotations": "Anotacions"
+                },
+                "modals": {
+                  "assignAdvisor": {
+                    "description": "Cerca i selecciona la persona assessora que acompanyarà aquest projecte en la revisió.",
+                    "searchPlaceholder": "Cerca per nom o correu electrònic…"
+                  }
                 }
               }
             }
