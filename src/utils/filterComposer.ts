@@ -118,6 +118,9 @@ const filterSubjects: Record<string, FilterSubject> = {
     },
     description: {
         key: "description",
+        // The API names the project description `descBrief`. Without this, the row would send
+        // `description`, which the API does not know about and drops silently.
+        param: "descBrief",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
@@ -164,12 +167,6 @@ const filterSubjects: Record<string, FilterSubject> = {
         resources: ["projects"],
         suggest: suggestProjectsBySlug,
         allowsMultipleEquals: true,
-    },
-    budgetAmount: {
-        key: "budgetAmount",
-        type: "money",
-        compatibleOperators: ["gte", "gt", "lte", "lt"],
-        resources: ["projects"],
     },
     gateway: {
         key: "gateway",
