@@ -2251,13 +2251,50 @@
           "locality": "Localidad",
           "localityPlaceholder": "Busca tu localidad",
           "address": "Dirección (indicar si es calle, plaza, avenida, etc)",
-          "type": "Forma jurídica",
           "taxId": "Número de documento",
-          "representative": "Datos del representante"
+          "representative": "Datos del representante",
+          "userType": "Tipo de perfil",
+          "postalCode": "Código postal",
+          "referralSource": "¿Cómo nos conociste?",
+          "taxIdType": "Tipo de documento",
+          "birthYear": "Año de nacimiento",
+          "gender": "Sexo",
+          "legalForm": "Forma jurídica",
+          "publicEntity": "Entidad pública",
+          "referralSourceOptions": {
+            "search_engine": "Buscador",
+            "social_media": "Redes sociales",
+            "friend": "Amigos o conocidos",
+            "press": "Prensa o medios",
+            "event": "Evento, charla o taller",
+            "other": "Otro"
+          },
+          "taxIdTypeOptions": {
+            "nif": "NIF",
+            "nie": "NIE",
+            "passport": "Pasaporte",
+            "other": "Otro"
+          },
+          "genderOptions": {
+            "female": "Mujer",
+            "male": "Hombre",
+            "non_binary": "No binario",
+            "other": "Otro / Prefiero no decirlo"
+          },
+          "legalFormOptions": {
+            "association": "Asociación",
+            "foundation": "Fundación",
+            "cooperative": "Cooperativa",
+            "company": "Empresa",
+            "self_employed": "Autónomo",
+            "public_administration": "Administración pública",
+            "other": "Otra"
+          }
         },
         "location": {
           "share": "*Compartir mi ubicación",
-          "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+          "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos.",
+          "supportAnonymously": "Al realizar una donación mantener perfil anónimo"
         },
         "social": {
           "title": "Redes sociales",
