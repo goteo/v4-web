@@ -1474,6 +1474,18 @@ export type Organization = {
      * Will be used as display name for the User when present.
      */
     businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'nif' | 'nie' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
 };
 
 /**
@@ -1509,6 +1521,18 @@ export type OrganizationJsonld = {
      * Will be used as display name for the User when present.
      */
     businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'nif' | 'nie' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
 };
 
 /**
@@ -1535,6 +1559,18 @@ export type Person = {
      * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'nif' | 'nie' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
 };
 
 /**
@@ -1568,6 +1604,18 @@ export type PersonJsonld = {
      * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'nif' | 'nie' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
 };
 
 export type Ping = {
@@ -2794,6 +2842,11 @@ export type Territory = {
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
     address?: string | null;
+    /**
+     * Postal code of the address.\
+     * e.g: 07012.
+     */
+    postalCode?: string | null;
 };
 
 export type TerritoryJsonld = {
@@ -2824,6 +2877,11 @@ export type TerritoryJsonld = {
      * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
      */
     address?: string | null;
+    /**
+     * Postal code of the address.\
+     * e.g: 07012.
+     */
+    postalCode?: string | null;
 };
 
 /**
@@ -3033,6 +3091,26 @@ export type User = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    shareLocation?: boolean;
+    /**
+     * Should the User's ProjectSupports be anonymous by default?\
+     * Only available to themselves and platform administrators.
+     */
+    supportAnonymously?: boolean;
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories of the Projects the User is interested in.
+     */
+    categories?: Array<string>;
     readonly dateCreated?: string;
     readonly dateUpdated?: string;
 };
@@ -3117,6 +3195,23 @@ export type UserUserUpdationDto = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.
+     */
+    shareLocation?: boolean;
+    /**
+     * Should the User's ProjectSupports be anonymous by default?
+     */
+    supportAnonymously?: boolean;
+    /**
+     * How the User got to know about the platform.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories of the Projects the User is interested in.
+     */
+    categories?: Array<string>;
 };
 
 /**
@@ -3191,6 +3286,26 @@ export type UserJsonld = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    shareLocation?: boolean;
+    /**
+     * Should the User's ProjectSupports be anonymous by default?\
+     * Only available to themselves and platform administrators.
+     */
+    supportAnonymously?: boolean;
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories of the Projects the User is interested in.
+     */
+    categories?: Array<string>;
     readonly dateCreated?: string;
     readonly dateUpdated?: string;
 };
