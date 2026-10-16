@@ -22,6 +22,7 @@
     import { getCountries } from "../../../utils/countries";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
+    import { trackChanges } from "../../../utils/trackChanges.svelte";
     import {
         GENDERS,
         LEGAL_FORMS,
@@ -57,7 +58,8 @@
     // Changing the profile kind belongs to the public section, here it only routes the tax id
     const isOrganization = user.type === "organization";
 
-    let form: PersonalProfileForm = $state({
+    // Only the fields edited since the last save travel in the payload
+    const { form, changed, commit } = trackChanges<PersonalProfileForm>({
         handle: user.handle,
         firstName: person?.firstName ?? "",
         lastName: person?.lastName ?? "",
@@ -91,6 +93,7 @@
     let isSubmitting = $state(false);
     let showSuccess = $state(false);
     let showError = $state(false);
+    let showNoChanges = $state(false);
     let formError = $state("");
 
     function handleLocality(territory: Territory) {
@@ -120,6 +123,12 @@
         validation = {};
         showSuccess = false;
         showError = false;
+        showNoChanges = false;
+
+        if (changed.size === 0) {
+            showNoChanges = true;
+            return;
+        }
 
         const result = zPersonalProfileForm.safeParse(form);
 
@@ -134,7 +143,10 @@
 
         isSubmitting = true;
 
-        const { data, error } = await actions.updatePersonalProfile(result.data);
+        const { data, error } = await actions.updatePersonalProfile({
+            form: result.data,
+            changed: [...changed],
+        });
 
         isSubmitting = false;
 
@@ -167,6 +179,7 @@
             path: { idOrHandle: String(user.id) },
         }).then(({ data }) => data!);
 
+        commit();
         showSuccess = true;
     }
 </script>
@@ -408,6 +421,11 @@
     {#if showSuccess}
         <Toast floating variant="success" bind:showToast={showSuccess}>
             {$t("pages.me.manage.personal.success")}
+        </Toast>
+    {/if}
+    {#if showNoChanges}
+        <Toast floating variant="notification" bind:showToast={showNoChanges}>
+            {$t("pages.me.manage.noChanges")}
         </Toast>
     {/if}
     {#if showError}

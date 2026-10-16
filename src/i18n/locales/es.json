@@ -2350,7 +2350,8 @@
           "toast": {
             "saved": "Preferencias guardadas correctamente"
           }
-        }
+        },
+        "noChanges": "No has realizado ningún cambio"
       },
       "period": {
         "label": "Periodo",

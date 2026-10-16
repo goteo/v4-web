@@ -1,4 +1,5 @@
 import { ActionError, defineAction } from "astro:actions";
+import { z } from "zod";
 
 import { setSession } from "../auth/session.ts";
 import {
@@ -13,6 +14,8 @@ import {
 } from "../openapi/client/index.ts";
 import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
 
+const TERRITORY_FIELDS = ["country", "subLvl1", "subLvl2", "address", "postalCode"];
+
 /**
  * Saves the private part of the profile: the `Person` and `Organization` records, the `Territory`
  * and the private flags on the `User`, and the identity row (avatar, bio, social networks) that this section shares with the public one.
@@ -21,8 +24,12 @@ import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts
  */
 export const updatePersonalProfile = defineAction({
     accept: "json",
-    input: zPersonalProfileForm,
-    handler: async (input, context) => {
+    input: z.object({
+        form: zPersonalProfileForm,
+        // Fields the user edited since the last save, tracked by the form
+        changed: z.array(zPersonalProfileForm.keyof()),
+    }),
+    handler: async ({ form: input, changed: changedFields }, context) => {
         const { t, session } = context.locals;
 
         if (!session) {
@@ -36,44 +43,37 @@ export const updatePersonalProfile = defineAction({
         const headers = session.token.asHttpHeaders;
         const isOrganization = input.type === "organization";
 
+        // Only send what the user edited: the API re-validates every field it gets, and rejects
+        // an unchanged handle as already in use
+        const changed = new Set<string>(changedFields);
+        // Switching type moves the tax id to the other record, send all of its fields
+        const typeChanged = changed.has("type");
+        const pick = <T extends object>(values: T, all = false) =>
+            Object.fromEntries(
+                Object.entries(values).filter(([key]) => all || changed.has(key)),
+            ) as Partial<T>;
+        const hasFields = (values: object) => Object.keys(values).length > 0;
+
         try {
-            const nextUser: Partial<UserUserUpdationDto> = {
+            const userPatch: Partial<UserUserUpdationDto> = pick({
                 handle: input.handle,
                 type: input.type,
                 shareLocation: input.shareLocation,
                 supportAnonymously: input.supportAnonymously,
                 referralSource: input.referralSource || null,
-            };
-            // Send only what changed: the API rejects an unchanged handle as already in use
-            const userPatch: Partial<UserUserUpdationDto> = Object.fromEntries(
-                Object.entries(nextUser).filter(
-                    ([key, value]) =>
-                        (session.user[key as keyof typeof session.user] ?? null) !== value,
-                ),
-            );
+            });
 
-            if (input.country) {
-                const currentTerritory = session.user.territory;
-                const newTerritory = {
+            if (input.country && TERRITORY_FIELDS.some((field) => changed.has(field))) {
+                userPatch.territory = {
                     country: input.country,
                     subLvl1: input.subLvl1 || null,
                     subLvl2: input.subLvl2 || null,
                     address: input.address.trim() || null,
                     postalCode: input.postalCode.trim() || null,
                 };
-                if (
-                    !currentTerritory ||
-                    currentTerritory.country !== newTerritory.country ||
-                    (currentTerritory.subLvl1 ?? null) !== newTerritory.subLvl1 ||
-                    (currentTerritory.subLvl2 ?? null) !== newTerritory.subLvl2 ||
-                    (currentTerritory.address ?? null) !== newTerritory.address ||
-                    (currentTerritory.postalCode ?? null) !== newTerritory.postalCode
-                ) {
-                    userPatch.territory = newTerritory;
-                }
             }
 
-            if (Object.keys(userPatch).length > 0) {
+            if (hasFields(userPatch)) {
                 const { error } = await apiUsersIdPatch({
                     path: { id },
                     headers,
@@ -85,16 +85,19 @@ export const updatePersonalProfile = defineAction({
                 }
             }
 
-            if (isOrganization) {
-                const organizationPatch: Partial<Organization> = {
+            const organizationPatch: Partial<Organization> = pick(
+                {
                     legalName: input.legalName.trim(),
                     businessName: input.businessName.trim(),
                     taxId: input.taxId.trim(),
                     taxIdType: input.taxIdType || null,
                     legalForm: input.legalForm || null,
                     publicEntity: input.publicEntity,
-                };
+                },
+                typeChanged,
+            );
 
+            if (isOrganization && hasFields(organizationPatch)) {
                 const { error } = await apiUsersIdorganizationPatch({
                     path: { id },
                     headers,
@@ -106,28 +109,22 @@ export const updatePersonalProfile = defineAction({
                 }
             }
 
-            const currentPerson = await apiUsersIdpersonGet({ path: { id }, headers }).then(
-                (r) => r.data,
-            );
-            const nextPerson: Partial<Person> = {
-                firstName: input.firstName.trim(),
-                lastName: input.lastName.trim(),
+            const personPatch: Partial<Person> = {
+                ...pick({ firstName: input.firstName.trim(), lastName: input.lastName.trim() }),
                 // On organizations the tax id belongs to the Organization record
-                ...(!isOrganization && {
-                    taxId: input.taxId.trim(),
-                    taxIdType: input.taxIdType || null,
-                    birthYear: input.birthYear ? Number(input.birthYear) : null,
-                    gender: input.gender || null,
-                }),
+                ...(!isOrganization &&
+                    pick(
+                        {
+                            taxId: input.taxId.trim(),
+                            taxIdType: input.taxIdType || null,
+                            birthYear: input.birthYear ? Number(input.birthYear) : null,
+                            gender: input.gender || null,
+                        },
+                        typeChanged,
+                    )),
             };
-            const personPatch = Object.fromEntries(
-                Object.entries(nextPerson).filter(
-                    ([key, value]) =>
-                        (currentPerson?.[key as keyof Person] ?? "") !== (value ?? ""),
-                ),
-            );
 
-            if (Object.keys(personPatch).length > 0) {
+            if (hasFields(personPatch)) {
                 const { error } = await apiUsersIdpersonPatch({
                     path: { id },
                     headers,
