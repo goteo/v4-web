@@ -1,4 +1,3 @@
-import { getReviewProjectPlaceholder } from "./projectReview";
 import { apiProjectsIdOrSlugGet, apiUsersGetCollectionUrl } from "../openapi/client";
 import { extractId } from "../utils/extractId";
 
@@ -15,6 +14,24 @@ import type { ProjectReview } from "../types/projectReview";
  */
 export function isConsultant(session?: Session): boolean {
     return !!session?.user.roles?.includes("ROLE_ADMIN");
+}
+
+/**
+ * Whether the signed in user is the consultant assigned to a review.
+ *
+ * A review names one consultant admin as its reviewer. Holding the admin role is
+ * not enough: a promoter that also happens to be an admin must not be mistaken for
+ * the reviewer of their own review.
+ * @param session The current session
+ * @param review The review being accessed
+ * @returns True when the signed in user is the review's assigned reviewer
+ */
+export function isAssignedReviewer(session: Session | undefined, review: ProjectReview): boolean {
+    if (!session) return false;
+
+    const reviewerId = extractId(review.reviewer);
+
+    return !!reviewerId && reviewerId === String(session.user.id);
 }
 
 /**
@@ -49,15 +66,7 @@ export async function canAccessReview(
         headers: session.token.asHttpHeaders,
     });
 
-    if (project?.owner) {
-        return extractId(project.owner) === String(session.user.id);
-    }
-
-    // Nothing to read an owner from: fall back to the placeholder of the mocks, which
-    // is what a review of a project the API has no record of yet resolves to.
-    const placeholder = getReviewProjectPlaceholder(review);
-
-    return !!placeholder && extractId(placeholder.owner) === String(session.user.id);
+    return !!project?.owner && extractId(project.owner) === String(session.user.id);
 }
 
 /**

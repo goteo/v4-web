@@ -1,4 +1,4 @@
-import type { Project } from "../openapi/client/index.ts";
+import type { Project, ProjectReview } from "../openapi/client/index.ts";
 
 /**
  * Public project statuses for the public search page.
@@ -107,3 +107,26 @@ export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
     "campaign_review.rejected",
     "to_campaign",
 ];
+
+/** Financial (funding) review statuses, the counterpart of {@link CAMPAIGN_REVIEW_STATUSES}. */
+export const FUNDING_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+    "to_funding_review",
+    "in_funding_review",
+    "in_funding_review.to_review",
+    "in_funding_review.to_change",
+    "funding_review.rejected",
+    "to_funding",
+];
+
+/**
+ * Statuses a project can be moved to from the review table, grouped by the type
+ * of ProjectReview driving it: campaign reviews move across the campaign review
+ * statuses and financial ones across the funding review statuses.
+ */
+export const REVIEW_STATUSES_BY_TYPE: Record<
+    NonNullable<ProjectReview["type"]>,
+    NonNullable<Project["status"]>[]
+> = {
+    campaign: CAMPAIGN_REVIEW_STATUSES,
+    financial: FUNDING_REVIEW_STATUSES,
+};

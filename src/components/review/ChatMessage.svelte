@@ -3,6 +3,7 @@
 
     import { locale } from "../../i18n/store";
     import { formatDate, formatTime } from "../../utils/dates";
+    import { renderChatMarkdown } from "../../utils/renderChatMarkdown";
 
     interface Props {
         type: "own" | "foreign";
@@ -10,12 +11,20 @@
         message: string;
         date: Date;
         photo?: string;
+        /**
+         * Renders links and images instead of degrading them. Only set for the
+         * messages the consultant admin wrote, the one author trusted to point
+         * at external content.
+         */
+        trusted?: boolean;
         class?: ClassNameValue;
     }
 
-    let { type, name, message, date, photo, class: classes }: Props = $props();
+    let { type, name, message, date, photo, trusted = false, class: classes }: Props = $props();
 
     let isOwn = $derived(type === "own");
+
+    let rendered = $derived(renderChatMarkdown(message, { allowLinksAndImages: trusted }));
 </script>
 
 {#snippet avatar(bgColor: string, iconColor: string = "var(--color-black)")}
@@ -59,7 +68,12 @@
         {#if !isOwn}
             <span class="text-secondary self-stretch text-sm font-semibold">{name}</span>
         {/if}
-        <p class="self-stretch text-sm leading-relaxed">{message}</p>
+        <!-- The markdown parser only emits the chat formatting whitelist, never
+             raw HTML, and links and images only for the admin's own messages,
+             so rendering it is safe by construction. -->
+        <div class="marked-content chat-bubble self-stretch text-sm leading-relaxed">
+            {@html rendered}
+        </div>
         <time
             datetime={date.toISOString()}
             class={twJoin(
@@ -72,3 +86,61 @@
         </time>
     </div>
 </div>
+
+<!-- The scopes reset the global `.marked-content` (which sizes to 16px and its
+     own color) so the bubble keeps the compact chat typography and inherits the
+     color of the bubble it sits on. -->
+<style>
+    :global(.marked-content.chat-bubble) {
+        font-size: 0.875rem;
+        line-height: 1.625rem;
+        color: inherit;
+    }
+
+    :global(.chat-bubble.marked-content p) {
+        margin-bottom: 0.375rem;
+    }
+
+    :global(.chat-bubble.marked-content p:last-child),
+    :global(.chat-bubble.marked-content ul:last-child),
+    :global(.chat-bubble.marked-content ol:last-child),
+    :global(.chat-bubble.marked-content blockquote:last-child) {
+        margin-bottom: 0;
+    }
+
+    :global(.chat-bubble.marked-content ul),
+    :global(.chat-bubble.marked-content ol) {
+        margin: 0.25rem 0;
+        padding-left: 1rem;
+    }
+
+    :global(.chat-bubble.marked-content blockquote) {
+        border-left: 3px solid var(--color-primary);
+        margin: 0.25rem 0;
+        padding-left: 0.75rem;
+    }
+
+    :global(.chat-bubble.marked-content del) {
+        text-decoration: line-through;
+    }
+
+    :global(.chat-nolink) {
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    :global(.chat-bubble.marked-content .chat-link) {
+        color: inherit;
+        text-decoration: underline;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    :global(.chat-bubble.marked-content .chat-image) {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin: 0.25rem 0;
+    }
+</style>

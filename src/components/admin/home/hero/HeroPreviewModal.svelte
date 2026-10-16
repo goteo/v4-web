@@ -1,10 +1,10 @@
 <script lang="ts">
     import { Modal } from "flowbite-svelte";
 
-    import { renderMarkdown } from "../../../../utils/renderMarkdown";
-    import Hero from "../../../hero/Hero.svelte";
-    import LanguagesDropdown from "../../../header/LanguagesDropdown.svelte";
     import { getLanguageDisplayName } from "../../../../utils/lang";
+    import { renderMarkdown } from "../../../../utils/renderMarkdown";
+    import LanguagesDropdown from "../../../header/LanguagesDropdown.svelte";
+    import Hero from "../../../hero/Hero.svelte";
 
     import type { HomeHeroRecord } from "../../../../repositories/homeHero";
 

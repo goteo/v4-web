@@ -215,7 +215,7 @@ export const updateHomeHero = defineAction({
         });
 
         // Replace the stored translations so locales dropped from the editor do
-        // not keep stale rows. Depends on the D1 FK to home_hero (CASCADE).
+        // not keep stale rows.
         await translationRepository.deleteByRow(HOME_HERO_TABLE, input.id);
         await storeTranslations(input.id, translations);
     },
