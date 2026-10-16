@@ -182,8 +182,8 @@
         }
       },
       "reward": {
-        "byAtLeast": "Por {{ amount }}",
-        "byAtLeastOrMore": "Por {{ amount }} o más",
+        "forAtLeast": "Por {{ amount }}",
+        "forAtLeastOrMore": "Por {{ amount }} o más",
         "donation": "Donación",
         "unitsTotal": {
           "single": "Hay una unidad",

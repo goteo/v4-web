@@ -66,7 +66,7 @@
     <div class="text-secondary w-full text-left">
         <h3 class="text-[2.5rem] leading-12 font-bold">
             {@html $t(
-                "domain.project.reward.byAtLeastOrMore",
+                "domain.project.reward.forAtLeastOrMore",
                 {
                     amount: formatCurrency(reward.money),
                 },

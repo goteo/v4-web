@@ -56,7 +56,7 @@
             >
                 <div>
                     {@html $t(
-                        "domain.project.reward.byAtLeast",
+                        "domain.project.reward.forAtLeast",
                         {
                             amount: formatCurrency(reward.money.amount, reward.money.currency),
                         },
