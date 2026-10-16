@@ -43,6 +43,7 @@ export type FilterResource = "projects" | "gateway_charges" | "users";
 
 export interface FilterOption {
     value: string;
+    /** Resolved with `$t` where the option is rendered: an i18n key, or a literal used as-is. */
     label: string;
 }
 
@@ -260,8 +261,14 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
         options: [
-            { value: "individual", label: "Individual" },
-            { value: "organization", label: "Organización" },
+            {
+                value: "individual",
+                label: "domain.filterComposer.subjectOption.userType.individual",
+            },
+            {
+                value: "organization",
+                label: "domain.filterComposer.subjectOption.userType.organization",
+            },
         ],
         allowsMultipleEquals: true,
     },
@@ -271,8 +278,8 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals"],
         resources: ["users"],
         options: [
-            { value: "true", label: "Activo" },
-            { value: "false", label: "Inactivo" },
+            { value: "true", label: "domain.filterComposer.subjectOption.active.true" },
+            { value: "false", label: "domain.filterComposer.subjectOption.active.false" },
         ],
     },
     userRoles: {
