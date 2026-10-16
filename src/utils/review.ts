@@ -27,6 +27,18 @@ export const RISK_TAG_VARIANTS: Record<ProjectReviewRisk, "success" | "warning" 
 };
 
 /**
+ * Background each risk level paints a square with.
+ *
+ * The colors match the tags of {@link RISK_TAG_VARIANTS}, so a status read as a
+ * row of squares reads the same as the one on the review page.
+ */
+export const RISK_SQUARE_CLASSES: Record<ProjectReviewRisk, string> = {
+    low: "bg-variant2",
+    mid: "bg-variant4",
+    high: "bg-tertiary",
+};
+
+/**
  * Translation key of each review status.
  *
  * The API writes the status of a review with a dot separator (`campaign_review.rejected`)

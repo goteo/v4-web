@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { SvelteMap } from "svelte/reactivity";
+
     import AssignAdvisorModal from "./AssignAdvisorModal.svelte";
     import ReviewProjectsTable, {
         type ProjectStatus,
@@ -6,6 +8,7 @@
     } from "./ReviewProjectsTable.svelte";
     import { t } from "../../../i18n/store";
     import {
+        apiProjectReviewAreasGetCollection,
         apiProjectReviewsGetCollection,
         apiProjectReviewsGetCollectionUrl,
         apiProjectReviewsIdPatch,
@@ -15,6 +18,7 @@
         apiUsersIdOrHandleGetUrl,
         type Project,
         type ProjectReview,
+        type ProjectReviewArea,
         type User,
     } from "../../../openapi/client/index.ts";
     import { useAdminTableState } from "../../../utils/adminTableState.svelte";
@@ -26,6 +30,7 @@
     import { projectSortMap, type ProjectSortKey } from "../projects/ProjectsTable.svelte";
 
     import type { ApiProjectReviewsGetCollectionData } from "../../../openapi/client/types.gen";
+    import type { ProjectReviewRisk } from "../../../types/projectReview";
 
     type ReviewsQuery = Partial<ApiProjectReviewsGetCollectionData["query"]>;
 
@@ -42,8 +47,11 @@
     /** Raw reviews, the primary list the table is built from. */
     let reviews = $state<ProjectReview[]>([]);
     /** Projects and people each review points at, filled in as they resolve. */
-    let projectsByIri = $state(new Map<string, Project>());
-    let usersByIri = $state(new Map<string, User>());
+    let projectsByIri = new SvelteMap<string, Project>();
+    let usersByIri = new SvelteMap<string, User>();
+
+    /** Risks of each review, by the review id. */
+    let risksByReviewId = new SvelteMap<number, ProjectReviewRisk[]>();
 
     /** Rows recompute on their own as the resolved projects and users arrive. */
     let rows = $derived(reviews.map(toRow));
@@ -85,6 +93,7 @@
             // The review is what moves in a review, so its own activity is what the
             // detail row reports as the last interaction.
             lastInteraction: review.dateUpdated ?? "",
+            risks: review.id ? (risksByReviewId.get(review.id) ?? []) : [],
         };
     }
 
@@ -128,9 +137,72 @@
             table.totalItems = getCollectionTotalItems(data);
 
             hydrate(reviews);
+            hydrateRisks(reviews);
             fetchTotalEarned(unique(reviews.map((review) => review.project)));
         } finally {
             table.isLoading = false;
+        }
+    }
+
+    /**
+     * Reads the areas of every review on screen and keeps their risks by review.
+     *
+     * The areas of all reviews are read in a single paginated request, so the row
+     * of squares costs one round-trip no matter how many reviews the page holds.
+     */
+    async function hydrateRisks(reviewsToHydrate: ProjectReview[]): Promise<void> {
+        if (!reviewsToHydrate.length) return;
+
+        const reviewIris = unique(
+            reviewsToHydrate.map((review) =>
+                review.id ? `${apiProjectReviewsGetCollectionUrl}/${review.id}` : undefined,
+            ),
+        );
+
+        if (!reviewIris.length) return;
+
+        const byReview = new Map<number, ProjectReviewRisk[]>();
+        const itemsPerPage = 100;
+        let page = 1;
+        let total = Number.POSITIVE_INFINITY;
+
+        try {
+            while ((page - 1) * itemsPerPage < total) {
+                const { data, error } = await apiProjectReviewAreasGetCollection({
+                    baseUrl: "/api/relay",
+                    query: {
+                        "review[]": reviewIris,
+                        page,
+                        itemsPerPage,
+                        "order[dateCreated]": "asc",
+                    },
+                    headers: { Accept: "application/ld+json" },
+                });
+
+                if (error || !data) break;
+
+                const areas = toCollectionItems<ProjectReviewArea>(data);
+                total = getCollectionTotalItems(data);
+
+                for (const area of areas) {
+                    if (!area.risk) continue;
+                    const reviewId = Number(extractId(area.review ?? ""));
+                    if (!Number.isFinite(reviewId)) continue;
+                    const risks = byReview.get(reviewId) ?? [];
+                    risks.push(area.risk);
+                    byReview.set(reviewId, risks);
+                }
+
+                if (!areas.length) break;
+                page++;
+            }
+        } catch (error) {
+            console.error("Failed to fetch review areas:", error);
+            return;
+        }
+
+        for (const [reviewId, risks] of byReview) {
+            risksByReviewId.set(reviewId, risks);
         }
     }
 

@@ -1,5 +1,6 @@
 <script lang="ts" module>
     import type { Project, ProjectReview } from "../../../openapi/client/index.ts";
+    import type { ProjectReviewRisk } from "../../../types/projectReview";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
 
     export type ProjectStatus = NonNullable<Project["status"]>;
@@ -27,6 +28,8 @@
         advisor?: string;
         /** Last activity of the campaign review, taken from the review rather than the project. */
         lastInteraction: string;
+        /** Risks of the review's areas, if the areas have been hydrated. */
+        risks?: ProjectReviewRisk[];
     };
 
     const headers: DataTableHeader[] = [
@@ -47,6 +50,7 @@
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
     import { REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
+    import { RISK_SQUARE_CLASSES } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -57,6 +61,8 @@
         projectSortOptions,
         type ProjectSortKey,
     } from "../projects/ProjectsTable.svelte";
+
+    import type { Snippet } from "svelte";
 
     interface Props {
         projects: ReviewProjectRow[];
@@ -103,16 +109,19 @@
 
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
 
-    function detailFields(project: ReviewProjectRow): DetailsField[] {
+    function detailFields(project: ReviewProjectRow, riskSquares: Snippet): DetailsField[] {
         const label = (key: string) => $t(`pages.admin.reviews.projects.table.rows.details.${key}`);
         // ponytail: risk and phone have no API yet — placeholders
+        const risks = project.risks ?? [];
         return [
             { label: label("email"), value: project.email || "—" },
             { label: label("phone"), value: "—" },
             { label: label("dateRelease"), value: date(project.dateRelease) },
             { label: label("dateCreated"), value: date(project.dateCreated) },
             { label: label("lastInteraction"), value: date(project.lastInteraction) },
-            { label: label("risk"), value: "—" },
+            risks.length
+                ? { label: label("risk"), snippet: riskSquares }
+                : { label: label("risk"), value: "—" },
             { label: label("minOptim"), value: project.minOptim },
         ];
     }
@@ -189,7 +198,18 @@
         </TableBodyCell>
     {/snippet}
     {#snippet details(project: ReviewProjectRow)}
-        <DetailsRow fields={detailFields(project)} columns={4}>
+        {#snippet riskSquares()}
+            <div class="flex flex-wrap items-center gap-1">
+                {#each project.risks ?? [] as risk, index (index)}
+                    <span
+                        class="size-3 rounded-sm {RISK_SQUARE_CLASSES[risk]}"
+                        title={$t(`domain.review.risks.${risk}`)}
+                        aria-label={$t(`domain.review.risks.${risk}`)}
+                    ></span>
+                {/each}
+            </div>
+        {/snippet}
+        <DetailsRow fields={detailFields(project, riskSquares)} columns={4}>
             {#snippet actions()}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-5">
                     <Button kind="ghost" size="sm" href={`/${$locale}/project/${project.slug}`}>

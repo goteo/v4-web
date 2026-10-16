@@ -3,7 +3,9 @@
 
     export interface DetailsField {
         label: string;
-        value: string | number | undefined;
+        value?: string | number;
+        /** Custom content painted instead of `value`, for fields that are not plain text. */
+        snippet?: Snippet;
     }
 
     let {
@@ -39,9 +41,13 @@
             {#each fields as field (field.label)}
                 <div class="flex min-w-0 flex-col gap-2">
                     <p class="font-bold">{field.label}</p>
-                    <span class="truncate" title={String(field.value ?? "")}>
-                        {field.value ?? "—"}
-                    </span>
+                    {#if field.snippet}
+                        {@render field.snippet()}
+                    {:else}
+                        <span class="truncate" title={String(field.value ?? "")}>
+                            {field.value ?? "—"}
+                        </span>
+                    {/if}
                 </div>
             {/each}
         </div>
