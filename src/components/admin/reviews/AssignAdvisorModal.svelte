@@ -13,6 +13,7 @@
     import Title from "../../library/typography/Title.svelte";
 
     import type { DropdownOption } from "../../library/dropdown/dropdown.types";
+    import { debounce } from "../../../utils/debounce.ts";
 
     let {
         open = $bindable(false),
@@ -36,8 +37,6 @@
     let searchValue = $state("");
     let selected = $state<DropdownOption[]>([]);
 
-    let searchTimer: ReturnType<typeof setTimeout> | undefined;
-
     function toOption(user: User): DropdownOption {
         return {
             id: apiUsersGetCollectionUrl + "/" + user.id,
@@ -46,17 +45,24 @@
         };
     }
 
-    async function searchUsers(term: string): Promise<void> {
+    const searchUsers = debounce(async (term: string) => {
         const { data } = await apiUsersGetCollection({
             baseUrl: "/api/relay",
             query: { q: term.trim(), itemsPerPage: 30 },
         });
+
         candidates = toCollectionItems<User>(data).map(toOption);
-    }
+    }, 250);
 
     function handleSearch(value: string): void {
-        clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => searchUsers(value), 250);
+        const trimmed = value.trim();
+        if (trimmed.length < 2) {
+            searchUsers.cancel();
+            candidates = [];
+            return;
+        }
+
+        searchUsers(trimmed);
     }
 
     $effect(() => {
@@ -71,7 +77,6 @@
                       },
                   ]
                 : [];
-            searchUsers("");
         }
     });
 
