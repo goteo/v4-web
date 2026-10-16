@@ -78,7 +78,9 @@
     "search": {
       "bar": {
         "placeholder": "Buscar..."
-      }
+      },
+      "noResults": "No se han encontrado resultados",
+      "removeItem": "Quitar {{ label }}"
     },
     "carousel": {
       "empty": "No hay artículos para mostrar"
