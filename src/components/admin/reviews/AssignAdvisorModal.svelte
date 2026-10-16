@@ -7,13 +7,13 @@
         apiUsersGetCollectionUrl,
         type User,
     } from "../../../openapi/client/index.ts";
+    import { debounce } from "../../../utils/debounce.ts";
     import { toCollectionItems } from "../../../utils/hydra";
     import Button from "../../library/buttons/Button.svelte";
     import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
     import Title from "../../library/typography/Title.svelte";
 
     import type { DropdownOption } from "../../library/dropdown/dropdown.types";
-    import { debounce } from "../../../utils/debounce.ts";
 
     let {
         open = $bindable(false),

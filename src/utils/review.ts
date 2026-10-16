@@ -49,7 +49,7 @@ export const PROJECT_REVIEW_STATUS_LABELS: Record<ProjectReviewStatus, string> =
     "in_campaign_review.to_change": "domain.project.status.in_campaign_review_to_change",
     "in_campaign_review.to_review": "domain.project.status.in_campaign_review_to_review",
     "campaign_review.rejected": "domain.project.status.campaign_review_rejected",
-    "to_campaign": "domain.project.status.to_campaign"
+    to_campaign: "domain.project.status.to_campaign",
 };
 
 /**

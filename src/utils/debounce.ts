@@ -3,10 +3,7 @@
  * Each call cancels the previous pending call.
  * `cancel()` drops a pending call without running it.
  */
-export function debounce<A extends unknown[]>(
-    fn: (...args: A) => void,
-    ms = 300,
-) {
+export function debounce<A extends unknown[]>(fn: (...args: A) => void, ms = 300) {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const debounced = (...args: A) => {
