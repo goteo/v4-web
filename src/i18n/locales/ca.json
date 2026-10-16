@@ -571,7 +571,10 @@
         "error": {
           "invalidCredentials": "Correu electrònic o contrasenya invàlids.",
           "unexpectedLogin": "Error en iniciar sessió. Si us plau, intenta-ho de nou més tard.",
-          "invalidEmail": "El correu electrònic no és vàlid."
+          "invalidEmail": "El correu electrònic no és vàlid.",
+          "clientAuthentication": "No s'ha pogut autoritzar l'aplicació. Si us plau, torna-ho a intentar més tard.",
+          "invalidRequest": "La sol·licitud d'inici de sessió no és vàlida. Revisa les teves dades i torna-ho a intentar.",
+          "requireTerms": "Has d'acceptar les condicions legals per continuar."
         }
       },
       "register": {
@@ -586,6 +589,7 @@
             "password": {
               "minLength": "*Requisits de la contrasenya: ha de tenir 8 caràcters"
             },
+            "passwordInvalid": "La contrasenya no és vàlida.",
             "required": "Aquest camp és obligatori",
             "emailInvalid": "L'adreça electrònica introduïda no és vàlida",
             "taxIdInvalid": "El número no té un format vàlid per al país seleccionat"
@@ -620,6 +624,8 @@
         },
         "error": {
           "unexpectedRegistration": "Error en crear el compte. Si us plau, torna-ho a intentar més tard.",
+          "emailInUse": "Ja existeix un compte amb aquest correu electrònic. Inicia sessió o fes servir un altre correu.",
+          "accountCreatedProfileFailed": "Hem creat el teu compte, però no hem pogut desar totes les teves dades. Inicia sessió i completa el teu perfil.",
           "requireTerms": "Has d'acceptar les condicions per continuar."
         },
         "title": "Indica'ns les teves dades personals",
