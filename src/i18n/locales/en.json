@@ -182,8 +182,8 @@
         }
       },
       "reward": {
-        "byAtLeast": "For {{ amount }}",
-        "byAtLeastOrMore": "For {{ amount }} or more",
+        "forAtLeast": "For {{ amount }}",
+        "forAtLeastOrMore": "For {{ amount }} or more",
         "donation": "Donation",
         "unitsTotal": {
           "single": "There is 1 unit",
@@ -1965,7 +1965,11 @@
             "title": "Order by",
             "options": {
               "handle-asc": "Username A–Z",
-              "handle-desc": "Username Z–A"
+              "handle-desc": "Username Z–A",
+              "dateCreated-desc": "Created: newest first",
+              "dateCreated-asc": "Created: oldest first",
+              "dateUpdated-desc": "Updated: newest first",
+              "dateUpdated-asc": "Updated: oldest first"
             }
           },
           "itemsPerPage": {
@@ -1989,11 +1993,6 @@
               "individual": "Individual",
               "organization": "Organization"
             },
-            "roles": {
-              "ROLE_USER": "User",
-              "ROLE_ADMIN": "Administrator",
-              "ROLE_SUPER_ADMIN": "Super Administrator"
-            },
             "details": {
               "id": "ID",
               "handle": "User",
@@ -2003,7 +2002,17 @@
               "active": "Active",
               "totalCollected": "Total collected",
               "recentCharges": "Recent charges",
-              "noRecentCharges": "No recent charges found"
+              "dateCreated": "Registration date",
+              "dateUpdated": "Last updated",
+              "btns": {
+                "charges": "View charges",
+                "roles": "Update roles"
+              },
+              "roles": {
+                "title": "Roles",
+                "placeholder": "Search or enter a role",
+                "save": "Save roles"
+              }
             }
           }
         }
