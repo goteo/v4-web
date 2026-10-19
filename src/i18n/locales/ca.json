@@ -252,7 +252,7 @@
     "review": {
       "risks": {
         "low": "Risc baix",
-        "medium": "Risc mitjà",
+        "mid": "Risc mitjà",
         "high": "Risc alt"
       }
     },

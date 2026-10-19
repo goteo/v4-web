@@ -17,7 +17,7 @@
         searchPlaceholder?: string;
         onSelectProject?: (project: ProjectJsonld) => void;
         onSelectUser?: (user: UserJsonld) => void;
-        resource?: "projects" | "gateway_charges" | "users";
+        resource?: "projects" | "gateway_charges" | "users" | "project_reviews";
     } = $props();
 
     let value = $state("");
