@@ -334,7 +334,9 @@ export function createFilterRow(
                     }
                     return { [key]: String(referent) };
                 case "is_any_of":
-                    return { [key]: referent as string[] };
+                    // The API only unions multiple values when they arrive as `key[]`: a repeated
+                    // bare key keeps just the last one (verified against projects and users).
+                    return { [`${key}[]`]: referent as string[] };
                 case "before":
                 case "after":
                 case "strictly_before":
