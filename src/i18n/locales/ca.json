@@ -103,7 +103,6 @@
         "slug": "ID",
         "territory": "Territori",
         "dateUpdated": "Última actualització",
-        "budgetAmount": "Import",
         "gateway": "Passarel·la",
         "type": "Tipus",
         "checkout": {
