@@ -103,7 +103,6 @@
         "slug": "ID",
         "territory": "Territory",
         "dateUpdated": "Last updated",
-        "budgetAmount": "Amount",
         "gateway": "Gateway",
         "type": "Type",
         "checkout": {
