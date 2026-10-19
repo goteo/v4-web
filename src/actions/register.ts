@@ -3,7 +3,6 @@ import { ActionError, defineAction } from "astro:actions";
 import { passwordGrant } from "../auth/grant.ts";
 import { buildSession, setSession } from "../auth/session.ts";
 import {
-    apiUsersGetCollection,
     apiUsersPost,
     apiUsersIdpersonPatch,
     apiUsersIdorganizationPatch,
@@ -16,36 +15,6 @@ interface ApiViolation {
     propertyPath?: string;
     message?: string;
 }
-
-/**
- * Server-side email availability check. Astro validates action inputs with
- * `safeParseAsync`, so this async refinement produces a field-level error on the
- * email input instead of a generic form error. If the check itself fails we let
- * the API creation attempt report the problem.
- */
-const zRegisterActionInput = zRegisterForm.superRefine(async (data, ctx) => {
-    // Refinements also run when earlier field checks failed, so never query the
-    // API with an empty or malformed email.
-    if (!zRegisterForm.shape.identifier.safeParse(data.identifier).success) {
-        return;
-    }
-
-    try {
-        const { data: users } = await apiUsersGetCollection({
-            query: { email: data.identifier },
-        });
-
-        if (Array.isArray(users) && users.length > 0) {
-            ctx.addIssue({
-                code: "custom",
-                path: ["identifier"],
-                message: "pages.checkout.register.error.emailInUse",
-            });
-        }
-    } catch (error) {
-        console.error("Could not check email availability:", error);
-    }
-});
 
 function violationsOf(error: unknown): ApiViolation[] {
     if (typeof error !== "object" || error === null) {
@@ -113,7 +82,7 @@ function apiErrorMessages(error: unknown, t: (key: string) => string): string[] 
 
 export const register = defineAction({
     accept: "form",
-    input: zRegisterActionInput,
+    input: zRegisterForm,
     handler: async (input, context) => {
         const { t } = context.locals;
 
