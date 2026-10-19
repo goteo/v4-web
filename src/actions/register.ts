@@ -56,7 +56,7 @@ function violationMessage(violation: ApiViolation, t: (key: string) => string): 
                 ? t("pages.checkout.register.error.emailInUse")
                 : t("pages.checkout.register.form.validation.emailInvalid");
         case "password":
-            return /short|8 char/i.test(message)
+            return /short/i.test(message)
                 ? t("pages.checkout.register.form.validation.password.minLength")
                 : t("pages.checkout.register.form.validation.passwordInvalid");
         case "taxId":
