@@ -9,6 +9,7 @@ import {
     updateReviewAreaRisk,
     updateReviewProjectStatus,
 } from "./projectReview";
+import { saveProposedCampaigns } from "./proposedCampaigns";
 import { updatePublicProfile } from "./publicProfile";
 import { register } from "./register";
 
@@ -30,4 +31,5 @@ export const server = {
     updateReviewAreaRisk,
     updateReviewProjectStatus,
     sendReviewAreaComment,
+    saveProposedCampaigns,
 };
