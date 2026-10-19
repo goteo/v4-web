@@ -1544,7 +1544,7 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
-          "proposed": "Campañas propuestas"
+          "proposed": "Campañas propuestas",
           "featuredUsers": "Impulsores"
         },
         "hero": {
@@ -1637,6 +1637,8 @@
               "description": "Busca y añade el proyecto que quieres proponer",
               "search": "Busca un proyecto",
               "submit": "Añadir"
+            }
+          }
         },
         "featuredUsers": {
           "title": "Impulsores",
