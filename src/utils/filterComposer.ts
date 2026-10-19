@@ -3,20 +3,20 @@ import { get } from "svelte/store";
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
 import {
-    suggestGateways,
-    suggestAccounting,
-    suggestOwner,
-    suggestCategories,
-    suggestProjects,
-    suggestProjectsBySubtitle,
-    suggestProjectsByDescription,
-    suggestProjectsBySlug,
-    suggestUserHandle,
-    suggestUserEmail,
-} from "./filterSuggestions";
+    searchAccountings,
+    searchCategories,
+    searchGateways,
+    searchProjectsByDescription,
+    searchProjectsBySlug,
+    searchProjectsBySubtitle,
+    searchProjectsByTitle,
+    searchUsersByEmail,
+    searchUsersByHandle,
+} from "./searchers";
 import TerritoryReferentInput from "../components/library/filters/TerritoryReferentInput.svelte";
 import { locale } from "../i18n/store";
 
+import type { ResourceSearcher } from "./resourceSearch";
 import type { Component } from "svelte";
 
 export interface FilterRow {
@@ -39,7 +39,7 @@ export type FilterOperator =
     | "lte"
     | "lt";
 
-export type FilterResource = "projects" | "gateway_charges" | "users";
+export type FilterResource = "projects" | "gateway_charges" | "users" | "project_reviews";
 
 export interface FilterOption {
     value: string;
@@ -54,7 +54,7 @@ export interface FilterSubject {
     compatibleOperators: FilterOperator[];
     resources: FilterResource[];
     options?: FilterOption[];
-    suggest?: (q: string) => Promise<FilterOption[]>;
+    suggest?: ResourceSearcher;
     serialize?: (referent: unknown) => Record<string, string | string[]>;
     allowsMultipleEquals?: boolean;
     /** Renders the referent with a dedicated component instead of its raw label. */
@@ -82,6 +82,11 @@ const userRoleOptions: FilterOption[] = [
     { value: "ROLE_USER", label: "pages.admin.users.table.rows.roles.ROLE_USER" },
     { value: "ROLE_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_ADMIN" },
     { value: "ROLE_SUPER_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_SUPER_ADMIN" },
+];
+
+const reviewTypes: FilterOption[] = [
+    { value: "campaign", label: "domain.filterComposer.subjectOption.reviewType.campaign" },
+    { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
 ];
 
 const projectStatuses: FilterOption[] = [
@@ -116,14 +121,14 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
-        suggest: suggestProjects,
+        suggest: searchProjectsByTitle,
     },
     subtitle: {
         key: "subtitle",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
-        suggest: suggestProjectsBySubtitle,
+        suggest: searchProjectsBySubtitle,
     },
     description: {
         key: "description",
@@ -133,7 +138,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
-        suggest: suggestProjectsByDescription,
+        suggest: searchProjectsByDescription,
     },
     projectStatus: {
         key: "projectStatus",
@@ -158,7 +163,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        suggest: suggestCategories,
+        suggest: searchCategories,
         allowsMultipleEquals: true,
     },
     owner: {
@@ -166,7 +171,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        suggest: suggestOwner,
+        suggest: searchUsersByHandle,
         allowsMultipleEquals: true,
     },
     slug: {
@@ -174,7 +179,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        suggest: suggestProjectsBySlug,
+        suggest: searchProjectsBySlug,
         allowsMultipleEquals: true,
     },
     gateway: {
@@ -183,7 +188,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["gateway_charges"],
-        suggest: suggestGateways,
+        suggest: searchGateways,
         allowsMultipleEquals: true,
     },
     type: {
@@ -199,7 +204,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["gateway_charges"],
-        suggest: suggestAccounting,
+        suggest: searchAccountings,
         allowsMultipleEquals: true,
         display: "accountingOwner",
     },
@@ -208,7 +213,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["gateway_charges"],
-        suggest: suggestAccounting,
+        suggest: searchAccountings,
         allowsMultipleEquals: true,
         display: "accountingOwner",
     },
@@ -228,31 +233,56 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["gte", "gt", "lte", "lt"],
         resources: ["gateway_charges"],
     },
+    reviewType: {
+        key: "reviewType",
+        param: "type",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        options: reviewTypes,
+        allowsMultipleEquals: true,
+    },
+    project: {
+        key: "project",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        suggest: searchProjectsByTitle,
+        allowsMultipleEquals: true,
+    },
+    reviewer: {
+        key: "reviewer",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        suggest: searchUsersByEmail,
+        allowsMultipleEquals: true,
+    },
     dateCreated: {
         key: "dateCreated",
         type: "date",
         compatibleOperators: ["before", "after", "strictly_before", "strictly_after"],
-        resources: ["projects", "gateway_charges", "users"],
+        resources: ["projects", "gateway_charges", "users", "project_reviews"],
     },
     dateUpdated: {
         key: "dateUpdated",
         type: "date",
         compatibleOperators: ["before", "after", "strictly_before", "strictly_after"],
-        resources: ["projects", "gateway_charges", "users"],
+        resources: ["projects", "gateway_charges", "users", "project_reviews"],
     },
     handle: {
         key: "handle",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["users"],
-        suggest: suggestUserHandle,
+        suggest: searchUsersByHandle,
     },
     email: {
         key: "email",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["users"],
-        suggest: suggestUserEmail,
+        suggest: searchUsersByEmail,
     },
     userType: {
         key: "userType",

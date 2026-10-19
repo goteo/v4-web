@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { actions } from "astro:actions";
+    import { actions, isInputError } from "astro:actions";
 
     import ChatMessage from "./ChatMessage.svelte";
     import ChatTextarea from "./ChatTextarea.svelte";
@@ -15,6 +15,7 @@
         REVIEW_RISKS,
         RISK_TAG_VARIANTS,
     } from "../../utils/review";
+    import { REVIEW_COMMENT_MIN_LENGTH } from "../../validation/reviewValidation";
     import BackButton from "../library/buttons/BackButton.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Toast from "../library/feedback/Toast.svelte";
@@ -33,6 +34,7 @@
         area,
         authors = [],
         currentUserIri,
+        reviewerIri = "",
         projectTitle = "",
         canEditRisk = false,
         locale = "es",
@@ -45,6 +47,11 @@
         authors?: ReviewAuthor[];
         /** IRI of the signed in user, which decides which bubbles are their own. */
         currentUserIri: string;
+        /**
+         * IRI of the User acting as consultant admin. Their messages are the only
+         * ones allowed to carry links and images.
+         */
+        reviewerIri?: string;
         /** Already translated on the server, since `$t` always resolves to Spanish. */
         projectTitle?: string;
         /** Only the consultant admin assesses risks; a promoter only reads them. */
@@ -76,6 +83,17 @@
     let conversation = $state<HTMLDivElement | undefined>(undefined);
 
     let authorByIri = $derived(new Map(authors.map((author) => [author.author, author])));
+
+    /**
+     * Only the review's consultant admin is trusted to write links and images;
+     * every other message keeps the degraded, plain-text rendering.
+     */
+    function isTrustedAuthor(author: string): boolean {
+        return reviewerIri !== "" && author === reviewerIri;
+    }
+
+    /** The admin is the only one whose composer advertises the link/image syntax. */
+    let isAdminViewer = $derived(isTrustedAuthor(currentUserIri));
 
     let currentRisk = $derived(chosenRisk ?? area.risk);
 
@@ -114,6 +132,17 @@
     }
 
     /**
+     * Reads the message off a rejected action. Our own rules carry the translation
+     * key and its variables on the issue, so the value they quote (a maximum length,
+     * for one) always matches the one the schema enforced.
+     */
+    function failFrom(error: { message: string }) {
+        const issue = isInputError(error) ? error.issues[0] : undefined;
+
+        fail(issue?.code === "custom" ? $t(issue.message, issue.params) : error.message);
+    }
+
+    /**
      * Assesses the risk of this area through the same action the areas screen uses, so
      * the consultant-only rule is enforced on the server for both screens.
      */
@@ -133,7 +162,7 @@
 
         if (error) {
             chosenRisk = previous ?? undefined;
-            fail(error.message);
+            failFrom(error);
 
             return;
         }
@@ -161,7 +190,7 @@
         sending = false;
 
         if (error) {
-            fail(error.message);
+            failFrom(error);
 
             return;
         }
@@ -240,6 +269,7 @@
                         name={author?.displayName ?? ""}
                         photo={author?.avatar}
                         message={comment.body}
+                        trusted={isTrustedAuthor(comment.author)}
                         date={new Date(comment.dateCreated)}
                     />
                 {/if}
@@ -251,5 +281,12 @@
         {/if}
     </div>
 
-    <ChatTextarea class="mb-10 shrink-0" bind:value={draft} disabled={sending} onSend={send} />
+    <ChatTextarea
+        class="mb-10 shrink-0"
+        bind:value={draft}
+        disabled={sending}
+        canInsertRich={isAdminViewer}
+        minLength={REVIEW_COMMENT_MIN_LENGTH}
+        onSend={send}
+    />
 </div>

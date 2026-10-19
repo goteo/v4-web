@@ -73,6 +73,9 @@
         "placeholder": "Search..."
       }
     },
+    "carousel": {
+      "empty": "No items to display"
+    },
     "filterComposer": {
       "title": "Custom filters",
       "addFilter": "Add filter",
@@ -179,7 +182,7 @@
         }
       },
       "reward": {
-        "byAtLeast": "By {{ amount }}",
+        "byAtLeast": "For {{ amount }}",
         "byAtLeastOrMore": "For {{ amount }} or more",
         "donation": "Donation",
         "unitsTotal": {
@@ -249,7 +252,7 @@
     "review": {
       "risks": {
         "low": "Low risk",
-        "medium": "Medium risk",
+        "mid": "Medium risk",
         "high": "High risk"
       }
     },
@@ -268,12 +271,23 @@
     },
     "richTextEditor": {
       "toolbar": "Text formatting toolbar",
-      "fontSize": "Font size",
+      "textStyle": "Text style",
+      "paragraph": "Normal text",
+      "heading": "Heading {{ level }}",
       "bold": "Bold",
       "italic": "Italic",
       "alignLeft": "Align left",
       "alignCenter": "Center",
       "alignRight": "Align right",
+      "image": "Insert image",
+      "link": "Insert link",
+      "linkUrl": "Link URL",
+      "linkApply": "Apply",
+      "linkRemove": "Remove link",
+      "linkCancel": "Cancel",
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "quote": "Quote",
       "characterCount": "{{ current }} / {{ max }} characters"
     },
     "export": {
@@ -288,6 +302,15 @@
       "previousMonth": "Previous month",
       "nextMonth": "Next month",
       "close": "Close"
+    },
+    "pagination": {
+      "showing": "Showing {{ from }}–{{ to }} of {{ total }}",
+      "unloaded": "Showing...",
+      "noResults": "No results",
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {{ page }}"
     }
   },
   "common": {
@@ -319,15 +342,11 @@
     "login": "Login",
     "goHome": "Go to the home page",
     "viewAll": "View all",
-    "pagination": {
-      "showing": "Showing {{ items }} of {{ total }}",
-      "unloaded": "Showing...",
-      "noResults": "No results"
-    },
     "viewMore": "See more",
     "viewLess": "See less",
     "share": "Share",
     "noData": "No data available",
+    "noOptions": "No options available",
     "tooltip": {
       "copied": "Copied!"
     },
@@ -377,6 +396,22 @@
       },
       "platoniq": {
         "foundation": "Foundation"
+      },
+      "a11y": {
+        "footerHeading": "Footer",
+        "fundingPartners": "Funding organizations",
+        "partnerOrganizations": "Partner organizations",
+        "footerNavigation": "Footer navigation",
+        "legalNavigation": "Legal navigation",
+        "legalAndSocial": "Legal and social media links",
+        "socialLinks": "Social media links",
+        "social": {
+          "email": "Email us at info@goteo.org",
+          "instagram": "Follow us on Instagram",
+          "facebook": "Follow us on Facebook",
+          "x": "Follow us on X (formerly Twitter)",
+          "linkedin": "Connect with us on LinkedIn"
+        }
       }
     },
     "saved": "Saved"
@@ -597,9 +632,6 @@
     },
     "home": {
       "banner": {
-        "title": "We've renewed Goteo!",
-        "description": "Goteo has built a unique story in the world of crowdfunding. Do you want to keep being part of it?",
-        "ctaText": "Join our story",
         "closeAriaLabel": "Close banner"
       },
       "campaigns": {
@@ -615,16 +647,12 @@
         "minimum": "Minimum",
         "optimum": "Optimum",
         "daysRemaining": "{{days}} days remaining",
+        "finished": "Finished",
         "matchfunding": "Matchfunding",
-        "status": {
-          "minimumReached": "Minimum reached!",
-          "goForMinimum": "Let's reach the minimum!"
-        },
+        "minimumExceeded": "Minimum exceeded!",
         "userDonations": "Your donations:"
       },
       "blog": {
-        "title": "Big changes are coming… don't miss a thing!",
-        "excerpt": "A process involving a major technical migration of the current platform, and to do it with full security guarantees and without losing information, we need to carry out an orderly transition, with key dates for publishing campaigns and making donations…",
         "readMore": "Continue reading"
       },
       "matchfunding": {
@@ -865,6 +893,14 @@
           "modal": {
             "title": "Add collaborations",
             "description": "Indicate the type of collaboration you need",
+            "form": {
+              "titleLabel": "Collaboration title",
+              "titlePlaceholder": "Collaboration title",
+              "titleHelper": "The title will be shown on all cards for this collaboration",
+              "descriptionLabel": "Collaboration description",
+              "descriptionPlaceholder": "Collaboration description",
+              "descriptionHelper": "The description can contain rich text, but it will be truncated on small cards"
+            },
             "placeholders": {
               "title": "Collaboration title",
               "description": "Collaboration description"
@@ -1121,6 +1157,49 @@
           "not-found": "Sorry, this campaign does not have a presentation video",
           "not-supported": "The video could not be loaded. Please check the link or contact the campaign administrator."
         }
+      },
+      "manage": {
+        "title": "Managing project: {{ project }}",
+        "subtitle": "Check your activity",
+        "editProject": "Edit project",
+        "itemsPerPage": "Items per page:",
+        "error": "The change could not be saved",
+        "rewards": {
+          "title": "Rewards"
+        },
+        "claims": {
+          "title": "Reward management",
+          "search": "Search user...",
+          "noData": "No rewards have been claimed yet",
+          "headers": {
+            "user": "User",
+            "address": "Shipping address",
+            "reward": "Reward",
+            "status": "Status",
+            "action": "Action"
+          },
+          "changeStatus": "Change status",
+          "statuses": {
+            "fulfilled": "Delivered",
+            "in_pending": "Pending"
+          },
+          "modal": {
+            "title": "Change reward status",
+            "current": "The reward is currently in {{ status }} status",
+            "placeholder": "Select status",
+            "save": "Save status"
+          }
+        },
+        "collaborations": {
+          "title": "Collaboration management",
+          "noData": "There are no collaboration applications yet",
+          "headers": {
+            "user": "User",
+            "type": "Collaboration type",
+            "assign": "Assign"
+          },
+          "search": "Search user..."
+        }
       }
     },
     "about": {
@@ -1207,15 +1286,50 @@
       }
     },
     "review": {
+      "title": "Review of {{ project }}",
+      "titlePromoter": "Advisory session with @{{ reviewer }} for {{ project }}",
+      "titleReviewer": "Advisory session with @{{ promoter }} for the project {{ project }}",
+      "titleFallback": "Advisory session for the project {{ project }}",
+      "subtitleReviewer": "Here you will find all the information about this conversation with {{ promoter }}",
+      "subtitlePromoter": "Here you will find all the information about this conversation with {{ reviewer }}",
+      "subtitleFallback": "Here you will find all the information about this conversation",
+      "project": {
+        "label": "Project"
+      },
+      "status": {
+        "label": "Review status"
+      },
+      "areas": {
+        "title": "Risk areas",
+        "empty": "This review does not have any risk areas yet."
+      },
       "btns": {
         "seeChat": "View conversation",
-        "changeRisk": "Change risk"
+        "changeRisk": "Change risk",
+        "changeStatus": "Change status",
+        "back": "Back to review"
       },
       "card": {
         "activity": "{{ count }} chats. Last activity {{ date }}"
       },
       "chat": {
-        "placeholder": "Write a message…"
+        "title": "{{ area }} · {{ project }}",
+        "placeholder": "Write a message…",
+        "send": "Send message",
+        "empty": "There are no messages in this conversation yet. You start.",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "day": "{{ date }}",
+        "riskChange": {
+          "title": "The project has changed the risk",
+          "description": "The assigned advisor has changed the project's risk from {{from}} to {{to}}"
+        }
+      },
+      "errors": {
+        "forbidden": "You do not have permission to perform this action.",
+        "notFound": "The review does not exist.",
+        "areaNotFound": "The risk area does not exist.",
+        "statusNotUpdated": "The project status could not be updated."
       }
     },
     "search": {
@@ -1369,7 +1483,8 @@
         "projects": "Projects",
         "users": "Users",
         "comm": "Communication",
-        "home": "Homepage"
+        "home": "Homepage",
+        "reviews": "Reviews"
       },
       "sidebar": {
         "aria": {
@@ -1393,7 +1508,52 @@
           "errors": {
             "forbidden": "You don't have permission to manage the homepage hero",
             "invalidUrl": "The link URL is not valid",
-            "invalidDateRange": "The end date cannot be earlier than the start date"
+            "invalidTranslations": "The submitted translations are invalid",
+            "incompleteLanguages": "Required fields are missing in: {{ languages }}"
+          },
+          "addTranslation": "Add translation",
+          "addTranslationModal": {
+            "title": "Add a new translation",
+            "description": "Search for and choose the language you want to translate the hero content into",
+            "searchPlaceholder": "Search all languages…",
+            "submit": "Add"
+          },
+          "removeTranslation": "Remove translation",
+          "removeTranslationModal": {
+            "title": "Remove this translation?",
+            "description": "The translation will be removed from the form and will not be saved.",
+            "invalidUrl": "The link URL is invalid"
+          },
+          "tabs": {
+            "fields": "New",
+            "history": "History"
+          },
+          "history": {
+            "title": "Block history",
+            "description": "Here you can view scheduled blocks and delete the ones you don’t want to publish",
+            "noData": "There are no blocks in the history",
+            "filter": {
+              "all": "All",
+              "upcoming": "Scheduled"
+            },
+            "searchPlaceholder": "Search by ID, title, or content",
+            "headers": {
+              "id": "ID",
+              "title": "Title",
+              "content": "Content",
+              "startsAt": "Start date",
+              "languages": "Languages",
+              "status": "Status"
+            },
+            "status": {
+              "active": "Current",
+              "upcoming": "Scheduled",
+              "past": "Past"
+            },
+            "deleteModal": {
+              "title": "Delete this block?",
+              "description": "The block will be permanently deleted and will no longer be displayed on the homepage. This action cannot be undone."
+            }
           },
           "fields": {
             "textsTitle": "Block texts",
@@ -1404,7 +1564,6 @@
             "urlPlaceholder": "URL",
             "scheduleTitle": "Schedule the block to go live",
             "startDatePlaceholder": "Enter the start date",
-            "endDatePlaceholder": "Enter the end date",
             "mediaTitle": "Time to upload the images",
             "mediaLabel": "Image 01",
             "mediaHint": "Upload an image or video",
@@ -1853,6 +2012,7 @@
         "title": "Communication",
         "description": "Manage platform communication",
         "tabs": {
+          "blog": "Blog",
           "banners": "Announcements",
           "newsletter": "Newsletter"
         },
@@ -1900,6 +2060,106 @@
               "description": "The announcement will be permanently deleted and disappear from the history. This action cannot be undone."
             }
           }
+        },
+        "blog": {
+          "title": "Blog",
+          "description": "Administrators can manage blog posts, create new content, and edit articles.",
+          "errors": {
+            "forbidden": "You do not have permission to manage the blog",
+            "invalidVideoUrl": "The link must be a YouTube or Vimeo video",
+            "incompleteLanguages": "Missing title in: {{ languages }}"
+          },
+          "list": {
+            "new": "New post",
+            "total": "Total: {{ total }} results",
+            "searchPlaceholder": "ID, title, subtitle, or text",
+            "noData": "There are no blog posts",
+            "draft": "Draft",
+            "edit": "Edit",
+            "headers": {
+              "id": "ID",
+              "title": "Title",
+              "info": "Information",
+              "translations": "Translations",
+              "published": "Published"
+            }
+          },
+          "form": {
+            "addTranslation": "Add translation",
+            "titleSection": "Title and subtitle",
+            "titlePlaceholder": "Add the title",
+            "subtitlePlaceholder": "Add the subtitle",
+            "authorSection": "Author and publication date",
+            "authorPlaceholder": "Author",
+            "datePlaceholder": "Publication date",
+            "headerSection": "Header images",
+            "contentSection": "Text",
+            "contentPlaceholder": "Write the post text here",
+            "videoSection": "Add a video (YouTube, Vimeo)",
+            "videoPlaceholder": "Add the video link",
+            "sectionSection": "Section",
+            "sections": {
+              "news": "News",
+              "stories": "Stories",
+              "resources": "Resources",
+              "newsletter": "Newsletter"
+            },
+            "saveAndExit": "Save and exit",
+            "publish": "Publish post",
+            "removeTranslation": "Remove translation",
+            "translationModal": {
+              "title": "Add a new translation",
+              "description": "Search for and choose the language you want to translate this post into.",
+              "searchPlaceholder": "Search all languages…",
+              "submit": "Add"
+            },
+            "removeTranslationModal": {
+              "title": "Remove this translation?",
+              "description": "The translation will be removed from the form and will not be saved."
+            }
+          }
+        }
+      },
+      "reviews": {
+        "description": "Review projects submitted for review and manage their status.",
+        "projects": {
+          "title": "Project Review",
+          "description": "Manage and monitor the status of your crowdfunding projects centrally.",
+          "list": "Project list:",
+          "totalizers": {
+            "selected": "Selected projects:"
+          },
+          "table": {
+            "headers": {
+              "name": "Project",
+              "promoter": "Promoter",
+              "dateSubmitted": "Submitted for review",
+              "status": "Status",
+              "advisor": "Advisor"
+            },
+            "rows": {
+              "unassigned": "Unassigned",
+              "details": {
+                "email": "Email contact:",
+                "phone": "Phone:",
+                "dateRelease": "Launch",
+                "dateCreated": "Creation",
+                "lastInteraction": "Last interaction",
+                "risk": "Risk",
+                "pendingMessages": "Pending messages",
+                "minOptim": "Minimum - Optimum:",
+                "lastModified": "Last modification:",
+                "btns": {
+                  "preview": "Project preview",
+                  "promoter": "Promoter profile",
+                  "config": "Project settings",
+                  "advisory": "Project advisory",
+                  "assignAdvisor": "Assign advisor",
+                  "annotations": "Annotations"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -1920,6 +2180,7 @@
       "noProjects": "No promoted projects yet.",
       "noBio": "There is no information about this profile yet.",
       "donorType": {
+        "noProjects": "You have not donated to any project yet.",
         "fan": {
           "title": "Fan",
           "description": "This donor has invested more than €25",
@@ -1951,6 +2212,108 @@
       "page": {
         "title": "Activity",
         "subtitle": "Check your activity on Goteo"
+      },
+      "nav": {
+        "activity": "Activity",
+        "wallet": "Wallet",
+        "inbox": "Inbox",
+        "profile": "Profile"
+      },
+      "manage": {
+        "title": "Promoter profile",
+        "subtitle": "Submit projects or fund initiatives. Complete your profile with a good introduction, relevant links, and a photo that identifies you.",
+        "sidebar": {
+          "publicProfile": "Public profile",
+          "personalProfile": "Personal profile"
+        },
+        "profile": {
+          "uploadImage": "Upload new image",
+          "avatarAlt": "Profile image",
+          "type": {
+            "individual": "Promoter profile · Individual",
+            "organization": "Promoter profile · Legal entity"
+          }
+        },
+        "bio": {
+          "title": "Bio",
+          "subtitle": "Tell us something about yourself",
+          "placeholder": "Write a brief introduction"
+        },
+        "info": {
+          "title": "Promoter information",
+          "subtitle": "Tell us something about yourself",
+          "handle": "Username",
+          "firstName": "First name",
+          "lastName": "Last name",
+          "legalName": "Corporate name",
+          "businessName": "Business name",
+          "country": "Country",
+          "locality": "Town/City",
+          "localityPlaceholder": "Search for your town/city",
+          "address": "Address (specify whether it is a street, square, avenue, etc.)",
+          "type": "Legal form",
+          "taxId": "Document number",
+          "representative": "Representative details"
+        },
+        "location": {
+          "share": "*Share my location",
+          "disclaimer": "*Sharing your location with our team will help generate information (anonymized, without ever disclosing your personal data to third parties) as well as impact indicators that make our work and support for projects more effective."
+        },
+        "social": {
+          "title": "Social media",
+          "subtitle": "Add your networks to show them to the world",
+          "instagram": "Enter your Instagram account",
+          "facebook": "Enter your Facebook account",
+          "x": "Enter your X account",
+          "linkedin": "Enter your LinkedIn account",
+          "placeholder": "Username or link"
+        },
+        "motivatingProjects": {
+          "title": "Projects that motivate you",
+          "subtitle": "Indicate the type of projects that may connect with your interests so you can co-finance them and/or contribute other resources, knowledge, or skills. These categories are cross-cutting; you can select more than one."
+        },
+        "personal": {
+          "title": "Personal profile",
+          "subtitle": "This data is not shown on your public profile. Only you and our team can see it, and we use it to manage your taxes, invoices, and certificates.",
+          "info": {
+            "title": "Personal information",
+            "subtitle": "As it appears on your documentation.",
+            "postalCode": "Postal code",
+            "anonymousDonation": "Keep my profile anonymous when making a donation",
+            "howDidYouMeet": "How did you hear about us?",
+            "documentType": "Document type",
+            "birthYear": "Year of birth",
+            "gender": "Gender"
+          },
+          "success": "Personal data updated successfully",
+          "error": "Personal data could not be saved. Please try again later."
+        },
+        "viewProfile": "View my profile",
+        "save": "Save changes",
+        "success": "Profile updated successfully",
+        "error": "The profile could not be saved. Please try again later.",
+        "validation": {
+          "required": "This field is required",
+          "handleInvalid": "Only lowercase letters, numbers, and underscores are allowed (4-30 characters)",
+          "taxIdInvalid": "The number is not in a valid format for the selected country",
+          "linkInvalid": "Enter your username or a link to your profile on this social network"
+        },
+        "preferences": {
+          "title": "Preferences",
+          "subtitle": "Manage your profile preferences so everything flows the way you like",
+          "nav": {
+            "preferences": "Preferences"
+          },
+          "languages": {
+            "title": "Interface language",
+            "label": "Select a language",
+            "helper": "The application will use this language for the interface and will try to serve you content in this language first"
+          },
+          "save": "Save preferences",
+          "toast": {
+            "saved": "Preferences saved successfully"
+          }
+        }
       },
       "period": {
         "label": "Period",
@@ -2055,6 +2418,11 @@
       }
     },
     "blog": {
+      "title": "Blog",
+      "description": "News, stories, and resources about crowdfunding, matchfunding, and Goteo campaigns.",
+      "all": "All",
+      "empty": "There are no published posts yet",
+      "by": "By: {{ author }}",
       "share": {
         "modal": {
           "title": "Spread this blog around the world",
