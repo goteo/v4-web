@@ -1,53 +1,65 @@
 ---
-import CampaignCard from "./CampaignCard.svelte";
-import Carousel from "../library/layout/Carousel.svelte";
-import CampaignsTabsNav from "./CampaignsTabsNav.svelte";
+import CampaignTabsCarousel from "./CampaignTabsCarousel.svelte";
 import type { Campaign } from "../../types/campaign";
+import {
+    apiAccountingsIdGet,
+    apiProjectsIdOrSlugGet,
+    type Money,
+    type Project,
+} from "../../openapi/client";
 import { getLanguage } from "../../middleware/utils";
-import { apiAccountingsIdGet, apiProjectsGetCollection, type Money } from "../../openapi/client";
 import { extractId } from "../../utils/extractId";
+import { proposedCampaignsRepository } from "../../repositories/proposedCampaigns";
+
+import type { ProposedCampaignTab } from "../../repositories/proposedCampaigns";
 
 const { t } = Astro.locals;
-const chosenProjects = {
-    "impulsa-la-cooperativa-de-informacion-climatica": "",
-    "fons-cooperatiu-front-l-emergencia-social-i-sanita": "",
-    "la-benefica":
-        "https://i.vimeocdn.com/video/1286954665-1fc1ccfa1b381946d23072ca518e4f0094c566416243095e6_900x500?region=us",
-};
 
-// Mock campaign data - using same campaigns as the main Campaigns component
-const { data: projects } = await apiProjectsGetCollection({
-    query: {
-        "slug[]": Object.keys(chosenProjects),
-    },
-    headers: {
-        "Accept-Language": getLanguage(Astro),
-    },
-});
+const data = await proposedCampaignsRepository.get();
 
-const campaigns: Campaign[] = await Promise.all(
-    projects!.map(async (project) => {
+const slots = (data?.slots ?? []).sort((a, b) => a.position - b.position);
+
+if (slots.length === 0) {
+    return;
+}
+
+const resolved = (
+    await Promise.all(
+        slots.map(async (slot) => {
+            const { data: project } = await apiProjectsIdOrSlugGet({
+                path: { idOrSlug: String(slot.projectId) },
+                headers: { "Accept-Language": getLanguage(Astro) },
+            });
+
+            if (!project) return null;
+
+            return { slot, project };
+        }),
+    )
+).filter((r): r is { slot: (typeof slots)[number]; project: Project } => r !== null);
+
+const campaignsByTab: Partial<Record<ProposedCampaignTab, Campaign[]>> = {};
+
+await Promise.all(
+    resolved.map(async ({ slot, project }) => {
         const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: extractId(project.accounting) },
+            path: { id: extractId(project.accounting)! },
         });
 
-        return {
+        const campaign = {
             ...project,
-            size: "small",
+            size: "small" as const,
             slug: project.slug!,
             title: project.title!,
-            image:
-                chosenProjects[project.slug! as keyof typeof chosenProjects] ||
-                project.video?.thumbnail!,
+            image: project.video?.thumbnail! || project.cover!,
             minimum: project.budget?.minimum?.money!,
-            optimum: project.budget?.optimum?.money,
             obtained: accounting!.balance as Money,
+            optimum: project.budget?.optimum?.money,
         } satisfies Campaign;
+
+        (campaignsByTab[slot.tab] ??= []).push(campaign);
     }),
 );
-
-// Get campaigns for the currently active tab
-const displayCampaigns = campaigns.slice(0, 4); // Show first 4 campaigns
 ---
 
 <section class="wrapper flex flex-col gap-6">
@@ -56,19 +68,6 @@ const displayCampaigns = campaigns.slice(0, 4); // Show first 4 campaigns
         <h2 class="text-2xl font-bold text-black">{t("pages.home.campaigns.tabsTitle")}</h2>
     </div>
 
-    <!-- Tab Navigation using shared Tabs component -->
-    <div class="mx-auto">
-        <CampaignsTabsNav client:visible />
-    </div>
-
-    <!-- Campaigns Carousel -->
-    <div>
-        <Carousel client:visible itemsPerGroup={3} gap={24} showDots={false}>
-            {
-                displayCampaigns.map((campaign) => (
-                    <CampaignCard size="small" campaign={campaign} client:visible />
-                ))
-            }
-        </Carousel>
-    </div>
+    <!-- Tabs + Campaigns Carousel (one set of campaigns per tab) -->
+    <CampaignTabsCarousel client:visible {campaignsByTab} />
 </section>

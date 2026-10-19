@@ -42,10 +42,10 @@ const heroContent = hero ? await renderMarkdown(hero.content) : null;
         <Campaigns />
         {latestPost && <Blog post={latestPost} />}
         <Stats />
-        <CampaignsTabs />
         <Matchfunding />
         <!-- Uncomment the matching import at the top when enabling either of these. -->
         <!-- <Stories client:load /> -->
+        <CampaignsTabs />
         <FeaturedPromoters />
         <!-- <Resources /> -->
     </App>
