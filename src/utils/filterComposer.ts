@@ -43,6 +43,7 @@ export type FilterResource = "projects" | "gateway_charges" | "users" | "project
 
 export interface FilterOption {
     value: string;
+    /** Resolved with `$t` where the option is rendered: an i18n key, or a literal used as-is. */
     label: string;
 }
 
@@ -73,6 +74,14 @@ const gatewayChargeStatuses: FilterOption[] = [
 const chargeTypes: FilterOption[] = [
     { value: "single", label: "Single" },
     { value: "recurring", label: "Recurring" },
+];
+
+// Roles are a closed set with no listing endpoint, so the composer offers them as options.
+// The labels reuse the already translated admin users table keys to avoid duplicating them.
+const userRoleOptions: FilterOption[] = [
+    { value: "ROLE_USER", label: "pages.admin.users.table.rows.roles.ROLE_USER" },
+    { value: "ROLE_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_ADMIN" },
+    { value: "ROLE_SUPER_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_SUPER_ADMIN" },
 ];
 
 const reviewTypes: FilterOption[] = [
@@ -123,6 +132,9 @@ const filterSubjects: Record<string, FilterSubject> = {
     },
     description: {
         key: "description",
+        // The API names the project description `descBrief`. Without this, the row would send
+        // `description`, which the API does not know about and drops silently.
+        param: "descBrief",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
@@ -169,12 +181,6 @@ const filterSubjects: Record<string, FilterSubject> = {
         resources: ["projects"],
         suggest: searchProjectsBySlug,
         allowsMultipleEquals: true,
-    },
-    budgetAmount: {
-        key: "budgetAmount",
-        type: "money",
-        compatibleOperators: ["gte", "gt", "lte", "lt"],
-        resources: ["projects"],
     },
     gateway: {
         key: "gateway",
@@ -285,8 +291,14 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
         options: [
-            { value: "individual", label: "Individual" },
-            { value: "organization", label: "Organización" },
+            {
+                value: "individual",
+                label: "domain.filterComposer.subjectOption.userType.individual",
+            },
+            {
+                value: "organization",
+                label: "domain.filterComposer.subjectOption.userType.organization",
+            },
         ],
         allowsMultipleEquals: true,
     },
@@ -296,8 +308,8 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals"],
         resources: ["users"],
         options: [
-            { value: "true", label: "Activo" },
-            { value: "false", label: "Inactivo" },
+            { value: "true", label: "domain.filterComposer.subjectOption.active.true" },
+            { value: "false", label: "domain.filterComposer.subjectOption.active.false" },
         ],
     },
     userRoles: {
@@ -306,6 +318,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
+        options: userRoleOptions,
         allowsMultipleEquals: true,
     },
     territory: {
@@ -351,7 +364,9 @@ export function createFilterRow(
                     }
                     return { [key]: String(referent) };
                 case "is_any_of":
-                    return { [key]: referent as string[] };
+                    // The API only unions multiple values when they arrive as `key[]`: a repeated
+                    // bare key keeps just the last one (verified against projects and users).
+                    return { [`${key}[]`]: referent as string[] };
                 case "before":
                 case "after":
                 case "strictly_before":
