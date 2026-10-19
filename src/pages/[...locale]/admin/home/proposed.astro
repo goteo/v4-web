@@ -1,0 +1,41 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ProposedCampaigns from "../../../../components/admin/home/ProposedCampaigns.svelte";
+import { apiProjectsIdOrSlugGet } from "../../../../openapi/client/sdk.gen";
+import { proposedCampaignsRepository } from "../../../../repositories/proposedCampaigns";
+import { SUBSECTIONS } from "./subsections";
+
+import type { ProposedCampaignSlotView } from "../../../../repositories/proposedCampaigns";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/home/proposed";
+
+const data = await proposedCampaignsRepository.get();
+
+const slots: ProposedCampaignSlotView[] = await Promise.all(
+    (data?.slots ?? []).map(async (s) => {
+        const { data: project } = await apiProjectsIdOrSlugGet({
+            path: { idOrSlug: String(s.projectId) },
+            headers: { "Accept-Language": lang },
+        });
+
+        return {
+            tab: s.tab,
+            position: s.position,
+            projectId: s.projectId,
+            projectTitle: project?.title ?? String(s.projectId),
+            projectImage: project?.video?.thumbnail ?? project?.cover ?? null,
+        };
+    }),
+);
+---
+
+<Layout title={t("pages.admin.home.proposed.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+            <ProposedCampaigns client:load config={{ slots }} />
+        </WithSidebar>
+    </App>
+</Layout>
