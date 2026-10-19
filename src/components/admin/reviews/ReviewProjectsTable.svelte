@@ -1,8 +1,6 @@
 <script lang="ts" module>
-    import type { Project } from "../../../openapi/client/index.ts";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
-
-    export type ProjectStatus = NonNullable<Project["status"]>;
 
     export type ReviewProjectRow = {
         id: number;
@@ -34,7 +32,7 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
+    import { CAMPAIGN_REVIEW_STATUSES, projectStatusLabelKey } from "../../../utils/projectStatus";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -73,9 +71,6 @@
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
-
-    const statusLabel = (status: string) =>
-        $t(`domain.project.status.${status.replaceAll(".", "_")}`);
 
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
 
@@ -137,7 +132,7 @@
                         onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
                 >
                     {#each CAMPAIGN_REVIEW_STATUSES as status (status)}
-                        <option value={status}>{statusLabel(status)}</option>
+                        <option value={status}>{$t(projectStatusLabelKey(status))}</option>
                     {/each}
                 </select>
             </div>

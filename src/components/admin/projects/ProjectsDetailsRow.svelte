@@ -1,19 +1,39 @@
 <script lang="ts">
-    import Comments from "../../../components/icons/Comments.svelte";
+    // Re-enable with the annotations button below.
+    // import Comments from "../../../components/icons/Comments.svelte";
     import { t, locale } from "../../../i18n/store";
     import { formatDate } from "../../../utils/dates";
+    import {
+        PROJECT_STATUSES,
+        isPublicStatus,
+        projectStatusLabelKey,
+    } from "../../../utils/projectStatus";
+    import Select from "../../library/inputs/Select.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
     import type { ProjectRow } from "./ProjectsTable.svelte";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
 
     interface Props {
         project: ProjectRow;
         onOpenAnnotationsModal: () => void;
-        onChangeStatus?: (projectId: number) => void;
+        onStatusChange: (projectId: number, status: ProjectStatus) => Promise<boolean>;
         userEmail?: string;
     }
 
-    let { project, onOpenAnnotationsModal, onChangeStatus, userEmail }: Props = $props();
+    let { project, onOpenAnnotationsModal, onStatusChange, userEmail }: Props = $props();
+
+    // Bound to the select; reset to the project's status when the API rejects the change.
+    let selectedStatus = $derived<string>(project.status);
+    let isSavingStatus = $state(false);
+
+    async function handleStatusSelect(status: string) {
+        if (status === project.status) return;
+        isSavingStatus = true;
+        const ok = await onStatusChange(project.id, status as ProjectStatus);
+        isSavingStatus = false;
+        if (!ok) selectedStatus = project.status;
+    }
 
     const fields: DetailsField[] = $derived([
         {
@@ -49,37 +69,48 @@
         },
     ]);
 
-    function navigateToCharges() {
-        if (!project.accounting) return;
-        window.location.href = `/${$locale}/admin/charges?target=${encodeURIComponent(project.accounting)}`;
-    }
-
-    const actionKeys = [
-        "changeStatus",
-        "promoter",
-        "contributions",
-        "donors",
-        "financialReport",
-    ] as const;
-
-    function handleActionClick(key: (typeof actionKeys)[number]) {
-        if (key === "changeStatus") onChangeStatus?.(project.id);
-        if (key === "contributions") navigateToCharges();
-    }
+    const actionClass =
+        "border-secondary text-secondary cursor-pointer rounded-full border bg-white px-5 py-2 text-sm";
 </script>
 
 <DetailsRow {fields} columns={4}>
     {#snippet actions()}
-        <div class="flex flex-row flex-wrap gap-3">
-            {#each actionKeys as key (key)}
-                <button
-                    type="button"
-                    class="border-secondary text-secondary cursor-pointer rounded-full border bg-white px-5 py-2 text-sm"
-                    onclick={() => handleActionClick(key)}
+        <div class="flex flex-row flex-wrap items-center gap-3">
+            <Select
+                class="py-2 text-sm"
+                labelText={$t("pages.admin.projects.table.rows.details.status")}
+                bind:value={selectedStatus}
+                disabled={isSavingStatus}
+                onChange={handleStatusSelect}
+            >
+                {#each PROJECT_STATUSES as status (status)}
+                    <option value={status}>{$t(projectStatusLabelKey(status))}</option>
+                {/each}
+            </Select>
+            {#if project.promoterHandle}
+                <a
+                    class={actionClass}
+                    href={`/${$locale}/admin/users?handle=${encodeURIComponent(project.promoterHandle)}`}
                 >
-                    {$t(`pages.admin.projects.table.rows.details.btns.${key}`)}
-                </button>
-            {/each}
+                    {$t("pages.admin.projects.table.rows.details.btns.promoter")}
+                </a>
+            {/if}
+            {#if project.accounting}
+                <a
+                    class={actionClass}
+                    href={`/${$locale}/admin/charges?target=${encodeURIComponent(project.accounting)}`}
+                >
+                    {$t("pages.admin.projects.table.rows.details.btns.contributions")}
+                </a>
+            {/if}
+            <a class={actionClass} href={`/${$locale}/project/${project.slug}/edit`}>
+                {$t("pages.admin.projects.table.rows.details.btns.edit")}
+            </a>
+            {#if isPublicStatus(project.status)}
+                <a class={actionClass} href={`/${$locale}/project/${project.slug}`}>
+                    {$t("pages.admin.projects.table.rows.details.btns.publicPage")}
+                </a>
+            {/if}
         </div>
     {/snippet}
     {#snippet footer()}
@@ -97,6 +128,7 @@
                     {$t("pages.admin.projects.table.rows.details.btns.certificates")}
                 </button>
                 -->
+                <!-- Hidden until the API persists annotations: the modal only keeps them in memory.
                 <button
                     onclick={onOpenAnnotationsModal}
                     class="text-secondary bg-variant1 flex min-h-10 cursor-pointer flex-row items-center gap-2 rounded-2xl px-4 py-2 font-bold"
@@ -107,6 +139,7 @@
                         ({project.annotationsCount})
                     {/if}
                 </button>
+                -->
             </div>
         </div>
     {/snippet}

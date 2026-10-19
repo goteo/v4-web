@@ -1,5 +1,7 @@
 import type { Project } from "../openapi/client/index.ts";
 
+export type ProjectStatus = NonNullable<Project["status"]>;
+
 /**
  * Public project statuses for the public search page.
  *
@@ -65,7 +67,7 @@ export function constrainToPublicStatuses(statuses: string[] = []): string[] {
 }
 
 /** Campaign review statuses: listed in the admin review page and selectable in its dropdown. */
-export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+export const CAMPAIGN_REVIEW_STATUSES: ProjectStatus[] = [
     "to_campaign_review",
     "in_campaign_review",
     "in_campaign_review.to_review",
@@ -73,3 +75,35 @@ export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
     "campaign_review.rejected",
     "to_campaign",
 ];
+
+/** Every project status, in life-cycle order. */
+export const PROJECT_STATUSES: ProjectStatus[] = [
+    "in_draft",
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_change",
+    "in_campaign_review.to_review",
+    "campaign_review.rejected",
+    "to_campaign",
+    "in_campaign",
+    "campaign.failed",
+    "campaign.cancelled",
+    "to_funding_review",
+    "in_funding_review",
+    "in_funding_review.to_change",
+    "in_funding_review.to_review",
+    "funding_review.rejected",
+    "to_funding",
+    "in_funding",
+    "funding.paid",
+];
+
+/** i18n key of a project status label (`domain.project.status.*` keys use `_` instead of `.`). */
+export function projectStatusLabelKey(status: string): string {
+    return `domain.project.status.${status.replaceAll(".", "_")}`;
+}
+
+/** Whether a project with this status has a public page. */
+export function isPublicStatus(status: string): boolean {
+    return PUBLIC_API_STATUSES.has(status);
+}

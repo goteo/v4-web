@@ -1,8 +1,5 @@
 <script lang="ts">
-    import ReviewProjectsTable, {
-        type ProjectStatus,
-        type ReviewProjectRow,
-    } from "./ReviewProjectsTable.svelte";
+    import ReviewProjectsTable, { type ReviewProjectRow } from "./ReviewProjectsTable.svelte";
     import { t } from "../../../i18n/store";
     import {
         apiProjectsGetCollection,
@@ -18,7 +15,7 @@
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
     import { getCollectionTotalItems, toCollectionItems } from "../../../utils/hydra";
-    import { CAMPAIGN_REVIEW_STATUSES } from "../../../utils/projectStatus";
+    import { CAMPAIGN_REVIEW_STATUSES, type ProjectStatus } from "../../../utils/projectStatus";
     import Dashboard from "../AdminDashboard.svelte";
     import { projectSortMap, type ProjectSortKey } from "../projects/ProjectsTable.svelte";
 

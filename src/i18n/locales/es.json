@@ -1832,7 +1832,7 @@
         "description": "Busca proyectos y gestiónalos de la manera más rápida posible gracias al buscador",
         "lastProjects": "Listado de campañas:",
         "totalizers": {
-          "selected": "proyectos seleccionadas:",
+          "selected": "Proyectos seleccionados:",
           "totalEarned": "Total conseguido:"
         },
         "filters": {
@@ -1883,12 +1883,13 @@
               "email": "Email",
               "phone": "Teléfono",
               "remaining": "Falta por pagar",
+              "status": "Estado",
+              "statusChangeError": "No se ha podido cambiar el estado del proyecto",
               "btns": {
-                "changeStatus": "Cambiar cuentas",
                 "promoter": "Impulsor",
                 "contributions": "Aportes",
-                "donors": "Donantes de campaña",
-                "financialReport": "Informe financiación",
+                "edit": "Editar proyecto",
+                "publicPage": "Ver página pública",
                 "annotations": "Anotaciones"
               }
             },
