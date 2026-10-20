@@ -19,7 +19,7 @@
     import { apiProjectsIdPatch } from "../../../openapi/client";
     import { zProjectProjectUpdationDto } from "../../../openapi/client/zod.gen";
     import { validate } from "../../../utils/validation";
-    import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
+    import TranslationLanguages from "../../admin/TranslationLanguages.svelte";
     import EditIcon from "../../icons/actions/Edit.svelte";
     import Bullet from "../../icons/Bullet.svelte";
     import Eye from "../../icons/media/Eye.svelte";
@@ -132,10 +132,14 @@
 
             <!-- Right section: Action Buttons -->
             <div class="flex shrink-0 items-center gap-4">
-                <LanguagesDropdown
+                <TranslationLanguages
                     languages={$draft.languages}
                     selected={$draft.lang}
+                    onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
+                    onRemove={(code) =>
+                        draft.setLanguages($draft.languages.filter((other) => other !== code))}
                     onSelect={onLangChange}
+                    removable={(code) => !$draft.actual.locales?.includes(code)}
                 />
                 <Button
                     class="whitespace-nowrap"
