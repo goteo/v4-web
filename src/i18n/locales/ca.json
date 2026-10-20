@@ -606,8 +606,8 @@
           "invalidCredentials": "Correu electrònic o contrasenya invàlids.",
           "unexpectedLogin": "Error en iniciar sessió. Si us plau, intenta-ho de nou més tard.",
           "invalidEmail": "El correu electrònic no és vàlid.",
-          "clientAuthentication": "No s'ha pogut autoritzar l'aplicació. Si us plau, torna-ho a intentar més tard.",
-          "invalidRequest": "La sol·licitud d'inici de sessió no és vàlida. Revisa les teves dades i torna-ho a intentar.",
+          "clientAuthentication": "No s'ha pogut autoritzar l'aplicació. Si us plau, intenta-ho de nou més tard.",
+          "invalidRequest": "La sol·licitud d'inici de sessió no és vàlida. Revisa les teves dades i intenta-ho de nou.",
           "requireTerms": "Has d'acceptar les condicions legals per continuar."
         }
       },
