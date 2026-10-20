@@ -607,7 +607,7 @@
           "unexpectedLogin": "Error logging in. Please try again later.",
           "invalidEmail": "The email address is not valid.",
           "clientAuthentication": "The application could not be authorized. Please try again later.",
-          "invalidRequest": "The login request is not valid. Check your details and try again.",
+          "invalidRequest": "The login request is invalid. Check your details and try again.",
           "requireTerms": "You must accept the legal terms to continue."
         }
       },
@@ -623,7 +623,7 @@
             "password": {
               "minLength": "*Password must be at least 8 characters long"
             },
-            "passwordInvalid": "The password is not valid.",
+            "passwordInvalid": "The password is invalid.",
             "required": "This field is required",
             "emailInvalid": "The email address entered is not valid",
             "taxIdInvalid": "The number is not in a valid format for the selected country"
@@ -658,8 +658,8 @@
         },
         "error": {
           "unexpectedRegistration": "Error creating the account. Please try again later.",
-          "emailInUse": "An account with this email address already exists. Log in or use another email.",
-          "accountCreatedProfileFailed": "We created your account, but we could not save all your details. Please log in and complete your profile.",
+          "emailInUse": "An account with this email address already exists. Log in or use a different email address.",
+          "accountCreatedProfileFailed": "We created your account, but we couldn't save all your details. Log in and complete your profile.",
           "requireTerms": "You must accept the terms and conditions to continue."
         },
         "title": "Tell us your personal details",
