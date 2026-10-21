@@ -1629,15 +1629,15 @@
           "title": "Campañas propuestas",
           "description": "Añade las campañas que se destacarán en la portada como propuestas",
           "save": "Guardar nueva propuesta",
+          "modal": {
+            "title": "Añade proyecto",
+            "description": "Busca y añade el proyecto que quieres proponer",
+            "search": "Busca un proyecto",
+            "submit": "Añadir"
+          },
           "projects": {
             "title": "Selecciona los proyectos",
-            "description": "Recuerda que los proyectos se irán subiendo de arriba a abajo y de izquierda a derecha.",
-            "modal": {
-              "title": "Añade proyecto",
-              "description": "Busca y añade el proyecto que quieres proponer",
-              "search": "Busca un proyecto",
-              "submit": "Añadir"
-            }
+            "description": "Recuerda que los proyectos se irán subiendo de arriba a abajo y de izquierda a derecha."
           }
         },
         "featuredUsers": {

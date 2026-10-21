@@ -26,7 +26,7 @@ const slots: ProposedCampaignSlotView[] = await Promise.all(
             position: s.position,
             projectId: s.projectId,
             projectTitle: project?.title ?? String(s.projectId),
-            projectImage: project?.video?.thumbnail ?? project?.cover ?? null,
+            projectImage: project?.cover ?? project?.video?.thumbnail ?? null,
         };
     }),
 );
