@@ -25,6 +25,8 @@
         onRemove: (code: string) => void;
         /** Another language was picked, by the user or after adding or removing one. */
         onSelect?: (code: string) => void;
+        /** Whether a language may be removed; others stay in place. */
+        removable?: (code: string) => boolean;
         class?: ClassNameValue;
     }
 
@@ -34,6 +36,7 @@
         onAdd,
         onRemove,
         onSelect,
+        removable = () => true,
         class: classes = "",
     }: Props = $props();
 
@@ -52,6 +55,8 @@
 
     // The language "remove all" keeps.
     const kept = $derived(primaryLanguage(languages));
+    // The languages "remove all" drops.
+    const removableOthers = $derived(languages.filter((code) => code !== kept && removable(code)));
 
     function select(code: string) {
         selected = code;
@@ -109,8 +114,10 @@
     }
 
     function confirmRemoveAll() {
-        languages.filter((code) => code !== kept).forEach(onRemove);
-        languages = [kept];
+        const removed = removableOthers;
+
+        languages = languages.filter((code) => !removed.includes(code));
+        removed.forEach(onRemove);
         select(kept);
         isRemoveAllModalOpen = false;
     }
@@ -123,7 +130,7 @@
         {$t("domain.translationLanguages.add")}
     </Button>
 
-    {#if languages.length > 1}
+    {#if languages.length > 1 && removable(selected)}
         <Button
             kind="ghost"
             size="sm"
@@ -133,7 +140,9 @@
             <Trash class="size-3 text-current" />
             {$t("domain.translationLanguages.remove")}
         </Button>
+    {/if}
 
+    {#if removableOthers.length > 0}
         <Button
             kind="ghost"
             size="sm"

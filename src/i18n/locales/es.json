@@ -805,13 +805,6 @@
         "configuration": {
           "title": "Configuración",
           "subtitle": "Configura los datos básicos de tu campaña",
-          "languages": {
-            "title": "Idiomas de la campaña",
-            "description": "Cuáles son los idiomas en los que publicarás el contenido de  la campaña",
-            "primaryLabel": "Idioma principal del contenido",
-            "secondaryLabel": "Idioma secundario del contenido",
-            "removeCurrent": "No puedes eliminar el idioma que estás editando. Cambia de idioma en la barra superior."
-          },
           "release": {
             "title": "Fecha de salida a campaña",
             "subtitle": "Ten en cuenta que las campañas de crowdfunding tienen una duración mínima de 40 días",
