@@ -114,7 +114,6 @@
         {:else if currentSubject?.options && operator && !singleSelect}
             <DropdownMenu
                 chips
-                searchClasses="border-secondary"
                 variant="multiselect"
                 options={dropdownOptions}
                 bind:selected={dropdownSelected}

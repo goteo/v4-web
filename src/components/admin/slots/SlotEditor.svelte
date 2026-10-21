@@ -3,10 +3,9 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
-    import { debounce } from "../../../utils/debounce";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Title from "../../library/typography/Title.svelte";
 
@@ -53,39 +52,22 @@
     let pickerOpen = $state(false);
     let editingIndex = $state<number | null>(null);
     let query = $state("");
-    let options = $state<DropdownOption[]>([]);
     let picked = $state<DropdownOption[]>([]);
     /** Last results, kept so confirming an option can recover the full value. */
     let candidates = $state<SlotContent<T>[]>([]);
     let showError = $state(false);
     let errorMessage = $state("");
 
-    const runSearch = debounce(async (term: string) => {
-        candidates = await search(term);
-        options = candidates.map((c, i) => ({
-            id: String(i),
-            label: c.label,
-            selected: false,
-        }));
-    });
-
-    function handleSearch(term: string) {
-        const trimmed = term.trim();
-
-        if (trimmed.length < 2) {
-            runSearch.cancel();
-            options = [];
-            candidates = [];
-            return;
-        }
-
-        runSearch(trimmed);
+    async function searchOptions(term: string, signal: AbortSignal): Promise<DropdownOption[]> {
+        const results = await search(term);
+        // A superseded search must not replace the candidates the options index into.
+        if (!signal.aborted) candidates = results;
+        return results.map((c, i) => ({ id: String(i), label: c.label, selected: false }));
     }
 
     function openPicker(index: number) {
         editingIndex = index;
         query = "";
-        options = [];
         candidates = [];
         picked = [];
         pickerOpen = true;
@@ -209,17 +191,16 @@
                     {labels.searchPlaceholder}
                 </span>
             {/if}
-            <DropdownMenu
+            <DropdownSearch
                 variant="basic"
-                hasSearch
                 singleSelect
                 clearable
-                {options}
+                search={searchOptions}
+                minChars={2}
                 bind:selected={picked}
-                bind:searchValue={query}
-                onSearch={handleSearch}
+                bind:value={query}
                 searchClasses="rounded-3xl border-secondary shadow-none"
-                searchPlaceholder={labels.searchPlaceholder}
+                placeholder={labels.searchPlaceholder}
             />
         </div>
     </div>
