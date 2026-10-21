@@ -4,15 +4,18 @@
     import Check from "../../icons/actions/Check.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
+    import type { Snippet } from "svelte";
 
     interface Props {
         option: DropdownOption;
         variant: DropdownVariant;
         onChange?: (option: DropdownOption) => void;
+        /** Replaces the label with a richer row. Return `null` to fall back. */
+        row?: Snippet<[DropdownOption]>;
         class?: ClassNameValue;
     }
 
-    let { option, variant, onChange, class: classes }: Props = $props();
+    let { option, variant, onChange, row = undefined, class: classes }: Props = $props();
 
     function handleChange(o: DropdownOption) {
         option = { ...o, selected: !o.selected };
@@ -31,7 +34,13 @@
 >
     {#if variant === "multiselect"}
         <label class="flex cursor-pointer justify-between p-4">
-            <span class="text-base text-black">{@html option.label}</span>
+            <span class="text-base text-black">
+                {#if row}
+                    {@render row(option)}
+                {:else}
+                    {@html option.label}
+                {/if}
+            </span>
             <input
                 type="checkbox"
                 checked={option.selected}
@@ -44,7 +53,13 @@
             class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}
             onclick={() => handleChange(option)}
         >
-            <span>{@html option.label}</span>
+            <span>
+                {#if row}
+                    {@render row(option)}
+                {:else}
+                    {@html option.label}
+                {/if}
+            </span>
             {#if option.selected}
                 <Check width="20" height="20" class="text-primary shrink-0" />
             {/if}

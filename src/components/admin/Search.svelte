@@ -1,9 +1,11 @@
 <script lang="ts">
     import { t } from "../../i18n/store";
+    import { isUserResult } from "../../utils/resourceSearch";
     import { createAccountingSearcher } from "../../utils/searchers";
+    import UserResultRow from "../library/dropdown/UserResultRow.svelte";
     import ResourceSearch from "../library/inputs/ResourceSearch.svelte";
 
-    import type { ProjectJsonld, UserJsonld } from "../../openapi/client/index";
+    import type { ProjectJsonld, User, UserJsonld } from "../../openapi/client/index";
     import type { SearchResultItem } from "../../utils/resourceSearch";
 
     let {
@@ -53,6 +55,7 @@
         bind:value
         placeholder={searchPlaceholder ?? $t("pages.admin.charges.filters.search.placeholder")}
         onSelect={handleSelect}
+        useRow={isUserResult}
     >
         {#snippet header(results, query)}
             <p class="px-4 pt-3 text-sm text-gray-500">
@@ -65,6 +68,10 @@
                     { allowHTML: true },
                 )}
             </p>
+        {/snippet}
+
+        {#snippet row(item, query)}
+            <UserResultRow user={item.raw as User} highlightQuery={query} />
         {/snippet}
     </ResourceSearch>
 </section>
