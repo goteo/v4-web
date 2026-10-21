@@ -13,7 +13,7 @@
     import { formatDate } from "../../../utils/dates";
     import Close from "../../icons/navigation/Close.svelte";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import { chargeStatusStyles } from "../charges/ChargesTable.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
@@ -81,20 +81,20 @@
         return normalized.startsWith("ROLE_") ? normalized : `ROLE_${normalized}`;
     }
 
-    const roleOptions = $derived.by(() => {
-        const search = roleSearch.trim().toLowerCase();
+    function searchRoles(query: string): DropdownOption[] {
+        const search = query.toLowerCase();
         const all = [...new Set([...user.roles, ...selectedRoles.map((o) => o.id)])].map(
             toRoleOption,
         );
         const matches = all.filter((o) => o.id.toLowerCase().includes(search));
 
-        const custom = toRoleId(roleSearch);
+        const custom = toRoleId(query);
         if (custom && !all.some((o) => o.id === custom)) {
             matches.push(toRoleOption(custom));
         }
 
         return matches;
-    });
+    }
 
     async function saveRoles() {
         savingRoles = true;
@@ -225,14 +225,14 @@
     </button>
 
     <div class="flex flex-col gap-6">
-        <DropdownMenu
+        <DropdownSearch
             variant="multiselect"
             chips
-            hasSearch
-            searchPlaceholder={$t("pages.admin.users.table.rows.details.roles.placeholder")}
-            options={roleOptions}
+            search={searchRoles}
+            debounceMs={0}
+            placeholder={$t("pages.admin.users.table.rows.details.roles.placeholder")}
             bind:selected={selectedRoles}
-            bind:searchValue={roleSearch}
+            bind:value={roleSearch}
         />
         <div class="flex justify-end">
             <Button kind="primary" disabled={savingRoles} onclick={saveRoles}>
