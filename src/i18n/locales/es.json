@@ -1550,6 +1550,7 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
+          "proposed": "Campañas propuestas",
           "featuredUsers": "Impulsores"
         },
         "hero": {
@@ -1622,19 +1623,27 @@
           "projects": {
             "title": "Selecciona los proyectos",
             "description": "Recuerda que los proyectos se irán colocando de arriba a abajo y de izquierda a derecha.",
-            "slot": "Proyecto {{ number }}",
-            "empty": "Busca un proyecto y destácalo en portada",
-            "add": "Añade proyecto",
-            "replace": "Cambiar proyecto",
-            "remove": "Quitar",
-            "change": "Cambia a otro proyecto",
-            "position": "Este proyecto en la posición {{ number }}",
             "modal": {
               "title": "Añade Proyecto",
               "description": "Busca y añade el proyecto que quieres destacar",
               "search": "Busca un proyecto",
               "submit": "Añadir"
             }
+          }
+        },
+        "proposed": {
+          "title": "Campañas propuestas",
+          "description": "Añade las campañas que se destacarán en la portada como propuestas",
+          "save": "Guardar nueva propuesta",
+          "modal": {
+            "title": "Añade proyecto",
+            "description": "Busca y añade el proyecto que quieres proponer",
+            "search": "Busca un proyecto",
+            "submit": "Añadir"
+          },
+          "projects": {
+            "title": "Selecciona los proyectos",
+            "description": "Recuerda que los proyectos se irán subiendo de arriba a abajo y de izquierda a derecha."
           }
         },
         "featuredUsers": {
@@ -1652,6 +1661,17 @@
             "search": "Busca un usuario"
           }
         }
+      },
+      "slotCard": {
+        "slot": "Proyecto {{ number }}",
+        "position": "Posición {{ number }}",
+        "empty": "Busca un proyecto y destácalo en portada",
+        "add": "Añade proyecto",
+        "replace": "Cambiar proyecto",
+        "remove": "Quitar",
+        "addTitle": "Añade más proyectos",
+        "addSubtitle": "Añade más proyectos al carrusel",
+        "addMore": "Añade más"
       },
       "charges": {
         "title": "Cobros",
