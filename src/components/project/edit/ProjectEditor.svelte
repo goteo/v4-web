@@ -132,15 +132,6 @@
 
             <!-- Right section: Action Buttons -->
             <div class="flex shrink-0 items-center gap-4">
-                <TranslationLanguages
-                    languages={$draft.languages}
-                    selected={$draft.lang}
-                    onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
-                    onRemove={(code) =>
-                        draft.setLanguages($draft.languages.filter((other) => other !== code))}
-                    onSelect={onLangChange}
-                    removable={(code) => !$draft.actual.locales?.includes(code)}
-                />
                 <Button
                     class="whitespace-nowrap"
                     kind="ghost"
@@ -194,6 +185,17 @@
         <div class="mb-8">
             <TabNavigation tabs={steps} currentTab={step} onTabClick={(s) => onStepChange?.(s)} />
         </div>
+
+        <TranslationLanguages
+            class="mb-8"
+            languages={$draft.languages}
+            selected={$draft.lang}
+            onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
+            onRemove={(code) =>
+                draft.setLanguages($draft.languages.filter((other) => other !== code))}
+            onSelect={onLangChange}
+            removable={(code) => !$draft.actual.locales?.includes(code)}
+        />
 
         <!-- Step Content -->
         <div class="min-h-100">
