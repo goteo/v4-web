@@ -53,6 +53,15 @@
         header?: Snippet<[SearchResultItem[], string]>;
         /** Replaces the label inside a selected chip (multiple mode). */
         chip?: Snippet<[SearchResultItem]>;
+        /**
+         * Replaces the body of a result row, e.g. to render a user with its
+         * avatar. Rows are rendered with `row` when this predicate is unset,
+         * or only for the items it accepts; the rest fall back to the default
+         * label layout.
+         */
+        row?: Snippet<[SearchResultItem, string]>;
+        /** Which items `row` applies to. Unset means every item. */
+        useRow?: (item: SearchResultItem) => boolean;
         onSelect?: (item: SearchResultItem) => void;
         onChange?: (items: SearchResultItem[]) => void;
         onClear?: () => void;
@@ -76,6 +85,8 @@
         highlight = true,
         header = undefined,
         chip = undefined,
+        row = undefined,
+        useRow = undefined,
         onSelect = undefined,
         onChange = undefined,
         onClear = undefined,
@@ -256,15 +267,41 @@
                         </SearchCategoryLabel>
                     {/if}
                     {#each items as entry (entry.id)}
-                        <DropdownItem
-                            variant={multiple ? "multiselect" : "basic"}
-                            option={{
-                                id: entry.id,
-                                label: rowLabel(entry),
-                                selected: selectedIds.has(entry.id),
-                            }}
-                            onChange={() => handleSelect(entry)}
-                        />
+                        {#if row && (!useRow || useRow(entry))}
+                            {#if multiple}
+                                <label
+                                    class="border-grey hover:bg-purple-soft hover:border-variant1 flex cursor-pointer items-center justify-between gap-3 border bg-white p-4"
+                                >
+                                    <span class="min-w-0 flex-1">
+                                        {@render row(entry, query)}
+                                    </span>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedIds.has(entry.id)}
+                                        onchange={() => handleSelect(entry)}
+                                        class="text-primary border-secondary size-5 shrink-0 rounded-sm border ring-0"
+                                    />
+                                </label>
+                            {:else}
+                                <button
+                                    type="button"
+                                    class="border-grey hover:bg-purple-soft hover:border-variant1 block w-full cursor-pointer border bg-white p-4 text-start"
+                                    onclick={() => handleSelect(entry)}
+                                >
+                                    {@render row(entry, query)}
+                                </button>
+                            {/if}
+                        {:else}
+                            <DropdownItem
+                                variant={multiple ? "multiselect" : "basic"}
+                                option={{
+                                    id: entry.id,
+                                    label: rowLabel(entry),
+                                    selected: selectedIds.has(entry.id),
+                                }}
+                                onChange={() => handleSelect(entry)}
+                            />
+                        {/if}
                     {/each}
                 {/each}
             {/if}
