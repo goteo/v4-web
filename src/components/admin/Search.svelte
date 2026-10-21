@@ -24,6 +24,7 @@
 
     const search = $derived(
         createAccountingSearcher({
+            baseUrl: "/api/relay",
             resources: [
                 ...(!resource || resource === "gateway_charges" || resource === "projects"
                     ? (["projects"] as const)
