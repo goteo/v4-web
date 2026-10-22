@@ -1550,7 +1550,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
-          "featuredUsers": "Impulsores"
+          "featuredUsers": "Impulsores",
+          "banners": "Anuncios"
         },
         "hero": {
           "title": "Hero",
@@ -2074,7 +2075,6 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncios",
           "newsletter": "Boletín"
         },
         "banners": {

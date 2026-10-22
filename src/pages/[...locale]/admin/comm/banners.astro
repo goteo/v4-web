@@ -1,21 +1,5 @@
 ---
-import Layout from "../../../../layouts/Layout.astro";
-import App from "../../../../layouts/App.svelte";
-import WithSidebar from "../../../../layouts/WithSidebar.svelte";
-import Banners from "../../../../components/admin/comm/banners/Banners.svelte";
-import { bannerRepository } from "../../../../repositories/banners";
-import { SUBSECTIONS } from "./subsections";
+const { lang } = Astro.locals;
 
-const { t, lang, session } = Astro.locals;
-const activePath = "/admin/comm/banners";
-
-const banners = await bannerRepository.getAll();
+return Astro.redirect(`/${lang}/admin/home/banners`);
 ---
-
-<Layout title={t("pages.admin.comm.banners.title")} description={t("pages.metadata.description")}>
-    <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
-            <Banners client:load {banners} />
-        </WithSidebar>
-    </App>
-</Layout>
