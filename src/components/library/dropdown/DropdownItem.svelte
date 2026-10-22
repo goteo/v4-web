@@ -2,6 +2,7 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import Check from "../../icons/actions/Check.svelte";
+    import Checkbox from "../inputs/Checkbox.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
 
@@ -30,15 +31,13 @@
     aria-selected={option.selected}
 >
     {#if variant === "multiselect"}
-        <label class="flex cursor-pointer justify-between p-4">
+        <Checkbox
+            checked={option.selected}
+            onchange={() => handleChange(option)}
+            class="flex-row-reverse justify-between p-4"
+        >
             <span class="text-base text-black">{@html option.label}</span>
-            <input
-                type="checkbox"
-                checked={option.selected}
-                onchange={() => handleChange(option)}
-                class="text-primary border-secondary mt-1 size-5 shrink-0 rounded-sm border ring-0"
-            />
-        </label>
+        </Checkbox>
     {:else if variant === "basic"}
         <button
             class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}

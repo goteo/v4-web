@@ -59,7 +59,9 @@
 </script>
 
 {#snippet cover(className: ClassNameValue)}
-    <img src={reward.cover} alt={reward.title} class={twMerge(className)} />
+    {#if reward.cover}
+        <img src={reward.cover} alt={reward.title} class={twMerge(className)} />
+    {/if}
 {/snippet}
 
 {#snippet titles()}

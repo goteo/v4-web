@@ -58,6 +58,13 @@
         --color-purple-soft: #1a1730;
         --color-purple-med: #22203a;
     }
+
+    /* flowbite-svelte's Modal caps height with `max-h-[90hv]` (typo, no effect),
+       so the <dialog> scrolled on top of the modal body. */
+    dialog {
+        max-height: 100vh;
+        overflow: hidden;
+    }
 }
 
 :root {
@@ -75,6 +82,8 @@ body {
     font-size: var(--body-regular);
     line-height: 140%;
     color: var(--color-content);
+    /* Safety net against horizontal scroll; `clip` keeps `position: sticky` working. */
+    overflow-x: clip;
 }
 
 body.grid {
