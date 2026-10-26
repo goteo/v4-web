@@ -498,6 +498,27 @@
         }
       },
       "changeAddressLabel": "Enviar esta recompensa a una dirección distinta a la mia.",
+      "shipping": {
+        "title": "¿Dónde enviamos tus recompensas?",
+        "description": "Algunas de tus recompensas se envían por correo. Indícanos a qué dirección enviar cada una.",
+        "noAddress": "Todavía no tienes ninguna dirección guardada.",
+        "missing": "Añade una dirección de envío para continuar.",
+        "addAddress": "Añadir dirección",
+        "error": "No se ha podido guardar la dirección.",
+        "modal": {
+          "title": "Dirección de envío",
+          "newAddress": "Nueva dirección"
+        },
+        "fields": {
+          "firstName": "Nombre",
+          "lastName": "Apellidos",
+          "line1": "Dirección",
+          "line2": "Piso, puerta, etc. (opcional)",
+          "city": "Ciudad",
+          "postCode": "Código postal",
+          "country": "País"
+        }
+      },
       "title": "Caja",
       "summary": {
         "toRecipient": "{{ amount }} a {{ name }}",
@@ -518,6 +539,9 @@
         },
         "data": {
           "title": "Tus datos"
+        },
+        "shipping": {
+          "title": "Envío"
         },
         "payment": {
           "title": "Método de pago"
