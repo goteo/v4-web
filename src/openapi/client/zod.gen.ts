@@ -7,14 +7,55 @@ import * as z from 'zod';
  */
 export const zAddress = z.object({
     id: z.int().readonly().optional(),
-    user: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    line1: z.string(),
+    user: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    line1: z.string().optional(),
     line2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressAddressCreationDto = z.object({
+    user: z.string(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    line1: z.string().min(1),
+    line2: z.string().min(1).nullish(),
+    city: z.string().min(1),
+    postCode: z.string().min(3),
     country: z.string()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressAddressCreationDtoJsonld = z.object({
+    user: z.string(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    line1: z.string().min(1),
+    line2: z.string().min(1).nullish(),
+    city: z.string().min(1),
+    postCode: z.string().min(3),
+    country: z.string()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressAddressUpdationDto = z.object({
+    firstName: z.string().min(1).nullish(),
+    lastName: z.string().min(1).nullish(),
+    line1: z.string().min(1).nullish(),
+    line2: z.string().min(1).nullish(),
+    city: z.string().min(1).nullish(),
+    postCode: z.string().min(3).nullish(),
+    country: z.string().nullish()
 });
 
 /**
@@ -31,14 +72,14 @@ export const zAddressJsonld = z.object({
     '@id': z.string().readonly().optional(),
     '@type': z.string().readonly().optional(),
     id: z.int().readonly().optional(),
-    user: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    line1: z.string(),
+    user: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    line1: z.string().optional(),
     line2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
-    country: z.string()
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional()
 });
 
 /**
@@ -901,6 +942,7 @@ export const zProjectReward = z.object({
     description: z.string().nullable(),
     cover: z.url().optional(),
     money: zMoneyInput,
+    hasShipping: z.boolean().default(false),
     isFinite: z.boolean().default(false),
     unitsTotal: z.int().nullish(),
     unitsClaimed: z.int().readonly().optional().default(0),
@@ -929,6 +971,7 @@ export const zProjectRewardJsonld = z.object({
     description: z.string().nullable(),
     cover: z.url().optional(),
     money: zMoneyInputJsonld,
+    hasShipping: z.boolean().default(false),
     isFinite: z.boolean().default(false),
     unitsTotal: z.int().nullish(),
     unitsClaimed: z.int().readonly().optional().default(0),
@@ -2050,7 +2093,13 @@ export const zProjectSupportJsonld = z.object({
 
 export const zApiAddressesGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
-    itemsPerPage: z.int().gte(0).lte(100).optional().default(30)
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    user: z.string().optional(),
+    'user[]': z.array(z.string()).optional(),
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional(),
+    'country[]': z.array(z.string()).optional()
 });
 
 /**
@@ -2061,7 +2110,7 @@ export const zApiAddressesGetCollectionResponse = z.array(zAddress);
 /**
  * The new Address resource
  */
-export const zApiAddressesPostBody = zAddress;
+export const zApiAddressesPostBody = zAddressAddressCreationDto;
 
 /**
  * Address resource created
@@ -2089,7 +2138,7 @@ export const zApiAddressesIdGetResponse = zAddress;
 /**
  * The updated Address resource
  */
-export const zApiAddressesIdPatchBody = zAddress;
+export const zApiAddressesIdPatchBody = zAddressAddressUpdationDto;
 
 export const zApiAddressesIdPatchPath = z.object({
     id: z.string()
@@ -2857,6 +2906,7 @@ export const zApiProjectRewardsGetCollectionQuery = z.object({
     'order[unitsAvailable]': z.enum(['asc', 'desc']).optional().default('asc'),
     'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
     'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    hasShipping: z.boolean().optional(),
     isFinite: z.boolean().optional(),
     'dateCreated[before]': z.string().optional(),
     'dateCreated[strictly_before]': z.string().optional(),

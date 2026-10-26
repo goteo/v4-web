@@ -58,6 +58,7 @@
             cover: undefined,
             money: { amount: 0, currency: DEFAULT_CURRENCY },
             isFinite: false,
+            hasShipping: false,
             unitsTotal: 0,
         };
     }
