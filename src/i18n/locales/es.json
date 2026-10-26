@@ -2308,7 +2308,20 @@
         "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
           "publicProfile": "Perfil público",
-          "personalProfile": "Perfil personal"
+          "personalProfile": "Perfil personal",
+          "addresses": "Direcciones"
+        },
+        "addresses": {
+          "title": "Direcciones de envío",
+          "subtitle": "Gestiona las direcciones a las que te enviamos las recompensas.",
+          "empty": "Todavía no tienes ninguna dirección guardada.",
+          "add": "Añadir dirección",
+          "edit": "Editar dirección",
+          "default": "Predeterminada",
+          "makeDefault": "Hacer predeterminada",
+          "defaultError": "No se ha podido cambiar la dirección predeterminada.",
+          "deleteTitle": "¿Borrar esta dirección?",
+          "deleteError": "No se puede borrar una dirección que ya se ha usado en un pedido."
         },
         "profile": {
           "uploadImage": "Sube nueva imagen",
