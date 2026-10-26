@@ -929,6 +929,8 @@
               "descriptionHelper": "La descripción puede contener texto enriquecido, pero se recortará en tarjetas pequeñas",
               "moneyLabel": "Precio",
               "moneyHelper": "Indica la donación mínima a realizar para reclamar esta recompensa",
+              "shippingLabel": "Esta recompensa se envía por correo",
+              "shippingHelper": "Pediremos una dirección de envío a quien la elija.",
               "coverLabel": "Portada",
               "coverPlaceholder": "Haz click o arrastra aquí tu archivo para subirlo",
               "coverHelper": "Este archivo será la portada de tu recompensa"
