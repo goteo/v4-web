@@ -476,6 +476,15 @@
       }
     },
     "_": "Page-specific content (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Create your account",
+      "description": "Sign up for Goteo to support projects and create your own.",
+      "existUserInfo": "If you are already a Goteo user, log in with your account.",
+      "submit": "Create account",
+      "organization": {
+        "taxIdHelper": "Company tax ID"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -1550,7 +1559,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "Featured Projects",
-          "featuredUsers": "Promoters"
+          "featuredUsers": "Promoters",
+          "banners": "Banners"
         },
         "hero": {
           "title": "Hero",
@@ -2074,7 +2084,6 @@
         "description": "Manage platform communication",
         "tabs": {
           "blog": "Blog",
-          "banners": "Announcements",
           "newsletter": "Newsletter"
         },
         "banners": {

@@ -477,6 +477,15 @@
       }
     },
     "_": "Contenido específico de páginas (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Crea tu cuenta",
+      "description": "Regístrate en Goteo para apoyar proyectos y crear los tuyos.",
+      "existUserInfo": "Si ya eres usuario de Goteo, inicia sesión con tu cuenta.",
+      "submit": "Crear cuenta",
+      "organization": {
+        "taxIdHelper": "CIF de la empresa"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -1551,7 +1560,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
-          "featuredUsers": "Impulsores"
+          "featuredUsers": "Impulsores",
+          "banners": "Anuncios"
         },
         "hero": {
           "title": "Hero",
@@ -2075,7 +2085,6 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncios",
           "newsletter": "Boletín"
         },
         "banners": {

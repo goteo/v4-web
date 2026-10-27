@@ -476,6 +476,15 @@
       }
     },
     "_": "Contingut especifíc de la pàgina (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Crea el teu compte",
+      "description": "Registra't a Goteo per donar suport a projectes i crear els teus.",
+      "existUserInfo": "Si ja ets usuari de Goteo, inicia sessió amb el teu compte.",
+      "submit": "Crea un compte",
+      "organization": {
+        "taxIdHelper": "CIF de l'empresa"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Pagament",
@@ -1550,7 +1559,8 @@
         "tabs": {
           "hero": "Heroi",
           "highlights": "P. destacats",
-          "featuredUsers": "Impulsors"
+          "featuredUsers": "Impulsors",
+          "banners": "Anuncis"
         },
         "hero": {
           "title": "Heroi",
@@ -2074,7 +2084,6 @@
         "description": "Administra la comunicació de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncis",
           "newsletter": "Butlletí"
         },
         "banners": {

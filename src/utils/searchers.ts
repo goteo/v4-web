@@ -48,7 +48,11 @@ export const searchProjectsBySlug = projectsBy("slug");
 function usersBy(field: "handle" | "email"): ResourceSearcher<User> {
     return createSearcher<User, User>({
         fetch: async (query, signal) => {
-            const { data } = await apiUsersGetCollection({ query: { [field]: query }, signal });
+            const { data } = await apiUsersGetCollection({
+                baseUrl: "/api/relay",
+                query: { [field]: query },
+                signal,
+            });
             return toCollectionItems<User>(data);
         },
         map: (user) => ({
@@ -115,6 +119,11 @@ export function createAccountingSearcher({
 }: AccountingSearcherOptions = {}): ResourceSearcher {
     const searchers: ResourceSearcher[] = [];
 
+    // The SDK spreads caller options over its config, so an explicit
+    // `baseUrl: undefined` would clobber the default and yield a relative
+    // `/v4/...` URL. Only forward it when the caller actually set one.
+    const baseUrlOption = baseUrl ? { baseUrl } : {};
+
     if (resources.includes("projects")) {
         searchers.push(
             createSearcher<Project, Project>({
@@ -122,7 +131,7 @@ export function createAccountingSearcher({
                 fetch: async (query, signal) => {
                     const { data } = await apiProjectsGetCollection({
                         query: { title: query, itemsPerPage: itemsPerPage.projects },
-                        baseUrl,
+                        ...baseUrlOption,
                         signal,
                     });
                     return toCollectionItems<Project>(data).filter((p) => p.accounting);
@@ -145,7 +154,7 @@ export function createAccountingSearcher({
                 fetch: async (query, signal) => {
                     const { data } = await apiTipjarsGetCollection({
                         query: { name: query, itemsPerPage: itemsPerPage.tipjars },
-                        baseUrl,
+                        ...baseUrlOption,
                         signal,
                     });
                     return toCollectionItems<Tipjar>(data).filter((tipjar) => tipjar.accounting);
@@ -168,7 +177,7 @@ export function createAccountingSearcher({
                 fetch: async (query, signal) => {
                     const { data } = await apiUsersGetCollection({
                         query: { q: query, itemsPerPage: itemsPerPage.users },
-                        baseUrl,
+                        ...baseUrlOption,
                         signal,
                     });
                     return toCollectionItems<User>(data).filter((user) => user.accounting);
@@ -189,6 +198,7 @@ export function createAccountingSearcher({
 
 /** The filter composer's "target"/"origin" subjects. */
 export const searchAccountings = createAccountingSearcher({
+    baseUrl: "/api/relay",
     itemsPerPage: { projects: 4, tipjars: 1, users: 5 },
 });
 
