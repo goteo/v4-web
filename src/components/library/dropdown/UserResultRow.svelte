@@ -61,7 +61,7 @@
 
     {#if canSeeEmail && user.email}
         <span
-            class="bg-gray-800/90 pointer-events-none absolute top-1/2 right-0 z-50 max-w-[70%] -translate-y-1/2 truncate rounded px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+            class="pointer-events-none absolute top-1/2 right-0 z-50 max-w-[70%] -translate-y-1/2 truncate rounded bg-gray-800/90 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 group-hover:opacity-100"
         >
             {user.email}
         </span>
