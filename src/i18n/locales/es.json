@@ -349,6 +349,19 @@
   },
   "common": {
     "_": "Traducciones globales de la interfaz (botones, etiquetas, etc.)",
+    "password": {
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "change": "Cambiar contraseña",
+      "save": "Guardar contraseña",
+      "success": "Contraseña actualizada correctamente",
+      "error": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "La contraseña debe tener al menos 8 caracteres",
+        "mismatch": "Las contraseñas no coinciden",
+        "generic": "No se ha podido actualizar la contraseña. Inténtalo de nuevo más tarde."
+      }
+    },
     "greeting": "Hola",
     "farewell": "Adiós",
     "donate": "Donar",
@@ -2364,6 +2377,10 @@
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
           "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
           "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
+        },
+        "password": {
+          "title": "Cambiar contraseña",
+          "subtitle": "Actualiza la contraseña de tu cuenta"
         },
         "preferences": {
           "title": "Preferencias",
