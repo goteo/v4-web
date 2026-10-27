@@ -388,6 +388,7 @@
       "search": "Search",
       "createProject": "Create your project",
       "goToProfile": "Go to Profile",
+      "menu": "Menu",
       "admin": "Admin"
     },
     "footer": {
@@ -1118,6 +1119,7 @@
             "optimal": "Optimum",
             "raised": "Raised",
             "total": "Total",
+            "empty": "Esta campaña no tiene partidas de presupuesto.",
             "chartTitle": "This is the budget for this campaign. Discover how your support can lead us to success.",
             "chart": {
               "secondRound": "2nd Round",
