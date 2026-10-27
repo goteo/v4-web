@@ -10,6 +10,7 @@
     import ShareIcon from "../icons/actions/Share.svelte";
     import AlertIcon from "../icons/status/AlertIcon.svelte";
     import Button from "../library/buttons/Button.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -26,14 +27,19 @@
     const projectId = $derived(project.id!.toString());
 
     let projectUpdates: ProjectUpdate[] = $state([]);
+    let isLoading = $state(true);
 
     $effect(() => {
         apiProjectUpdatesGetCollection({
             query: { project: projectId, "order[date]": "desc" },
             headers: { "Accept-Language": lang },
-        }).then((data) => {
-            projectUpdates = data.data!;
-        });
+        })
+            .then((data) => {
+                projectUpdates = data.data ?? [];
+            })
+            .finally(() => {
+                isLoading = false;
+            });
     });
 
     let itemsPerGroup = $state(2);
@@ -120,7 +126,9 @@
         mobileItemsToShow={1}
         desktopItemsToShow={2}
     >
-        {#if projectUpdates.length === 0}
+        {#if isLoading}
+            <Loader />
+        {:else if projectUpdates.length === 0}
             <div
                 class="flex h-35 w-full items-center justify-center rounded bg-indigo-100 font-bold"
             >

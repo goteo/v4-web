@@ -1,14 +1,11 @@
 <script lang="ts">
     import Reward from "./Reward.svelte";
     import { t } from "../../i18n/store";
-    import {
-        apiAccountingsIdGet,
-        apiProjectRewardsGetCollection,
-    } from "../../openapi/client/index";
+    import { apiProjectRewardsGetCollection } from "../../openapi/client/index";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
     import { DEFAULT_CURRENCY } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import Button from "../library/buttons/Button.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
     import Grid from "../library/layout/Grid.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -23,32 +20,35 @@
     let {
         lang = $bindable(),
         project,
+        accounting,
     }: {
         lang: string;
         project: Project;
+        accounting: Accounting;
     } = $props();
 
     let projectId = $derived(project.id!.toString());
 
     let rewards: ProjectReward[] = $state([]);
-    let accounting: Accounting | undefined = $state();
-    let money = $state<MoneyInput>({ amount: 0, currency: DEFAULT_CURRENCY });
+    let isLoading = $state(true);
+    // svelte-ignore state_referenced_locally
+    let money = $state<MoneyInput>({
+        amount: 0,
+        currency: accounting.currency ?? DEFAULT_CURRENCY,
+    });
     let amountError = $state("");
 
     $effect(() => {
         apiProjectRewardsGetCollection({
             query: { project: projectId, "order[money.amount]": "asc" },
             headers: { "Accept-Language": lang },
-        }).then((data) => {
-            rewards = data.data!;
-        });
-
-        apiAccountingsIdGet({
-            path: { id: String(extractId(project.accounting)) },
-        }).then(({ data }) => {
-            accounting = data;
-            money.currency = data?.currency ?? DEFAULT_CURRENCY;
-        });
+        })
+            .then((data) => {
+                rewards = data.data ?? [];
+            })
+            .finally(() => {
+                isLoading = false;
+            });
     });
 
     let isAvailable = $state(calcAvailability());
@@ -77,7 +77,7 @@
             type: "single",
             quantity: 1,
             title: $t("common.donate"),
-            recipient: accounting?.owner!,
+            recipient: accounting.owner!,
             recipientDisplayName: project.title,
             target: project.accounting!,
             cover: project.cover,
@@ -132,9 +132,13 @@
                     </Button>
                 </div>
             </div>
-            {#each rewards as reward}
-                <Reward {reward} {project} isAvailable={calcAvailability(reward)} />
-            {/each}
+            {#if isLoading}
+                <Loader />
+            {:else}
+                {#each rewards as reward}
+                    <Reward {reward} {project} isAvailable={calcAvailability(reward)} />
+                {/each}
+            {/if}
         </Grid>
     </div>
 </section>

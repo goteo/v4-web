@@ -1118,6 +1118,7 @@
             "optimal": "Óptimo",
             "raised": "Obtenido",
             "total": "Total",
+            "empty": "Esta campaña no tiene partidas de presupuesto.",
             "chartTitle": "Este es el presupuesto para esta campaña. Descubre cómo tu apoyo puede llevarnos al éxito.",
             "chart": {
               "secondRound": "2ª Ronda",

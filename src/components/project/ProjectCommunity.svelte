@@ -73,10 +73,13 @@
     );
 
     $effect(() => {
-        fetchPage(1).then((items) => {
-            projectsSupportItems = items;
-            isLoaded = true;
-        });
+        fetchPage(1)
+            .then((items) => {
+                projectsSupportItems = items;
+            })
+            .finally(() => {
+                isLoaded = true;
+            });
     });
 
     async function loadMore() {
