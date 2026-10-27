@@ -115,35 +115,35 @@
         passwordError = "";
         passwordSuccess = false;
 
-            if (!newPassword) {
-                passwordError = $t("common.password.error.required");
-                return;
-            }
-            if (newPassword.length < 8) {
-                passwordError = $t("common.password.error.minLength");
-                return;
-            }
-            if (newPassword !== confirmPassword) {
-                passwordError = $t("common.password.error.mismatch");
-                return;
-            }
+        if (!newPassword) {
+            passwordError = $t("common.password.error.required");
+            return;
+        }
+        if (newPassword.length < 8) {
+            passwordError = $t("common.password.error.minLength");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            passwordError = $t("common.password.error.mismatch");
+            return;
+        }
 
-            changingPassword = true;
-            const { error } = await apiUsersIdPatch({
-                baseUrl: "/api/relay",
-                path: { id: String(user.id) },
-                body: { password: newPassword },
-            });
-            changingPassword = false;
+        changingPassword = true;
+        const { error } = await apiUsersIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String(user.id) },
+            body: { password: newPassword },
+        });
+        changingPassword = false;
 
-            if (error) {
-                passwordError = $t("common.password.error.generic");
-                return;
-            }
+        if (error) {
+            passwordError = $t("common.password.error.generic");
+            return;
+        }
 
-            newPassword = "";
-            confirmPassword = "";
-            passwordSuccess = true;
+        newPassword = "";
+        confirmPassword = "";
+        passwordSuccess = true;
     }
 
     async function handleSubmit(event: SubmitEvent) {
@@ -351,7 +351,10 @@
     </Card>
 
     <Card class="items-start gap-6 p-8">
-        {@render cardHeader($t("pages.me.manage.password.title"), $t("pages.me.manage.password.subtitle"))}
+        {@render cardHeader(
+            $t("pages.me.manage.password.title"),
+            $t("pages.me.manage.password.subtitle"),
+        )}
 
         <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
             <PasswordInput
