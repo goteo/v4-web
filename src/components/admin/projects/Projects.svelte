@@ -301,6 +301,7 @@
 
     async function handleStatusChange(projectId: number, status: string): Promise<void> {
         const { error } = await apiProjectsIdPatch({
+            baseUrl: "/api/relay",
             path: { id: String(projectId) },
             body: { status: status as any },
         });

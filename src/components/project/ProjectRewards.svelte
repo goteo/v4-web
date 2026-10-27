@@ -4,6 +4,7 @@
     import { apiProjectRewardsGetCollection } from "../../openapi/client/index";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
     import { DEFAULT_CURRENCY } from "../../utils/currencies";
+    import Spinner from "../icons/status/Spinner.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Loader from "../library/feedback/Loader.svelte";
     import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
@@ -31,6 +32,7 @@
 
     let rewards: ProjectReward[] = $state([]);
     let isLoading = $state(true);
+    let isDonating = $state(false);
     // svelte-ignore state_referenced_locally
     let money = $state<MoneyInput>({
         amount: 0,
@@ -71,6 +73,7 @@
         }
 
         amountError = "";
+        isDonating = true;
 
         cart.addItem({
             kind: "free",
@@ -125,10 +128,14 @@
                     <Button
                         kind="secondary"
                         class="w-full"
-                        disabled={!isAvailable}
+                        disabled={!isAvailable || isDonating}
                         onclick={handleFreeDonation}
                     >
-                        {$t("common.donate")}
+                        {#if isDonating}
+                            <Spinner />
+                        {:else}
+                            {$t("common.donate")}
+                        {/if}
                     </Button>
                 </div>
             </div>

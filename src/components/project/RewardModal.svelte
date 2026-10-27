@@ -7,6 +7,7 @@
     import { formatCurrency } from "../../utils/currencies";
     import { lt } from "../../utils/money";
     import { renderMarkdown } from "../../utils/renderMarkdown";
+    import Spinner from "../icons/status/Spinner.svelte";
     import UnitIcon from "../icons/UnitIcon.svelte";
     import UserIcon from "../icons/user/User.svelte";
     import Button from "../library/buttons/Button.svelte";
@@ -26,6 +27,7 @@
 
     let money = $state<MoneyInput>({ ...reward.money });
     let amountError = $state("");
+    let isRedirecting = $state(false);
     let link = $state(`/calculadora-fiscal`);
 
     async function updateAmount(action: "close" | "checkout") {
@@ -50,6 +52,7 @@
         });
 
         if (action === "checkout") {
+            isRedirecting = true;
             await checkoutReady();
             window.location.href = "/checkout";
         } else {
@@ -166,11 +169,24 @@
             </div>
         </div>
         <div class="flex flex-col gap-4 lg:flex-row">
-            <Button kind="ghost" onclick={() => updateAmount("close")} class="w-full">
+            <Button
+                kind="ghost"
+                onclick={() => updateAmount("close")}
+                class="w-full"
+                disabled={isRedirecting}
+            >
                 {$t("pages.project.view.rewards.addToCart")}
             </Button>
-            <Button onclick={() => updateAmount("checkout")} class="w-full">
-                {$t("common.donate")}
+            <Button
+                onclick={() => updateAmount("checkout")}
+                class="w-full"
+                disabled={isRedirecting}
+            >
+                {#if isRedirecting}
+                    <Spinner />
+                {:else}
+                    {$t("common.donate")}
+                {/if}
             </Button>
         </div>
     </div>
