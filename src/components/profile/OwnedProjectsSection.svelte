@@ -5,7 +5,11 @@
     import { t } from "../../i18n/store";
     import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
     import { toCollectionItems } from "../../utils/hydra.ts";
-    import { tabStatusGroups, statusCardConfig } from "../../utils/ownedProjectCards";
+    import {
+        projectActionHref,
+        statusCardConfig,
+        tabStatusGroups,
+    } from "../../utils/ownedProjectCards";
     import CampaignCard, {
         type OwnedCardActionView,
         type OwnedCardConfig,
@@ -125,6 +129,7 @@
                             key: action.key,
                             label: $t(`pages.me.ownedProjects.card.${action.key}`),
                             kind: action.kind,
+                            href: projectActionHref(action.key, campaign),
                         })),
                     }}
                     <CampaignCard size={index === 0 ? "large" : "small"} {campaign} {ownedConfig} />
