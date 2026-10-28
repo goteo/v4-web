@@ -3,6 +3,8 @@
     import { t, locale } from "../../../i18n/store";
     import { formatDate } from "../../../utils/dates";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
+    import ProjectPreviewModal from "../../project/edit/ProjectPreviewModal.svelte";
+    import { extractId } from "../../../utils/extractId";
 
     import type { ProjectRow } from "./ProjectsTable.svelte";
 
@@ -14,6 +16,8 @@
     }
 
     let { project, onOpenAnnotationsModal, onChangeStatus, userEmail }: Props = $props();
+
+    let previewOpen = $state(false);
 
     const fields: DetailsField[] = $derived([
         {
@@ -54,17 +58,35 @@
         window.location.href = `/${$locale}/admin/charges?target=${encodeURIComponent(project.accounting)}`;
     }
 
-    const actionKeys = [
-        "changeStatus",
-        "promoter",
-        "contributions",
-        "donors",
-        "financialReport",
-    ] as const;
+    function navigateToPromoter() {
+        if (!project.owner) return;
+        const ownerId = extractId(project.owner) || project.owner;
+        window.location.href = `/${$locale}/user/${ownerId}`;
+    }
+
+    function navigateToEdit() {
+        const projectIdentifier = project.slug || project.id;
+        if (!projectIdentifier) return;
+        window.location.href = `/${$locale}/project/${projectIdentifier}/edit`;
+    }
+
+    const isInCampaign = $derived(project.status === "in_campaign");
+
+    const actionKeys = ["promoter", "contributions", "campaignPageOrPreview", "edit"] as const;
 
     function handleActionClick(key: (typeof actionKeys)[number]) {
-        if (key === "changeStatus") onChangeStatus?.(project.id);
         if (key === "contributions") navigateToCharges();
+        if (key === "promoter") navigateToPromoter();
+        if (key === "edit") navigateToEdit();
+        if (key === "campaignPageOrPreview") {
+            if (isInCampaign) {
+                const projectIdentifier = project.slug || project.id;
+                if (!projectIdentifier) return;
+                window.location.href = `/${$locale}/project/${projectIdentifier}`;
+            } else {
+                previewOpen = true;
+            }
+        }
     }
 </script>
 
@@ -77,7 +99,13 @@
                     class="border-secondary text-secondary cursor-pointer rounded-full border bg-white px-5 py-2 text-sm"
                     onclick={() => handleActionClick(key)}
                 >
-                    {$t(`pages.admin.projects.table.rows.details.btns.${key}`)}
+                    {key === "campaignPageOrPreview"
+                        ? isInCampaign
+                            ? $t("pages.admin.projects.table.rows.details.btns.campaignPage")
+                            : $t("pages.admin.projects.table.rows.details.btns.preview")
+                        : key === "edit"
+                          ? $t("pages.admin.projects.table.rows.details.btns.edit")
+                          : $t(`pages.admin.projects.table.rows.details.btns.${key}`)}
                 </button>
             {/each}
         </div>
@@ -111,3 +139,7 @@
         </div>
     {/snippet}
 </DetailsRow>
+
+{#if previewOpen}
+    <ProjectPreviewModal bind:open={previewOpen} project={project as any} />
+{/if}

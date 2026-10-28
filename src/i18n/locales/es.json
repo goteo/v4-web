@@ -1948,12 +1948,12 @@
               "phone": "Teléfono",
               "remaining": "Falta por pagar",
               "btns": {
-                "changeStatus": "Cambiar cuentas",
-                "promoter": "Impulsor",
                 "contributions": "Aportes",
-                "donors": "Donantes de campaña",
-                "financialReport": "Informe financiación",
-                "annotations": "Anotaciones"
+                "annotations": "Anotaciones",
+                "promoter": "Impulsor",
+                "campaignPage": "Ver página de campaña",
+                "preview": "Vista previa",
+                "edit": "Editar proyecto"
               }
             },
             "noData": "No hay datos disponibles"
