@@ -1974,12 +1974,12 @@
               "phone": "Telèfon",
               "remaining": "Falta per pagar",
               "btns": {
-                "changeStatus": "Canviar comptes",
-                "promoter": "Impulsor",
                 "contributions": "Aportacions",
-                "donors": "Donants de campanya",
-                "financialReport": "Informe de finançament",
-                "annotations": "Anotacions"
+                "annotations": "Anotacions",
+                "promoter": "Impulsor",
+                "campaignPage": "Veure la pàgina de la campanya",
+                "preview": "Previsualitzar",
+                "edit": "Editar projecte"
               }
             },
             "noData": "No hi ha dades disponibles"
