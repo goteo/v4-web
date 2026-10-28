@@ -10,6 +10,7 @@
         type OwnedCardActionView,
         type OwnedCardConfig,
     } from "../home/CampaignCard.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
     import Tabs from "../library/layout/Tabs.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -104,7 +105,9 @@
     ]);
 </script>
 
-{#if !loading && ownedProjects.length > 0}
+{#if loading}
+    <Loader />
+{:else if ownedProjects.length > 0}
     <div class="flex flex-col gap-6">
         <Title level={2} variant="section">
             {$t("pages.me.ownedProjects.title")}

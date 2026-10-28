@@ -26,6 +26,16 @@ export type ResourceSearcher<T = unknown> = (
 
 export const DEFAULT_MIN_CHARS = 2;
 
+/**
+ * Narrows a result item to one that carries a `User` in `raw`, so callers can
+ * render it with `UserResultRow`. Not every searcher exposes the entity, hence
+ * the check on the shape rather than a nominal flag.
+ */
+export function isUserResult<T>(item: SearchResultItem<T>): boolean {
+    const raw = item.raw as { handle?: unknown } | undefined;
+    return typeof raw?.handle === "string";
+}
+
 interface RemoteSearcherOptions<E, T> {
     /** Hits the API with the trimmed query. */
     fetch: (query: string, signal?: AbortSignal) => Promise<E[]>;

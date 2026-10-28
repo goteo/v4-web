@@ -37,9 +37,9 @@
         const isActive = tab.id === currentTab;
 
         if (isActive) {
-            return "border-primary text-secondary cursor-pointer";
+            return "border-primary bg-purple-soft text-secondary font-bold cursor-pointer";
         } else {
-            return "border-purple-tint text-secondary cursor-pointer hover:text-primary";
+            return "border-grey text-content cursor-pointer hover:text-primary";
         }
     }
 
@@ -71,7 +71,7 @@
                 aria-selected={isActive}
                 role="tab"
             >
-                <span class="font-medium">{tab.label}</span>
+                <span>{tab.label}</span>
             </button>
         {/each}
     </div>

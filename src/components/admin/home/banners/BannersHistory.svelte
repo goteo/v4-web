@@ -46,7 +46,6 @@
         list.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
     );
 
-    let isLoading = $state(false);
     let isModalOpen = $state(false);
     let selectedRow = $state<Banner | null>(null);
 
@@ -119,7 +118,7 @@
 <DataTable
     {headers}
     rows={paginatedRows}
-    {isLoading}
+    isLoading={false}
     emptyMessage="pages.admin.comm.banners.history.noData"
     {currentPage}
     totalItems={list.length}

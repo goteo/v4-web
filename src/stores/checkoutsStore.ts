@@ -150,6 +150,8 @@ function schedulePersist() {
 }
 
 if (isBrowser) {
+    // Hydrated is set after the task, not inside it: `enqueue` swallows errors,
+    // so a failing IndexedDB read can't leave the checkout UI loading forever.
     enqueue(async () => {
         // Snapshot the key: `activeKey` can flip mid-flight when the session
         // store resolves (guest → user), and writing the guest-derived items

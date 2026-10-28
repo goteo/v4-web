@@ -388,6 +388,7 @@
       "search": "Buscar",
       "createProject": "Crea tu proyecto",
       "goToProfile": "Ir a Perfil",
+      "menu": "Menú",
       "admin": "Administración"
     },
     "footer": {
@@ -476,6 +477,15 @@
       }
     },
     "_": "Contenido específico de páginas (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Crea tu cuenta",
+      "description": "Regístrate en Goteo para apoyar proyectos y crear los tuyos.",
+      "existUserInfo": "Si ya eres usuario de Goteo, inicia sesión con tu cuenta.",
+      "submit": "Crear cuenta",
+      "organization": {
+        "taxIdHelper": "CIF de la empresa"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -1135,6 +1145,7 @@
             "optimal": "Óptimo",
             "raised": "Obtenido",
             "total": "Total",
+            "empty": "Esta campaña no tiene partidas de presupuesto.",
             "chartTitle": "Este es el presupuesto para esta campaña. Descubre cómo tu apoyo puede llevarnos al éxito.",
             "chart": {
               "secondRound": "2ª Ronda",
@@ -1576,7 +1587,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
-          "featuredUsers": "Impulsores"
+          "featuredUsers": "Impulsores",
+          "banners": "Anuncios"
         },
         "hero": {
           "title": "Hero",
@@ -2100,7 +2112,6 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncios",
           "newsletter": "Boletín"
         },
         "banners": {
