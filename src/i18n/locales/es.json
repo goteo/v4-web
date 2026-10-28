@@ -1079,6 +1079,10 @@
           "title": "¿Qué categoría se ajusta a tu proyecto?",
           "subtitle": "(Puedes elegir un máximo de 2)"
         },
+        "themes": {
+          "title": "¿Qué tema se ajusta a tu proyecto?",
+          "subtitle": "(Opcional, puedes elegir uno)"
+        },
         "address": {
           "title": "¿Cuál es la dirección del proyecto?",
           "subtitle": "Busca y selecciona la dirección completa del proyecto. Esto nos ayuda a ubicar tu iniciativa.",
@@ -1099,7 +1103,9 @@
           "titleBadFormat": "El título debe contener al menos una letra.",
           "categoriesNotEnough": "Debes seleccionar al menos {{ min }} categoría(s).",
           "territoryMissing": "Debes especificar un lugar.",
-          "releaseMissing": "Debes especificar una fecha de salida aproximada"
+          "releaseMissing": "Debes especificar una fecha de salida aproximada",
+          "titleInUse": "Ya existe un proyecto con este título.",
+          "subtitleMissing": "Debes añadir una breve descripción del proyecto."
         }
       },
       "view": {

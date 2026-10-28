@@ -6,8 +6,10 @@
         type Category,
         type ApiProjectsPostData,
         type Territory,
+        type Theme,
         apiCategoriesIdOrSlugGetUrl,
         apiProjectsPost,
+        apiThemesIdOrSlugGetUrl,
     } from "../../openapi/client";
     import { client } from "../../openapi/client/client.gen";
     import { CAMPAIGN_MAX_END_DATE, CAMPAIGN_MIN_START_DATE } from "../../utils/dates";
@@ -16,9 +18,11 @@
         zCreateProjectForm,
         zProjectCampaignRelease,
     } from "../../validation/projectValidation";
-    import Spinner from "../icons/status/Spinner.svelte";
-    import Button from "../library/buttons/Button.svelte";
+    import ActionableButton, {
+        type ActionableState,
+    } from "../library/buttons/ActionableButton.svelte";
     import BaseCard from "../library/cards/BaseCard.svelte";
+    import Toast from "../library/feedback/Toast.svelte";
     import CategorySelect from "../library/inputs/CategorySelect.svelte";
     import DateInput from "../library/inputs/DateInput.svelte";
     import TerritoryInput from "../library/inputs/TerritoryInput.svelte";
@@ -28,7 +32,7 @@
 
     import type z from "zod";
 
-    let { categories }: { categories: Category[] } = $props();
+    let { categories, themes }: { categories: Category[]; themes: Theme[] } = $props();
 
     let form: Partial<ApiProjectsPostData["body"]> = $state({
         title: "",
@@ -41,7 +45,8 @@
 
     let validation: Partial<Record<keyof typeof form, z.core.$ZodIssue[]>> = $state({});
     let isValid = $derived(Object.values(validation).every((issues) => !issues?.length));
-    let isSubmitting = $state(false);
+    let submitState = $state<ActionableState>("actionable");
+    let showError = $state(false);
 
     function validate(field: keyof typeof form) {
         const result = zCreateProjectForm.shape[field].safeParse(form[field]);
@@ -68,6 +73,10 @@
             return $t("pages.project.create.validation.titleBadFormat");
         }
 
+        if (issue.code === "too_small" && field === "subtitle") {
+            return $t("pages.project.create.validation.subtitleMissing");
+        }
+
         if (issue.code === "too_small" && field === "categories") {
             return $t("pages.project.create.validation.categoriesNotEnough", {
                 min: String(issue.minimum),
@@ -88,15 +97,18 @@
         });
     }
 
+    function toIris(items: { id?: string }[], url: string) {
+        return items.map(({ id }) => client.buildUrl({ url, path: { idOrSlug: String(id) } }));
+    }
+
     function handleCategories(categories: Category[]) {
-        form.categories = categories.map((c) => {
-            return client.buildUrl({
-                url: apiCategoriesIdOrSlugGetUrl,
-                path: { idOrSlug: String(c.id) },
-            });
-        });
+        form.categories = toIris(categories, apiCategoriesIdOrSlugGetUrl);
 
         validate("categories");
+    }
+
+    function handleThemes(themes: Theme[]) {
+        form.themes = toIris(themes, apiThemesIdOrSlugGetUrl);
     }
 
     function handleTerritory(territory: Territory) {
@@ -113,10 +125,33 @@
         validation["calendar"] = result.error?.issues ?? [];
     }
 
-    async function handleSubmit(e: SubmitEvent) {
-        e.preventDefault();
+    /**
+     * Places API constraint violations under their fields, anything unrecognized goes to a toast.
+     */
+    function handleViolations(violations: { propertyPath?: string; message?: string }[]) {
+        let unhandled = violations.length === 0;
 
+        for (const { propertyPath, message = "" } of violations) {
+            if (propertyPath === "title" && /already in use/i.test(message)) {
+                validation.title = [
+                    {
+                        code: "custom",
+                        path: ["title"],
+                        message: "pages.project.create.validation.titleInUse",
+                        input: form.title,
+                    },
+                ];
+            } else {
+                unhandled = true;
+            }
+        }
+
+        showError = unhandled;
+    }
+
+    async function submit() {
         validation = {};
+        showError = false;
 
         const result = zCreateProjectForm.safeParse(form);
 
@@ -127,10 +162,8 @@
                 validation[field] = [...(validation[field] ?? []), issue];
             }
 
-            return;
+            throw new Error("Invalid project form");
         }
-
-        isSubmitting = true;
 
         const { data: project, error } = await apiProjectsPost({
             baseUrl: "/api/relay",
@@ -140,9 +173,14 @@
         });
 
         if (error) {
-            console.error(error);
-            isSubmitting = false;
-            return;
+            if ("violations" in error) {
+                handleViolations(error.violations ?? []);
+            } else {
+                showError = true;
+            }
+
+            // Lets the button go back to actionable so the user can retry
+            throw new Error("Project creation failed", { cause: error });
         }
 
         window.location.href = `/project/${project.id}/edit`;
@@ -150,7 +188,7 @@
 </script>
 
 <section class="wrapper md:flex md:flex-row">
-    <form class="mb-20 flex max-w-167 flex-col gap-10" onsubmit={handleSubmit}>
+    <form class="mb-20 flex max-w-167 flex-col gap-10" onsubmit={(event) => event.preventDefault()}>
         <div class="flex flex-col gap-4">
             <Title level={1} variant="section">
                 {$t("pages.project.create.title")}
@@ -178,6 +216,8 @@
             <div class="relative">
                 <TextArea
                     bind:value={form.subtitle}
+                    onInput={() => validate("subtitle")}
+                    error={getValidationMessage("subtitle")}
                     helperText={$t("pages.project.create.description.subtitlePrompt")}
                     placeholder={$t("pages.project.create.description.subtitlePlaceholder")}
                 />
@@ -200,6 +240,15 @@
                 {/if}
             </p>
             <CategorySelect max={2} options={categories} onChange={handleCategories} />
+        </div>
+        <div class="flex flex-col gap-4">
+            <Title level={2} variant="subsection">
+                {$t("pages.project.create.themes.title")}
+            </Title>
+            <p class="text-black transition-all duration-300 ease-in-out">
+                {$t("pages.project.create.themes.subtitle")}
+            </p>
+            <CategorySelect max={1} options={themes} onChange={handleThemes} />
         </div>
         <div class="flex flex-col gap-4">
             <Title level={2} variant="subsection">
@@ -231,14 +280,19 @@
                 error={getValidationMessage("calendar")}
             />
         </div>
-        <Button type="submit" disabled={!isValid || isSubmitting}>
-            {#if isSubmitting}
-                <Spinner />
-            {:else}
-                {$t("pages.project.create.submit")}
-            {/if}
-        </Button>
+        <ActionableButton
+            type="submit"
+            action={submit}
+            bind:state={submitState}
+            disabled={!isValid || submitState !== "actionable"}
+            class="w-fit"
+        >
+            {$t("pages.project.create.submit")}
+        </ActionableButton>
     </form>
+    <Toast floating variant="error" bind:showToast={showError}>
+        {$t("system.error.unknown")}
+    </Toast>
     <div class="ml-auto">
         <BaseCard
             class="border-grey flex h-full max-h-126.5 w-full max-w-109.25 flex-col bg-white"

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { t } from "../../../i18n/store";
     import CategoryOption from "../tags/Category.svelte";
 
     import type { Category } from "../../../openapi/client";
@@ -53,20 +54,24 @@
 </script>
 
 <div>
-    <fieldset
-        class="m-0 flex flex-wrap gap-4 border-0 p-0"
-        aria-describedby={error ? "category-error" : undefined}
-    >
-        {#each options as option}
-            <CategoryOption
-                type={calcTagType(option)}
-                disabled={calcTagDisabled(option)}
-                onclick={() => handleClick(option)}
-            >
-                {option.name}
-            </CategoryOption>
-        {/each}
-    </fieldset>
+    {#if options.length === 0}
+        <p class="text-content">{$t("common.noOptions")}</p>
+    {:else}
+        <fieldset
+            class="m-0 flex flex-wrap gap-4 border-0 p-0"
+            aria-describedby={error ? "category-error" : undefined}
+        >
+            {#each options as option}
+                <CategoryOption
+                    type={calcTagType(option)}
+                    disabled={calcTagDisabled(option)}
+                    onclick={() => handleClick(option)}
+                >
+                    {option.name}
+                </CategoryOption>
+            {/each}
+        </fieldset>
+    {/if}
     {#if error}
         <p id="category-error" class="mt-2 ml-4 text-xs text-red-600" role="alert">
             {error}
