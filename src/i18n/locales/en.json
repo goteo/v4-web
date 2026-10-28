@@ -508,6 +508,27 @@
         }
       },
       "changeAddressLabel": "Send this reward to an address different from mine.",
+      "shipping": {
+        "title": "Where should we send your rewards?",
+        "description": "Some of your rewards are sent by mail. Tell us which address to send each one to.",
+        "noAddress": "You don't have any saved addresses yet.",
+        "missing": "Add a shipping address to continue.",
+        "addAddress": "Add address",
+        "error": "The address could not be saved.",
+        "modal": {
+          "title": "Shipping address",
+          "newAddress": "New address"
+        },
+        "fields": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "line1": "Address",
+          "line2": "Apartment, unit, etc. (optional)",
+          "city": "City",
+          "postCode": "Postal code",
+          "country": "Country"
+        }
+      },
       "title": "Checkout",
       "summary": {
         "toRecipient": "{{ amount }} to {{ name }}",
@@ -528,6 +549,9 @@
         },
         "data": {
           "title": "Your details"
+        },
+        "shipping": {
+          "title": "Shipping"
         },
         "payment": {
           "title": "Payment method"
@@ -915,6 +939,8 @@
               "descriptionHelper": "The description can contain rich text, but it will be truncated on small cards",
               "moneyLabel": "Price",
               "moneyHelper": "Enter the minimum donation required to claim this reward",
+              "shippingLabel": "This reward is sent by mail",
+              "shippingHelper": "We'll ask for a shipping address from whoever selects it.",
               "coverLabel": "Cover",
               "coverPlaceholder": "Click or drag your file here to upload",
               "coverHelper": "This file will be the cover for your reward"
@@ -2293,7 +2319,20 @@
         "subtitle": "Submit projects or fund initiatives. Complete your profile with a good introduction, relevant links, and a photo that identifies you.",
         "sidebar": {
           "publicProfile": "Public profile",
-          "personalProfile": "Personal profile"
+          "personalProfile": "Personal profile",
+          "addresses": "Addresses"
+        },
+        "addresses": {
+          "title": "Shipping addresses",
+          "subtitle": "Manage the addresses where we send your rewards.",
+          "empty": "You don't have any saved addresses yet.",
+          "add": "Add address",
+          "edit": "Edit address",
+          "default": "Default",
+          "makeDefault": "Make default",
+          "defaultError": "The default address could not be changed.",
+          "deleteTitle": "Delete this address?",
+          "deleteError": "You can't delete an address that has already been used in an order."
         },
         "profile": {
           "uploadImage": "Upload new image",
