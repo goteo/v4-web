@@ -46,9 +46,14 @@
     const projectDeadline = $derived(getCurrentDeadline(project.calendar!));
 
     // Seeds the initial pick; the language selector owns it from then on.
-    let projectLanguage = $state(untrack(() => guessProjectLanguage(project.locales!)));
+    let projectLanguage = $state(
+        untrack(() => guessProjectLanguage(project.locales ?? ($locale ? [$locale] : ["es"]))),
+    );
 
-    function guessProjectLanguage(pLangs: string[]): string {
+    function guessProjectLanguage(pLangs: string[] | undefined | null): string {
+        if (!pLangs || !Array.isArray(pLangs) || pLangs.length === 0) {
+            return $locale || "es";
+        }
         if (typeof navigator === "undefined" || !navigator.languages) {
             return pLangs[0];
         }
