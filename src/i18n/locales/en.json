@@ -1974,12 +1974,12 @@
               "phone": "Phone",
               "remaining": "Pending payment",
               "btns": {
-                "changeStatus": "Change accounts",
-                "promoter": "Promoter",
                 "contributions": "Contributions",
-                "donors": "Campaign donors",
-                "financialReport": "Funding report",
-                "annotations": "Annotations"
+                "annotations": "Annotations",
+                "promoter": "Promoter",
+                "campaignPage": "View campaign page",
+                "preview": "Preview",
+                "edit": "Edit project"
               }
             },
             "noData": "No data available"
