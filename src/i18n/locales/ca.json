@@ -508,6 +508,27 @@
         }
       },
       "changeAddressLabel": "Enviar aquesta recompensa a una adreça diferent de la meva.",
+      "shipping": {
+        "title": "On enviem les teves recompenses?",
+        "description": "Algunes de les teves recompenses s'envien per correu. Indica'ns a quina adreça hem d'enviar cadascuna.",
+        "noAddress": "Encara no tens cap adreça desada.",
+        "missing": "Afegeix una adreça d'enviament per continuar.",
+        "addAddress": "Afegir adreça",
+        "error": "No s'ha pogut desar l'adreça.",
+        "modal": {
+          "title": "Adreça d'enviament",
+          "newAddress": "Adreça nova"
+        },
+        "fields": {
+          "firstName": "Nom",
+          "lastName": "Cognoms",
+          "line1": "Adreça",
+          "line2": "Pis, porta, etc. (opcional)",
+          "city": "Ciutat",
+          "postCode": "Codi postal",
+          "country": "País"
+        }
+      },
       "title": "Caixa",
       "summary": {
         "toRecipient": "{{ amount }} a {{ name }}",
@@ -528,6 +549,9 @@
         },
         "data": {
           "title": "Les teves dades"
+        },
+        "shipping": {
+          "title": "Enviament"
         },
         "payment": {
           "title": "Mètode de pagament"
@@ -915,6 +939,8 @@
               "descriptionHelper": "La descripció pot contenir text enriquit, però es retallarà en targetes petites",
               "moneyLabel": "Preu",
               "moneyHelper": "Indica la donació mínima que cal fer per reclamar aquesta recompensa",
+              "shippingLabel": "Aquesta recompensa s'envia per correu",
+              "shippingHelper": "Demanarem una adreça d'enviament a qui la triï.",
               "coverLabel": "Portada",
               "coverPlaceholder": "Fes clic o arrossega aquí el teu fitxer per pujar-lo",
               "coverHelper": "Aquest fitxer serà la portada de la teva recompensa"
@@ -2293,7 +2319,20 @@
         "subtitle": "Presenta projectes o finança iniciatives. Completa el teu perfil amb una bona presentació, enllaços rellevants i una foto que t'identifiqui.",
         "sidebar": {
           "publicProfile": "Perfil públic",
-          "personalProfile": "Perfil personal"
+          "personalProfile": "Perfil personal",
+          "addresses": "Adreces"
+        },
+        "addresses": {
+          "title": "Adreces d'enviament",
+          "subtitle": "Gestiona les adreces a les quals t'enviem les recompenses.",
+          "empty": "Encara no tens cap adreça desada.",
+          "add": "Afegir adreça",
+          "edit": "Editar adreça",
+          "default": "Predeterminada",
+          "makeDefault": "Fer predeterminada",
+          "defaultError": "No s'ha pogut canviar l'adreça predeterminada.",
+          "deleteTitle": "Vols esborrar aquesta adreça?",
+          "deleteError": "No es pot esborrar una adreça que ja s'ha fet servir en una comanda."
         },
         "profile": {
           "uploadImage": "Puja una imatge nova",
