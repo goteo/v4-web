@@ -8,7 +8,10 @@ import type { Territory } from "../openapi/client";
  */
 export const UNKNOWN_COUNTRY_CODE = "ZZ";
 
-export function getTerritoryDisplayName(territory?: Territory | null, lang: Intl.LocalesArgument = "es"): string {
+export function getTerritoryDisplayName(
+    territory?: Territory | null,
+    lang: Intl.LocalesArgument = "es",
+): string {
     if (!territory || !territory.country) {
         return "";
     }
