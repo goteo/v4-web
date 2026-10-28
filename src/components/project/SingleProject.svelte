@@ -43,7 +43,9 @@
         balancePoints: AccountingBalancePoint[];
     } = $props();
 
-    const projectDeadline = $derived(getCurrentDeadline(project.calendar!));
+    const projectDeadline = $derived(
+        project.calendar ? getCurrentDeadline(project.calendar) : undefined,
+    );
 
     // Seeds the initial pick; the language selector owns it from then on.
     let projectLanguage = $state(
