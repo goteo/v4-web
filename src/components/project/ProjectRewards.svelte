@@ -80,7 +80,7 @@
             type: "single",
             quantity: 1,
             title: $t("common.donate"),
-            recipient: accounting.owner!,
+            recipient: accounting.owner ?? project.owner ?? project.accounting!,
             recipientDisplayName: project.title,
             target: project.accounting!,
             cover: project.cover,
