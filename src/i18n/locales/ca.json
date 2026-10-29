@@ -1105,6 +1105,10 @@
           "title": "Quina categoria s'ajusta al teu projecte?",
           "subtitle": "(Pots triar un màxim de 2)"
         },
+        "themes": {
+          "title": "Quin tema s'ajusta al teu projecte?",
+          "subtitle": "(Opcional, en pots triar un)"
+        },
         "address": {
           "title": "Quina és l'adreça del projecte?",
           "subtitle": "Cerca i selecciona l'adreça completa del projecte. Això ens ajuda a ubicar la teva iniciativa.",
@@ -1125,7 +1129,9 @@
           "titleBadFormat": "El títol ha de contenir almenys una lletra.",
           "categoriesNotEnough": "Has de seleccionar almenys {{ min }} categoria/es.",
           "territoryMissing": "Has d'especificar un lloc.",
-          "releaseMissing": "Has d'especificar una data de llançament aproximada"
+          "releaseMissing": "Has d'especificar una data de llançament aproximada",
+          "titleInUse": "Ja existeix un projecte amb aquest títol.",
+          "subtitleMissing": "Has d'afegir una breu descripció del projecte."
         }
       },
       "view": {
