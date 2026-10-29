@@ -33,6 +33,8 @@ export function getTerritoryDisplayName(
 
         return `${subdivision}, ${country ?? territory.country}`;
     } catch (e) {
+        console.error(e);
+
         return territory.country ?? "";
     }
 }
