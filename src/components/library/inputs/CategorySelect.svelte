@@ -1,7 +1,7 @@
 <script lang="ts">
     import CategoryOption from "../tags/Category.svelte";
 
-    import type { Category } from "../../../openapi/client";
+    import type { Category, Theme } from "../../../openapi/client";
 
     let {
         options,
@@ -11,19 +11,19 @@
         onChange,
         error = undefined,
     }: {
-        options: Category[];
-        selected?: Category[];
+        options: Category[] | Theme[];
+        selected?: Category[] | Theme[];
         selectedIds?: (number | string)[];
         max?: number;
-        onChange?: (selected: Category[], option: Category) => void;
+        onChange?: (selected: Category[] | Theme[], option: Category | Theme) => void;
         error?: string;
     } = $props();
 
-    function isSelected(option: Category): boolean {
+    function isSelected(option: Category | Theme): boolean {
         return selectedIds.includes(option.id!);
     }
 
-    function handleClick(option: Category): void {
+    function handleClick(option: Category | Theme): void {
         if (isSelected(option)) {
             selectedIds = selectedIds.filter((id) => id !== option.id);
         } else {
@@ -35,7 +35,7 @@
         onChange?.(selected, option);
     }
 
-    function calcTagType(option: Category) {
+    function calcTagType(option: Category | Theme) {
         if (max === selectedIds.length) {
             return isSelected(option) ? "active" : "ghost";
         }
@@ -43,7 +43,7 @@
         return isSelected(option) ? "active" : "default";
     }
 
-    function calcTagDisabled(option: Category) {
+    function calcTagDisabled(option: Category | Theme) {
         if (max === selectedIds.length && !isSelected(option)) {
             return true;
         }
