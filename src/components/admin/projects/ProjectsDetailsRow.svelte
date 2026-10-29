@@ -2,9 +2,9 @@
     import Comments from "../../../components/icons/Comments.svelte";
     import { t, locale } from "../../../i18n/store";
     import { formatDate } from "../../../utils/dates";
-    import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
-    import ProjectPreviewModal from "../../project/edit/ProjectPreviewModal.svelte";
     import { extractId } from "../../../utils/extractId";
+    import ProjectPreviewModal from "../../project/edit/ProjectPreviewModal.svelte";
+    import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
     import type { ProjectRow } from "./ProjectsTable.svelte";
 
