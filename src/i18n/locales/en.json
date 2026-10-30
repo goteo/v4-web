@@ -388,6 +388,7 @@
       "search": "Search",
       "createProject": "Create your project",
       "goToProfile": "Go to Profile",
+      "menu": "Menu",
       "admin": "Admin"
     },
     "footer": {
@@ -476,6 +477,15 @@
       }
     },
     "_": "Page-specific content (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Create your account",
+      "description": "Sign up for Goteo to support projects and create your own.",
+      "existUserInfo": "If you are already a Goteo user, log in with your account.",
+      "submit": "Create account",
+      "organization": {
+        "taxIdHelper": "Company tax ID"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -498,6 +508,27 @@
         }
       },
       "changeAddressLabel": "Send this reward to an address different from mine.",
+      "shipping": {
+        "title": "Where should we send your rewards?",
+        "description": "Some of your rewards are sent by mail. Tell us which address to send each one to.",
+        "noAddress": "You don't have any saved addresses yet.",
+        "missing": "Add a shipping address to continue.",
+        "addAddress": "Add address",
+        "error": "The address could not be saved.",
+        "modal": {
+          "title": "Shipping address",
+          "newAddress": "New address"
+        },
+        "fields": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "line1": "Address",
+          "line2": "Apartment, unit, etc. (optional)",
+          "city": "City",
+          "postCode": "Postal code",
+          "country": "Country"
+        }
+      },
       "title": "Checkout",
       "summary": {
         "toRecipient": "{{ amount }} to {{ name }}",
@@ -518,6 +549,9 @@
         },
         "data": {
           "title": "Your details"
+        },
+        "shipping": {
+          "title": "Shipping"
         },
         "payment": {
           "title": "Payment method"
@@ -905,6 +939,8 @@
               "descriptionHelper": "The description can contain rich text, but it will be truncated on small cards",
               "moneyLabel": "Price",
               "moneyHelper": "Enter the minimum donation required to claim this reward",
+              "shippingLabel": "This reward is sent by mail",
+              "shippingHelper": "We'll ask for a shipping address from whoever selects it.",
               "coverLabel": "Cover",
               "coverPlaceholder": "Click or drag your file here to upload",
               "coverHelper": "This file will be the cover for your reward"
@@ -1069,6 +1105,10 @@
           "title": "Which category fits your project?",
           "subtitle": "(You can choose a maximum of 2)"
         },
+        "themes": {
+          "title": "Which theme fits your project?",
+          "subtitle": "(Optional, you can choose one)"
+        },
         "address": {
           "title": "What is the project address?",
           "subtitle": "Search for and select the project's full address. This helps us locate your initiative.",
@@ -1089,7 +1129,9 @@
           "titleBadFormat": "The title must contain at least one letter.",
           "categoriesNotEnough": "You must select at least {{ min }} category(ies).",
           "territoryMissing": "You must specify a location.",
-          "releaseMissing": "You must specify an approximate launch date"
+          "releaseMissing": "You must specify an approximate launch date",
+          "titleInUse": "A project with this title already exists.",
+          "subtitleMissing": "You must add a brief project description."
         }
       },
       "view": {
@@ -1109,6 +1151,7 @@
             "optimal": "Optimum",
             "raised": "Raised",
             "total": "Total",
+            "empty": "This campaign has no budget items.",
             "chartTitle": "This is the budget for this campaign. Discover how your support can lead us to success.",
             "chart": {
               "secondRound": "2nd Round",
@@ -1550,7 +1593,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "Featured Projects",
-          "featuredUsers": "Promoters"
+          "featuredUsers": "Promoters",
+          "banners": "Banners"
         },
         "hero": {
           "title": "Hero",
@@ -1936,12 +1980,12 @@
               "phone": "Phone",
               "remaining": "Pending payment",
               "btns": {
-                "changeStatus": "Change accounts",
-                "promoter": "Promoter",
                 "contributions": "Contributions",
-                "donors": "Campaign donors",
-                "financialReport": "Funding report",
-                "annotations": "Annotations"
+                "annotations": "Annotations",
+                "promoter": "Promoter",
+                "campaignPage": "View campaign page",
+                "preview": "Preview",
+                "edit": "Edit project"
               }
             },
             "noData": "No data available"
@@ -2074,7 +2118,6 @@
         "description": "Manage platform communication",
         "tabs": {
           "blog": "Blog",
-          "banners": "Announcements",
           "newsletter": "Newsletter"
         },
         "banners": {
@@ -2282,7 +2325,20 @@
         "subtitle": "Submit projects or fund initiatives. Complete your profile with a good introduction, relevant links, and a photo that identifies you.",
         "sidebar": {
           "publicProfile": "Public profile",
-          "personalProfile": "Personal profile"
+          "personalProfile": "Personal profile",
+          "addresses": "Addresses"
+        },
+        "addresses": {
+          "title": "Shipping addresses",
+          "subtitle": "Manage the addresses where we send your rewards.",
+          "empty": "You don't have any saved addresses yet.",
+          "add": "Add address",
+          "edit": "Edit address",
+          "default": "Default",
+          "makeDefault": "Make default",
+          "defaultError": "The default address could not be changed.",
+          "deleteTitle": "Delete this address?",
+          "deleteError": "You can't delete an address that has already been used in an order."
         },
         "profile": {
           "uploadImage": "Upload new image",

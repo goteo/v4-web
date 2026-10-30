@@ -40,11 +40,15 @@
         state = "loading";
         try {
             await action();
-        } finally {
-            state = "actioned";
-            if (autoreset !== undefined) {
-                setTimeout(() => (state = "actionable"), autoreset);
-            }
+        } catch (err) {
+            // A failed action can be retried, so it never reaches the actioned state
+            state = "actionable";
+            console.error(err);
+            return;
+        }
+        state = "actioned";
+        if (autoreset !== undefined) {
+            setTimeout(() => (state = "actionable"), autoreset);
         }
     }
 

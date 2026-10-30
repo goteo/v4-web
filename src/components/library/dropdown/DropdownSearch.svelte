@@ -15,6 +15,7 @@
     import Close from "../../icons/navigation/Close.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
+    import type { Snippet } from "svelte";
 
     interface Props {
         class?: ClassNameValue;
@@ -40,6 +41,8 @@
         debounceMs?: number;
         chips?: boolean;
         itemClass?: ClassNameValue;
+        /** Replaces the label of every list item, see `DropdownMenu`. */
+        row?: Snippet<[DropdownOption]>;
     }
 
     let {
@@ -59,6 +62,7 @@
         debounceMs = 300,
         chips = false,
         itemClass = undefined,
+        row = undefined,
     }: Props = $props();
 
     let options = $state<DropdownOption[]>([]);
@@ -159,6 +163,7 @@
     showEmpty={canSearch && !!value.trim()}
     {chips}
     {itemClass}
+    {row}
 >
     {#snippet trigger(listId)}
         <div

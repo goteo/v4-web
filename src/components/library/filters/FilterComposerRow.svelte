@@ -1,8 +1,10 @@
 <script lang="ts">
     import { t } from "../../../i18n/store";
     import { DEFAULT_CURRENCY } from "../../../utils/currencies";
+    import { isUserResult } from "../../../utils/resourceSearch";
     import Close from "../../icons/navigation/Close.svelte";
     import DropdownMenu from "../dropdown/DropdownMenu.svelte";
+    import UserResultRow from "../dropdown/UserResultRow.svelte";
     import CurrencyInput from "../inputs/CurrencyInput.svelte";
     import DateInput from "../inputs/DateInput.svelte";
     import ResourceSearch from "../inputs/ResourceSearch.svelte";
@@ -10,6 +12,7 @@
     import TextInput from "../inputs/TextInput.svelte";
     import AccountingOwnerBadge from "../tags/AccountingOwnerBadge.svelte";
 
+    import type { User } from "../../../openapi/client";
     import type { FilterSubject, FilterOperator } from "../../../utils/filterComposer";
     import type { SearchResultItem } from "../../../utils/resourceSearch";
     import type { DropdownOption } from "../dropdown/dropdown.types";
@@ -81,6 +84,10 @@
     <AccountingOwnerBadge accountingIri={item.value} class="text-xs" />
 {/snippet}
 
+{#snippet suggestRow(item: SearchResultItem)}
+    <UserResultRow user={item.raw as User} />
+{/snippet}
+
 <div class="flex items-center gap-3">
     <div class="flex-1">
         <Select bind:value={subjectKey} labelText={$t("domain.filterComposer.subjectPlaceholder")}>
@@ -140,6 +147,8 @@
                 highlight={false}
                 onChange={handleSuggestChange}
                 chip={currentSubject.display === "accountingOwner" ? accountingChip : undefined}
+                row={suggestRow}
+                useRow={isUserResult}
             />
         {:else if currentSubject?.type === "date"}
             <DateInput

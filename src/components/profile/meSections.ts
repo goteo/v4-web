@@ -10,6 +10,7 @@ export const PROFILE_PATHS = {
     root: "/me/manage",
     profile: "/me/manage/profile",
     preferences: "/me/manage/preferences",
+    addresses: "/me/manage/addresses",
 } as const;
 
 export interface MeLink {
@@ -51,6 +52,10 @@ export const ME_SECTIONS: MeSection[] = [
             {
                 labelKey: "pages.me.manage.preferences.nav.preferences",
                 href: PROFILE_PATHS.preferences,
+            },
+            {
+                labelKey: "pages.me.manage.sidebar.addresses",
+                href: PROFILE_PATHS.addresses,
             },
         ],
     },

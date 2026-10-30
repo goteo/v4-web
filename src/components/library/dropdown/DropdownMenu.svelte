@@ -35,13 +35,16 @@
         chip?: Snippet<[DropdownOption]>;
         /** Replaces the default chevron button. Receives the list id for `aria-controls`. */
         trigger?: Snippet<[string]>;
-        /** Replaces the default `DropdownItem` row. Receives the item and the change handler. */
-        item?: Snippet<[RenderedItem, (option: DropdownOption) => void]>;
         /**
          * Extra classes for every list item, e.g. to change the text alignment.
          * Applied to the <button>/<label> element that holds the option label.
          */
         itemClass?: ClassNameValue;
+        /**
+         * Replaces the label of every list item with a richer row, e.g. to
+         * render a user with its avatar. Return `null` to fall back.
+         */
+        row?: Snippet<[DropdownOption]>;
     }
 
     let {
@@ -59,8 +62,8 @@
         chips = false,
         chip = undefined,
         trigger = undefined,
-        item = undefined,
         itemClass = undefined,
+        row = undefined,
     }: Props = $props();
 
     const listId = $props.id();
@@ -184,21 +187,18 @@
                 role="listbox"
                 class="absolute top-full left-0 z-100 mt-2 w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
             >
-                {#each renderedItems as renderedItem}
-                    {#if item}
-                        {@render item(renderedItem, handleItemChange)}
-                    {:else}
-                        <DropdownItem
-                            {variant}
-                            option={renderedItem}
-                            onChange={handleItemChange}
-                            class={twJoin(
-                                renderedItem.position === "start" && "rounded-t-lg",
-                                renderedItem.position === "end" && "rounded-b-lg",
-                                itemClass,
-                            )}
-                        />
-                    {/if}
+                {#each renderedItems as item}
+                    <DropdownItem
+                        {variant}
+                        option={item}
+                        onChange={handleItemChange}
+                        {row}
+                        class={twJoin(
+                            item.position === "start" && "rounded-t-lg",
+                            item.position === "end" && "rounded-b-lg",
+                            itemClass,
+                        )}
+                    />
                 {/each}
             </div>
         {:else if showEmpty}

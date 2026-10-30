@@ -13,6 +13,7 @@
 
     import { t } from "../../i18n/store";
     import { formatCurrency } from "../../utils/currencies";
+    import Card from "../library/cards/Card.svelte";
 
     import type {
         Accounting,
@@ -258,6 +259,6 @@
     });
 </script>
 
-<div class="relative h-full w-full overflow-hidden rounded-3xl border border-gray-100 bg-white">
+<Card class="relative h-full w-full overflow-hidden rounded-3xl border-gray-100 p-0 shadow-none">
     <canvas bind:this={canvas} class="h-full w-full"></canvas>
-</div>
+</Card>
