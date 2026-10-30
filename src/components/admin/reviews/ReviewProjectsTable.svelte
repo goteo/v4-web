@@ -49,12 +49,23 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
-    import { RISK_SQUARE_CLASSES } from "../../../utils/review";
+    import {
+        CAMPAIGN_REVIEW_STATUSES,
+        REVIEW_STATUSES_BY_TYPE,
+    } from "../../../utils/projectStatus";
+    import {
+        CAMPAIGN_REVIEW_DECISIONS,
+        CAMPAIGN_REVIEW_DECISION_STATUSES,
+        CAMPAIGN_REVIEW_STATE_LABELS,
+        RISK_SQUARE_CLASSES,
+        campaignReviewDecision,
+        campaignReviewState,
+    } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import DataTable from "../../library/tables/DataTable.svelte";
+    import ReviewStateTag from "../../review/ReviewStateTag.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
     import {
         PROJECT_ITEMS_PER_PAGE_LABEL,
@@ -74,8 +85,10 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: ProjectStatus) => void;
+        onStatusChange?: (project: ReviewProjectRow, status: ProjectStatus) => void;
         onAssignAdvisor?: (project: ReviewProjectRow) => void;
+        /** Message shown when there are no rows, as an i18n key. */
+        emptyMessage?: string;
     }
 
     let {
@@ -90,6 +103,7 @@
         onSortChange,
         onStatusChange,
         onAssignAdvisor,
+        emptyMessage = "pages.admin.projects.table.rows.noData",
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
@@ -105,6 +119,36 @@
     function statusOptions(project: ReviewProjectRow): ProjectStatus[] {
         const base = REVIEW_STATUSES_BY_TYPE[project.reviewType ?? "campaign"];
         return project.status && !base.includes(project.status) ? [project.status, ...base] : base;
+    }
+
+    /** The three outcomes a consultant decides a campaign review with. */
+    let decisionOptions = $derived(
+        CAMPAIGN_REVIEW_DECISIONS.map((decision) => ({
+            value: CAMPAIGN_REVIEW_DECISION_STATUSES[decision],
+            label: $t(CAMPAIGN_REVIEW_STATE_LABELS[decision]),
+        })),
+    );
+
+    function canDecide(project: ReviewProjectRow): boolean {
+        return !!project.status && CAMPAIGN_REVIEW_STATUSES.includes(project.status);
+    }
+
+    function currentStateLabel(status?: string): string {
+        const state = campaignReviewState(status);
+        return state ? $t(CAMPAIGN_REVIEW_STATE_LABELS[state]) : status ? statusLabel(status) : "—";
+    }
+
+    /**
+     * Sends the chosen decision up and leaves the select in the status the project
+     * really holds: the change needs a confirmation, so the control only shows the
+     * decision once it has been saved and the table is loaded again.
+     */
+    function handleDecisionChange(event: Event, project: ReviewProjectRow): void {
+        const select = event.currentTarget as HTMLSelectElement;
+        const status = select.value as ProjectStatus;
+
+        select.value = project.status ?? "";
+        onStatusChange?.(project, status);
     }
 
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
@@ -134,7 +178,7 @@
     {headers}
     rows={projects}
     {isLoading}
-    emptyMessage="pages.admin.projects.table.rows.noData"
+    {emptyMessage}
     {currentPage}
     {totalItems}
     {itemsPerPage}
@@ -165,22 +209,46 @@
             {date(project.dateUpdated)}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
-            <div onclick={(e) => e.stopPropagation()} role="presentation">
-                <select
-                    class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
-                    value={project.status ?? ""}
-                    disabled={!project.status}
-                    aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
-                    onchange={(e) =>
-                        onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
-                >
-                    {#if !project.status}
-                        <option value="">—</option>
-                    {/if}
-                    {#each statusOptions(project) as status (status)}
-                        <option value={status}>{statusLabel(status)}</option>
-                    {/each}
-                </select>
+            <div
+                class="flex flex-col gap-2"
+                onclick={(e) => e.stopPropagation()}
+                role="presentation"
+            >
+                <ReviewStateTag status={project.status} />
+                {#if project.reviewType === "financial"}
+                    <select
+                        class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
+                        value={project.status ?? ""}
+                        disabled={!project.status}
+                        aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
+                        onchange={(e) =>
+                            onStatusChange?.(project, e.currentTarget.value as ProjectStatus)}
+                    >
+                        {#if !project.status}
+                            <option value="">—</option>
+                        {/if}
+                        {#each statusOptions(project) as status (status)}
+                            <option value={status}>{statusLabel(status)}</option>
+                        {/each}
+                    </select>
+                {:else}
+                    <select
+                        class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
+                        value={project.status ?? ""}
+                        disabled={!canDecide(project)}
+                        aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
+                        onchange={(e) => handleDecisionChange(e, project)}
+                    >
+                        {#if !campaignReviewDecision(project.status)}
+                            <option value={project.status ?? ""} disabled>
+                                {currentStateLabel(project.status)}
+                            </option>
+                        {/if}
+                        {#each decisionOptions as option (option.value)}
+                            <option value={option.value}>{option.label}</option>
+                        {/each}
+                    </select>
+                {/if}
             </div>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
