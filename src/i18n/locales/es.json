@@ -121,6 +121,7 @@
         "reviewType": "Tipo de revisión",
         "project": "Proyecto",
         "reviewer": "Asesor",
+        "reviewState": "Estado de revisión",
         "userTerritoryCountry": "Ubicación"
       },
       "operator": {
@@ -269,6 +270,13 @@
         "low": "Riesgo bajo",
         "mid": "Riesgo medio",
         "high": "Riesgo alto"
+      },
+      "state": {
+        "pending": "Pendiente de revisión",
+        "changesRequested": "Necesita cambios",
+        "changesDone": "Cambios realizados",
+        "rejected": "Rechazado",
+        "approved": "Aprobado para campaña"
       }
     },
     "tipping": {
@@ -1336,7 +1344,8 @@
         "label": "Proyecto"
       },
       "status": {
-        "label": "Estado de la revisión"
+        "label": "Estado de la revisión",
+        "updated": "El estado de la revisión se ha actualizado."
       },
       "areas": {
         "title": "Áreas de riesgo",
@@ -1346,6 +1355,8 @@
         "seeChat": "Ver detalle",
         "changeRisk": "Cambiar riesgo",
         "changeStatus": "Cambiar estado",
+        "decide": "Decidir la revisión",
+        "changesDone": "He realizado los cambios",
         "back": "Volver a la revisión"
       },
       "card": {
@@ -2179,6 +2190,22 @@
           "list": "Listado de proyectos:",
           "totalizers": {
             "selected": "Proyectos seleccionados:"
+          },
+          "decisions": {
+            "title": "Confirmar decisión",
+            "description": "«{{ project }}» pasará a «{{ state }}». ¿Quieres aplicarlo?",
+            "confirm": "Aplicar"
+          },
+          "toasts": {
+            "statusUpdated": "El estado de «{{ project }}» se ha actualizado.",
+            "statusNotUpdated": "No se ha podido actualizar el estado de «{{ project }}».",
+            "advisorAssigned": "«{{ advisor }}» es ahora asesor de «{{ project }}».",
+            "advisorNotAssigned": "No se ha podido asignar el asesor de «{{ project }}»."
+          },
+          "filter": {
+            "tooMany": "Demasiados proyectos en este estado para filtrar la tabla. Acota el filtro con fechas.",
+            "tooManyProjects": "Hay {{ count }} proyectos en este estado y el filtro admite hasta {{ max }}. Acota el filtro con fechas o usa el listado de proyectos.",
+            "failed": "No se ha podido aplicar el filtro de estado. Vuelve a intentarlo."
           },
           "table": {
             "headers": {
