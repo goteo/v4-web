@@ -1,6 +1,7 @@
 <script lang="ts">
     import ProjectsModalAnnotations from "./ProjectsModalAnnotations.svelte";
-    import ProjectsModalPaid from "./ProjectsModalPaid.svelte";
+    // Paid modal hidden until the API persists the paid amount.
+    // import ProjectsModalPaid from "./ProjectsModalPaid.svelte";
     import ProjectsTable, { type ProjectRow, type ProjectSortKey } from "./ProjectsTable.svelte";
     import { t } from "../../../i18n/store";
     import {
@@ -9,7 +10,6 @@
         apiAccountingsIdGet,
         apiUsersIdOrHandleGet,
         apiProjectSupportsmoneyTotalGetCollection,
-        apiProjectsIdOrSlugGetUrl,
         apiProjectsGetCollectionUrl,
         type Project,
         type Accounting,
@@ -24,9 +24,14 @@
         splitOrderParams,
         syncQueryFiltersToUrl,
     } from "../../../utils/queryParams";
+    import Toast from "../../library/feedback/Toast.svelte";
     import Dashboard from "../AdminDashboard.svelte";
 
-    import type { ApiProjectsGetCollectionData } from "../../../openapi/client/types.gen";
+    import type {
+        ApiProjectSupportsmoneyTotalGetCollectionData,
+        ApiProjectsGetCollectionData,
+    } from "../../../openapi/client/types.gen";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
 
     type ProjectsQuery = Partial<ApiProjectsGetCollectionData["query"]>;
 
@@ -72,12 +77,14 @@
     });
 
     let annotationsCache = $state(new Map<number, string>());
-    let paidModalOpen = $state(false);
+    // let paidModalOpen = $state(false);
     let annotationsModalOpen = $state(false);
-    let paidValue = $state("");
-    let maxAchievedValue = $state("");
+    // let paidValue = $state("");
+    // let maxAchievedValue = $state("");
     let annotationText = $state("");
     let selectedProjectId = $state(0);
+    let showError = $state(false);
+    let errorMessage = $state("");
 
     let projectSlides = $derived([
         { title: $t("pages.admin.projects.totalizers.selected"), amount: table.totalItems },
@@ -85,37 +92,24 @@
     ]);
 
     /**
-     * Fetches the total money earned for a given list of project IDs.
-     * @param ids - Array of project IDs
+     * Totals the money earned by every project matching the table filters (not only the
+     * current page): `money_total` takes the same filters as the projects collection under `project.`.
      */
-    async function fetchTotalEarned(ids: number[]) {
-        if (ids.length === 0) {
-            totalEarned = formatCurrency(0, import.meta.env.PUBLIC_DEFAULT_CURRENCY);
+    async function fetchTotalEarned(projectFilters: ProjectsQuery) {
+        const query = Object.fromEntries(
+            Object.entries(projectFilters ?? {}).map(([key, value]) => [`project.${key}`, value]),
+        ) as ApiProjectSupportsmoneyTotalGetCollectionData["query"];
+
+        const { data, error } = await apiProjectSupportsmoneyTotalGetCollection({
+            baseUrl: "/api/relay",
+            query,
+        });
+        if (error || !data) {
+            console.error("Failed to fetch money total:", error);
+            totalEarned = "—";
             return;
         }
-        try {
-            const { data, error } = await apiProjectSupportsmoneyTotalGetCollection({
-                baseUrl: "/api/relay",
-                query: {
-                    "project[]": ids.map((id) =>
-                        apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(id)),
-                    ),
-                },
-            });
-
-            if (error) {
-                console.error("Failed to fetch money total:", error);
-                return;
-            }
-
-            if (data) {
-                const total = data.amount ?? 0;
-                const currency = data.currency ?? import.meta.env.PUBLIC_DEFAULT_CURRENCY;
-                totalEarned = formatCurrency(total, currency);
-            }
-        } catch (e) {
-            console.error("Failed to fetch money total", e);
-        }
+        totalEarned = formatCurrency(data.amount ?? 0, data.currency);
     }
 
     function buildProjectsQuery(
@@ -186,8 +180,6 @@
             const loadedProjects = toCollectionItems<Project>(collection);
             table.totalItems = getCollectionTotalItems(collection, response);
 
-            const projectIds = loadedProjects.map((p) => p.id).filter(Boolean) as number[];
-
             const uniqueAccountingIris = [
                 ...new Set(loadedProjects.map((p) => p.accounting).filter(Boolean)),
             ] as string[];
@@ -223,7 +215,6 @@
                         return data ? ([iri, data] as const) : null;
                     }),
                 ),
-                fetchTotalEarned(projectIds),
             ]);
 
             for (const [iri, accounting] of accountingResults.filter(Boolean) as [
@@ -243,20 +234,26 @@
                 const owner = project.owner ? ownersCache.get(project.owner) : undefined;
                 const balance = accounting?.balance;
                 const calendar = project.calendar;
+                const min = project.budget?.minimum?.money;
+                const opt = project.budget?.optimum?.money;
 
                 return {
                     id: project.id ?? 0,
                     name: project.title,
-                    slug: project.slug ?? "",
+                    slug: project.slug ?? String(project.id),
                     promoter: owner?.displayName ?? owner?.email ?? "—",
+                    promoterHandle: owner?.handle ?? "",
                     achieved: balance ? formatCurrency(balance.amount, balance.currency) : "—",
                     paid: "—",
                     paidMatchfunding: "—",
-                    status: project.status ?? "",
+                    status: project.status ?? "in_draft",
                     datePublished: calendar?.release ?? "—",
                     dateEnd1: calendar?.minimum ?? "—",
                     dateEnd2: calendar?.optimum ?? "—",
-                    minOptim: "—",
+                    minOptim:
+                        min && opt
+                            ? `${formatCurrency(min.amount, min.currency)} - ${formatCurrency(opt.amount, opt.currency)}`
+                            : "—",
                     remaining: "—",
                     annotationsCount: 0,
                     annotations: "",
@@ -281,6 +278,10 @@
     });
 
     $effect(() => {
+        fetchTotalEarned(filters);
+    });
+
+    $effect(() => {
         const sortOption = sortFieldMap[table.selectedSort];
 
         syncQueryFiltersToUrl(
@@ -299,22 +300,32 @@
         table.currentPage = 1;
     }
 
-    async function handleStatusChange(projectId: number, status: string): Promise<void> {
+    /** The API rejects transitions that break the project life-cycle; those surface as a toast. */
+    async function handleStatusChange(projectId: number, status: ProjectStatus): Promise<boolean> {
         const { error } = await apiProjectsIdPatch({
             baseUrl: "/api/relay",
             path: { id: String(projectId) },
-            body: { status: status as any },
+            body: { status },
         });
-        if (error) console.error("Failed to update project status:", error);
+        if (error) {
+            const detail = (error as { detail?: string | null }).detail;
+            errorMessage = `${$t("pages.admin.projects.table.rows.details.statusChangeError")}${detail ? `: ${detail}` : ""}`;
+            showError = true;
+            return false;
+        }
+        const row = projectRows.find((p) => p.id === projectId);
+        if (row) row.status = status;
+        return true;
     }
 
-    function openPaidModal(project: ProjectRow, e: MouseEvent) {
-        e.stopPropagation();
-        selectedProjectId = project.id;
-        paidValue = project.paid !== "—" ? project.paid : "";
-        maxAchievedValue = project.achieved !== "—" ? project.achieved : "";
-        paidModalOpen = true;
-    }
+    // Re-enable with `onOpenPaidModal={openPaidModal}` on <ProjectsTable> and the modal below.
+    // function openPaidModal(project: ProjectRow, e: MouseEvent) {
+    //     e.stopPropagation();
+    //     selectedProjectId = project.id;
+    //     paidValue = project.paid !== "—" ? project.paid : "";
+    //     maxAchievedValue = project.achieved !== "—" ? project.achieved : "";
+    //     paidModalOpen = true;
+    // }
 
     function openAnnotationsModal(project: ProjectRow, e: MouseEvent) {
         e.stopPropagation();
@@ -323,10 +334,10 @@
         annotationsModalOpen = true;
     }
 
-    function handleSavePaid() {
-        reloadProjects();
-        paidModalOpen = false;
-    }
+    // function handleSavePaid() {
+    //     reloadProjects();
+    //     paidModalOpen = false;
+    // }
 
     function handleSaveAnnotations() {
         annotationsCache = new Map(annotationsCache).set(selectedProjectId, annotationText);
@@ -381,17 +392,19 @@
         onItemsPerPageChange={table.handleItemsPerPageChange}
         onSortChange={table.handleSortChange}
         onStatusChange={handleStatusChange}
-        onOpenPaidModal={openPaidModal}
         onOpenAnnotationsModal={openAnnotationsModal}
     />
 </Dashboard>
 
+<!-- Paid modal hidden until the API persists the paid amount.
 <ProjectsModalPaid
     bind:open={paidModalOpen}
     bind:paidValue
     maxAchieved={maxAchievedValue}
     onsave={handleSavePaid}
 />
+-->
+<Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 <ProjectsModalAnnotations
     bind:open={annotationsModalOpen}
     bind:annotationText

@@ -1,9 +1,8 @@
 <script lang="ts" module>
-    import type { Project, ProjectReview } from "../../../openapi/client/index.ts";
+    import type { ProjectReview } from "../../../openapi/client/index.ts";
     import type { ProjectReviewRisk } from "../../../types/projectReview";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
-
-    export type ProjectStatus = NonNullable<Project["status"]>;
 
     export type ReviewProjectRow = {
         id: number;
@@ -50,7 +49,7 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
+    import { REVIEW_STATUSES_BY_TYPE, projectStatusLabelKey } from "../../../utils/projectStatus";
     import { RISK_SQUARE_CLASSES } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
@@ -105,9 +104,6 @@
             updatingStatus.delete(projectId);
         }
     }
-
-    const statusLabel = (status: string) =>
-        $t(`domain.project.status.${status.replaceAll(".", "_")}`);
 
     /**
      * Statuses a project can move to for the kind of review it is going through.
@@ -190,7 +186,7 @@
                         <option value="">—</option>
                     {/if}
                     {#each statusOptions(project) as status (status)}
-                        <option value={status}>{statusLabel(status)}</option>
+                        <option value={status}>{$t(projectStatusLabelKey(status))}</option>
                     {/each}
                 </select>
             </div>
