@@ -42,10 +42,15 @@
 
         if (!latest) return undefined;
 
-        return $t("pages.review.card.activity", {
-            count: area.comments.length,
-            date: formatDate(latest, $locale),
-        });
+        const count = area.comments.length;
+
+        return $t(
+            count === 1 ? "pages.review.card.activitySingular" : "pages.review.card.activity",
+            {
+                count,
+                date: formatDate(latest, $locale),
+            },
+        );
     });
 </script>
 
@@ -70,14 +75,20 @@
             {area.summary}
         </p>
     </div>
-    <div class="flex items-end gap-4">
-        <Button class="flex-1" kind="ghost" href="/{localePrefix}/reviews/{reviewId}/{area.id}">
+    <div class="mt-auto flex flex-wrap items-end gap-4">
+        <Button
+            class="flex-1 whitespace-nowrap"
+            size="sm"
+            kind="ghost"
+            href="/{localePrefix}/reviews/{reviewId}/{area.id}"
+        >
             {$t("pages.review.btns.seeChat")}
         </Button>
         {#if canEditRisk}
             <Button
                 kind="secondary"
-                class="flex-1"
+                size="sm"
+                class="flex-1 whitespace-nowrap"
                 disabled={savingRisk}
                 onclick={() => (isRiskModalOpen = true)}
             >

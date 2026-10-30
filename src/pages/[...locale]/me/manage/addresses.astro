@@ -1,0 +1,39 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import ManageAddresses from "../../../../components/profile/manage/ManageAddresses.svelte";
+import { PROFILE_NAV_ITEMS, PROFILE_PATHS } from "../../../../components/profile/meSections";
+import { apiAddressesGetCollection } from "../../../../openapi/client";
+import { client } from "../../../../openapi/client/client.gen";
+import { apiUsersIdOrHandleGetUrl } from "../../../../openapi/client/operation-paths.gen";
+import { toCollectionItems } from "../../../../utils/hydra";
+import { goto } from "../../../../utils/navigation";
+
+import type { Address } from "../../../../openapi/client";
+
+const { lang, t, session } = Astro.locals;
+
+if (!session) {
+    return goto("/login", { query: { callback: PROFILE_PATHS.addresses } });
+}
+
+const userIri = client.buildUrl({
+    url: apiUsersIdOrHandleGetUrl,
+    path: { idOrHandle: String(session.user.id) },
+});
+
+const { data } = await apiAddressesGetCollection({
+    query: { user: userIri, itemsPerPage: 100 },
+    headers: session.token.asHttpHeaders,
+});
+const addresses = toCollectionItems<Address>(data);
+---
+
+<Layout title={t("pages.me.manage.addresses.title")}>
+    <App client:load locale={lang} session={session} me>
+        <WithSidebar client:idle navItems={PROFILE_NAV_ITEMS} activePath={PROFILE_PATHS.addresses}>
+            <ManageAddresses client:load {addresses} {userIri} />
+        </WithSidebar>
+    </App>
+</Layout>

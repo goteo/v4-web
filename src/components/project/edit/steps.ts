@@ -37,3 +37,14 @@ export function getStepComponent(id: string): Component<any> {
 
     return step.component;
 }
+
+/**
+ * Returns the id of the step following `id`, or `undefined` when `id` is the
+ * last registered step. Only steps with an implemented component are
+ * considered, so navigation never lands on an empty step.
+ */
+export function getNextStepId(id: string): string | undefined {
+    const index = steps.findIndex((step) => step.id === id);
+
+    return index === -1 ? undefined : steps[index + 1]?.id;
+}

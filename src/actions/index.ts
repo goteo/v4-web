@@ -1,5 +1,6 @@
-import { createBanner, deleteBanner } from "./banners";
+import { deleteBanner, saveBanner } from "./banners";
 import { saveBlogPost, setBlogPostPublished } from "./blog";
+import { saveFeaturedUsers } from "./featuredUsers";
 import { createHomeHero, deleteHomeHero, getHomeHeroData, updateHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
@@ -15,7 +16,7 @@ import { register } from "./register";
 export const server = {
     register,
     payment,
-    createBanner,
+    saveBanner,
     deleteBanner,
     saveBlogPost,
     setBlogPostPublished,
@@ -25,6 +26,7 @@ export const server = {
     updateHomeHero,
     saveHighlights,
     deleteHighlights,
+    saveFeaturedUsers,
     updatePublicProfile,
     updatePersonalProfile,
     updateReviewAreaRisk,

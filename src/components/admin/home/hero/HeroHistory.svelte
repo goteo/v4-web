@@ -3,14 +3,14 @@
     import { Modal, TableBodyCell } from "flowbite-svelte";
     import { tick } from "svelte";
 
+    import HeroForm from "./HeroForm.svelte";
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { formatDate } from "../../../../utils/dates";
     import { getLanguageDisplayName } from "../../../../utils/lang";
-    import HeroForm from "./HeroForm.svelte";
-    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import Edit from "../../../icons/actions/Edit.svelte";
-    import Close from "../../../icons/navigation/Close.svelte";
     import Eye from "../../../icons/media/Eye.svelte";
+    import Close from "../../../icons/navigation/Close.svelte";
     import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
     import Search from "../../../library/inputs/Search.svelte";
     import ToggleSwitch from "../../../library/inputs/ToggleSwitch.svelte";

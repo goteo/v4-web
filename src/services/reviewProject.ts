@@ -1,15 +1,10 @@
-import {
-    getReviewProjectPlaceholder,
-    getReviewPromoterPlaceholder,
-    getReviewReviewerPlaceholder,
-} from "./projectReview";
 import { apiProjectsIdOrSlugGet, apiUsersIdOrHandleGet } from "../openapi/client";
 import { extractId } from "../utils/extractId";
 
 import type { Session } from "../auth/types";
 import type { Locale } from "../i18n/locales";
 import type { Project } from "../openapi/client";
-import type { ProjectReview, ReviewAuthor } from "../types/projectReview";
+import type { ProjectReview } from "../types/projectReview";
 
 /**
  * One of the two people a review is about, as the review headers name them.
@@ -36,34 +31,21 @@ export interface ReviewedProject {
 
 /**
  * Resolves the project a review is about, together with the two people naming it.
- *
- * The API is the source of truth. The placeholder from the mocks only fills the gap
- * for a review whose project has no record in the API yet, so the screens stay
- * reachable while that data is still being built; both go away with the mocks.
  * @param review The review being read
  * @param session The current session, needed to read a project only its owner or an admin may see
  * @param lang Active locale, sent so the API answers with translated content
- * @returns The project and its people, or undefined when neither the API nor the placeholders know it
+ * @returns The project and its people, as far as the API knows them
  */
 export async function getReviewedProject(
     review: ProjectReview,
     session: Session,
     lang: Locale,
-): Promise<ReviewedProject | undefined> {
+): Promise<ReviewedProject> {
+    const reviewer = await getPerson(review.reviewer, session, lang);
     const projectId = extractId(review.project);
-    const placeholder = getReviewProjectPlaceholder(review);
-    const promoterFallback = getReviewPromoterPlaceholder(review);
-    const reviewerFallback = getReviewReviewerPlaceholder(review);
-
-    const reviewer = await getPerson(review.reviewer, reviewerFallback, session, lang);
 
     if (!projectId) {
-        return {
-            title: placeholder?.title ?? "",
-            promoter: toPerson(promoterFallback),
-            reviewer,
-            status: placeholder?.status,
-        };
+        return { title: "", reviewer };
     }
 
     const { data, error } = await apiProjectsIdOrSlugGet({
@@ -71,43 +53,33 @@ export async function getReviewedProject(
         headers: { ...session.token.asHttpHeaders, "Accept-Language": lang },
     });
 
-    // A missing project is not fatal for a review: the review is the resource on
-    // screen, and the placeholders may still know which project it belongs to.
-    if (!data && error && error.status !== 404) {
-        console.error({ review: review.id, error });
+    if (!data) {
+        // The review is the resource on screen: a project the API cannot answer
+        // for is reported, but it does not take the review down with it.
+        if (error && error.status !== 404) {
+            console.error({ review: review.id, error });
+        }
+
+        return { title: "", reviewer };
     }
 
-    const promoter = data?.owner
-        ? await getPerson(data.owner, promoterFallback, session, lang)
-        : toPerson(promoterFallback);
+    const promoter = data.owner ? await getPerson(data.owner, session, lang) : undefined;
 
-    if (data) {
-        return { title: data.title ?? "", promoter, reviewer, status: data.status };
-    }
-
-    return {
-        title: placeholder?.title ?? "",
-        promoter,
-        reviewer,
-        status: placeholder?.status,
-    };
+    return { title: data.title ?? "", promoter, reviewer, status: data.status };
 }
 
 /**
  * Resolves a User IRI into the profile the headers need.
- *
- * Falls back to the placeholders so a review backed by mocks still names both
- * people instead of rendering a title with a hole in it.
+ * @returns The profile, or undefined when the API does not know the User
  */
 async function getPerson(
     iri: string,
-    fallback: ReviewAuthor | undefined,
     session: Session,
     lang: Locale,
 ): Promise<ReviewPerson | undefined> {
     const id = extractId(iri);
 
-    if (!id) return toPerson(fallback);
+    if (!id) return undefined;
 
     const { data, error } = await apiUsersIdOrHandleGet({
         path: { idOrHandle: id },
@@ -118,11 +90,7 @@ async function getPerson(
         console.error({ user: id, error });
     }
 
-    if (!data) return toPerson(fallback);
+    if (!data) return undefined;
 
     return { name: data.displayName ?? data.handle, handle: data.handle, avatar: data.avatar };
-}
-
-function toPerson(author?: ReviewAuthor): ReviewPerson | undefined {
-    return author ? { name: author.displayName, handle: author.handle } : undefined;
 }

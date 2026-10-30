@@ -10,6 +10,7 @@
     import { zCreateRewardForm, zUpdateRewardForm } from "../../../validation/rewardValidation";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
+    import Checkbox from "../../library/inputs/Checkbox.svelte";
     import CurrencyInput from "../../library/inputs/CurrencyInput.svelte";
     import FileUpload from "../../library/inputs/FileUpload.svelte";
     import RichTextEditor from "../../library/inputs/RichTextEditor.svelte";
@@ -33,12 +34,19 @@
         onDelete?: (reward: ProjectReward) => void;
     } = $props();
 
-    let isFinite = $derived(reward?.isFinite || false);
-    let unitsTotal = $derived(reward?.unitsTotal || 0);
+    /**
+     * Reward being edited in the form. `unitsTotal` is normalized to a number so
+     * it can be two-way bound to `RewardItemsSelector`.
+     */
+    type RewardForm = Omit<ProjectReward, "unitsTotal"> & { unitsTotal: number };
 
-    let data: ProjectReward = $derived.by(() => {
+    /**
+     * Builds the initial form values from the edited Reward, or sensible
+     * defaults when creating a new one.
+     */
+    function initialData(): RewardForm {
         if (reward) {
-            return { ...reward, isFinite, unitsTotal };
+            return { ...reward, unitsTotal: reward.unitsTotal ?? 0 };
         }
 
         return {
@@ -50,10 +58,19 @@
             description: "",
             cover: undefined,
             money: { amount: 0, currency: DEFAULT_CURRENCY },
-            isFinite,
-            unitsTotal,
+            isFinite: false,
+            hasShipping: false,
+            unitsTotal: 0,
         };
-    });
+    }
+
+    /**
+     * Editable form state. It must be `$state` (not `$derived`): derived values
+     * are recomputed whenever their dependencies change, which would wipe the
+     * user's input — e.g. toggling the "is infinite" checkbox changes
+     * `isFinite`/`unitsTotal`.
+     */
+    let data = $state<RewardForm>(initialData());
 
     let validation: Partial<Record<keyof typeof data, string>> = $state({});
 
@@ -143,10 +160,13 @@
 <Modal
     bind:open
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    bodyClass="p-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex max-h-[90vh] w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="flex p-0"
 >
-    <form class="flex flex-col gap-8 rounded-3xl bg-white p-6 shadow-lg" onsubmit={handleSubmit}>
+    <form
+        class="flex min-h-0 flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
+        onsubmit={handleSubmit}
+    >
         <Title level={2} variant="subsection">
             {$t("pages.project.edit.rewards.modal.title")}
         </Title>
@@ -193,7 +213,16 @@
                     helperText={$t("pages.project.edit.rewards.modal.form.coverHelper")}
                     error={getValidationMessage("cover")}
                 />
-                <RewardItemsSelector bind:units={unitsTotal} bind:limited={isFinite} />
+                <RewardItemsSelector bind:units={data.unitsTotal} bind:limited={data.isFinite} />
+                <div class="flex flex-col gap-1">
+                    <Checkbox
+                        bind:checked={data.hasShipping}
+                        label={$t("pages.project.edit.rewards.modal.form.shippingLabel")}
+                    />
+                    <p class="text-content text-sm">
+                        {$t("pages.project.edit.rewards.modal.form.shippingHelper")}
+                    </p>
+                </div>
             </div>
         </div>
         <div class="flex items-center justify-end gap-4">

@@ -1,6 +1,6 @@
 <script lang="ts">
     import ProjectEditor from "./ProjectEditor.svelte";
-    import { getStepComponent } from "./steps";
+    import { getNextStepId, getStepComponent } from "./steps";
     import { locale, t } from "../../../i18n/store";
     import { withoutCache } from "../../../openapi/cacheInterceptor";
     import { apiProjectsIdOrSlugGet, type Project, type User } from "../../../openapi/client";
@@ -85,6 +85,18 @@
         return currentStep;
     });
 
+    /**
+     * Advance to the next implemented step. Steps without a component (e.g. the
+     * "about you" step) are skipped, and the last step keeps the user in place.
+     */
+    function handleContinue() {
+        const nextStep = getNextStepId(step);
+
+        if (nextStep !== undefined) {
+            handleStepChange(nextStep);
+        }
+    }
+
     function handleStepChange(newStep: string) {
         step = newStep;
 
@@ -118,7 +130,7 @@
             onStepChange={handleStepChange}
             onLangChange={(lang) => (language = lang)}
         >
-            <StepComponent {draft} />
+            <StepComponent {draft} onContinue={handleContinue} />
         </ProjectEditor>
     {:else}
         <ErrorPage

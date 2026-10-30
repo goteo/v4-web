@@ -308,11 +308,16 @@ class HomeHeroRepository {
     }
 
     /**
-     * Remove a hero block.
+     * Remove a hero block and its translations, which have no FK to cascade from.
      * @param id The hero to remove
      */
     public async delete(id: number): Promise<void> {
-        await this.db.prepare(`DELETE FROM home_hero WHERE id = ?`).bind(id).run();
+        await this.db.batch([
+            this.db.prepare(`DELETE FROM home_hero WHERE id = ?`).bind(id),
+            this.db
+                .prepare(`DELETE FROM translations WHERE table_name = ? AND row_id = ?`)
+                .bind(HOME_HERO_TABLE, id),
+        ]);
     }
 }
 

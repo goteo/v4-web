@@ -13,8 +13,7 @@ export function useAdminTableState<T extends string>(
     let currentPage = $state(1);
     let itemsPerPage = $state<AdminItemsPerPage>(getInitialItemsPerPage(cookie));
     let selectedSort = $state<T>(initialSort);
-    let isLoading = $state(false);
-    let isFirstLoad = $state(true);
+    let isLoading = $state(true);
     let totalItems = $state(0);
 
     return {
@@ -41,12 +40,6 @@ export function useAdminTableState<T extends string>(
         },
         set isLoading(v: boolean) {
             isLoading = v;
-        },
-        get isFirstLoad() {
-            return isFirstLoad;
-        },
-        set isFirstLoad(v: boolean) {
-            isFirstLoad = v;
         },
         get totalItems() {
             return totalItems;

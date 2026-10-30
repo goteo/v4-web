@@ -9,24 +9,29 @@ export const zProjectCampaignRelease = z
         error: "system.validation.project.release.min",
         params: { min: CAMPAIGN_MIN_START_DATE },
     })
-    .refine((release) => CAMPAIGN_MAX_END_DATE && release <= CAMPAIGN_MAX_END_DATE, {
+    .refine((release) => CAMPAIGN_MAX_END_DATE === undefined || release <= CAMPAIGN_MAX_END_DATE, {
         error: "system.validation.project.release.max",
         params: { max: CAMPAIGN_MAX_END_DATE },
     });
 
-export const zCreateProjectForm = zProjectProjectCreationDto.superRefine((form, ctx) => {
-    if (!form.calendar?.release) {
-        return;
-    }
-
-    const release = zProjectCampaignRelease.safeParse(new Date(form.calendar.release));
-
-    if (!release.success) {
-        for (const issue of release.error.issues) {
-            ctx.addIssue({
-                ...issue,
-                path: ["calendar"],
-            });
+// The API rejects a blank subtitle, the generated schema accepts it
+export const zCreateProjectForm = zProjectProjectCreationDto
+    .extend({
+        subtitle: z.string().trim().min(1),
+    })
+    .superRefine((form, ctx) => {
+        if (!form.calendar?.release) {
+            return;
         }
-    }
-});
+
+        const release = zProjectCampaignRelease.safeParse(new Date(form.calendar.release));
+
+        if (!release.success) {
+            for (const issue of release.error.issues) {
+                ctx.addIssue({
+                    ...issue,
+                    path: ["calendar"],
+                });
+            }
+        }
+    });

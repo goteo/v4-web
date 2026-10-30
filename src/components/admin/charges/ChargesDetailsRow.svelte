@@ -9,13 +9,13 @@
         TableHeadCell,
     } from "flowbite-svelte";
 
+    import { chargeStatusStyles } from "./ChargesTable.svelte";
     import { t } from "../../../i18n/store.ts";
+    import { formatCurrency } from "../../../utils/currencies.ts";
+    import { extractId } from "../../../utils/extractId.ts";
     import Copy from "../../icons/actions/Copy.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
     import Tooltip from "../Tooltip.svelte";
-    import { chargeStatusStyles } from "./ChargesTable.svelte";
-    import { formatCurrency } from "../../../utils/currencies.ts";
-    import { extractId } from "../../../utils/extractId.ts";
 
     import type { ExtendedCharge } from "./ChargesTable.svelte";
     import type { Link, Tracking } from "../../../openapi/client/index.ts";
@@ -148,12 +148,12 @@
                     <Table class="w-full table-fixed border-separate border-spacing-y-2">
                         <TableHead>
                             <TableHeadCell
-                                class="bg-tertiary rounded-tl-lg rounded-bl-lg py-4 text-base whitespace-nowrap text-white"
+                                class="rounded-tl-lg rounded-bl-lg bg-black py-4 text-base whitespace-nowrap text-white"
                             >
                                 {$t("pages.admin.charges.details.trackingCodes.headers.title")}
                             </TableHeadCell>
                             <TableHeadCell
-                                class="bg-tertiary rounded-tr-lg rounded-br-lg py-4 text-base whitespace-nowrap text-white"
+                                class="rounded-tr-lg rounded-br-lg bg-black py-4 text-base whitespace-nowrap text-white"
                             >
                                 {$t(
                                     "pages.admin.charges.details.trackingCodes.headers.trackingCode",
@@ -171,21 +171,20 @@
                                     <TableBodyCell
                                         class="border-variant1 rounded-r-md border-t border-r border-b align-top"
                                     >
-                                        <div class="flex w-full items-center gap-4">
-                                            <div
-                                                class="w-full leading-snug break-all whitespace-normal"
-                                                style="word-break: break-word;"
-                                            >
-                                                {item.value}
-                                            </div>
+                                        <div
+                                            class="leading-snug break-all whitespace-normal"
+                                            style="word-break: break-word;"
+                                        >
+                                            {item.value}
                                             <Tooltip
                                                 text={$t("common.tooltip.copied")}
-                                                tooltipClass="bg-secondary -translate-x-[90%]"
-                                                className="size-5 cursor-copy shrink-0"
+                                                tooltipClass="bg-secondary -translate-x-1/2"
+                                                className="ml-2 inline-flex cursor-pointer align-middle"
                                             >
                                                 <button
                                                     id={`copy-${item.value}`}
                                                     type="button"
+                                                    class="cursor-pointer"
                                                     onclick={() =>
                                                         navigator.clipboard.writeText(
                                                             item.value ?? "",
@@ -236,17 +235,17 @@
                     <Table class="w-full table-fixed border-separate border-spacing-y-2">
                         <TableHead>
                             <TableHeadCell
-                                class="bg-tertiary rounded-tl-lg rounded-bl-lg py-4 text-base whitespace-nowrap text-white"
+                                class="rounded-tl-lg rounded-bl-lg bg-black py-4 text-base whitespace-nowrap text-white"
                             >
                                 {$t("pages.admin.charges.details.platformLinks.headers.type")}
                             </TableHeadCell>
                             <TableHeadCell
-                                class="bg-tertiary border-t-lg border-b-lg py-4 text-base whitespace-nowrap text-white"
+                                class="border-t-lg border-b-lg bg-black py-4 text-base whitespace-nowrap text-white"
                             >
                                 {$t("pages.admin.charges.details.platformLinks.headers.rel")}
                             </TableHeadCell>
                             <TableHeadCell
-                                class="bg-tertiary rounded-tr-lg rounded-br-lg py-4 text-base whitespace-nowrap text-white"
+                                class="rounded-tr-lg rounded-br-lg bg-black py-4 text-base whitespace-nowrap text-white"
                             >
                                 {$t("pages.admin.charges.details.platformLinks.headers.href")}
                             </TableHeadCell>
@@ -263,27 +262,26 @@
                                     <TableBodyCell
                                         class="border-variant1 rounded-r-md border-t border-r border-b align-top"
                                     >
-                                        <div class="flex w-full items-center gap-4">
-                                            <div
-                                                class="w-full cursor-pointer leading-snug break-all whitespace-normal"
-                                                style="word-break: break-word; text-decoration-line: underline;"
+                                        <div
+                                            class="leading-snug break-all whitespace-normal"
+                                            style="word-break: break-word;"
+                                        >
+                                            <a
+                                                href={item.url}
+                                                class="text-secondary underline"
+                                                target="_blank"
                                             >
-                                                <a
-                                                    href={item.url}
-                                                    class=" text-secondary"
-                                                    target="_blank"
-                                                >
-                                                    {item.url}
-                                                </a>
-                                            </div>
+                                                {item.url}
+                                            </a>
                                             <Tooltip
                                                 text={$t("common.tooltip.copied")}
-                                                tooltipClass="bg-secondary"
-                                                className="size-5 cursor-copy shrink-0"
+                                                tooltipClass="bg-secondary -translate-x-1/2"
+                                                className="ml-2 inline-flex cursor-pointer align-middle"
                                             >
                                                 <button
                                                     id={`copy-${item.url}`}
                                                     type="button"
+                                                    class="cursor-pointer"
                                                     onclick={() =>
                                                         navigator.clipboard.writeText(
                                                             item.url ?? "",

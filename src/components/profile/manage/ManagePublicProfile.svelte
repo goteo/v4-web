@@ -18,6 +18,7 @@
     import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
     import { trackChanges } from "../../../utils/trackChanges.svelte";
     import { zProfileForm, type ProfileForm } from "../../../validation/publicProfileValidation";
+    import Spinner from "../../icons/status/Spinner.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Title from "../../library/typography/Title.svelte";
@@ -167,7 +168,11 @@
 
     <div class="flex justify-end">
         <Button type="submit" kind="primary" disabled={isSubmitting}>
-            {$t("pages.me.manage.save")}
+            {#if isSubmitting}
+                <Spinner />
+            {:else}
+                {$t("pages.me.manage.save")}
+            {/if}
         </Button>
     </div>
 </form>

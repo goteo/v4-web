@@ -171,6 +171,42 @@ export type AccountingTransactionJsonld = {
  */
 export type Address = {
     readonly id?: number;
+    user?: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName?: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName?: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1?: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city?: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode?: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country?: string;
+};
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type AddressAddressCreationDto = {
     user: string;
     /**
      * First name(s) of the person receiving the shipment.
@@ -206,15 +242,7 @@ export type Address = {
 /**
  * Addresses represent named locations that postal services can reach.
  */
-export type AddressJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
-    readonly id?: number;
+export type AddressAddressCreationDtoJsonld = {
     user: string;
     /**
      * First name(s) of the person receiving the shipment.
@@ -245,6 +273,85 @@ export type AddressJsonld = {
      * e.g: ES (Spain).
      */
     country: string;
+};
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type AddressAddressUpdationDto = {
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName?: string | null;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName?: string | null;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1?: string | null;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city?: string | null;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode?: string | null;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country?: string | null;
+};
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type AddressJsonld = {
+    readonly '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    readonly '@id'?: string;
+    readonly '@type'?: string;
+    readonly id?: number;
+    user?: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName?: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName?: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1?: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city?: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode?: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country?: string;
 };
 
 export type Budget = {
@@ -2378,7 +2485,11 @@ export type ProjectReward = {
      */
     money: MoneyInput;
     /**
-     * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
+     * Rewards might include something that needs to be delivered to the User claiming the Reward.
+     */
+    hasShipping: boolean;
+    /**
+     * Rewards might be finite, i.e: has a limited amount of existing `unitsTotal`.
      */
     isFinite: boolean;
     /**
@@ -2435,7 +2546,11 @@ export type ProjectRewardJsonld = {
      */
     money: MoneyInputJsonld;
     /**
-     * Rewards might be finite, i.e: has a limited amount of existing unitsTotal.
+     * Rewards might include something that needs to be delivered to the User claiming the Reward.
+     */
+    hasShipping: boolean;
+    /**
+     * Rewards might be finite, i.e: has a limited amount of existing `unitsTotal`.
      */
     isFinite: boolean;
     /**
@@ -3562,9 +3677,24 @@ export type ApiAddressesGetCollectionData = {
          * The number of items per page
          */
         itemsPerPage?: number;
+        user?: string;
+        'user[]'?: Array<string>;
+        city?: string;
+        postCode?: string;
+        country?: string;
+        'country[]'?: Array<string>;
     };
     url: '/v4/addresses';
 };
+
+export type ApiAddressesGetCollectionErrors = {
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+};
+
+export type ApiAddressesGetCollectionError = ApiAddressesGetCollectionErrors[keyof ApiAddressesGetCollectionErrors];
 
 export type ApiAddressesGetCollectionResponses = {
     /**
@@ -3579,7 +3709,7 @@ export type ApiAddressesPostData = {
     /**
      * The new Address resource
      */
-    body: Address;
+    body: AddressAddressCreationDto;
     path?: never;
     query?: never;
     url: '/v4/addresses';
@@ -3590,6 +3720,10 @@ export type ApiAddressesPostErrors = {
      * Invalid input
      */
     400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
     /**
      * An error occurred
      */
@@ -3621,6 +3755,10 @@ export type ApiAddressesIdDeleteData = {
 
 export type ApiAddressesIdDeleteErrors = {
     /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
      * Not found
      */
     404: ErrorJsonld;
@@ -3651,6 +3789,10 @@ export type ApiAddressesIdGetData = {
 
 export type ApiAddressesIdGetErrors = {
     /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
+    /**
      * Not found
      */
     404: ErrorJsonld;
@@ -3671,7 +3813,7 @@ export type ApiAddressesIdPatchData = {
     /**
      * The updated Address resource
      */
-    body: Address;
+    body: AddressAddressUpdationDto;
     path: {
         /**
          * Address identifier
@@ -3687,6 +3829,10 @@ export type ApiAddressesIdPatchErrors = {
      * Invalid input
      */
     400: ErrorJsonld;
+    /**
+     * Forbidden
+     */
+    403: ErrorJsonld;
     /**
      * Not found
      */
@@ -6238,6 +6384,7 @@ export type ApiProjectRewardsGetCollectionData = {
         'order[unitsAvailable]'?: 'asc' | 'desc';
         'order[dateCreated]'?: 'asc' | 'desc';
         'order[dateUpdated]'?: 'asc' | 'desc';
+        hasShipping?: boolean;
         isFinite?: boolean;
         'dateCreated[before]'?: string;
         'dateCreated[strictly_before]'?: string;

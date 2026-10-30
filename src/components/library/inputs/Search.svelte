@@ -16,6 +16,8 @@
         onsubmit?: (value: string) => void;
         oninput?: (e: Event) => void;
         onkeydown?: (e: KeyboardEvent) => void;
+        onfocus?: (e: FocusEvent) => void;
+        onblur?: (e: FocusEvent) => void;
         onclear?: () => void;
     }
 
@@ -30,6 +32,8 @@
         onsubmit,
         oninput,
         onkeydown,
+        onfocus,
+        onblur,
         onclear,
     }: Props = $props();
 </script>
@@ -54,6 +58,8 @@
         bind:value
         {oninput}
         {onkeydown}
+        {onfocus}
+        {onblur}
         data-testid={dataTestId}
         class="flex-1 border-none bg-white text-black outline-none autofill:shadow-[inset_0_0_0_1000px_var(--color-white)] autofill:[-webkit-text-fill-color:var(--color-black)] focus:ring-0"
     />

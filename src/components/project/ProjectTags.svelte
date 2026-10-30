@@ -1,6 +1,6 @@
 <script lang="ts">
-    import ThemeTag from "./ThemeTag.svelte";
     import TerritoryTag from "./TerritoryTag.svelte";
+    import ThemeTag from "./ThemeTag.svelte";
 
     import type { Project } from "../../openapi/client";
 

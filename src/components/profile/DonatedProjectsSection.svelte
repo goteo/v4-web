@@ -13,6 +13,7 @@
     import { toCollectionItems } from "../../utils/hydra.ts";
     import { addMoney } from "../../utils/money";
     import CampaignCard from "../home/CampaignCard.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -175,7 +176,9 @@
     });
 </script>
 
-{#if !loading && donatedCampaigns.length > 0}
+{#if loading}
+    <Loader />
+{:else if donatedCampaigns.length > 0}
     <div class="flex flex-col gap-6">
         <Title level={2} variant="section">
             {$t("pages.me.donatedProjects.title")}
