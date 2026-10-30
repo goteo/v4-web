@@ -6,6 +6,7 @@ import {
     canAccessReview,
     isAssignedReviewer,
     isConsultant,
+    isProjectOwner,
 } from "../../../../services/reviewAccess";
 import { getReview, getReviewAreas } from "../../../../services/projectReview";
 import { getReviewedProject } from "../../../../services/reviewProject";
@@ -48,6 +49,8 @@ const project = await getReviewedProject(review, session, lang);
 // also an admin reads the review as the promoter, not as its assigned reviewer.
 const canManage = isConsultant(session);
 const isReviewer = isAssignedReviewer(session, review);
+// A promoter of the reviewed project can report that the requested changes are done.
+const isPromoter = !canManage && (await isProjectOwner(session, review));
 
 // Each side reads the other one first: the reviewer is named for the promoter and
 // the promoter for the reviewer. Without one of them the copy falls back to a
@@ -85,7 +88,8 @@ const subtitle = counterpart?.name
                 {subtitle}
                 projectStatus={project?.status}
                 canAssessRisks={canManage}
-                canChangeStatus={canManage}
+                canChangeStatus={canManage || isPromoter}
+                isPromoter={isPromoter}
                 locale={lang}
             />
         </div>

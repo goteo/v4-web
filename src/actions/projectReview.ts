@@ -7,8 +7,14 @@ import {
     setReviewAreaRisk,
     type ReviewError,
 } from "../services/projectReview";
-import { canAccessReview, isConsultant, sessionUserIri } from "../services/reviewAccess";
+import {
+    canAccessReview,
+    isConsultant,
+    isProjectOwner,
+    sessionUserIri,
+} from "../services/reviewAccess";
 import { extractId } from "../utils/extractId";
+import { PROMOTER_CHANGES_DONE_STATUS } from "../utils/review";
 import {
     zSendReviewAreaCommentInput,
     zUpdateReviewAreaRiskInput,
@@ -90,6 +96,10 @@ export const updateReviewAreaRisk = defineAction({
  * The project is resolved from the review instead of being taken from the input,
  * so the status of a project cannot be changed through a review that is not its
  * own, and the target status is restricted to the review statuses.
+ *
+ * A consultant admin picks any of the three outcomes of the review. A promoter
+ * gets a single move: announcing that the requested changes are done, which is
+ * also the only one the API lets an owner of the project make.
  */
 export const updateReviewProjectStatus = defineAction({
     accept: "json",
@@ -97,20 +107,31 @@ export const updateReviewProjectStatus = defineAction({
     handler: async (input, context) => {
         const { session, t, lang } = context.locals;
 
-        if (!isConsultant(session)) {
+        if (!session) {
             throw new ActionError({
                 code: "FORBIDDEN",
                 message: t("pages.review.errors.forbidden"),
             });
         }
 
-        const { data: review } = await getReview(input.reviewId, session!, lang);
+        const { data: review } = await getReview(input.reviewId, session, lang);
 
         if (!review) {
             throw new ActionError({
                 code: "NOT_FOUND",
                 message: t("pages.review.errors.notFound"),
             });
+        }
+
+        if (!isConsultant(session)) {
+            const isOwner = await isProjectOwner(session, review);
+
+            if (!isOwner || input.status !== PROMOTER_CHANGES_DONE_STATUS) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: t("pages.review.errors.forbidden"),
+                });
+            }
         }
 
         const projectId = extractId(review.project);
@@ -125,7 +146,7 @@ export const updateReviewProjectStatus = defineAction({
         const { error } = await apiProjectsIdPatch({
             path: { id: projectId },
             headers: {
-                ...session!.token.asHttpHeaders,
+                ...session.token.asHttpHeaders,
                 "Content-Language": context.locals.lang,
             },
             body: { id: Number(projectId), status: input.status },
