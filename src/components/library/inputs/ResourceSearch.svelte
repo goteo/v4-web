@@ -45,6 +45,7 @@
         placeholder?: string;
         helperText?: string;
         error?: string;
+        disabled?: boolean;
         minChars?: number;
         debounceMs?: number;
         /** Wrap query matches in <mark> in the default row. */
@@ -80,6 +81,7 @@
         placeholder = undefined,
         helperText = undefined,
         error = undefined,
+        disabled = false,
         minChars = DEFAULT_MIN_CHARS,
         debounceMs = 300,
         highlight = true,
@@ -205,7 +207,8 @@
 </script>
 
 <div
-    class={twMerge("relative flex w-full flex-col gap-2", classes)}
+    class={twMerge("relative flex w-full flex-col gap-2", disabled && "opacity-50", classes)}
+    inert={disabled}
     use:clickOutside={() => (isOpen = false)}
 >
     {#if multiple && selected.length > 0}

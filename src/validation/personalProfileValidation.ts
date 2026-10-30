@@ -1,6 +1,18 @@
 import { z } from "zod";
 
+import { zOrganization, zPerson, zUser } from "../openapi/client/zod.gen";
 import { isValidTaxId } from "../utils/taxId";
+
+// The API enums, from the generated SDK. "" stands for an unanswered select, sent as `null`
+const zTaxIdType = zPerson.shape.taxIdType.unwrap().unwrap();
+const zGender = zPerson.shape.gender.unwrap().unwrap();
+const zReferralSource = zUser.shape.referralSource.unwrap().unwrap();
+const zLegalForm = zOrganization.shape.legalForm.unwrap().unwrap();
+
+export const TAX_ID_TYPES = zTaxIdType.options;
+export const GENDERS = zGender.options;
+export const REFERRAL_SOURCES = zReferralSource.options;
+export const LEGAL_FORMS = zLegalForm.options;
 
 const zRequiredField = () =>
     z.string().refine((value) => value.trim().length > 0, {
@@ -34,6 +46,18 @@ export const zPersonalProfileForm = z
         subLvl1: z.string(),
         subLvl2: z.string(),
         address: z.string(),
+        postalCode: z.string(),
+        shareLocation: z.boolean(),
+        supportAnonymously: z.boolean(),
+        referralSource: zReferralSource.or(z.literal("")),
+        taxIdType: zTaxIdType.or(z.literal("")),
+        birthYear: z
+            .string()
+            .regex(/^(19|20)\d{2}$/)
+            .or(z.literal("")),
+        gender: zGender.or(z.literal("")),
+        legalForm: zLegalForm.or(z.literal("")),
+        publicEntity: z.boolean(),
     })
     .superRefine((data, ctx) => {
         const taxId = data.taxId.trim();

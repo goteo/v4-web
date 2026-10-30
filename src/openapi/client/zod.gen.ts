@@ -560,7 +560,23 @@ export const zOrganization = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2),
     legalName: z.string().min(1),
-    businessName: z.string().min(1).optional()
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'nif',
+        'nie',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional().default(false)
 });
 
 /**
@@ -584,7 +600,23 @@ export const zOrganizationJsonld = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2),
     legalName: z.string().min(1),
-    businessName: z.string().min(1).optional()
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'nif',
+        'nie',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional().default(false)
 });
 
 /**
@@ -599,7 +631,20 @@ export const zPerson = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2).optional(),
     firstName: z.string().min(1).optional(),
-    lastName: z.string().min(1).optional()
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'nif',
+        'nie',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).lte(2100).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
 });
 
 /**
@@ -623,7 +668,20 @@ export const zPersonJsonld = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2).optional(),
     firstName: z.string().min(1).optional(),
-    lastName: z.string().min(1).optional()
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'nif',
+        'nie',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).lte(2100).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
 });
 
 export const zPing = z.object({
@@ -1155,7 +1213,8 @@ export const zTerritory = z.object({
     country: z.string().nullable(),
     subLvl1: z.string().nullish(),
     subLvl2: z.string().nullish(),
-    address: z.string().nullish()
+    address: z.string().nullish(),
+    postalCode: z.string().nullish()
 });
 
 /**
@@ -1276,7 +1335,8 @@ export const zTerritoryJsonld = z.object({
     country: z.string().nullable(),
     subLvl1: z.string().nullish(),
     subLvl2: z.string().nullish(),
-    address: z.string().nullish()
+    address: z.string().nullish(),
+    postalCode: z.string().nullish()
 });
 
 /**
@@ -1499,6 +1559,17 @@ export const zUser = z.object({
     links: z.array(zLink).readonly().optional(),
     territory: zTerritory.optional(),
     description: z.string().optional(),
+    shareLocation: z.boolean().optional().default(false),
+    supportAnonymously: z.boolean().optional().default(false),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    categories: z.array(z.string()).optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
@@ -1533,7 +1604,18 @@ export const zUserUserUpdationDto = z.object({
     roles: z.array(z.string()).optional(),
     links: z.array(z.string()).optional(),
     territory: zTerritory.optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    shareLocation: z.boolean().optional(),
+    supportAnonymously: z.boolean().optional(),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    categories: z.array(z.string()).optional()
 });
 
 /**
@@ -1565,6 +1647,17 @@ export const zUserJsonld = z.object({
     links: z.array(zLinkJsonld).readonly().optional(),
     territory: zTerritoryJsonld.optional(),
     description: z.string().optional(),
+    shareLocation: z.boolean().optional().default(false),
+    supportAnonymously: z.boolean().optional().default(false),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    categories: z.array(z.string()).optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
