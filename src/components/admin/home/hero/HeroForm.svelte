@@ -1,28 +1,24 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
-    import { Modal } from "flowbite-svelte";
 
+    import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { getDefaultLanguage } from "../../../../utils/consts";
     import { formatDate, startOfDay } from "../../../../utils/dates";
-    import { getLanguageDisplayName } from "../../../../utils/lang";
-    import { iso639_1Codes } from "../../../../utils/lang.types";
-    import LanguagesDropdown from "../../../header/LanguagesDropdown.svelte";
-    import Trash from "../../../icons/actions/Trash.svelte";
-
-    import HeroPreviewModal from "./HeroPreviewModal.svelte";
+    import {
+        getLanguageDisplayName,
+        primaryLanguage as pickPrimaryLanguage,
+    } from "../../../../utils/lang";
     import Eye from "../../../icons/media/Eye.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Button from "../../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../../library/dropdown/DropdownMenu.svelte";
-    import type { DropdownOption } from "../../../library/dropdown/dropdown.types";
     import Toast from "../../../library/feedback/Toast.svelte";
-    import DeleteModal from "../../../library/feedback/DeleteModal.svelte";
     import DateInput from "../../../library/inputs/DateInput.svelte";
     import ImageUploadModal from "../../../library/inputs/ImageUploadModal.svelte";
     import RichTextEditor from "../../../library/inputs/RichTextEditor.svelte";
     import TextInput from "../../../library/inputs/TextInput.svelte";
     import Title from "../../../library/typography/Title.svelte";
+    import TranslationLanguages from "../../TranslationLanguages.svelte";
 
     import type { HeroTranslations, HomeHeroRecord } from "../../../../repositories/homeHero";
     import type { UploadedObject } from "../../../../utils/media/objectStorage.types";
@@ -43,18 +39,6 @@
         secondaryCtaText: string;
         secondaryCtaLink: string;
     }
-
-    // The admin may translate into ANY recognized language, not only the locales
-    // the UI itself is available in. The catalog covers all ISO 639-1 codes the
-    // browser can name; the search narrows it, unknown codes are not offered.
-    const ALL_LANGUAGE_OPTIONS: DropdownOption[] = iso639_1Codes
-        .map((code) => ({ id: code, label: getLanguageDisplayName(code) }))
-        .filter((option): option is { id: string; label: string } => option.label !== undefined)
-        .map((option) => ({
-            id: option.id,
-            label: `${option.label} (${option.id})`,
-            selected: false,
-        }));
 
     function emptyFields(): HeroFields {
         return {
@@ -135,21 +119,12 @@
     let languages = $state<string[]>(languagesSeed);
     let selectedLanguage = $state<string>(languagesSeed[0]);
 
-    let isAddModalOpen = $state(false);
-    let languageSearch = $state("");
-    let candidateOptions = $state<DropdownOption[]>([]);
-    let selectedLanguageOption = $state<DropdownOption[]>([]);
-
-    let isRemoveModalOpen = $state(false);
-
     let fieldValues = $state<Record<string, HeroFields>>(initialFieldValues);
 
     // The stored row must be authored in exactly one language. The platform
     // language keeps that role while it is present; otherwise the first chosen
     // language becomes the authoring language.
-    const primaryLanguage = $derived(
-        languages.includes(defaultLanguage) ? defaultLanguage : (languages[0] ?? defaultLanguage),
-    );
+    const primaryLanguage = $derived(pickPrimaryLanguage(languages, defaultLanguage));
 
     let fieldErrors: FieldErrors = $state({});
     let errorMessage = $state("");
@@ -177,73 +152,6 @@
             type: record.mediaType,
             name: record.mediaUrl.split("/").pop() ?? record.mediaUrl,
         };
-    }
-
-    function openAddModal() {
-        languageSearch = "";
-        selectedLanguageOption = [];
-        refreshLanguageOptions();
-        isAddModalOpen = true;
-    }
-
-    function refreshLanguageOptions(query = "") {
-        // After picking an option its label is shown in the search input; that
-        // label must not act as a filter, otherwise reopening the list would
-        // narrow it to the selected language alone.
-        const search = query.trim().toLowerCase();
-        const selectedLabel = ALL_LANGUAGE_OPTIONS.find(
-            (option) => option.id === selectedLanguageOption[0]?.id,
-        )?.label.toLowerCase();
-        const active = search && search !== selectedLabel ? search : "";
-
-        candidateOptions = ALL_LANGUAGE_OPTIONS.filter(
-            (option) =>
-                !languages.includes(option.id) &&
-                (!active ||
-                    option.label.toLowerCase().includes(active) ||
-                    option.id.includes(active)),
-        ).map((option) => ({
-            ...option,
-            selected: selectedLanguageOption[0]?.id === option.id,
-        }));
-    }
-
-    function handleAddLanguageChange(option: DropdownOption) {
-        selectedLanguageOption = [option];
-        languageSearch = option.label;
-        refreshLanguageOptions(option.label);
-    }
-
-    function confirmAddLanguage() {
-        const lang = selectedLanguageOption[0]?.id;
-
-        if (!lang || languages.includes(lang)) {
-            return;
-        }
-
-        if (!fieldValues[lang]) {
-            fieldValues[lang] = emptyFields();
-        }
-
-        languages = [...languages, lang];
-        selectedLanguage = lang;
-        languageSearch = "";
-        selectedLanguageOption = [];
-        isAddModalOpen = false;
-    }
-
-    function openRemoveModal() {
-        // Any language can be removed, but at least one must remain.
-        if (languages.length > 1) {
-            isRemoveModalOpen = true;
-        }
-    }
-
-    function confirmRemoveLanguage() {
-        delete fieldValues[selectedLanguage];
-        languages = languages.filter((lang) => lang !== selectedLanguage);
-        selectedLanguage = languages[0] ?? defaultLanguage;
-        isRemoveModalOpen = false;
     }
 
     const currentFields = $derived(fieldValues[selectedLanguage] ?? fieldValues[primaryLanguage]);
@@ -494,31 +402,12 @@
 {/snippet}
 
 <form bind:this={formElement} onsubmit={handleSubmit} class="flex max-w-167 flex-col gap-10">
-    <div class="flex flex-col gap-4">
-        <div class="flex flex-wrap items-center gap-4">
-            <LanguagesDropdown
-                {languages}
-                selected={selectedLanguage}
-                onSelect={(lang) => (selectedLanguage = lang)}
-            />
-
-            <Button kind="secondary" size="sm" class="w-fit" onclick={openAddModal}>
-                {$t("pages.admin.home.hero.addTranslation")}
-            </Button>
-
-            {#if languages.length > 1}
-                <Button
-                    kind="ghost"
-                    size="sm"
-                    class="text-tertiary w-fit"
-                    onclick={openRemoveModal}
-                >
-                    <Trash class="size-3 text-current" />
-                    {$t("pages.admin.home.hero.removeTranslation")}
-                </Button>
-            {/if}
-        </div>
-    </div>
+    <TranslationLanguages
+        bind:languages
+        bind:selected={selectedLanguage}
+        onAdd={(lang) => (fieldValues[lang] ??= emptyFields())}
+        onRemove={(lang) => delete fieldValues[lang]}
+    />
 
     <div class="flex flex-col gap-6">
         <Title level={3} variant="subsection">
@@ -617,60 +506,6 @@
 </form>
 
 <HeroPreviewModal bind:open={isPreviewOpen} hero={previewHero} />
-
-<Modal
-    bind:open={isAddModalOpen}
-    closeBtnClass="top-3 end-3 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-178 -translate-x-1/2 -translate-y-1/2 flex-col gap-4 overflow-visible rounded-3xl border-b-0 bg-white p-6 shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    headerClass="border-b-0 md:p-0 p-0"
-    bodyClass="md:p-0 p-0 overflow-y-visible border-b-0"
-    footerClass="md:p-0 p-0 flex items-center justify-end gap-4 border-b-0"
->
-    {#snippet header()}
-        <Title level={2} variant="subsection">
-            {$t("pages.admin.home.hero.addTranslationModal.title")}
-        </Title>
-    {/snippet}
-
-    <div class="flex flex-col gap-6">
-        <p class="text-content text-base font-normal">
-            {$t("pages.admin.home.hero.addTranslationModal.description")}
-        </p>
-
-        <DropdownMenu
-            variant="basic"
-            singleSelect
-            hasSearch
-            bind:searchValue={languageSearch}
-            bind:options={candidateOptions}
-            bind:selected={selectedLanguageOption}
-            onSearch={(query) => refreshLanguageOptions(query)}
-            onChange={handleAddLanguageChange}
-            searchPlaceholder={$t("pages.admin.home.hero.addTranslationModal.searchPlaceholder")}
-            itemClass="text-start"
-        />
-    </div>
-
-    {#snippet footer()}
-        <Button kind="ghost" onclick={() => (isAddModalOpen = false)} class="w-fit">
-            {$t("common.cancel")}
-        </Button>
-        <Button
-            onclick={confirmAddLanguage}
-            class="w-fit"
-            disabled={selectedLanguageOption.length === 0}
-        >
-            {$t("pages.admin.home.hero.addTranslationModal.submit")}
-        </Button>
-    {/snippet}
-</Modal>
-
-<DeleteModal
-    bind:open={isRemoveModalOpen}
-    title={$t("pages.admin.home.hero.removeTranslationModal.title")}
-    description={$t("pages.admin.home.hero.removeTranslationModal.description")}
-    onclick={confirmRemoveLanguage}
-/>
 
 <Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
 

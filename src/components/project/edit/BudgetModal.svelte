@@ -58,25 +58,31 @@
             selectedBudgetDescription.trim() !== "",
     );
 
-    let formTouched = $state(false);
+    // Per-field, set only on input: blur fires when the modal moves focus on open.
+    const untouched = { title: false, type: false, amount: false, description: false };
+    let touched = $state({ ...untouched });
+
+    $effect(() => {
+        if (open) touched = { ...untouched };
+    });
 
     const titleError = $derived(
-        formTouched && selectedBudgetTitle.trim() === ""
+        touched.title && selectedBudgetTitle.trim() === ""
             ? $t("pages.project.edit.budget.validation.title")
             : undefined,
     );
     const typeError = $derived(
-        formTouched && !selectedBudgetType
+        touched.type && !selectedBudgetType
             ? $t("pages.project.edit.budget.validation.type")
             : undefined,
     );
     const amountError = $derived(
-        formTouched && money.amount <= 0
+        touched.amount && money.amount <= 0
             ? $t("pages.project.edit.budget.validation.amount")
             : undefined,
     );
     const descriptionError = $derived(
-        formTouched && selectedBudgetDescription.trim() === ""
+        touched.description && selectedBudgetDescription.trim() === ""
             ? $t("pages.project.edit.budget.validation.description")
             : undefined,
     );
@@ -109,11 +115,11 @@
 <Modal
     bind:open
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    bodyClass="p-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex max-h-[90vh] w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="flex p-0"
 >
     <div
-        class="flex flex-col gap-8 rounded-3xl bg-white p-6 shadow-lg"
+        class="flex min-h-0 flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
         onclick={(e) => e.stopPropagation()}
         onkeydown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
@@ -136,13 +142,13 @@
                 labelText={$t("pages.project.edit.budget.modal.placeholders.title")}
                 placeholder={$t("pages.project.edit.budget.modal.placeholders.title")}
                 error={titleError}
-                onBlur={() => (formTouched = true)}
+                onInput={() => (touched.title = true)}
             />
             <Select
                 bind:value={selectedBudgetType as string}
                 labelText={$t("pages.project.edit.budget.modal.placeholders.type")}
                 error={typeError}
-                onBlur={() => (formTouched = true)}
+                onChange={() => (touched.type = true)}
             >
                 <option value="">{$t("pages.project.edit.budget.modal.placeholders.type")}</option>
                 <option value="infrastructure"
@@ -159,7 +165,7 @@
                 error={amountError}
                 onInput={(newMoney) => {
                     money = newMoney;
-                    formTouched = true;
+                    touched.amount = true;
                 }}
             />
             <TextArea
@@ -168,7 +174,7 @@
                 placeholder={$t("pages.project.edit.budget.modal.placeholders.description")}
                 rows={5}
                 error={descriptionError}
-                onBlur={() => (formTouched = true)}
+                onInput={() => (touched.description = true)}
             />
         </div>
         <div class="flex items-center justify-end gap-4">

@@ -3,12 +3,9 @@
     // import Comments from "../../../components/icons/Comments.svelte";
     import { t, locale } from "../../../i18n/store";
     import { formatDate } from "../../../utils/dates";
-    import {
-        PROJECT_STATUSES,
-        isPublicStatus,
-        projectStatusLabelKey,
-    } from "../../../utils/projectStatus";
+    import { PROJECT_STATUSES, projectStatusLabelKey } from "../../../utils/projectStatus";
     import Select from "../../library/inputs/Select.svelte";
+    import ProjectPreviewModal from "../../project/edit/ProjectPreviewModal.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
     import type { ProjectRow } from "./ProjectsTable.svelte";
@@ -26,6 +23,7 @@
     // Bound to the select; reset to the project's status when the API rejects the change.
     let selectedStatus = $derived<string>(project.status);
     let isSavingStatus = $state(false);
+    let previewOpen = $state(false);
 
     async function handleStatusSelect(status: string) {
         if (status === project.status) return;
@@ -88,10 +86,7 @@
                 {/each}
             </Select>
             {#if project.promoterHandle}
-                <a
-                    class={actionClass}
-                    href={`/${$locale}/admin/users?handle=${encodeURIComponent(project.promoterHandle)}`}
-                >
+                <a class={actionClass} href={`/${$locale}/user/${project.promoterHandle}`}>
                     {$t("pages.admin.projects.table.rows.details.btns.promoter")}
                 </a>
             {/if}
@@ -106,10 +101,14 @@
             <a class={actionClass} href={`/${$locale}/project/${project.slug}/edit`}>
                 {$t("pages.admin.projects.table.rows.details.btns.edit")}
             </a>
-            {#if isPublicStatus(project.status)}
+            {#if project.status === "in_campaign"}
                 <a class={actionClass} href={`/${$locale}/project/${project.slug}`}>
-                    {$t("pages.admin.projects.table.rows.details.btns.publicPage")}
+                    {$t("pages.admin.projects.table.rows.details.btns.campaignPage")}
                 </a>
+            {:else}
+                <button type="button" class={actionClass} onclick={() => (previewOpen = true)}>
+                    {$t("pages.admin.projects.table.rows.details.btns.preview")}
+                </button>
             {/if}
         </div>
     {/snippet}
@@ -144,3 +143,7 @@
         </div>
     {/snippet}
 </DetailsRow>
+
+{#if previewOpen}
+    <ProjectPreviewModal bind:open={previewOpen} project={project as any} />
+{/if}

@@ -135,7 +135,7 @@ Owns the search state and keeps it in sync with the URL query string.
 </script>
 
 <div class="mb-8">
-    <SearchFilters {filters} onChange={updateFilters} onSearch={search} />
+    <SearchFilters {filters} onChange={updateFilters} onSearch={search} {isLoading} />
 </div>
 
 <div class="mb-8" role="region" aria-label={$t("pages.search.results.regionLabel")}>

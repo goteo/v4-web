@@ -14,7 +14,8 @@
       },
       "file": {
         "sizeTooLarge": "{{ file }} exceeds the maximum size ({{ max }})",
-        "unsupportedType": "Unsupported file type: {{ file }}"
+        "unsupportedType": "Unsupported file type: {{ file }}",
+        "uploadFailed": "The file could not be uploaded"
       }
     },
     "OAuth": {
@@ -56,6 +57,12 @@
           "max": "The launch date cannot be after {{ max }}"
         }
       },
+      "review": {
+        "status": "The review status is invalid",
+        "comment": {
+          "max": "The message cannot exceed {{ max }} characters"
+        }
+      },
       "errors": {
         "summary": {
           "title": "Correct the following errors:"
@@ -71,7 +78,9 @@
     "search": {
       "bar": {
         "placeholder": "Search..."
-      }
+      },
+      "noResults": "No results found",
+      "removeItem": "Remove {{ label }}"
     },
     "carousel": {
       "empty": "No items to display"
@@ -94,7 +103,6 @@
         "slug": "ID",
         "territory": "Territory",
         "dateUpdated": "Last updated",
-        "budgetAmount": "Amount",
         "gateway": "Gateway",
         "type": "Type",
         "checkout": {
@@ -110,6 +118,9 @@
         "userType": "User type",
         "active": "Active",
         "userRoles": "Roles",
+        "reviewType": "Review type",
+        "project": "Project",
+        "reviewer": "Advisor",
         "userTerritoryCountry": "Location"
       },
       "operator": {
@@ -142,6 +153,10 @@
         "active": {
           "true": "Active",
           "false": "Inactive"
+        },
+        "reviewType": {
+          "campaign": "Campaign",
+          "financial": "Funding"
         }
       }
     },
@@ -182,8 +197,8 @@
         }
       },
       "reward": {
-        "byAtLeast": "For {{ amount }}",
-        "byAtLeastOrMore": "For {{ amount }} or more",
+        "forAtLeast": "For {{ amount }}",
+        "forAtLeastOrMore": "For {{ amount }} or more",
         "donation": "Donation",
         "unitsTotal": {
           "single": "There is 1 unit",
@@ -197,7 +212,7 @@
       "status": {
         "all": "All statuses",
         "in_draft": "Draft",
-        "to_campaign_review": "Pending submission for review",
+        "to_campaign_review": "Ready for review",
         "in_campaign_review": "Under review",
         "in_campaign_review_to_change": "Under review: changes required",
         "in_campaign_review_to_review": "Under review: pending review",
@@ -206,12 +221,12 @@
         "in_campaign": "In campaign",
         "campaign_failed": "Failed campaign",
         "campaign_cancelled": "Cancelled campaign",
-        "to_funding_review": "Pending funding review",
-        "in_funding_review": "Under funding review",
-        "in_funding_review_to_change": "Under funding review: changes required",
-        "in_funding_review_to_review": "Under funding review: pending review",
-        "funding_review_rejected": "Rejected during funding review",
-        "to_funding": "Pending funding",
+        "to_funding_review": "Ready for funding review",
+        "in_funding_review": "In funding review",
+        "in_funding_review_to_change": "In funding review: requires changes",
+        "in_funding_review_to_review": "In funding review: pending review",
+        "funding_review_rejected": "Rejected in funding review",
+        "to_funding": "Ready for funding",
         "in_funding": "In funding",
         "funding_paid": "Funding paid",
         "funded": "Funded",
@@ -252,7 +267,7 @@
     "review": {
       "risks": {
         "low": "Low risk",
-        "medium": "Medium risk",
+        "mid": "Medium risk",
         "high": "High risk"
       }
     },
@@ -311,6 +326,25 @@
       "previous": "Previous page",
       "next": "Next page",
       "page": "Page {{ page }}"
+    },
+    "translationLanguages": {
+      "add": "Add translation",
+      "remove": "Remove translation",
+      "removeAll": "Remove all translations",
+      "addModal": {
+        "title": "Add a new translation",
+        "description": "Search for and choose the language you want to translate the content into.",
+        "searchPlaceholder": "Search all languages…",
+        "submit": "Add"
+      },
+      "removeModal": {
+        "title": "Remove this translation?",
+        "description": "The translation will be removed when you save."
+      },
+      "removeAllModal": {
+        "title": "Remove all translations?",
+        "description": "Only the text in {{language}} will be kept. The other translations will be removed when you save."
+      }
     }
   },
   "common": {
@@ -354,6 +388,7 @@
       "search": "Search",
       "createProject": "Create your project",
       "goToProfile": "Go to Profile",
+      "menu": "Menu",
       "admin": "Admin"
     },
     "footer": {
@@ -442,6 +477,15 @@
       }
     },
     "_": "Page-specific content (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Create your account",
+      "description": "Sign up for Goteo to support projects and create your own.",
+      "existUserInfo": "If you are already a Goteo user, log in with your account.",
+      "submit": "Create account",
+      "organization": {
+        "taxIdHelper": "Company tax ID"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -464,6 +508,27 @@
         }
       },
       "changeAddressLabel": "Send this reward to an address different from mine.",
+      "shipping": {
+        "title": "Where should we send your rewards?",
+        "description": "Some of your rewards are sent by mail. Tell us which address to send each one to.",
+        "noAddress": "You don't have any saved addresses yet.",
+        "missing": "Add a shipping address to continue.",
+        "addAddress": "Add address",
+        "error": "The address could not be saved.",
+        "modal": {
+          "title": "Shipping address",
+          "newAddress": "New address"
+        },
+        "fields": {
+          "firstName": "First name",
+          "lastName": "Last name",
+          "line1": "Address",
+          "line2": "Apartment, unit, etc. (optional)",
+          "city": "City",
+          "postCode": "Postal code",
+          "country": "Country"
+        }
+      },
       "title": "Checkout",
       "summary": {
         "toRecipient": "{{ amount }} to {{ name }}",
@@ -484,6 +549,9 @@
         },
         "data": {
           "title": "Your details"
+        },
+        "shipping": {
+          "title": "Shipping"
         },
         "payment": {
           "title": "Payment method"
@@ -571,7 +639,10 @@
         "error": {
           "invalidCredentials": "Invalid email or password.",
           "unexpectedLogin": "Error logging in. Please try again later.",
-          "invalidEmail": "The email address is not valid."
+          "invalidEmail": "The email address is not valid.",
+          "clientAuthentication": "The application could not be authorized. Please try again later.",
+          "invalidRequest": "The login request is invalid. Check your details and try again.",
+          "requireTerms": "You must accept the legal terms to continue."
         }
       },
       "register": {
@@ -586,6 +657,7 @@
             "password": {
               "minLength": "*Password must be at least 8 characters long"
             },
+            "passwordInvalid": "The password is invalid.",
             "required": "This field is required",
             "emailInvalid": "The email address entered is not valid",
             "taxIdInvalid": "The number is not in a valid format for the selected country"
@@ -620,6 +692,8 @@
         },
         "error": {
           "unexpectedRegistration": "Error creating the account. Please try again later.",
+          "emailInUse": "An account with this email address already exists. Log in or use a different email address.",
+          "accountCreatedProfileFailed": "We created your account, but we couldn't save all your details. Log in and complete your profile.",
           "requireTerms": "You must accept the terms and conditions to continue."
         },
         "title": "Tell us your personal details",
@@ -720,8 +794,7 @@
       },
       "featuredPromoters": {
         "title": "Featured promoters",
-        "viewAll": "View all",
-        "projectsPromoted": "Projects promoted",
+        "projectsPromoted": "Own projects",
         "capitalRaised": "Capital raised",
         "promoterImage": "Promoter photo",
         "shareProfile": "Share {{name}}'s profile"
@@ -866,6 +939,8 @@
               "descriptionHelper": "The description can contain rich text, but it will be truncated on small cards",
               "moneyLabel": "Price",
               "moneyHelper": "Enter the minimum donation required to claim this reward",
+              "shippingLabel": "This reward is sent by mail",
+              "shippingHelper": "We'll ask for a shipping address from whoever selects it.",
               "coverLabel": "Cover",
               "coverPlaceholder": "Click or drag your file here to upload",
               "coverHelper": "This file will be the cover for your reward"
@@ -1030,6 +1105,10 @@
           "title": "Which category fits your project?",
           "subtitle": "(You can choose a maximum of 2)"
         },
+        "themes": {
+          "title": "Which theme fits your project?",
+          "subtitle": "(Optional, you can choose one)"
+        },
         "address": {
           "title": "What is the project address?",
           "subtitle": "Search for and select the project's full address. This helps us locate your initiative.",
@@ -1050,7 +1129,9 @@
           "titleBadFormat": "The title must contain at least one letter.",
           "categoriesNotEnough": "You must select at least {{ min }} category(ies).",
           "territoryMissing": "You must specify a location.",
-          "releaseMissing": "You must specify an approximate launch date"
+          "releaseMissing": "You must specify an approximate launch date",
+          "titleInUse": "A project with this title already exists.",
+          "subtitleMissing": "You must add a brief project description."
         }
       },
       "view": {
@@ -1070,6 +1151,7 @@
             "optimal": "Optimum",
             "raised": "Raised",
             "total": "Total",
+            "empty": "This campaign has no budget items.",
             "chartTitle": "This is the budget for this campaign. Discover how your support can lead us to success.",
             "chart": {
               "secondRound": "2nd Round",
@@ -1310,13 +1392,22 @@
         "back": "Back to review"
       },
       "card": {
-        "activity": "{{ count }} chats. Last activity {{ date }}"
+        "activity": "{{ count }} chats. Last activity {{ date }}",
+        "activitySingular": "{{ count }} message. Last activity {{ date }}"
       },
       "chat": {
         "title": "{{ area }} · {{ project }}",
         "placeholder": "Write a message…",
         "send": "Send message",
         "empty": "There are no messages in this conversation yet. You start.",
+        "mdHelpTitle": "Formatting and keyboard shortcuts",
+        "mdHelpBold": "**bold** — Ctrl+B",
+        "mdHelpItalic": "_italic_ — Ctrl+I",
+        "mdHelpStrike": "~~strikethrough~~ — Ctrl+Shift+S",
+        "mdHelpQuote": "> quote — Ctrl+Shift+Q",
+        "mdHelpLink": "[text](url) — link",
+        "mdHelpImage": "![description](url) — image",
+        "mdHelpNote": "Select the text and press the shortcut, or press the shortcut with the cursor where you want to type. Enter sends and Shift+Enter adds a line break.",
         "today": "Today",
         "yesterday": "Yesterday",
         "day": "{{ date }}",
@@ -1329,7 +1420,8 @@
         "forbidden": "You do not have permission to perform this action.",
         "notFound": "The review does not exist.",
         "areaNotFound": "The risk area does not exist.",
-        "statusNotUpdated": "The project status could not be updated."
+        "statusNotUpdated": "The project status could not be updated.",
+        "generic": "An error occurred while performing the operation."
       }
     },
     "search": {
@@ -1500,7 +1592,9 @@
         "description": "Choose what is displayed on the home page.",
         "tabs": {
           "hero": "Hero",
-          "highlights": "Featured Projects"
+          "highlights": "Featured Projects",
+          "featuredUsers": "Promoters",
+          "banners": "Banners"
         },
         "hero": {
           "title": "Hero",
@@ -1510,19 +1604,6 @@
             "invalidUrl": "The link URL is not valid",
             "invalidTranslations": "The submitted translations are invalid",
             "incompleteLanguages": "Required fields are missing in: {{ languages }}"
-          },
-          "addTranslation": "Add translation",
-          "addTranslationModal": {
-            "title": "Add a new translation",
-            "description": "Search for and choose the language you want to translate the hero content into",
-            "searchPlaceholder": "Search all languages…",
-            "submit": "Add"
-          },
-          "removeTranslation": "Remove translation",
-          "removeTranslationModal": {
-            "title": "Remove this translation?",
-            "description": "The translation will be removed from the form and will not be saved.",
-            "invalidUrl": "The link URL is invalid"
           },
           "tabs": {
             "fields": "New",
@@ -1598,6 +1679,21 @@
               "search": "Search for a project",
               "submit": "Add"
             }
+          }
+        },
+        "featuredUsers": {
+          "title": "Promoters",
+          "description": "Those leading our initiative, the most outstanding ones.",
+          "selection": {
+            "title": "Select the most outstanding promoters",
+            "empty": "Search for a promoter and feature them on the homepage",
+            "add": "Add promoter",
+            "change": "Feature another promoter"
+          },
+          "modal": {
+            "title": "Add user",
+            "description": "Search for and add the user you want to feature on the homepage",
+            "search": "Search for a user"
           }
         }
       },
@@ -1884,12 +1980,12 @@
               "phone": "Phone",
               "remaining": "Pending payment",
               "btns": {
-                "changeStatus": "Change accounts",
-                "promoter": "Promoter",
                 "contributions": "Contributions",
-                "donors": "Campaign donors",
-                "financialReport": "Funding report",
-                "annotations": "Annotations"
+                "annotations": "Annotations",
+                "promoter": "Promoter",
+                "campaignPage": "View campaign page",
+                "preview": "Preview",
+                "edit": "Edit project"
               }
             },
             "noData": "No data available"
@@ -1965,7 +2061,11 @@
             "title": "Order by",
             "options": {
               "handle-asc": "Username A–Z",
-              "handle-desc": "Username Z–A"
+              "handle-desc": "Username Z–A",
+              "dateCreated-desc": "Created: newest first",
+              "dateCreated-asc": "Created: oldest first",
+              "dateUpdated-desc": "Updated: newest first",
+              "dateUpdated-asc": "Updated: oldest first"
             }
           },
           "itemsPerPage": {
@@ -1989,11 +2089,6 @@
               "individual": "Individual",
               "organization": "Organization"
             },
-            "roles": {
-              "ROLE_USER": "User",
-              "ROLE_ADMIN": "Administrator",
-              "ROLE_SUPER_ADMIN": "Super Administrator"
-            },
             "details": {
               "id": "ID",
               "handle": "User",
@@ -2003,7 +2098,17 @@
               "active": "Active",
               "totalCollected": "Total collected",
               "recentCharges": "Recent charges",
-              "noRecentCharges": "No recent charges found"
+              "dateCreated": "Registration date",
+              "dateUpdated": "Last updated",
+              "btns": {
+                "charges": "View charges",
+                "roles": "Update roles"
+              },
+              "roles": {
+                "title": "Roles",
+                "placeholder": "Search or enter a role",
+                "save": "Save roles"
+              }
             }
           }
         }
@@ -2013,7 +2118,6 @@
         "description": "Manage platform communication",
         "tabs": {
           "blog": "Blog",
-          "banners": "Announcements",
           "newsletter": "Newsletter"
         },
         "banners": {
@@ -2022,7 +2126,8 @@
           "errors": {
             "forbidden": "You do not have permission to manage ads",
             "invalidUrl": "The ad URL is invalid",
-            "invalidDateRange": "The end date cannot be earlier than the start date"
+            "invalidDateRange": "The end date cannot be earlier than the start date",
+            "incompleteLanguages": "Required fields are missing in: {{languages}}"
           },
           "tabs": {
             "fields": "New",
@@ -2046,7 +2151,8 @@
               "title": "Title",
               "content": "Content",
               "publishedAt": "Publication date",
-              "endAt": "End date"
+              "endAt": "End date",
+              "translations": "Translations"
             },
             "actions": {
               "view": "View"
@@ -2085,7 +2191,6 @@
             }
           },
           "form": {
-            "addTranslation": "Add translation",
             "titleSection": "Title and subtitle",
             "titlePlaceholder": "Add the title",
             "subtitlePlaceholder": "Add the subtitle",
@@ -2105,18 +2210,7 @@
               "newsletter": "Newsletter"
             },
             "saveAndExit": "Save and exit",
-            "publish": "Publish post",
-            "removeTranslation": "Remove translation",
-            "translationModal": {
-              "title": "Add a new translation",
-              "description": "Search for and choose the language you want to translate this post into.",
-              "searchPlaceholder": "Search all languages…",
-              "submit": "Add"
-            },
-            "removeTranslationModal": {
-              "title": "Remove this translation?",
-              "description": "The translation will be removed from the form and will not be saved."
-            }
+            "publish": "Publish post"
           }
         }
       },
@@ -2131,6 +2225,7 @@
           },
           "table": {
             "headers": {
+              "id": "ID",
               "name": "Project",
               "promoter": "Promoter",
               "dateSubmitted": "Submitted for review",
@@ -2145,7 +2240,7 @@
                 "dateRelease": "Launch",
                 "dateCreated": "Creation",
                 "lastInteraction": "Last interaction",
-                "risk": "Risk",
+                "risk": "Risks",
                 "pendingMessages": "Pending messages",
                 "minOptim": "Minimum - Optimum:",
                 "lastModified": "Last modification:",
@@ -2156,6 +2251,12 @@
                   "advisory": "Project advisory",
                   "assignAdvisor": "Assign advisor",
                   "annotations": "Annotations"
+                },
+                "modals": {
+                  "assignAdvisor": {
+                    "description": "Search for and select the advisor who will support this project during the review.",
+                    "searchPlaceholder": "Search by name or email…"
+                  }
                 }
               }
             }
@@ -2224,7 +2325,20 @@
         "subtitle": "Submit projects or fund initiatives. Complete your profile with a good introduction, relevant links, and a photo that identifies you.",
         "sidebar": {
           "publicProfile": "Public profile",
-          "personalProfile": "Personal profile"
+          "personalProfile": "Personal profile",
+          "addresses": "Addresses"
+        },
+        "addresses": {
+          "title": "Shipping addresses",
+          "subtitle": "Manage the addresses where we send your rewards.",
+          "empty": "You don't have any saved addresses yet.",
+          "add": "Add address",
+          "edit": "Edit address",
+          "default": "Default",
+          "makeDefault": "Make default",
+          "defaultError": "The default address could not be changed.",
+          "deleteTitle": "Delete this address?",
+          "deleteError": "You can't delete an address that has already been used in an order."
         },
         "profile": {
           "uploadImage": "Upload new image",

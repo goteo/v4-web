@@ -36,6 +36,31 @@ export interface OwnedCardAction {
     kind: "primary" | "secondary" | "ghost";
 }
 
+export function projectActionHref(
+    actionKey: string,
+    project: Pick<Project, "id" | "slug">,
+): string {
+    const idOrSlug = project.slug ?? project.id;
+
+    if (idOrSlug === undefined || idOrSlug === null || idOrSlug === "") {
+        return "#";
+    }
+
+    switch (actionKey) {
+        case "actions.edit":
+            return `/project/${idOrSlug}/edit`;
+        case "actions.manage":
+            return `/project/${idOrSlug}/manage`;
+        case "actions.publish":
+            return `/project/${idOrSlug}/manage`;
+        case "actions.view":
+        case "actions.viewReview":
+            return `/project/${idOrSlug}`;
+        default:
+            return `/project/${idOrSlug}`;
+    }
+}
+
 type StatusCards = Record<
     ProjectStatus,
     { tagKey?: string; showMoney: boolean; actions: OwnedCardAction[] }

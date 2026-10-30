@@ -7,7 +7,7 @@ import { checkoutRepo } from "../utils/checkouts/repository";
 import { getDefaultCurrency } from "../utils/consts";
 import { multiplyMoney, sumMoney } from "../utils/money";
 
-import type { GatewayCharge, ProjectReward } from "../openapi/client";
+import type { Address, GatewayCharge, ProjectReward } from "../openapi/client";
 
 export interface CheckoutItem extends GatewayCharge {
     key: string;
@@ -33,6 +33,12 @@ export interface CheckoutItem extends GatewayCharge {
      * Items of kind "reward" must have an associated ProjectReward
      */
     reward?: ProjectReward;
+
+    /**
+     * Where to ship the Reward, for items whose `reward.hasShipping` is true.
+     * Sent as the `address` of the ProjectRewardClaim created after payment.
+     */
+    address?: Address;
 }
 
 /**
@@ -65,6 +71,7 @@ export interface CheckoutStore {
     addItem: (item: Omit<CheckoutItem, "key">) => void;
     removeItem: (key: string) => void;
     updateQuantity: (key: string, quantity: number) => void;
+    setAddress: (key: string, address: Address) => void;
 
     clear: () => void;
     clearTarget: (target: string) => void;
@@ -114,6 +121,7 @@ const hydrated = writable(false);
 export const checkoutHydrated = { subscribe: hydrated.subscribe };
 
 let activeKey = GUEST_CHECKOUT_KEY;
+let switchedUser = false;
 let skipHydrationMerge = false;
 let queue: Promise<void> = Promise.resolve();
 
@@ -142,6 +150,8 @@ function schedulePersist() {
 }
 
 if (isBrowser) {
+    // Hydrated is set after the task, not inside it: `enqueue` swallows errors,
+    // so a failing IndexedDB read can't leave the checkout UI loading forever.
     enqueue(async () => {
         // Snapshot the key: `activeKey` can flip mid-flight when the session
         // store resolves (guest → user), and writing the guest-derived items
@@ -170,7 +180,8 @@ if (isBrowser) {
             });
         }
 
-        hydrated.set(true);
+        // A user switch queued behind this task loads another record; it reports hydration itself.
+        if (!switchedUser) hydrated.set(true);
     });
 
     session.subscribe((currentSession) => {
@@ -179,6 +190,8 @@ if (isBrowser) {
 
         const previousKey = activeKey;
         activeKey = nextKey;
+        switchedUser = true;
+        hydrated.set(false);
 
         enqueue(async () => {
             if (previousKey === GUEST_CHECKOUT_KEY && nextKey !== GUEST_CHECKOUT_KEY) {
@@ -199,6 +212,8 @@ if (isBrowser) {
 
             const record = await checkoutRepo.get(nextKey);
             state.set({ items: record?.items ?? {} });
+
+            if (nextKey === activeKey) hydrated.set(true);
         });
     });
 
@@ -258,6 +273,19 @@ export const cart: CheckoutStore = {
                 delete items[key];
             } else if (items[key]) {
                 items[key] = { ...items[key], quantity };
+            }
+
+            return { items };
+        });
+        schedulePersist();
+    },
+
+    setAddress: (key: string, address: Address) => {
+        state.update((current) => {
+            const items = { ...current.items };
+
+            if (items[key]) {
+                items[key] = { ...items[key], address };
             }
 
             return { items };
@@ -332,6 +360,13 @@ export const cartAmount = derived(cart, ($cart) => {
     if (items.length === 0) return { amount: 0, currency: getDefaultCurrency() };
     return sumMoney(items.map((item) => multiplyMoney(item.money, item.quantity)));
 });
+
+/** Reward items that must be shipped, so need an `address`. */
+export const shippingItems = derived(cart, ($cart) =>
+    Object.values($cart.items).filter(
+        (item) => item.kind === "reward" && item.reward?.hasShipping === true,
+    ),
+);
 
 export const cartByTarget = derived(cart, ($cart) => {
     const grouped: Record<string, CheckoutItem[]> = {};

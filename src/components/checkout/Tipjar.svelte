@@ -6,6 +6,7 @@
     import { cart, cartByRecipient, type CheckoutItem } from "../../stores/checkoutsStore";
     import { DEFAULT_CURRENCY } from "../../utils/currencies";
     import * as tipping from "../../utils/tipping";
+    import Checkbox from "../library/inputs/Checkbox.svelte";
     import CurrencyInput from "../library/inputs/CurrencyInput.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -93,17 +94,13 @@
     </div>
 
     <div>
-        <div class="flex items-center gap-2">
-            <input
-                id="donation-checkbox"
-                type="checkbox"
-                class="accent-primary h-6 w-6 rounded"
-                bind:checked={isChecked}
-                onchange={() => toggleTip()}
-            />
-            <label for="donation-checkbox" class="text-secondary">
-                {$t("pages.checkout.tipjar.checkboxLabel")}
-            </label>
-        </div>
+        <Checkbox
+            id="donation-checkbox"
+            bind:checked={isChecked}
+            onchange={toggleTip}
+            class="gap-2"
+        >
+            <span class="text-secondary">{$t("pages.checkout.tipjar.checkboxLabel")}</span>
+        </Checkbox>
     </div>
 </div>

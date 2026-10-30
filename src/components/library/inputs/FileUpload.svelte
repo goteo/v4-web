@@ -24,7 +24,7 @@
         dropzoneClass = "",
         maxSizeMB,
         class: className = "",
-    } = $props<{
+    }: {
         accept?: string[];
         files?: UploadedObject[];
         multiple?: boolean;
@@ -37,7 +37,7 @@
         dropzoneClass?: ClassNameValue;
         maxSizeMB?: number;
         class?: ClassNameValue;
-    }>();
+    } = $props();
 
     let isDragging = $state(false);
     let uploading = $state<Map<string, number>>(new Map());
@@ -118,10 +118,10 @@
             };
 
             files = [...files, uploaded];
-            error = null;
+            error = undefined;
             onUpload?.(uploaded);
         } catch (err) {
-            error = err instanceof Error ? err.message : "Upload failed";
+            error = err instanceof Error ? err.message : $t("system.error.file.uploadFailed");
             console.error("File upload error:", err);
         } finally {
             const next = new Map(uploading);
@@ -133,7 +133,7 @@
     async function handleFiles(fileList: FileList | null) {
         if (!fileList) return;
 
-        error = null;
+        error = undefined;
 
         const validFiles = Array.from(fileList).filter(validate);
 

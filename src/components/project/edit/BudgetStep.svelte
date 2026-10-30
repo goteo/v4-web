@@ -15,8 +15,10 @@
 
     let {
         draft,
+        onContinue,
     }: {
         draft: ProjectDraftStore;
+        onContinue?: () => void;
     } = $props();
 
     let minBudgetItems = $state(loadMinBudgetItems());
@@ -174,7 +176,8 @@
 </div>
 
 <div class="mt-10 flex">
-    <Button kind="secondary" size="md" class="min-w-50">
+    <!-- TO-DO: Enable navigation to the "About you" step. That step is implemented in a separate task. -->
+    <Button kind="secondary" size="md" class="min-w-50" onclick={() => onContinue?.()}>
         {$t("pages.project.edit.budget.continue")}
     </Button>
 </div>
