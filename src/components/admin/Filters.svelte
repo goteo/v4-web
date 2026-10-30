@@ -3,9 +3,7 @@
     import { t } from "../../i18n/store";
     import Bullet from "../icons/Bullet.svelte";
     import FiltersIcon from "../icons/filters/Filters.svelte";
-    import ActionableButton, {
-        type ActionableState,
-    } from "../library/buttons/ActionableButton.svelte";
+    import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Button from "../library/buttons/Button.svelte";
     import FilterComposer from "../library/filters/FilterComposer.svelte";
 
@@ -36,15 +34,11 @@
     let previousComposerKeys = $state<string[]>([]);
     let previousComposerParams = $state("");
 
-    let applyButtonState = $state<ActionableState>("actionable");
-
     function handleComposerParamsChange(params: Record<string, string | string[]>) {
         composerParams = params;
     }
 
     async function applyComposerFilters() {
-        if (applyButtonState !== "actionable") return;
-
         const result = { ...filters };
         const allComposerKeys = new Set([...previousComposerKeys, ...Object.keys(composerParams)]);
 
@@ -57,17 +51,7 @@
 
         previousComposerKeys = Object.keys(composerParams);
 
-        applyButtonState = "loading";
-        try {
-            await onApplyFilters(result);
-        } finally {
-            applyButtonState = "actioned";
-            setTimeout(() => {
-                if (applyButtonState === "actioned") {
-                    applyButtonState = "actionable";
-                }
-            }, APPLY_AUTORESET_MS);
-        }
+        await onApplyFilters(result);
     }
 
     function hasActiveFilters() {
@@ -137,7 +121,6 @@
                         kind="primary"
                         class="w-fit"
                         action={applyComposerFilters}
-                        bind:state={applyButtonState}
                         autoreset={APPLY_AUTORESET_MS}
                     >
                         {$t("pages.admin.filter.btns.apply")}

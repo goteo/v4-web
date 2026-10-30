@@ -124,7 +124,6 @@
             });
         } finally {
             table.isLoading = false;
-            table.isFirstLoad = false;
         }
     }
 

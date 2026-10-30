@@ -396,6 +396,7 @@
       "search": "Buscar",
       "createProject": "Crea tu proyecto",
       "goToProfile": "Ir a Perfil",
+      "menu": "Menú",
       "admin": "Administración"
     },
     "footer": {
@@ -484,6 +485,15 @@
       }
     },
     "_": "Contenido específico de páginas (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Crea tu cuenta",
+      "description": "Regístrate en Goteo para apoyar proyectos y crear los tuyos.",
+      "existUserInfo": "Si ya eres usuario de Goteo, inicia sesión con tu cuenta.",
+      "submit": "Crear cuenta",
+      "organization": {
+        "taxIdHelper": "CIF de la empresa"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Checkout",
@@ -506,6 +516,27 @@
         }
       },
       "changeAddressLabel": "Enviar esta recompensa a una dirección distinta a la mia.",
+      "shipping": {
+        "title": "¿Dónde enviamos tus recompensas?",
+        "description": "Algunas de tus recompensas se envían por correo. Indícanos a qué dirección enviar cada una.",
+        "noAddress": "Todavía no tienes ninguna dirección guardada.",
+        "missing": "Añade una dirección de envío para continuar.",
+        "addAddress": "Añadir dirección",
+        "error": "No se ha podido guardar la dirección.",
+        "modal": {
+          "title": "Dirección de envío",
+          "newAddress": "Nueva dirección"
+        },
+        "fields": {
+          "firstName": "Nombre",
+          "lastName": "Apellidos",
+          "line1": "Dirección",
+          "line2": "Piso, puerta, etc. (opcional)",
+          "city": "Ciudad",
+          "postCode": "Código postal",
+          "country": "País"
+        }
+      },
       "title": "Caja",
       "summary": {
         "toRecipient": "{{ amount }} a {{ name }}",
@@ -526,6 +557,9 @@
         },
         "data": {
           "title": "Tus datos"
+        },
+        "shipping": {
+          "title": "Envío"
         },
         "payment": {
           "title": "Método de pago"
@@ -913,6 +947,8 @@
               "descriptionHelper": "La descripción puede contener texto enriquecido, pero se recortará en tarjetas pequeñas",
               "moneyLabel": "Precio",
               "moneyHelper": "Indica la donación mínima a realizar para reclamar esta recompensa",
+              "shippingLabel": "Esta recompensa se envía por correo",
+              "shippingHelper": "Pediremos una dirección de envío a quien la elija.",
               "coverLabel": "Portada",
               "coverPlaceholder": "Haz click o arrastra aquí tu archivo para subirlo",
               "coverHelper": "Este archivo será la portada de tu recompensa"
@@ -1077,6 +1113,10 @@
           "title": "¿Qué categoría se ajusta a tu proyecto?",
           "subtitle": "(Puedes elegir un máximo de 2)"
         },
+        "themes": {
+          "title": "¿Qué tema se ajusta a tu proyecto?",
+          "subtitle": "(Opcional, puedes elegir uno)"
+        },
         "address": {
           "title": "¿Cuál es la dirección del proyecto?",
           "subtitle": "Busca y selecciona la dirección completa del proyecto. Esto nos ayuda a ubicar tu iniciativa.",
@@ -1097,7 +1137,9 @@
           "titleBadFormat": "El título debe contener al menos una letra.",
           "categoriesNotEnough": "Debes seleccionar al menos {{ min }} categoría(s).",
           "territoryMissing": "Debes especificar un lugar.",
-          "releaseMissing": "Debes especificar una fecha de salida aproximada"
+          "releaseMissing": "Debes especificar una fecha de salida aproximada",
+          "titleInUse": "Ya existe un proyecto con este título.",
+          "subtitleMissing": "Debes añadir una breve descripción del proyecto."
         }
       },
       "view": {
@@ -1117,6 +1159,7 @@
             "optimal": "Óptimo",
             "raised": "Obtenido",
             "total": "Total",
+            "empty": "Esta campaña no tiene partidas de presupuesto.",
             "chartTitle": "Este es el presupuesto para esta campaña. Descubre cómo tu apoyo puede llevarnos al éxito.",
             "chart": {
               "secondRound": "2ª Ronda",
@@ -1561,7 +1604,8 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
-          "featuredUsers": "Impulsores"
+          "featuredUsers": "Impulsores",
+          "banners": "Anuncios"
         },
         "hero": {
           "title": "Hero",
@@ -1947,12 +1991,12 @@
               "phone": "Teléfono",
               "remaining": "Falta por pagar",
               "btns": {
-                "changeStatus": "Cambiar cuentas",
-                "promoter": "Impulsor",
                 "contributions": "Aportes",
-                "donors": "Donantes de campaña",
-                "financialReport": "Informe financiación",
-                "annotations": "Anotaciones"
+                "annotations": "Anotaciones",
+                "promoter": "Impulsor",
+                "campaignPage": "Ver página de campaña",
+                "preview": "Vista previa",
+                "edit": "Editar proyecto"
               }
             },
             "noData": "No hay datos disponibles"
@@ -2085,7 +2129,6 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncios",
           "newsletter": "Boletín"
         },
         "banners": {
@@ -2309,7 +2352,20 @@
         "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
         "sidebar": {
           "publicProfile": "Perfil público",
-          "personalProfile": "Perfil personal"
+          "personalProfile": "Perfil personal",
+          "addresses": "Direcciones"
+        },
+        "addresses": {
+          "title": "Direcciones de envío",
+          "subtitle": "Gestiona las direcciones a las que te enviamos las recompensas.",
+          "empty": "Todavía no tienes ninguna dirección guardada.",
+          "add": "Añadir dirección",
+          "edit": "Editar dirección",
+          "default": "Predeterminada",
+          "makeDefault": "Hacer predeterminada",
+          "defaultError": "No se ha podido cambiar la dirección predeterminada.",
+          "deleteTitle": "¿Borrar esta dirección?",
+          "deleteError": "No se puede borrar una dirección que ya se ha usado en un pedido."
         },
         "profile": {
           "uploadImage": "Sube nueva imagen",

@@ -45,6 +45,7 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
@@ -107,6 +108,17 @@
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
+
+    const updatingStatus = new SvelteSet<number>();
+
+    async function handleStatusChange(projectId: number, status: ProjectStatus) {
+        updatingStatus.add(projectId);
+        try {
+            await onStatusChange?.(projectId, status);
+        } finally {
+            updatingStatus.delete(projectId);
+        }
+    }
 
     const statusLabel = (status: string) =>
         $t(`domain.project.status.${status.replaceAll(".", "_")}`);

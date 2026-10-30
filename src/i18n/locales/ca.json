@@ -388,6 +388,7 @@
       "search": "Cercar",
       "createProject": "Crea el teu projecte",
       "goToProfile": "Anar al perfil",
+      "menu": "Menú",
       "admin": "Administració"
     },
     "footer": {
@@ -476,6 +477,15 @@
       }
     },
     "_": "Contingut especifíc de la pàgina (/home, /search, /project/[id], etc.)",
+    "register": {
+      "title": "Crea el teu compte",
+      "description": "Registra't a Goteo per donar suport a projectes i crear els teus.",
+      "existUserInfo": "Si ja ets usuari de Goteo, inicia sessió amb el teu compte.",
+      "submit": "Crea un compte",
+      "organization": {
+        "taxIdHelper": "CIF de l'empresa"
+      }
+    },
     "checkout": {
       "metadata": {
         "title": "Pagament",
@@ -498,6 +508,27 @@
         }
       },
       "changeAddressLabel": "Enviar aquesta recompensa a una adreça diferent de la meva.",
+      "shipping": {
+        "title": "On enviem les teves recompenses?",
+        "description": "Algunes de les teves recompenses s'envien per correu. Indica'ns a quina adreça hem d'enviar cadascuna.",
+        "noAddress": "Encara no tens cap adreça desada.",
+        "missing": "Afegeix una adreça d'enviament per continuar.",
+        "addAddress": "Afegir adreça",
+        "error": "No s'ha pogut desar l'adreça.",
+        "modal": {
+          "title": "Adreça d'enviament",
+          "newAddress": "Adreça nova"
+        },
+        "fields": {
+          "firstName": "Nom",
+          "lastName": "Cognoms",
+          "line1": "Adreça",
+          "line2": "Pis, porta, etc. (opcional)",
+          "city": "Ciutat",
+          "postCode": "Codi postal",
+          "country": "País"
+        }
+      },
       "title": "Caixa",
       "summary": {
         "toRecipient": "{{ amount }} a {{ name }}",
@@ -518,6 +549,9 @@
         },
         "data": {
           "title": "Les teves dades"
+        },
+        "shipping": {
+          "title": "Enviament"
         },
         "payment": {
           "title": "Mètode de pagament"
@@ -905,6 +939,8 @@
               "descriptionHelper": "La descripció pot contenir text enriquit, però es retallarà en targetes petites",
               "moneyLabel": "Preu",
               "moneyHelper": "Indica la donació mínima que cal fer per reclamar aquesta recompensa",
+              "shippingLabel": "Aquesta recompensa s'envia per correu",
+              "shippingHelper": "Demanarem una adreça d'enviament a qui la triï.",
               "coverLabel": "Portada",
               "coverPlaceholder": "Fes clic o arrossega aquí el teu fitxer per pujar-lo",
               "coverHelper": "Aquest fitxer serà la portada de la teva recompensa"
@@ -1069,6 +1105,10 @@
           "title": "Quina categoria s'ajusta al teu projecte?",
           "subtitle": "(Pots triar un màxim de 2)"
         },
+        "themes": {
+          "title": "Quin tema s'ajusta al teu projecte?",
+          "subtitle": "(Opcional, en pots triar un)"
+        },
         "address": {
           "title": "Quina és l'adreça del projecte?",
           "subtitle": "Cerca i selecciona l'adreça completa del projecte. Això ens ajuda a ubicar la teva iniciativa.",
@@ -1089,7 +1129,9 @@
           "titleBadFormat": "El títol ha de contenir almenys una lletra.",
           "categoriesNotEnough": "Has de seleccionar almenys {{ min }} categoria/es.",
           "territoryMissing": "Has d'especificar un lloc.",
-          "releaseMissing": "Has d'especificar una data de llançament aproximada"
+          "releaseMissing": "Has d'especificar una data de llançament aproximada",
+          "titleInUse": "Ja existeix un projecte amb aquest títol.",
+          "subtitleMissing": "Has d'afegir una breu descripció del projecte."
         }
       },
       "view": {
@@ -1109,6 +1151,7 @@
             "optimal": "Òptim",
             "raised": "Obtingut",
             "total": "Total",
+            "empty": "Aquesta campanya no té partides de pressupost.",
             "chartTitle": "Aquest és el pressupost per a aquesta campanya. Descobreix com el teu suport ens pot portar a l'èxit.",
             "chart": {
               "secondRound": "2a ronda",
@@ -1550,7 +1593,8 @@
         "tabs": {
           "hero": "Heroi",
           "highlights": "P. destacats",
-          "featuredUsers": "Impulsors"
+          "featuredUsers": "Impulsors",
+          "banners": "Anuncis"
         },
         "hero": {
           "title": "Heroi",
@@ -1936,12 +1980,12 @@
               "phone": "Telèfon",
               "remaining": "Falta per pagar",
               "btns": {
-                "changeStatus": "Canviar comptes",
-                "promoter": "Impulsor",
                 "contributions": "Aportacions",
-                "donors": "Donants de campanya",
-                "financialReport": "Informe de finançament",
-                "annotations": "Anotacions"
+                "annotations": "Anotacions",
+                "promoter": "Impulsor",
+                "campaignPage": "Veure la pàgina de la campanya",
+                "preview": "Previsualitzar",
+                "edit": "Editar projecte"
               }
             },
             "noData": "No hi ha dades disponibles"
@@ -2074,7 +2118,6 @@
         "description": "Administra la comunicació de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "banners": "Anuncis",
           "newsletter": "Butlletí"
         },
         "banners": {
@@ -2282,7 +2325,20 @@
         "subtitle": "Presenta projectes o finança iniciatives. Completa el teu perfil amb una bona presentació, enllaços rellevants i una foto que t'identifiqui.",
         "sidebar": {
           "publicProfile": "Perfil públic",
-          "personalProfile": "Perfil personal"
+          "personalProfile": "Perfil personal",
+          "addresses": "Adreces"
+        },
+        "addresses": {
+          "title": "Adreces d'enviament",
+          "subtitle": "Gestiona les adreces a les quals t'enviem les recompenses.",
+          "empty": "Encara no tens cap adreça desada.",
+          "add": "Afegir adreça",
+          "edit": "Editar adreça",
+          "default": "Predeterminada",
+          "makeDefault": "Fer predeterminada",
+          "defaultError": "No s'ha pogut canviar l'adreça predeterminada.",
+          "deleteTitle": "Vols esborrar aquesta adreça?",
+          "deleteError": "No es pot esborrar una adreça que ja s'ha fet servir en una comanda."
         },
         "profile": {
           "uploadImage": "Puja una imatge nova",

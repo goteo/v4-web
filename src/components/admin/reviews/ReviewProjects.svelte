@@ -158,7 +158,10 @@
     }
 
     async function fetchTotalEarned(projectIris: string[]) {
-        if (!projectIris.length) return;
+        if (!projectIris.length) {
+            totalEarned = formatCurrency(0, import.meta.env.PUBLIC_DEFAULT_CURRENCY);
+            return;
+        }
 
         const { data } = await apiProjectSupportsmoneyTotalGetCollection({
             baseUrl: "/api/relay",
@@ -324,7 +327,7 @@
 
             hydrate(reviews);
             hydrateRisks(reviews);
-            fetchTotalEarned(unique(reviews.map((review) => review.project)));
+            await fetchTotalEarned(unique(reviews.map((review) => review.project)));
         } finally {
             table.isLoading = false;
         }
