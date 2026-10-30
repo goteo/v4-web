@@ -3,6 +3,7 @@
 
     import { t } from "../../i18n/store";
     import { apiProjectSupportsIdPatch, type ProjectSupport } from "../../openapi/client";
+    import Spinner from "../icons/status/Spinner.svelte";
     import Button from "../library/buttons/Button.svelte";
     import TextArea from "../library/inputs/TextArea.svelte";
 
@@ -21,6 +22,7 @@
     }: Props = $props();
 
     let message = $state("");
+    let isSubmitting = $state(false);
 
     async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
@@ -28,6 +30,7 @@
         const trimmed = message.trim();
         if (!trimmed || trimmed === support?.message) return;
 
+        isSubmitting = true;
         try {
             await apiProjectSupportsIdPatch({
                 baseUrl: "/api/relay",
@@ -45,6 +48,8 @@
             open = false;
         } catch (e) {
             console.error("PATCH FAILED", e);
+        } finally {
+            isSubmitting = false;
         }
     }
 
@@ -68,8 +73,16 @@
             labelText={$t("pages.checkout.verify.approved.formReview.commentModal.label")}
             bind:value={message}
         />
-        <Button type="submit" class="w-full self-center md:w-fit md:self-end">
-            {$t("common.save")}
+        <Button
+            type="submit"
+            class="w-full self-center md:w-fit md:self-end"
+            disabled={isSubmitting}
+        >
+            {#if isSubmitting}
+                <Spinner />
+            {:else}
+                {$t("common.save")}
+            {/if}
         </Button>
     </form>
 </Modal>

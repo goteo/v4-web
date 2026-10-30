@@ -1,0 +1,51 @@
+<script lang="ts">
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
+
+    import { t } from "../../i18n/store";
+
+    interface Props {
+        class?: ClassNameValue;
+        /** Adds the link and image syntax, which only the admin may use. */
+        canInsertRich?: boolean;
+    }
+
+    let { class: classes = "", canInsertRich = false }: Props = $props();
+
+    let helpItems = $derived([
+        $t("pages.review.chat.mdHelpBold"),
+        $t("pages.review.chat.mdHelpItalic"),
+        $t("pages.review.chat.mdHelpStrike"),
+        $t("pages.review.chat.mdHelpQuote"),
+        ...(canInsertRich
+            ? [$t("pages.review.chat.mdHelpLink"), $t("pages.review.chat.mdHelpImage")]
+            : []),
+    ]);
+</script>
+
+<div class={twMerge("group relative", classes)}>
+    <button
+        type="button"
+        aria-label={$t("pages.review.chat.mdHelpTitle")}
+        aria-haspopup="dialog"
+        aria-describedby="chat-markdown-help"
+        class="border-grey flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full border bg-white text-xs text-current"
+    >
+        ?
+    </button>
+
+    <div
+        id="chat-markdown-help"
+        role="dialog"
+        class="border-variant1 bg-grey absolute right-0 bottom-full z-50 mb-2 hidden w-72 rounded-xl border p-3 shadow-lg group-focus-within:block group-hover:block"
+    >
+        <p class="text-content mb-2 text-xs font-semibold">
+            {$t("pages.review.chat.mdHelpTitle")}
+        </p>
+        <ul class="text-content list-inside list-disc space-y-1 text-xs">
+            {#each helpItems as item}
+                <li>{item}</li>
+            {/each}
+        </ul>
+        <p class="text-content mt-2 text-xs">{$t("pages.review.chat.mdHelpNote")}</p>
+    </div>
+</div>

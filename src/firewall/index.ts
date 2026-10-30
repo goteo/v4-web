@@ -1,4 +1,4 @@
-import { ACL, type ControlItem } from "./access-control";
+import { ACL, CACHED_SESSION_PATHS, type ControlItem } from "./access-control";
 import { isSupportedLocale } from "../i18n/locales";
 
 const regexCache = new Map<string, RegExp>();
@@ -65,6 +65,17 @@ export function getMatchingACL(pathname: string): ControlItem | null {
     }
 
     return null;
+}
+
+/**
+ * Checks if a pathname can use the session stored in the cookie without re-fetching the User.
+ * @param pathname The pathname to check, e.g. "/api/relay/v4/projects"
+ * @returns True if the cached session is enough, false if it must be refreshed
+ */
+export function allowsCachedSession(pathname: string): boolean {
+    const normalized = normalizePath(pathname);
+
+    return CACHED_SESSION_PATHS.some((path) => matchesPath(normalized, path));
 }
 
 /**

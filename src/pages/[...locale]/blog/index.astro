@@ -1,0 +1,49 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../layouts/App.svelte";
+import BlogList from "../../../components/blog/BlogList.svelte";
+import { blogPostRepository } from "../../../repositories/blogPosts";
+import { BLOG_SECTIONS } from "../../../utils/blog";
+
+import type { BlogSection } from "../../../utils/blog";
+
+const { t, lang } = Astro.locals;
+
+const PER_PAGE = 9;
+
+const params = Astro.url.searchParams;
+const sectionParam = params.get("section") as BlogSection;
+const section = BLOG_SECTIONS.includes(sectionParam) ? sectionParam : null;
+const page = Math.max(1, Number.parseInt(params.get("page") ?? "1") || 1);
+
+const { posts, total } = await blogPostRepository.getPublished(lang, {
+    section,
+    page,
+    perPage: PER_PAGE,
+});
+---
+
+<Layout title={t("pages.blog.title")} description={t("pages.blog.description")}>
+    <App client:load locale={lang}>
+        <!-- .wrapper sets padding and margin outside Tailwind's layers, so spacing goes inside. -->
+        <section class="wrapper">
+            <div class="flex flex-col gap-10 pt-10 pb-20">
+                <div class="flex max-w-200 flex-col gap-4">
+                    <h1 class="text-secondary text-4xl leading-12 font-bold">
+                        {t("pages.blog.title")}
+                    </h1>
+                    <p class="text-content text-base">{t("pages.blog.description")}</p>
+                </div>
+
+                <BlogList
+                    client:load
+                    posts={posts}
+                    total={total}
+                    page={page}
+                    perPage={PER_PAGE}
+                    section={section}
+                />
+            </div>
+        </section>
+    </App>
+</Layout>

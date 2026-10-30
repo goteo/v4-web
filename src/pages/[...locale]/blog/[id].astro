@@ -1,0 +1,24 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../layouts/App.svelte";
+import BlogPost from "../../../components/blog/BlogPost.svelte";
+import { blogPostRepository } from "../../../repositories/blogPosts";
+import { textsIn } from "../../../utils/blog";
+
+const { lang } = Astro.locals;
+
+const id = Number(Astro.params.id);
+const post = Number.isInteger(id) && id > 0 ? await blogPostRepository.getById(id) : null;
+
+if (!post?.published) {
+    return Astro.rewrite("/404");
+}
+
+const texts = textsIn(post, lang);
+---
+
+<Layout title={texts.title} description={texts.subtitle ?? undefined}>
+    <App client:load locale={lang}>
+        <BlogPost post={post} client:load />
+    </App>
+</Layout>

@@ -1,0 +1,16 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import ReviewProjects from "../../../../components/admin/reviews/ReviewProjects.svelte";
+
+const { t, lang, session } = Astro.locals;
+---
+
+<Layout
+    title={t("pages.admin.reviews.projects.title")}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session} admin>
+        <ReviewProjects client:load />
+    </App>
+</Layout>

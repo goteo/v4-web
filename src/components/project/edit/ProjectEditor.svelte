@@ -14,6 +14,7 @@
     - Disabled tab: border-light-muted, text-light-muted
 -->
 <script lang="ts">
+    import ProjectPreviewModal from "./ProjectPreviewModal.svelte";
     import { t } from "../../../i18n/store";
     import { apiProjectsIdPatch } from "../../../openapi/client";
     import { zProjectProjectUpdationDto } from "../../../openapi/client/zod.gen";
@@ -58,6 +59,7 @@
     ]);
 
     let errorMessage: string | undefined = $state();
+    let previewOpen = $state(false);
 
     function handleTitleChange(title: string) {
         const [error] = validate(title, zProjectProjectUpdationDto.shape.title);
@@ -135,7 +137,12 @@
                     selected={$draft.lang}
                     onSelect={onLangChange}
                 />
-                <Button class="whitespace-nowrap" kind="ghost" size="md" disabled={true}>
+                <Button
+                    class="whitespace-nowrap"
+                    kind="ghost"
+                    size="md"
+                    onclick={() => (previewOpen = true)}
+                >
                     <Eye class="size-5" />
                     {$t("common.preview")}
                 </Button>
@@ -190,3 +197,5 @@
         </div>
     </div>
 </div>
+
+<ProjectPreviewModal bind:open={previewOpen} project={$draft.latest} />

@@ -24,6 +24,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         descriptionKey: "pages.admin.projects.description",
     },
     {
+        href: "/admin/reviews/projects",
+        labelKey: "pages.admin.nav.reviews",
+        descriptionKey: "pages.admin.reviews.description",
+    },
+    {
         href: "/admin/users",
         labelKey: "pages.admin.nav.users",
         descriptionKey: "pages.admin.users.description",
@@ -33,7 +38,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         labelKey: "pages.admin.nav.comm",
         descriptionKey: "pages.admin.comm.description",
         subSections: [
-            { href: "/admin/comm/banners", labelKey: "pages.admin.comm.tabs.banners" },
+            { href: "/admin/comm/blog", labelKey: "pages.admin.comm.tabs.blog" },
             { href: "/admin/comm/newsletter", labelKey: "pages.admin.comm.tabs.newsletter" },
         ],
     },
@@ -44,6 +49,8 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         subSections: [
             { href: "/admin/home/hero", labelKey: "pages.admin.home.tabs.hero" },
             { href: "/admin/home/highlights", labelKey: "pages.admin.home.tabs.highlights" },
+            { href: "/admin/home/featured-users", labelKey: "pages.admin.home.tabs.featuredUsers" },
+            { href: "/admin/home/banners", labelKey: "pages.admin.home.tabs.banners" },
         ],
     },
 ];

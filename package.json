@@ -10,6 +10,7 @@
     "check:svelte": "svelte-check --tsconfig ./tsconfig.json",
     "check:types": "pnpm check:astro && pnpm check:svelte",
     "db:migrate": "wrangler d1 migrations apply goteov4web-db --local",
+    "db:rebuild": "wrangler d1 execute goteov4web-db --local --command=\"DELETE FROM d1_migrations\" && wrangler d1 migrations apply goteov4web-db --local",
     "db:seed": "wrangler d1 execute goteov4web-db --local --file=./db/seed.sql",
     "dev": "astro dev",
     "format": "NODE_OPTIONS=\"--max-old-space-size=4096\" eslint --fix . && prettier --write .",
@@ -22,7 +23,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/cloudflare": "14.2.6",
+    "@astrojs/cloudflare": "14.4.1",
     "@astrojs/node": "^11.1.5",
     "@astrojs/svelte": "^9.0.1",
     "@aws-sdk/client-s3": "^3.1090.0",
@@ -39,7 +40,7 @@
     "@tiptap/starter-kit": "^3.28.0",
     "@tiptap/static-renderer": "3.28.0",
     "@types/iso-3166-2": "^1.0.4",
-    "astro": "7.2.10",
+    "astro": "7.4.1",
     "bits-ui": "^2.18.1",
     "chart.js": "^4.5.1",
     "csrf": "^3.1.0",
@@ -97,6 +98,6 @@
     "vite": "^8.3.0",
     "vitest": "^4.1.10",
     "wait-on": "^9.0.10",
-    "wrangler": "^4.127.1"
+    "wrangler": "^4.151.3"
   }
 }

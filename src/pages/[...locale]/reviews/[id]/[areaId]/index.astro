@@ -1,0 +1,69 @@
+---
+import Layout from "../../../../../layouts/Layout.astro";
+import App from "../../../../../layouts/App.svelte";
+import ReviewChat from "../../../../../components/review/ReviewChat.svelte";
+import {
+    canAccessReview,
+    isConsultant,
+    sessionUserIri,
+} from "../../../../../services/reviewAccess";
+import { getReview, getReviewArea, getReviewAuthors } from "../../../../../services/projectReview";
+import { getReviewedProject } from "../../../../../services/reviewProject";
+import { goto } from "../../../../../utils/navigation";
+
+const { t, lang, session } = Astro.locals;
+
+const { id, areaId } = Astro.params;
+
+if (!session) {
+    const requestUrl = new URL(Astro.request.url);
+    return goto("/login", { query: { callback: requestUrl.pathname + requestUrl.search } });
+}
+
+if (!id || !/^\d+$/.test(id) || !areaId || !/^\d+$/.test(areaId)) {
+    return Astro.rewrite("/404");
+}
+
+const { data: review } = await getReview(id, session, lang);
+
+if (!review) {
+    return Astro.rewrite("/404");
+}
+
+// Only the consultant admin and the promoter owning the reviewed project get in.
+if (!(await canAccessReview(session, review))) {
+    return Astro.rewrite("/403");
+}
+
+const { data: area } = await getReviewArea(id, areaId, session, lang);
+
+if (!area) {
+    return Astro.rewrite("/404");
+}
+
+const { data: authors } = await getReviewAuthors(review, [area], session, lang);
+
+const project = await getReviewedProject(review, session, lang);
+
+// Only the consultant admin may assess risks from here, same as on the areas screen.
+const isReviewer = isConsultant(session);
+---
+
+<Layout
+    title={t("pages.review.chat.title", { area: area.title, project: project?.title ?? "" })}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session}>
+        <ReviewChat
+            client:load
+            reviewId={review.id}
+            {area}
+            authors={authors ?? []}
+            currentUserIri={sessionUserIri(session)}
+            reviewerIri={review.reviewer}
+            projectTitle={project?.title ?? ""}
+            canEditRisk={isReviewer}
+            locale={lang}
+        />
+    </App>
+</Layout>

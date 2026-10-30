@@ -98,6 +98,7 @@ export function extractTerritory(result: NominatimResult): Territory {
  * @param value
  * @param limit
  * @param extratags
+ * @param signal
  * @see https://nominatim.org/release-docs/develop/api/Search/
  * @returns
  */
@@ -105,6 +106,7 @@ export async function searchPlace(
     value: string,
     limit: number = 6,
     extratags: boolean = false,
+    signal?: AbortSignal,
 ): Promise<NominatimResult[]> {
     const url = new URL(
         "/search?" +
@@ -129,5 +131,5 @@ export async function searchPlace(
         await cache.add(url);
     }
 
-    return await fetch(url).then((res) => res.json());
+    return await fetch(url, { signal }).then((res) => res.json());
 }

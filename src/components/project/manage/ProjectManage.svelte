@@ -2,7 +2,7 @@
     import { TableBodyCell } from "flowbite-svelte";
 
     import ClaimStatusModal, { CLAIM_STATUSES, type ClaimStatus } from "./ClaimStatusModal.svelte";
-    import { t } from "../../../i18n/store";
+    import { locale, t } from "../../../i18n/store";
     import {
         apiProjectCollaborationCandidaciesGetCollection,
         apiProjectCollaborationCandidaciesIdPatch,
@@ -29,6 +29,7 @@
     import { setCookie } from "../../../utils/cookies";
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
+    import { formatAddress } from "../../../utils/formatAddress";
     import { toCollectionItems } from "../../../utils/hydra";
     import ExportCsv from "../../admin/ExportCsv.svelte";
     import UnitIcon from "../../icons/UnitIcon.svelte";
@@ -211,14 +212,6 @@
         }
     }
 
-    function formatAddress(address: ProjectRewardClaim["shippingAddress"]): string {
-        if (!address) return "—";
-        const { addressLine1, addressLine2, postCode, city, country } = address;
-        return [addressLine1, addressLine2, `${postCode} ${city}`, country]
-            .filter(Boolean)
-            .join(", ");
-    }
-
     $effect(() => {
         const query = { project: String(project.id), "order[money.amount]": "asc" as const };
 
@@ -361,7 +354,9 @@
                     <span class="block truncate">{userNames[claim.owner ?? ""] ?? "—"}</span>
                 </TableBodyCell>
                 <TableBodyCell class={cell}>
-                    <span class="block truncate">{formatAddress(claim.shippingAddress)}</span>
+                    <span class="block truncate"
+                        >{claim.address ? formatAddress(claim.address, $locale) : "—"}</span
+                    >
                 </TableBodyCell>
                 <TableBodyCell class={cell}>
                     {#if reward}

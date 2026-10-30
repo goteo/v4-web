@@ -1,0 +1,221 @@
+<script lang="ts">
+    import { tick } from "svelte";
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
+
+    import ChatMarkdownHelp from "./ChatMarkdownHelp.svelte";
+    import { t } from "../../i18n/store";
+    import Send from "../icons/actions/Send.svelte";
+
+    interface Props {
+        class?: ClassNameValue;
+        /** Message being written, two-way bound so the sender can clear it. */
+        value?: string;
+        disabled?: boolean;
+        /** Advertises the link and image syntax, only meaningful for the admin. */
+        canInsertRich?: boolean;
+        /**
+         * How long the API requires a message to be. When given, a counter shows how
+         * close the draft is to it and disappears once reached; nothing stops the text
+         * from being written.
+         */
+        minLength?: number;
+        onSend?: () => void;
+    }
+
+    let {
+        class: classes = "",
+        value = $bindable(""),
+        disabled = false,
+        canInsertRich = false,
+        minLength,
+        onSend,
+    }: Props = $props();
+
+    let textareaEl = $state<HTMLTextAreaElement | undefined>(undefined);
+
+    let isEmpty = $derived(!value.trim());
+
+    /** How much of the draft the API would receive, since the message is trimmed before sending. */
+    let length = $derived(value.trim().length);
+
+    /** Too short to be accepted: the ring counter is shown until the draft reaches it. */
+    let isTooShort = $derived(minLength !== undefined && length < minLength);
+
+    /** Radius of the counter ring, in the units of its 32×32 viewbox. */
+    const RING_RADIUS = 14;
+    const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+    /** How much of the ring is drawn, completing as the draft reaches the minimum. */
+    let progress = $derived(minLength && minLength > 0 ? Math.min(length / minLength, 1) : 1);
+
+    let ringOffset = $derived(RING_CIRCUMFERENCE * (1 - progress));
+
+    function handleSend() {
+        if (disabled || isEmpty || isTooShort) return;
+
+        onSend?.();
+    }
+
+    /**
+     * Enter sends and Shift+Enter breaks the line, the convention of every chat
+     * client. Ctrl/Cmd apply the chat formatting to the selection (or the caret
+     * when nothing is selected).
+     */
+    function handleKeydown(event: KeyboardEvent) {
+        const withModifier = event.ctrlKey || event.metaKey;
+
+        if (event.key === "Enter" && !event.shiftKey && !withModifier) {
+            event.preventDefault();
+            handleSend();
+
+            return;
+        }
+
+        // `event.code` is layout independent, so the shortcuts work on any keyboard.
+        if (!withModifier) return;
+
+        switch (event.code) {
+            case "KeyB":
+                event.preventDefault();
+                wrapSelection("**");
+                break;
+            case "KeyI":
+                event.preventDefault();
+                wrapSelection("*");
+                break;
+            case "KeyS":
+                if (event.shiftKey) {
+                    event.preventDefault();
+                    wrapSelection("~~");
+                }
+                break;
+            case "KeyQ":
+                if (event.shiftKey) {
+                    event.preventDefault();
+                    togglePrefix("> ");
+                }
+                break;
+        }
+    }
+
+    /**
+     * Wraps the selection between `delimiter` marks, or plants both marks with the
+     * caret in between when nothing is selected, so typing just continues.
+     */
+    function wrapSelection(delimiter: string): void {
+        const el = textareaEl;
+
+        if (!el) return;
+
+        const start = el.selectionStart;
+        const selected = value.slice(start, el.selectionEnd);
+
+        value = `${value.slice(0, start)}${delimiter}${selected}${delimiter}${value.slice(el.selectionEnd)}`;
+
+        restoreFocus(start + delimiter.length + selected.length);
+    }
+
+    /**
+     * Prepends `prefix` (or removes it when already present) on every line the
+     * selection covers, which is how the quote and list markers behave.
+     */
+    function togglePrefix(prefix: string): void {
+        const el = textareaEl;
+
+        if (!el) return;
+
+        const blockStart = value.lastIndexOf("\n", el.selectionStart - 1) + 1;
+        const nextBreak = value.slice(el.selectionEnd).indexOf("\n");
+        const blockEnd = nextBreak === -1 ? value.length : el.selectionEnd + nextBreak;
+        const lines = value.slice(blockStart, blockEnd).split("\n");
+        const prefixed = new RegExp(`^\\s*${escapeRegExp(prefix)}`);
+        const applied = lines.every((line) => line.trim() === "" || prefixed.test(line));
+        const next = lines
+            .map((line) =>
+                line.trim() === ""
+                    ? line
+                    : applied
+                      ? line.replace(prefixed, "")
+                      : `${prefix}${line}`,
+            )
+            .join("\n");
+
+        value = `${value.slice(0, blockStart)}${next}${value.slice(blockEnd)}`;
+
+        restoreFocus(blockStart + next.length);
+    }
+
+    function escapeRegExp(value: string): string {
+        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    /** Returns focus to the field with the caret where the edit left it. */
+    function restoreFocus(caret: number): void {
+        tick().then(() => {
+            const el = textareaEl;
+
+            if (!el) return;
+
+            el.focus();
+            el.selectionStart = el.selectionEnd = Math.min(caret, value.length);
+        });
+    }
+</script>
+
+<div class={twMerge("flex w-full max-w-340 flex-col gap-2 self-center", classes)}>
+    <div class="flex items-center gap-6">
+        <div class="relative h-20 w-full">
+            <textarea
+                bind:this={textareaEl}
+                bind:value
+                {disabled}
+                onkeydown={handleKeydown}
+                class="text-content bg-grey h-full w-full resize-none rounded-lg border-0 p-4 pr-10 text-base shadow-sm ring-0 disabled:cursor-not-allowed"
+                placeholder={$t("pages.review.chat.placeholder")}></textarea>
+            <ChatMarkdownHelp class="absolute top-2 right-2" {canInsertRich} />
+            {#if isTooShort}
+                <span
+                    class="pointer-events-none absolute right-2 bottom-2 flex size-8 items-center justify-center"
+                >
+                    <svg class="size-8 -rotate-90" viewBox="0 0 32 32" aria-hidden="true">
+                        <circle
+                            class="text-variant1"
+                            cx="16"
+                            cy="16"
+                            r={RING_RADIUS}
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                        />
+                        <circle
+                            class="text-tertiary transition-[stroke-dashoffset] duration-200"
+                            cx="16"
+                            cy="16"
+                            r={RING_RADIUS}
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            stroke-linecap="round"
+                            stroke-dasharray={RING_CIRCUMFERENCE}
+                            stroke-dashoffset={ringOffset}
+                        />
+                    </svg>
+                    <span
+                        class="text-content absolute inset-0 flex items-center justify-center text-[9px] font-medium tabular-nums"
+                    >
+                        {length}
+                    </span>
+                </span>
+            {/if}
+        </div>
+        <button
+            type="button"
+            disabled={disabled || isEmpty || isTooShort}
+            onclick={handleSend}
+            class="border-grey flex aspect-square size-10 shrink-0 cursor-pointer items-center justify-center rounded-[80px] border bg-white p-2 shadow-[0_2px_4px_0_rgba(0,0,0,0.16)] disabled:cursor-not-allowed disabled:opacity-50"
+            aria-label={$t("pages.review.chat.send")}
+        >
+            <Send />
+        </button>
+    </div>
+</div>

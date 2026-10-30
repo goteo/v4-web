@@ -20,9 +20,10 @@ Implements responsive layout matching Figma design with collapsible mobile behav
         filters: SearchFilters;
         onChange: (filters: Partial<SearchFilters>) => void;
         onSearch: () => void;
+        isLoading?: boolean;
     }
 
-    let { filters, onChange, onSearch }: Props = $props();
+    let { filters, onChange, onSearch, isLoading = false }: Props = $props();
 
     // Filter visibility (collapsed by default on all devices)
     let filtersOpen = $state(false);
@@ -56,6 +57,7 @@ Implements responsive layout matching Figma design with collapsible mobile behav
             <SearchButton
                 variant="secondary"
                 onclick={onSearch}
+                loading={isLoading}
                 data-testid="search-btn"
                 class="w-full shrink-0 sm:w-auto"
             >

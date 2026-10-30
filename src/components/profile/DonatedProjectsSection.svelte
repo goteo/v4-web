@@ -13,6 +13,7 @@
     import { toCollectionItems } from "../../utils/hydra.ts";
     import { addMoney } from "../../utils/money";
     import CampaignCard from "../home/CampaignCard.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -134,14 +135,6 @@
                                 // Only show projects that are in campaign
                                 if (project.status !== "in_campaign") return null;
 
-                                // Calculate days remaining
-                                let daysRemaining: number | undefined;
-                                if (project.calendar?.minimum) {
-                                    const endDate = new Date(project.calendar.minimum);
-                                    const today = new Date();
-                                    const diffTime = endDate.getTime() - today.getTime();
-                                    daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                                }
                                 return {
                                     ...project,
                                     slug: project.slug!,
@@ -151,7 +144,6 @@
                                     optimum: project.budget?.optimum?.money,
                                     obtained: accounting.balance as Money,
                                     category: project.categories?.[0], // Get first category
-                                    daysRemaining,
                                     userDonations: projectDonations.get(accountingIRI) ?? {
                                         amount: 0,
                                         currency: getDefaultCurrency(),
@@ -184,7 +176,9 @@
     });
 </script>
 
-{#if !loading && donatedCampaigns.length > 0}
+{#if loading}
+    <Loader />
+{:else if donatedCampaigns.length > 0}
     <div class="flex flex-col gap-6">
         <Title level={2} variant="section">
             {$t("pages.me.donatedProjects.title")}

@@ -5,11 +5,16 @@
     import { t } from "../../i18n/store";
     import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
     import { toCollectionItems } from "../../utils/hydra.ts";
-    import { tabStatusGroups, statusCardConfig } from "../../utils/ownedProjectCards";
+    import {
+        projectActionHref,
+        statusCardConfig,
+        tabStatusGroups,
+    } from "../../utils/ownedProjectCards";
     import CampaignCard, {
         type OwnedCardActionView,
         type OwnedCardConfig,
     } from "../home/CampaignCard.svelte";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
     import Tabs from "../library/layout/Tabs.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -57,15 +62,6 @@
                 // Transform projects to Campaign format
                 const campaigns = (await Promise.all(
                     projectItems.map(async (project) => {
-                        // Calculate days remaining
-                        let daysRemaining: number | undefined;
-                        if (project.calendar?.minimum) {
-                            const endDate = new Date(project.calendar.minimum);
-                            const today = new Date();
-                            const diffTime = endDate.getTime() - today.getTime();
-                            daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        }
-
                         return {
                             ...project,
                             slug: project.slug!,
@@ -78,7 +74,6 @@
                             minimum: project.budget?.minimum?.money,
                             optimum: project.budget?.optimum?.money,
                             category: project.categories?.[0], // Get first category
-                            daysRemaining,
                         } satisfies Campaign;
                     }),
                 )) as Campaign[];
@@ -114,7 +109,9 @@
     ]);
 </script>
 
-{#if !loading && ownedProjects.length > 0}
+{#if loading}
+    <Loader />
+{:else if ownedProjects.length > 0}
     <div class="flex flex-col gap-6">
         <Title level={2} variant="section">
             {$t("pages.me.ownedProjects.title")}
@@ -132,6 +129,7 @@
                             key: action.key,
                             label: $t(`pages.me.ownedProjects.card.${action.key}`),
                             kind: action.kind,
+                            href: projectActionHref(action.key, campaign),
                         })),
                     }}
                     <CampaignCard size={index === 0 ? "large" : "small"} {campaign} {ownedConfig} />

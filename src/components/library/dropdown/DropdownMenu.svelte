@@ -35,6 +35,16 @@
         chips?: boolean;
         /** Renders the body of one pill; defaults to the option label. */
         chip?: Snippet<[DropdownOption]>;
+        /**
+         * Extra classes for every list item, e.g. to change the text alignment.
+         * Applied to the <button>/<label> element that holds the option label.
+         */
+        itemClass?: ClassNameValue;
+        /**
+         * Replaces the label of every list item with a richer row, e.g. to
+         * render a user with its avatar. Return `null` to fall back.
+         */
+        row?: Snippet<[DropdownOption]>;
     }
 
     let {
@@ -57,6 +67,8 @@
         isOpen = $bindable(false),
         chips = false,
         chip = undefined,
+        itemClass = undefined,
+        row = undefined,
     }: Props = $props();
 
     const listId = $props.id();
@@ -211,24 +223,19 @@
             <div
                 class="absolute top-full left-0 z-100 mt-2 w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
             >
-                <div
-                    id={listId}
-                    role="listbox"
-                    aria-multiselectable={!singleSelect}
-                    class="flex max-h-72 w-full flex-col overflow-y-auto"
-                >
-                    {#each renderedItems as item}
-                        <DropdownItem
-                            {variant}
-                            option={item}
-                            onChange={handleItemChange}
-                            class={twJoin(
-                                item.position === "start" && "rounded-t-lg",
-                                item.position === "end" && "rounded-b-lg",
-                            )}
-                        />
-                    {/each}
-                </div>
+                {#each renderedItems as item}
+                    <DropdownItem
+                        {variant}
+                        option={item}
+                        onChange={handleItemChange}
+                        {row}
+                        class={twJoin(
+                            item.position === "start" && "rounded-t-lg",
+                            item.position === "end" && "rounded-b-lg",
+                            itemClass,
+                        )}
+                    />
+                {/each}
             </div>
         {:else if !hasSearch || searchValue.trim()}
             <p
