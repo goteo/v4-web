@@ -10,11 +10,13 @@
         open = $bindable(false),
         title,
         description,
+        confirmText,
         onclick,
     }: {
         open: boolean;
         title: string;
         description: string;
+        confirmText?: string;
         onclick: () => void | Promise<void>;
     } = $props();
 
@@ -54,7 +56,7 @@
             {#if isDeleting}
                 <Spinner />
             {:else}
-                {$t("common.delete")}
+                {confirmText ?? $t("common.delete")}
             {/if}
         </Button>
     {/snippet}

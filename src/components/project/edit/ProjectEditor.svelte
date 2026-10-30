@@ -25,8 +25,10 @@
     import Eye from "../../icons/media/Eye.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
+    import DeleteModal from "../../library/feedback/DeleteModal.svelte";
     import TabNavigation, { type Tab } from "../../library/layout/TabNavigation.svelte";
 
+    import type { Project } from "../../../openapi/client";
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
     import type { Snippet } from "svelte";
 
@@ -35,7 +37,6 @@
         step,
         children,
         onSave,
-        onPublish,
         onStepChange,
         onLangChange,
     }: {
@@ -43,7 +44,6 @@
         step: string;
         children: Snippet;
         onSave?: () => void;
-        onPublish?: () => void;
         onStepChange?: (step: string) => void;
         onLangChange?: (lang: string) => void;
     } = $props();
@@ -58,8 +58,25 @@
         { id: "6", label: $t("pages.project.edit.tabs.aboutYou") },
     ]);
 
+    type ProjectStatus = NonNullable<Project["status"]>;
+
+    /**
+     * Status the publish button moves the project to, by its current status.
+     * `confirm` names the irreversible transitions that ask for confirmation first.
+     */
+    const PUBLISH_TRANSITIONS: Partial<
+        Record<ProjectStatus, { to: ProjectStatus; confirm?: "review" | "campaign" }>
+    > = {
+        in_draft: { to: "to_campaign_review", confirm: "review" },
+        "in_campaign_review.to_change": { to: "in_campaign_review.to_review" },
+        to_campaign: { to: "in_campaign", confirm: "campaign" },
+    };
+
     let errorMessage: string | undefined = $state();
     let previewOpen = $state(false);
+    let publishConfirmOpen = $state(false);
+
+    let publishTransition = $derived(PUBLISH_TRANSITIONS[$draft.actual.status!]);
 
     function handleTitleChange(title: string) {
         const [error] = validate(title, zProjectProjectUpdationDto.shape.title);
@@ -92,6 +109,26 @@
             body: $draft.patch,
         });
 
+        draft.update({ actual: project, patch: {} });
+    }
+
+    async function handlePublish() {
+        if (!publishTransition) return;
+
+        // Pending edits go out with the status change, so nothing unsaved is left behind.
+        const { data: project, error } = await apiProjectsIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String($draft.actual.id) },
+            headers: { "Content-Language": $draft.lang },
+            body: { ...$draft.patch, status: publishTransition.to },
+        });
+
+        if (error || !project) {
+            errorMessage = $t("pages.project.edit.header.publish.error");
+            return;
+        }
+
+        errorMessage = undefined;
         draft.update({ actual: project, patch: {} });
     }
 </script>
@@ -170,7 +207,14 @@
                     class="disabled:pointer-events-none disabled:opacity-24"
                     kind="primary"
                     size="md"
-                    onclick={() => {}}
+                    disabled={!publishTransition}
+                    onclick={() => {
+                        if (publishTransition?.confirm) {
+                            publishConfirmOpen = true;
+                        } else {
+                            handlePublish();
+                        }
+                    }}
                 >
                     {$t("common.publish")}
                 </Button>
@@ -199,3 +243,18 @@
 </div>
 
 <ProjectPreviewModal bind:open={previewOpen} project={$draft.latest} />
+
+{#if publishTransition?.confirm}
+    <DeleteModal
+        bind:open={publishConfirmOpen}
+        title={$t(`pages.project.edit.header.publish.${publishTransition.confirm}.title`)}
+        description={$t(
+            `pages.project.edit.header.publish.${publishTransition.confirm}.description`,
+        )}
+        confirmText={$t("common.publish")}
+        onclick={async () => {
+            await handlePublish();
+            publishConfirmOpen = false;
+        }}
+    />
+{/if}
