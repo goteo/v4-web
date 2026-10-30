@@ -7,10 +7,9 @@
         apiUsersGetCollectionUrl,
         type User,
     } from "../../../openapi/client/index.ts";
-    import { debounce } from "../../../utils/debounce.ts";
     import { toCollectionItems } from "../../../utils/hydra";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import UserResultRow from "../../library/dropdown/UserResultRow.svelte";
     import Title from "../../library/typography/Title.svelte";
 
@@ -34,7 +33,6 @@
         onAssign: (iri: string, name: string) => void;
     } = $props();
 
-    let candidates = $state<DropdownOption[]>([]);
     let searchValue = $state("");
     let selected = $state<DropdownOption[]>([]);
 
@@ -47,24 +45,14 @@
         };
     }
 
-    const searchUsers = debounce(async (term: string) => {
+    async function searchUsers(term: string, signal: AbortSignal): Promise<DropdownOption[]> {
         const { data } = await apiUsersGetCollection({
             baseUrl: "/api/relay",
-            query: { q: term.trim(), itemsPerPage: 30 },
+            query: { q: term, itemsPerPage: 30 },
+            signal,
         });
 
-        candidates = toCollectionItems<User>(data).map(toOption);
-    }, 250);
-
-    function handleSearch(value: string): void {
-        const trimmed = value.trim();
-        if (trimmed.length < 2) {
-            searchUsers.cancel();
-            candidates = [];
-            return;
-        }
-
-        searchUsers(trimmed);
+        return toCollectionItems<User>(data).map(toOption);
     }
 
     $effect(() => {
@@ -109,17 +97,17 @@
         {$t("pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.description")}
     </p>
 
-    <DropdownMenu
-        options={candidates}
+    <DropdownSearch
+        search={searchUsers}
+        minChars={2}
+        debounceMs={250}
         bind:selected
-        bind:searchValue
+        bind:value={searchValue}
         variant="basic"
         singleSelect
-        hasSearch
-        searchPlaceholder={$t(
+        placeholder={$t(
             "pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.searchPlaceholder",
         )}
-        onSearch={handleSearch}
         label={title}
         selectedFirst
     >
@@ -128,7 +116,7 @@
                 <UserResultRow user={option.raw as User} />
             {/if}
         {/snippet}
-    </DropdownMenu>
+    </DropdownSearch>
 
     {#snippet footer()}
         <Button kind="secondary" disabled={!selected.length} onclick={confirm} class="w-fit">

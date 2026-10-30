@@ -23,12 +23,10 @@
         args: {
             options,
             variant: "basic",
-            hasSearch: false,
             selected: [],
         },
         argTypes: {
             variant: { control: "select", options: ["basic", "multiselect"] },
-            hasSearch: { control: "boolean" },
             chips: { control: "boolean" },
         },
     });
@@ -40,8 +38,6 @@
 
 <Story name="MultiselectWithPreselected" args={{ variant: "multiselect", selected: preselected }} />
 
-<Story name="WithSearch" args={{ variant: "basic", hasSearch: true }} />
-
-<Story name="MultiselectWithSearch" args={{ variant: "multiselect", hasSearch: true }} />
+<Story name="Loading" args={{ variant: "basic", isOpen: true, loading: true }} />
 
 <Story name="Chips" args={{ variant: "multiselect", chips: true, selected: preselected }} />
