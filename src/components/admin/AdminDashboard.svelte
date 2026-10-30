@@ -30,6 +30,8 @@
         filenamePrefix: string;
         queryParams: any;
         totalItems: number;
+        /** Hides the export when the current filters cannot be exported faithfully. */
+        disabled?: boolean;
     }
 
     interface SliderConfig {
@@ -99,6 +101,7 @@
                     queryParams={csv.queryParams}
                     filenamePrefix={csv.filenamePrefix}
                     totalItems={csv.totalItems}
+                    disabled={csv.disabled ?? false}
                 />
             </div>
             <Slider slides={slider.slides} isLoading={slider.isLoading} />
