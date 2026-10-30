@@ -20,6 +20,7 @@
         type User,
     } from "../../../openapi/client";
     import { getCountries } from "../../../utils/countries";
+    import { normalizeForMatch } from "../../../utils/highlights";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import {
@@ -29,6 +30,7 @@
     import Spinner from "../../icons/status/Spinner.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
+    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
     import Select from "../../library/inputs/Select.svelte";
@@ -36,6 +38,7 @@
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
+    import type { DropdownOption } from "../../library/dropdown/dropdown.types";
     import type z from "zod";
 
     type FieldName = keyof PersonalProfileForm;
@@ -73,7 +76,35 @@
 
     // Subdivisions are ISO codes, show them as "Subdivision, Country" in the search box
     let locality = $state(country ? getTerritoryDisplayName(user.territory!, $locale) : "");
-    let countries = $derived(getCountries($locale));
+
+    // The country picker is a searchable dropdown: a plain select with ~250 options is unusable.
+    let countryOptions: DropdownOption[] = $derived(
+        getCountries($locale).map(({ code, name }) => ({ id: code, label: name, selected: false })),
+    );
+
+    let countrySearch = $state("");
+    let countrySelected = $state<DropdownOption[]>([]);
+
+    // The dropdown does not filter: it reports the query and renders whatever options it is given.
+    // Picking one writes its label into the search, which must not filter that option away.
+    // Matching ignores accents (`normalizeForMatch`), like the resource search does.
+    const countryCandidates: DropdownOption[] = $derived.by(() => {
+        const needle = normalizeForMatch(countrySearch.trim());
+        const current = countryOptions.find((option) => option.id === form.country);
+        const isSearching = !!needle && needle !== normalizeForMatch(current?.label ?? "");
+
+        return isSearching
+            ? countryOptions.filter((option) => normalizeForMatch(option.label).includes(needle))
+            : countryOptions;
+    });
+
+    // The locality input can also set the country, so the shown value follows `form.country`.
+    $effect(() => {
+        const current = countryOptions.find((option) => option.id === form.country);
+
+        countrySearch = current?.label ?? "";
+        countrySelected = current ? [current] : [];
+    });
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);
@@ -85,6 +116,17 @@
         form.country = territory.country ?? form.country;
         form.subLvl1 = territory.subLvl1 ?? "";
         form.subLvl2 = territory.subLvl2 ?? "";
+    }
+
+    function handleCountryChange(option: DropdownOption) {
+        form.country = option.id;
+        // The tax id rules depend on the country, so re-check it.
+        validate("taxId");
+    }
+
+    function handleCountryClear() {
+        form.country = "";
+        validate("taxId");
     }
 
     function validate(field: FieldName) {
@@ -221,17 +263,27 @@
                 </div>
             {/if}
 
-            <Select
-                bind:value={form.country}
-                labelText={$t("pages.me.manage.info.country")}
-                onChange={() => validate("taxId")}
-                disabled={isSubmitting}
-            >
-                <option value="">{$t("common.select")}</option>
-                {#each countries as { code, name } (code)}
-                    <option value={code}>{name}</option>
-                {/each}
-            </Select>
+            <!-- `DropdownMenu` has no `disabled` prop, and a plain fieldset keeps the field inert
+                 while saving, like every other input in the form. -->
+            <fieldset class="relative m-0 min-w-0 border-0 p-0" disabled={isSubmitting}>
+                <span
+                    class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 transform bg-white px-1 text-sm font-medium"
+                >
+                    {$t("pages.me.manage.info.country")}
+                </span>
+                <DropdownMenu
+                    variant="basic"
+                    singleSelect
+                    hasSearch
+                    clearable
+                    options={countryCandidates}
+                    bind:selected={countrySelected}
+                    bind:searchValue={countrySearch}
+                    onChange={handleCountryChange}
+                    onClear={handleCountryClear}
+                    searchClasses="border-secondary h-14 shadow-none"
+                />
+            </fieldset>
             <div class="relative">
                 <span
                     class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 bg-white px-1 text-sm font-medium"
