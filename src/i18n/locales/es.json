@@ -826,7 +826,18 @@
         },
         "header": {
           "titlePlaceholder": "Título de proyecto",
-          "unsentChanges": "Hay cambios sin enviar"
+          "unsentChanges": "Hay cambios sin enviar",
+          "publish": {
+            "review": {
+              "title": "Enviar a revisión",
+              "description": "Tu proyecto se enviará a revisión. Esta acción no se puede deshacer."
+            },
+            "campaign": {
+              "title": "Lanzar campaña",
+              "description": "Tu proyecto pasará a campaña y será público. Esta acción no se puede deshacer."
+            },
+            "error": "No se ha podido publicar el proyecto. Inténtalo de nuevo."
+          }
         },
         "tabs": {
           "configuration": "Configuración",
