@@ -34,6 +34,11 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         descriptionKey: "pages.admin.users.description",
     },
     {
+        href: "/admin/categorization",
+        labelKey: "pages.admin.nav.categorization",
+        descriptionKey: "pages.admin.categorization.description",
+    },
+    {
         href: "/admin/comm",
         labelKey: "pages.admin.nav.comm",
         descriptionKey: "pages.admin.comm.description",

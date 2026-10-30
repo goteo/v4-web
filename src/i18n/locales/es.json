@@ -1574,6 +1574,7 @@
         "charges": "Cobros",
         "projects": "Proyectos",
         "users": "Usuarios",
+        "categorization": "Categorización",
         "comm": "Comunicación",
         "home": "Portada",
         "reviews": "Revisiones"
@@ -1587,6 +1588,47 @@
       "landing": {
         "title": "Administración",
         "subtitle": "Accede rápidamente a las distintas secciones de gestión de la plataforma."
+      },
+      "categorization": {
+        "title": "Categorización",
+        "description": "Gestiona las categorías y los temas que clasifican los proyectos.",
+        "table": {
+          "headers": {
+            "name": "Nombre",
+            "slug": "Slug",
+            "locales": "Traducciones",
+            "type": "Tipo"
+          },
+          "types": {
+            "category": "Categoría",
+            "theme": "Tema"
+          }
+        },
+        "actions": {
+          "createCategory": "Crear categoría",
+          "createTheme": "Crear tema"
+        },
+        "modal": {
+          "createCategory": "Crear categoría",
+          "editCategory": "Editar categoría",
+          "createTheme": "Crear tema",
+          "editTheme": "Editar tema",
+          "name": "Nombre",
+          "slug": "Slug",
+          "locales": "Idiomas disponibles",
+          "save": "Guardar",
+          "cancel": "Cancelar"
+        },
+        "delete": {
+          "title": "Eliminar {{ type }}",
+          "description": "Se eliminará «{{ name }}». Esta acción no se puede deshacer."
+        },
+        "errors": {
+          "loadFailed": "No se pudieron cargar las traducciones del elemento.",
+          "saveFailed": "No se pudo guardar el elemento.",
+          "incompleteLanguages": "Faltan nombres en: {{ languages }}"
+        },
+        "empty": "No hay elementos para mostrar."
       },
       "home": {
         "description": "Elige qué se muestra en la portada.",
