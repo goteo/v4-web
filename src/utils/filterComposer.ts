@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
+import { CAMPAIGN_REVIEW_STATES, CAMPAIGN_REVIEW_STATE_LABELS } from "./review";
 import {
     searchAccountings,
     searchCategories,
@@ -89,22 +90,43 @@ const reviewTypes: FilterOption[] = [
     { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
 ];
 
+/** The five public states a campaign review is shown as, reused from the review screens. */
+const reviewStates: FilterOption[] = CAMPAIGN_REVIEW_STATES.map((state) => ({
+    value: state,
+    label: CAMPAIGN_REVIEW_STATE_LABELS[state],
+}));
+
 const projectStatuses: FilterOption[] = [
-    { value: "in_draft", label: "In draft" },
-    { value: "to_campaign_review", label: "To campaign review" },
-    { value: "in_campaign_review", label: "In campaign review" },
-    { value: "in_campaign_review.request_change", label: "Request change (campaign)" },
-    { value: "campaign_review.rejected", label: "Rejected (campaign)" },
-    { value: "to_campaign", label: "To campaign" },
-    { value: "in_campaign", label: "In campaign" },
-    { value: "campaign.failed", label: "Failed (campaign)" },
-    { value: "to_funding_review", label: "To funding review" },
-    { value: "in_funding_review", label: "In funding review" },
-    { value: "in_funding_review.request_change", label: "Request change (funding)" },
-    { value: "funding_review.rejected", label: "Rejected (funding)" },
-    { value: "to_funding", label: "To funding" },
-    { value: "in_funding", label: "In funding" },
-    { value: "funding.paid", label: "Funding paid" },
+    { value: "in_draft", label: "domain.project.status.in_draft" },
+    { value: "to_campaign_review", label: "domain.project.status.to_campaign_review" },
+    { value: "in_campaign_review", label: "domain.project.status.in_campaign_review" },
+    {
+        value: "in_campaign_review.to_review",
+        label: "domain.project.status.in_campaign_review_to_review",
+    },
+    {
+        value: "in_campaign_review.to_change",
+        label: "domain.project.status.in_campaign_review_to_change",
+    },
+    { value: "campaign_review.rejected", label: "domain.project.status.campaign_review_rejected" },
+    { value: "to_campaign", label: "domain.project.status.to_campaign" },
+    { value: "in_campaign", label: "domain.project.status.in_campaign" },
+    { value: "campaign.failed", label: "domain.project.status.campaign_failed" },
+    { value: "campaign.cancelled", label: "domain.project.status.campaign_cancelled" },
+    { value: "to_funding_review", label: "domain.project.status.to_funding_review" },
+    { value: "in_funding_review", label: "domain.project.status.in_funding_review" },
+    {
+        value: "in_funding_review.to_review",
+        label: "domain.project.status.in_funding_review_to_review",
+    },
+    {
+        value: "in_funding_review.to_change",
+        label: "domain.project.status.in_funding_review_to_change",
+    },
+    { value: "funding_review.rejected", label: "domain.project.status.funding_review_rejected" },
+    { value: "to_funding", label: "domain.project.status.to_funding" },
+    { value: "in_funding", label: "domain.project.status.in_funding" },
+    { value: "funding.paid", label: "domain.project.status.funding_paid" },
 ];
 
 const currentLocale = get(locale) || getDefaultLanguage();
@@ -256,6 +278,17 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["project_reviews"],
         suggest: searchUsersByEmail,
+        allowsMultipleEquals: true,
+    },
+    reviewState: {
+        key: "reviewState",
+        // The reviews endpoint cannot filter by project status; the table reads this
+        // param and resolves it against the Project collection before querying.
+        param: "projectStatus",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        options: reviewStates,
         allowsMultipleEquals: true,
     },
     dateCreated: {
