@@ -3,7 +3,6 @@
 
     First step of the project setup wizard.
     Handles:
-    - Campaign content languages
     - Categories (up to 2)
     - Campaign release date
     - Funding rounds (1 or 2)
@@ -12,7 +11,6 @@
     - Funding rounds defaults to 1
 -->
 <script lang="ts">
-    import LanguageSelector from "./LanguageSelector.svelte";
     import RoundSelector from "./RoundSelector.svelte";
     import CategorySelect from "../../../components/library/inputs/CategorySelect.svelte";
     import DateInput from "../../../components/library/inputs/DateInput.svelte";
@@ -45,10 +43,6 @@
         if (onContinue) {
             onContinue();
         }
-    }
-
-    function handleLanguagesChange(languages: string[]) {
-        draft.setLanguages(languages);
     }
 
     let allCategories = $derived.by(async () => {
@@ -118,25 +112,6 @@
         <p class="text-content text-base font-normal">
             {$t("pages.project.edit.configuration.subtitle")}
         </p>
-    </div>
-
-    <!-- Languages Section -->
-    <div class="space-y-4">
-        <div class="space-y-4">
-            <Title level={2} variant="subsection">
-                {$t("pages.project.edit.configuration.languages.title")}
-            </Title>
-            <p class="text-content text-base font-normal">
-                {$t("pages.project.edit.configuration.languages.description")}
-            </p>
-        </div>
-        <div class="max-w-167">
-            <LanguageSelector
-                languages={$draft.languages}
-                current={$draft.lang}
-                onChange={handleLanguagesChange}
-            />
-        </div>
     </div>
 
     <!-- Categories Section -->
