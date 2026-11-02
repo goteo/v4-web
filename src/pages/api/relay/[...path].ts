@@ -73,6 +73,19 @@ export const ALL: APIRoute = async ({ request, cookies, params }) => {
             resHeaders.set("content-type", "application/json");
         }
 
+        /**
+         * Authenticated responses carry per-user data. The upstream API marks every
+         * response as publicly cacheable, and browsers may serve a stale GET from the
+         * HTTP cache after a mutation (e.g. a Reward just deleted) for up to an hour.
+         * Never allow that for logged-in users.
+         */
+        if (session) {
+            resHeaders.set("cache-control", "no-store");
+            resHeaders.delete("etag");
+            resHeaders.delete("last-modified");
+            resHeaders.delete("expires");
+        }
+
         return new Response(resBody, {
             status: response.status,
             statusText: response.statusText,

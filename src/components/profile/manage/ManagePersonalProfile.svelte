@@ -26,6 +26,7 @@
         zPersonalProfileForm,
         type PersonalProfileForm,
     } from "../../../validation/personalProfileValidation";
+    import Spinner from "../../icons/status/Spinner.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
@@ -320,7 +321,11 @@
 
     <div class="flex justify-end">
         <Button type="submit" kind="primary" disabled={isSubmitting}>
-            {$t("pages.me.manage.save")}
+            {#if isSubmitting}
+                <Spinner />
+            {:else}
+                {$t("pages.me.manage.save")}
+            {/if}
         </Button>
     </div>
 </form>

@@ -7,6 +7,8 @@
     import { getDefaultCountry } from "../../utils/consts";
     import { getValidationParams } from "../../utils/validation";
     import { zRegisterForm } from "../../validation/registerValidation";
+    import Spinner from "../icons/status/Spinner.svelte";
+    import Button from "../library/buttons/Button.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
     import PasswordInput from "../library/inputs/PasswordInput.svelte";
@@ -33,13 +35,17 @@
 
     interface Props {
         callback?: string;
+        /** Standalone /register page: no checkout wording, own submit button */
+        standalone?: boolean;
     }
 
-    let { callback }: Props = $props();
+    let { callback, standalone = false }: Props = $props();
 
-    let loginLink = $derived(
-        callback ? `/checkout/login?callback=${encodeURIComponent(callback)}` : "/checkout/login",
-    );
+    let loginLink = $derived.by(() => {
+        const base = standalone ? "/login" : "/checkout/login";
+
+        return callback ? `${base}?callback=${encodeURIComponent(callback)}` : base;
+    });
 
     let form: RegisterForm = $state({
         type: "individual",
@@ -65,9 +71,11 @@
     let isSubmitting = $state(false);
 
     let subtitle = $derived(
-        form.type === "individual"
-            ? $t("pages.checkout.register.description")
-            : $t("pages.checkout.register.organization.description"),
+        form.type === "organization"
+            ? $t("pages.checkout.register.organization.description")
+            : standalone
+              ? $t("pages.register.description")
+              : $t("pages.checkout.register.description"),
     );
 
     let loginBtnLabel = $derived(
@@ -77,10 +85,8 @@
     );
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
-    let checksError = $state("");
     let formError = $state("");
     let showFormToast = $state(false);
-    let showChecksToast = $state(false);
 
     function validate(field: FieldName) {
         // taxId validity depends on country and type, so it is checked by the schema refinement
@@ -135,7 +141,6 @@
     const submit = async (formElement: HTMLFormElement) => {
         validation = {};
         showFormToast = false;
-        showChecksToast = false;
 
         const result = zRegisterForm.safeParse({
             type: form.type,
@@ -171,8 +176,8 @@
         }
 
         if (!acceptTerms) {
-            checksError = $t("pages.checkout.register.error.requireTerms");
-            showChecksToast = true;
+            formError = $t("pages.checkout.register.error.requireTerms");
+            showFormToast = true;
             return;
         }
 
@@ -208,7 +213,7 @@
 <div class="flex w-full flex-col items-start gap-10 self-stretch">
     <div class="flex flex-col items-start gap-10 self-stretch">
         <Title level={1} variant="headline" class="self-stretch">
-            {$t("pages.checkout.register.title")}
+            {standalone ? $t("pages.register.title") : $t("pages.checkout.register.title")}
         </Title>
         <p class="text-content self-stretch text-base leading-6 font-normal">
             {subtitle}
@@ -229,7 +234,9 @@
         </div>
 
         <p class="text-content text-base leading-6 font-normal">
-            {$t("pages.checkout.register.existUserInfo")}
+            {standalone
+                ? $t("pages.register.existUserInfo")
+                : $t("pages.checkout.register.existUserInfo")}
         </p>
     </div>
 
@@ -237,6 +244,7 @@
         <Select
             name="taxIdCountry"
             bind:value={form.taxIdCountry}
+            class="h-14"
             labelText={$t("pages.checkout.register.form.taxIdCountry")}
             helperText={$t("pages.checkout.register.form.taxIdCountryHelper")}
             onChange={() => validate("taxId")}
@@ -279,7 +287,7 @@
         </div>
 
         <div class="flex max-w-121 flex-initial flex-col items-start gap-5 self-stretch">
-            <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid w-full grid-cols-1 gap-x-4 gap-y-6 md:grid-cols-2">
                 {#if form.type === "individual"}
                     <TextInput
                         type="text"
@@ -374,7 +382,9 @@
                     />
                     {@render taxIdFields(
                         $t("pages.checkout.register.organization.taxId"),
-                        $t("pages.checkout.register.organization.taxIdHelper"),
+                        standalone
+                            ? $t("pages.register.organization.taxIdHelper")
+                            : $t("pages.checkout.register.organization.taxIdHelper"),
                     )}
                     <div class="md:col-span-2">
                         <h3 class="text-secondary text-lg leading-6 font-bold">
@@ -406,7 +416,7 @@
                 {/if}
             </div>
 
-            {#if form.type === "individual"}
+            {#if form.type === "individual" && !standalone}
                 <div class="flex max-w-121 flex-initial flex-col items-start gap-5 self-stretch">
                     <Checkbox
                         id="tax-deduction"
@@ -442,19 +452,24 @@
                     />
                 </span>
             </Checkbox>
-
-            {#if showChecksToast}
-                <Toast variant="error" bind:showToast={showChecksToast} class="w-full">
-                    {checksError}
-                </Toast>
-            {/if}
-            {#if showFormToast}
-                <Toast variant="error" bind:showToast={showFormToast} class="w-full">
-                    {formError}
-                </Toast>
-            {/if}
         </div>
 
-        <button type="submit" class="hidden" aria-hidden="true"></button>
+        {#if standalone}
+            <Button type="submit" class="w-fit" disabled={isSubmitting}>
+                {#if isSubmitting}
+                    <Spinner />
+                {:else}
+                    {$t("pages.register.submit")}
+                {/if}
+            </Button>
+        {:else}
+            <button type="submit" class="hidden" aria-hidden="true"></button>
+        {/if}
     </form>
+
+    {#if showFormToast}
+        <Toast floating variant="error" bind:showToast={showFormToast}>
+            {formError}
+        </Toast>
+    {/if}
 </div>

@@ -8,21 +8,33 @@ import type { Territory } from "../openapi/client";
  */
 export const UNKNOWN_COUNTRY_CODE = "ZZ";
 
-export function getTerritoryDisplayName(territory: Territory, lang: Intl.LocalesArgument): string {
-    const countryNames = new Intl.DisplayNames(lang, { type: "region" });
-    const country = countryNames.of(territory.country!);
-
-    const tag = territory.subLvl2 ?? territory.subLvl1;
-    if (!tag) {
-        return country!;
+export function getTerritoryDisplayName(
+    territory?: Territory | null,
+    lang: Intl.LocalesArgument = "es",
+): string {
+    if (!territory || !territory.country) {
+        return "";
     }
+    try {
+        const countryNames = new Intl.DisplayNames(lang, { type: "region" });
+        const country = countryNames.of(territory.country);
 
-    const iso = iso3166.subdivision(tag!);
-    if (!iso || !iso.name) {
-        return country!;
+        const tag = territory.subLvl2 ?? territory.subLvl1;
+        if (!tag) {
+            return country ?? territory.country;
+        }
+
+        const iso = iso3166.subdivision(tag);
+        if (!iso || !iso.name) {
+            return country ?? territory.country;
+        }
+
+        const subdivision = iso.name.split(",")[0];
+
+        return `${subdivision}, ${country ?? territory.country}`;
+    } catch (e) {
+        console.error(e);
+
+        return territory.country ?? "";
     }
-
-    const subdivision = iso.name.split(",")[0];
-
-    return `${subdivision}, ${country}`;
 }

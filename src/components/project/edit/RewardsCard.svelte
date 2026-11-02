@@ -12,6 +12,7 @@
     import Button from "../../library/buttons/Button.svelte";
     import Reward from "../../library/cards/Reward.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
+    import Toast from "../../library/feedback/Toast.svelte";
 
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
 
@@ -29,6 +30,8 @@
 
     let openModal = $state(false);
     let openDeleteModal = $state(false);
+    let showDeleteError = $state(false);
+    let deleteErrorMessage = $state("");
 
     async function handleSave(newReward: ProjectReward) {
         const { error } = await apiProjectRewardsIdPatch({
@@ -54,12 +57,18 @@
         });
 
         if (!error) {
+            openDeleteModal = false;
             openModal = false;
             onDelete?.(reward);
             return;
         }
 
         console.error(error);
+
+        deleteErrorMessage =
+            $t("pages.project.edit.rewards.deleteModal.error") ||
+            "No se ha podido eliminar la recompensa. Inténtalo de nuevo.";
+        showDeleteError = true;
     }
 </script>
 
@@ -113,3 +122,7 @@
         onclick={() => handleDelete(reward)}
     />
 </Reward>
+
+<Toast floating variant="error" bind:showToast={showDeleteError}>
+    {deleteErrorMessage}
+</Toast>

@@ -58,7 +58,7 @@
                 <!-- Hero Illustration -->
                 {#if hasMedia}
                     <div class="relative flex justify-center lg:justify-end">
-                        <div class="relative aspect-668/510 w-full max-w-lg">
+                        <div class="relative aspect-668/510 w-full max-w-xl">
                             {#if isVideo}
                                 <video
                                     src={hero.mediaUrl}
@@ -66,13 +66,13 @@
                                     muted
                                     loop
                                     playsinline
-                                    class="h-full w-full scale-120 object-contain"
+                                    class="h-full w-full object-contain"
                                 ></video>
                             {:else}
                                 <img
                                     src={hero.mediaUrl}
                                     alt={hero.title}
-                                    class="h-full w-full scale-120 object-contain"
+                                    class="h-full w-full object-contain"
                                 />
                             {/if}
                         </div>

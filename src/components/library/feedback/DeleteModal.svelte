@@ -2,6 +2,7 @@
     import { Modal } from "flowbite-svelte";
 
     import { t } from "../../../i18n/store";
+    import Spinner from "../../icons/status/Spinner.svelte";
     import Button from "../buttons/Button.svelte";
     import Title from "../typography/Title.svelte";
 
@@ -14,8 +15,19 @@
         open: boolean;
         title: string;
         description: string;
-        onclick: () => void;
+        onclick: () => void | Promise<void>;
     } = $props();
+
+    let isDeleting = $state(false);
+
+    async function handleDelete() {
+        isDeleting = true;
+        try {
+            await onclick();
+        } finally {
+            isDeleting = false;
+        }
+    }
 </script>
 
 <Modal
@@ -38,8 +50,12 @@
         <Button kind="ghost" onclick={() => (open = false)} class="w-fit"
             >{$t("common.cancel")}</Button
         >
-        <Button kind="secondary" onclick={() => onclick()} class="w-fit"
-            >{$t("common.delete")}</Button
-        >
+        <Button kind="secondary" onclick={handleDelete} class="w-fit" disabled={isDeleting}>
+            {#if isDeleting}
+                <Spinner />
+            {:else}
+                {$t("common.delete")}
+            {/if}
+        </Button>
     {/snippet}
 </Modal>

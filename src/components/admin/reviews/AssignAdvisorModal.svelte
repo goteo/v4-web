@@ -11,6 +11,7 @@
     import { toCollectionItems } from "../../../utils/hydra";
     import Button from "../../library/buttons/Button.svelte";
     import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import UserResultRow from "../../library/dropdown/UserResultRow.svelte";
     import Title from "../../library/typography/Title.svelte";
 
     import type { DropdownOption } from "../../library/dropdown/dropdown.types";
@@ -42,6 +43,7 @@
             id: apiUsersGetCollectionUrl + "/" + user.id,
             label: user.displayName || user.email || user.handle || String(user.id),
             selected: false,
+            raw: user,
         };
     }
 
@@ -120,7 +122,13 @@
         onSearch={handleSearch}
         label={title}
         selectedFirst
-    />
+    >
+        {#snippet row(option)}
+            {#if option.raw}
+                <UserResultRow user={option.raw as User} />
+            {/if}
+        {/snippet}
+    </DropdownMenu>
 
     {#snippet footer()}
         <Button kind="secondary" disabled={!selected.length} onclick={confirm} class="w-fit">

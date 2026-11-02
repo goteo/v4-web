@@ -12,7 +12,7 @@
     <!-- Funding Partners Section -->
     {#if config.funding.length > 0 || config.partOf.length > 0}
         <section
-            class="bg-purple-soft text-tertiary border-variant1 border-2 border-b-0 py-6 sm:py-8 md:py-10"
+            class="bg-purple-soft text-tertiary border-variant1 border-t-2 py-6 sm:py-8 md:py-10"
             aria-labelledby="funding-partners-heading"
         >
             <div class="wrapper">
@@ -35,7 +35,7 @@
                                 role="list"
                                 aria-label={$t("common.footer.a11y.fundingPartners")}
                             >
-                                <div class="flex items-center gap-3 sm:gap-4">
+                                <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                                     {#each config.funding as partner (partner.src)}
                                         <FooterPartnerImage src={partner.src} alt={partner.alt} />
                                     {/each}
@@ -51,7 +51,7 @@
                                 {$t("common.footer.funding.partOf")}
                             </Title>
                             <div
-                                class="flex items-center gap-2 sm:gap-3"
+                                class="flex flex-wrap items-center gap-2 sm:gap-3"
                                 role="list"
                                 aria-label={$t("common.footer.a11y.partnerOrganizations")}
                             >

@@ -54,6 +54,7 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import ProjectsDetailsRow from "./ProjectsDetailsRow.svelte";
     import { t } from "../../../i18n/store";
@@ -87,7 +88,7 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: string) => void;
+        onStatusChange?: (projectId: number, status: string) => Promise<void>;
         onOpenPaidModal?: (project: ProjectRow, e: MouseEvent) => void;
         onOpenAnnotationsModal?: (project: ProjectRow, e: MouseEvent) => void;
         onChangeStatus?: (projectId: number) => void;
@@ -156,8 +157,15 @@
         openRow = openRow === index ? null : index;
     }
 
-    function handleStatusChangeInline(project: ProjectRow, newStatus: string) {
-        onStatusChange?.(project.id, newStatus);
+    const updatingStatus = new SvelteSet<number>();
+
+    async function handleStatusChangeInline(project: ProjectRow, newStatus: string) {
+        updatingStatus.add(project.id);
+        try {
+            await onStatusChange?.(project.id, newStatus);
+        } finally {
+            updatingStatus.delete(project.id);
+        }
     }
 </script>
 
@@ -206,8 +214,9 @@
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             <div onclick={(e) => e.stopPropagation()} role="presentation">
                 <select
-                    class="border-secondary text-secondary rounded-sm border py-1 text-sm"
+                    class="border-secondary text-secondary rounded-sm border py-1 text-sm disabled:opacity-50"
                     value={project.status}
+                    disabled={updatingStatus.has(project.id)}
                     onchange={(e) => handleStatusChangeInline(project, e.currentTarget.value)}
                 >
                     {#each statusOptions as opt}

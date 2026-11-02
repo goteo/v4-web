@@ -40,6 +40,11 @@
          * Applied to the <button>/<label> element that holds the option label.
          */
         itemClass?: ClassNameValue;
+        /**
+         * Replaces the label of every list item with a richer row, e.g. to
+         * render a user with its avatar. Return `null` to fall back.
+         */
+        row?: Snippet<[DropdownOption]>;
     }
 
     let {
@@ -63,6 +68,7 @@
         chips = false,
         chip = undefined,
         itemClass = undefined,
+        row = undefined,
     }: Props = $props();
 
     const listId = $props.id();
@@ -222,6 +228,7 @@
                         {variant}
                         option={item}
                         onChange={handleItemChange}
+                        {row}
                         class={twJoin(
                             item.position === "start" && "rounded-t-lg",
                             item.position === "end" && "rounded-b-lg",

@@ -19,7 +19,9 @@
     } = $props();
 </script>
 
-<Tag class={twMerge("border border-black", classes)}>
-    <MapIcon width={iconSize} height={iconSize} />
-    <span>{getTerritoryDisplayName(territory, $locale)}</span>
-</Tag>
+{#if territory && territory.country}
+    <Tag class={twMerge("border border-black", classes)}>
+        <MapIcon width={iconSize} height={iconSize} />
+        <span>{getTerritoryDisplayName(territory, $locale)}</span>
+    </Tag>
+{/if}

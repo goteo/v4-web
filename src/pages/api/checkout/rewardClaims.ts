@@ -5,12 +5,16 @@ import {
 } from "../../../openapi/client";
 import { client } from "../../../openapi/client/client.gen";
 import {
+    apiAddressesIdGetUrl,
     apiGatewayChargesIdGetUrl,
     apiProjectRewardsIdGetUrl,
 } from "../../../openapi/client/operation-paths.gen";
 import { Unauthorized } from "../../../utils/responses";
 
-import type { GatewayCharge } from "../../../openapi/client";
+import type {
+    GatewayCharge,
+    ProjectRewardClaimRewardClaimCreationDto,
+} from "../../../openapi/client";
 import type { CheckoutItem } from "../../../stores/checkoutsStore";
 import type { APIRoute } from "astro";
 
@@ -108,9 +112,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
 function pairRewardsToCharges(
     items: CheckoutItem[],
     charges: GatewayCharge[],
-): { claims: Array<{ reward: string; charge: string }>; unmatched: CheckoutItem[] } {
+): { claims: ProjectRewardClaimRewardClaimCreationDto[]; unmatched: CheckoutItem[] } {
     const usedCharges = new Set<GatewayCharge>();
-    const claims: Array<{ reward: string; charge: string }> = [];
+    const claims: ProjectRewardClaimRewardClaimCreationDto[] = [];
     const unmatched: CheckoutItem[] = [];
 
     for (const item of items) {
@@ -140,6 +144,12 @@ function pairRewardsToCharges(
             charge: client.buildUrl({
                 url: apiGatewayChargesIdGetUrl,
                 path: { id: match.id },
+            }),
+            ...(item.address?.id != null && {
+                address: client.buildUrl({
+                    url: apiAddressesIdGetUrl,
+                    path: { id: item.address.id },
+                }),
             }),
         });
     }
