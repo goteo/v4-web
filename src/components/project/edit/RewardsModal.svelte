@@ -10,6 +10,7 @@
     import { zCreateRewardForm, zUpdateRewardForm } from "../../../validation/rewardValidation";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
+    import Checkbox from "../../library/inputs/Checkbox.svelte";
     import CurrencyInput from "../../library/inputs/CurrencyInput.svelte";
     import FileUpload from "../../library/inputs/FileUpload.svelte";
     import RichTextEditor from "../../library/inputs/RichTextEditor.svelte";
@@ -58,6 +59,7 @@
             cover: undefined,
             money: { amount: 0, currency: DEFAULT_CURRENCY },
             isFinite: false,
+            hasShipping: false,
             unitsTotal: 0,
         };
     }
@@ -212,6 +214,15 @@
                     error={getValidationMessage("cover")}
                 />
                 <RewardItemsSelector bind:units={data.unitsTotal} bind:limited={data.isFinite} />
+                <div class="flex flex-col gap-1">
+                    <Checkbox
+                        bind:checked={data.hasShipping}
+                        label={$t("pages.project.edit.rewards.modal.form.shippingLabel")}
+                    />
+                    <p class="text-content text-sm">
+                        {$t("pages.project.edit.rewards.modal.form.shippingHelper")}
+                    </p>
+                </div>
             </div>
         </div>
         <div class="flex items-center justify-end gap-4">

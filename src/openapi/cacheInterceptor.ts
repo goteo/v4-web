@@ -22,13 +22,34 @@ export function initCacheInterceptor() {
     return _interceptorId;
 }
 
-export async function withoutCache<T>(fn: () => Promise<T>): Promise<T> {
-    if (!_interceptor) return fn();
+/**
+ * Marks a read as uncacheable.
+ *
+ * Ejecting the Cache Storage interceptor is not enough: the API marks its responses as
+ * publicly cacheable for an hour, so the browser's HTTP cache answers repeated GETs with
+ * a stale body. A read served right after a mutation then still shows the deleted
+ * resource, and acting on it again fails with a 404.
+ *
+ * Only reads are rewritten: they are the only requests that can be answered from a cache,
+ * and rebuilding a request that carries a body is not always possible.
+ */
+const bypassHttpCache = (request: Request) =>
+    request.method === "GET" ? new Request(request, { cache: "no-store" }) : request;
 
-    client.interceptors.request.eject(_interceptor);
+export async function withoutCache<T>(fn: () => Promise<T>): Promise<T> {
+    client.interceptors.request.use(bypassHttpCache);
+
+    if (_interceptor) {
+        client.interceptors.request.eject(_interceptor);
+    }
+
     try {
         return await fn();
     } finally {
-        client.interceptors.request.use(_interceptor);
+        client.interceptors.request.eject(bypassHttpCache);
+
+        if (_interceptor) {
+            client.interceptors.request.use(_interceptor);
+        }
     }
 }

@@ -187,7 +187,6 @@
             table.totalItems = getCollectionTotalItems(collection, response);
 
             const projectIds = loadedProjects.map((p) => p.id).filter(Boolean) as number[];
-            fetchTotalEarned(projectIds);
 
             const uniqueAccountingIris = [
                 ...new Set(loadedProjects.map((p) => p.accounting).filter(Boolean)),
@@ -224,6 +223,7 @@
                         return data ? ([iri, data] as const) : null;
                     }),
                 ),
+                fetchTotalEarned(projectIds),
             ]);
 
             for (const [iri, accounting] of accountingResults.filter(Boolean) as [
@@ -266,7 +266,6 @@
             });
         } finally {
             table.isLoading = false;
-            table.isFirstLoad = false;
         }
     }
 
@@ -302,6 +301,7 @@
 
     async function handleStatusChange(projectId: number, status: string): Promise<void> {
         const { error } = await apiProjectsIdPatch({
+            baseUrl: "/api/relay",
             path: { id: String(projectId) },
             body: { status: status as any },
         });

@@ -38,7 +38,7 @@ const defaultGateway =
             id="payment"
             method="POST"
             class="flex flex-col gap-4"
-            data-balance={accounting.balance.amount}
+            data-balance={accounting.balance?.amount ?? 0}
         >
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {

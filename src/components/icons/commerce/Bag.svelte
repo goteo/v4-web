@@ -27,13 +27,12 @@
     {#if items !== undefined}
         <rect x="15" y="0" width="25" height="25" rx="100" fill="var(--color-tertiary)" />
         <text
-            x="28"
-            y="12"
+            x="27.5"
+            y="12.5"
             dominant-baseline="central"
             text-anchor="middle"
             font-size="14"
             font-weight="bold"
-            letter-spacing="1"
             fill="var(--color-white)">{items > 9 ? "9+" : items}</text
         >
     {/if}

@@ -1,8 +1,9 @@
 <script lang="ts">
     import CheckoutCartItem from "./CheckoutCartItem.svelte";
     import Tipjar from "./Tipjar.svelte";
-    import { cart, cartByRecipient } from "../../stores/checkoutsStore";
+    import { cart, cartByRecipient, checkoutHydrated } from "../../stores/checkoutsStore";
     import * as tipping from "../../utils/tipping";
+    import Loader from "../library/feedback/Loader.svelte";
     import Title from "../library/typography/Title.svelte";
 
     function increment(item: { key: string; quantity: number }) {
@@ -30,25 +31,29 @@
     }
 </script>
 
-<div class="flex flex-col gap-10">
-    {#each getItems() as [_target, items]}
-        <div class="flex flex-col gap-6">
-            <Title level={2} variant="subsection">
-                {items[0].recipientDisplayName}
-            </Title>
+{#if !$checkoutHydrated}
+    <Loader />
+{:else}
+    <div class="flex flex-col gap-10">
+        {#each getItems() as [_target, items]}
+            <div class="flex flex-col gap-6">
+                <Title level={2} variant="subsection">
+                    {items[0].recipientDisplayName}
+                </Title>
 
-            {#each items as item (item.key)}
-                <CheckoutCartItem
-                    {item}
-                    onIncrement={() => increment(item)}
-                    onDecrement={() => decrement(item)}
-                    onRemove={() => remove(item)}
-                />
-            {/each}
-        </div>
-    {/each}
-</div>
+                {#each items as item (item.key)}
+                    <CheckoutCartItem
+                        {item}
+                        onIncrement={() => increment(item)}
+                        onDecrement={() => decrement(item)}
+                        onRemove={() => remove(item)}
+                    />
+                {/each}
+            </div>
+        {/each}
+    </div>
 
-{#if tipping.isEnabled}
-    <Tipjar />
+    {#if tipping.isEnabled}
+        <Tipjar />
+    {/if}
 {/if}

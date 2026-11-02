@@ -45,6 +45,7 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
@@ -74,7 +75,7 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: ProjectStatus) => void;
+        onStatusChange?: (projectId: number, status: ProjectStatus) => Promise<void>;
         onAssignAdvisor?: (project: ReviewProjectRow) => void;
     }
 
@@ -93,6 +94,17 @@
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
+
+    const updatingStatus = new SvelteSet<number>();
+
+    async function handleStatusChange(projectId: number, status: ProjectStatus) {
+        updatingStatus.add(projectId);
+        try {
+            await onStatusChange?.(projectId, status);
+        } finally {
+            updatingStatus.delete(projectId);
+        }
+    }
 
     const statusLabel = (status: string) =>
         $t(`domain.project.status.${status.replaceAll(".", "_")}`);
@@ -169,10 +181,10 @@
                 <select
                     class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
                     value={project.status ?? ""}
-                    disabled={!project.status}
+                    disabled={!project.status || updatingStatus.has(project.id)}
                     aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
                     onchange={(e) =>
-                        onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
+                        handleStatusChange(project.id, e.currentTarget.value as ProjectStatus)}
                 >
                     {#if !project.status}
                         <option value="">—</option>

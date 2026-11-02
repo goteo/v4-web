@@ -82,7 +82,7 @@
                 {$t("pages.checkout.login.loginOr")}
             </h2>
             <a
-                href="/checkout/register?callback=/checkout/payment"
+                href="/checkout/register?callback=/checkout/shipping"
                 class="bg-variant1 text-secondary line-clamp-1 flex items-center justify-center gap-2 overflow-hidden rounded-2xl px-4 py-2 text-base leading-6 font-bold text-ellipsis"
             >
                 {$t("pages.checkout.login.registerBtnLabel")}

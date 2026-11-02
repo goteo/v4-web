@@ -2,6 +2,7 @@
     import { actions } from "astro:actions";
     import { TableBodyCell } from "flowbite-svelte";
     import { untrack } from "svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import BlogPreviewModal from "./BlogPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
@@ -85,12 +86,16 @@
         return names.join(", ") || "-";
     }
 
+    const updatingPublished = new SvelteSet<number>();
+
     async function togglePublished(post: BlogPost, published: boolean) {
         const formData = new FormData();
         formData.set("id", String(post.id));
         formData.set("published", published ? "1" : "0");
 
+        updatingPublished.add(post.id);
         const { error } = await actions.setBlogPostPublished(formData);
+        updatingPublished.delete(post.id);
 
         if (error) {
             // Unhandled failures, or a non-JSON body such as an HTML error page, arrive as
@@ -185,6 +190,7 @@
                 <Toggle
                     value={post.published}
                     aria-label={$t("pages.admin.comm.blog.list.headers.published")}
+                    disabled={updatingPublished.has(post.id)}
                     onChange={(published) => togglePublished(post, published)}
                 />
             {/key}

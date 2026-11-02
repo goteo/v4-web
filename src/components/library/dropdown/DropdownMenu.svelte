@@ -4,37 +4,37 @@
 
     import DropdownItem from "./DropdownItem.svelte";
     import { t } from "../../../i18n/store";
-    import SearchIcon from "../../icons/actions/Search.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Close from "../../icons/navigation/Close.svelte";
+    import Spinner from "../../icons/status/Spinner.svelte";
     import Tag from "../tags/Tag.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
     import type { Snippet } from "svelte";
 
+    type RenderedItem = DropdownOption & { position: "start" | "middle" | "end" };
+
     interface Props {
         class?: ClassNameValue;
-        searchClasses?: ClassNameValue;
         variant: DropdownVariant;
         options: DropdownOption[];
         selected?: DropdownOption[];
         onChange?: (option: DropdownOption) => void;
-        hasSearch?: boolean;
-        searchPlaceholder?: string;
-        searchValue?: string;
-        onSearch?: (value: string) => void;
-        clearable?: boolean;
-        onClear?: () => void;
         singleSelect?: boolean;
-        onInputBlur?: (e?: FocusEvent) => void;
-        /** Build the list with selected options at the top. */
         label?: string;
+        /** Build the list with selected options at the top. */
         selectedFirst?: boolean;
         isOpen?: boolean;
+        /** Shows a spinner in the list box instead of the options. */
+        loading?: boolean;
+        /** Shows the "no options" box when the list is empty. */
+        showEmpty?: boolean;
         /** Collapsed trigger shows the current selection as removable pills. */
         chips?: boolean;
         /** Renders the body of one pill; defaults to the option label. */
         chip?: Snippet<[DropdownOption]>;
+        /** Replaces the default chevron button. Receives the list id for `aria-controls`. */
+        trigger?: Snippet<[string]>;
         /**
          * Extra classes for every list item, e.g. to change the text alignment.
          * Applied to the <button>/<label> element that holds the option label.
@@ -49,34 +49,29 @@
 
     let {
         class: classes = undefined,
-        searchClasses = undefined,
         variant,
         options = $bindable([]),
         selected = $bindable([]),
         onChange,
-        hasSearch = false,
-        searchPlaceholder = $t("domain.search.bar.placeholder"),
-        searchValue = $bindable(""),
-        onSearch = undefined,
-        clearable = false,
-        onClear = undefined,
         singleSelect = false,
-        onInputBlur = undefined,
         label = undefined,
         selectedFirst = false,
         isOpen = $bindable(false),
+        loading = false,
+        showEmpty = true,
         chips = false,
         chip = undefined,
+        trigger = undefined,
         itemClass = undefined,
         row = undefined,
     }: Props = $props();
 
     const listId = $props.id();
 
-    const hasHeader = $derived(hasSearch || !!label);
+    const hasHeader = $derived(!!trigger || !!label);
     const showChips = $derived(chips && selected.length > 0 && !isOpen);
 
-    const renderedItems = $derived.by(() => {
+    const renderedItems = $derived.by((): RenderedItem[] => {
         const selectedIds = new Set(selected.map((s) => s.id));
 
         const merged: DropdownOption[] = selectedFirst
@@ -103,17 +98,9 @@
         return selected.length > 0 && selected.some((s) => s.id === option.id);
     }
 
-    function handleClear() {
-        searchValue = "";
-        selected = [];
-        isOpen = false;
-        onClear?.();
-    }
-
     function handleItemChange(option: DropdownOption) {
         if (singleSelect) {
             selected = [{ ...option, selected: true }];
-            if (hasSearch && !chips) searchValue = option.label;
             isOpen = false;
         } else if (option.selected && !isSelected(option)) {
             selected = [...selected, option];
@@ -167,39 +154,8 @@
                 </Tag>
             {/each}
         </div>
-    {:else if hasSearch}
-        <div
-            class={twMerge(
-                "group flex w-full items-center justify-between rounded-lg border border-gray-100 bg-white p-4 shadow-sm outline-none focus:outline-none",
-                searchClasses,
-            )}
-        >
-            <input
-                class="max-h-6 w-full border-0 bg-white p-0 text-base/6 font-normal text-black ring-0 placeholder:opacity-48"
-                type="text"
-                placeholder={searchPlaceholder}
-                aria-expanded={isOpen}
-                aria-controls={listId}
-                bind:value={searchValue}
-                oninput={(e) => onSearch?.(e.currentTarget.value)}
-                onblur={onInputBlur}
-                onclick={() => {
-                    if (!isOpen) isOpen = true;
-                }}
-            />
-            <div class="absolute right-4 flex flex-row gap-1 bg-white">
-                {#if clearable && searchValue}
-                    <button
-                        type="button"
-                        class="shrink-0 hover:cursor-pointer hover:opacity-75"
-                        onclick={handleClear}
-                    >
-                        <Close width="20" height="20" />
-                    </button>
-                {/if}
-                <SearchIcon width="32" height="32" />
-            </div>
-        </div>
+    {:else if trigger}
+        {@render trigger(listId)}
     {:else}
         <button
             type="button"
@@ -219,8 +175,16 @@
     {/if}
 
     {#if isOpen}
-        {#if renderedItems.length}
+        {#if loading}
             <div
+                class="absolute top-full left-0 z-100 mt-2 flex w-full justify-center rounded-lg bg-white p-4 shadow-2xl"
+            >
+                <Spinner />
+            </div>
+        {:else if renderedItems.length}
+            <div
+                id={listId}
+                role="listbox"
                 class="absolute top-full left-0 z-100 mt-2 w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
             >
                 {#each renderedItems as item}
@@ -237,7 +201,7 @@
                     />
                 {/each}
             </div>
-        {:else if !hasSearch || searchValue.trim()}
+        {:else if showEmpty}
             <p
                 class="text-content absolute top-full left-0 z-100 mt-2 w-full rounded-lg bg-white p-4 text-base shadow-2xl"
             >

@@ -7,6 +7,7 @@
     import { getDefaultCountry } from "../../utils/consts";
     import { getValidationParams } from "../../utils/validation";
     import { zRegisterForm } from "../../validation/registerValidation";
+    import Spinner from "../icons/status/Spinner.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
@@ -455,7 +456,11 @@
 
         {#if standalone}
             <Button type="submit" class="w-fit" disabled={isSubmitting}>
-                {$t("pages.register.submit")}
+                {#if isSubmitting}
+                    <Spinner />
+                {:else}
+                    {$t("pages.register.submit")}
+                {/if}
             </Button>
         {:else}
             <button type="submit" class="hidden" aria-hidden="true"></button>

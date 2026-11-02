@@ -58,25 +58,31 @@
             selectedBudgetDescription.trim() !== "",
     );
 
-    let formTouched = $state(false);
+    // Per-field, set only on input: blur fires when the modal moves focus on open.
+    const untouched = { title: false, type: false, amount: false, description: false };
+    let touched = $state({ ...untouched });
+
+    $effect(() => {
+        if (open) touched = { ...untouched };
+    });
 
     const titleError = $derived(
-        formTouched && selectedBudgetTitle.trim() === ""
+        touched.title && selectedBudgetTitle.trim() === ""
             ? $t("pages.project.edit.budget.validation.title")
             : undefined,
     );
     const typeError = $derived(
-        formTouched && !selectedBudgetType
+        touched.type && !selectedBudgetType
             ? $t("pages.project.edit.budget.validation.type")
             : undefined,
     );
     const amountError = $derived(
-        formTouched && money.amount <= 0
+        touched.amount && money.amount <= 0
             ? $t("pages.project.edit.budget.validation.amount")
             : undefined,
     );
     const descriptionError = $derived(
-        formTouched && selectedBudgetDescription.trim() === ""
+        touched.description && selectedBudgetDescription.trim() === ""
             ? $t("pages.project.edit.budget.validation.description")
             : undefined,
     );
@@ -136,13 +142,13 @@
                 labelText={$t("pages.project.edit.budget.modal.placeholders.title")}
                 placeholder={$t("pages.project.edit.budget.modal.placeholders.title")}
                 error={titleError}
-                onBlur={() => (formTouched = true)}
+                onInput={() => (touched.title = true)}
             />
             <Select
                 bind:value={selectedBudgetType as string}
                 labelText={$t("pages.project.edit.budget.modal.placeholders.type")}
                 error={typeError}
-                onBlur={() => (formTouched = true)}
+                onChange={() => (touched.type = true)}
             >
                 <option value="">{$t("pages.project.edit.budget.modal.placeholders.type")}</option>
                 <option value="infrastructure"
@@ -159,7 +165,7 @@
                 error={amountError}
                 onInput={(newMoney) => {
                     money = newMoney;
-                    formTouched = true;
+                    touched.amount = true;
                 }}
             />
             <TextArea
@@ -168,7 +174,7 @@
                 placeholder={$t("pages.project.edit.budget.modal.placeholders.description")}
                 rows={5}
                 error={descriptionError}
-                onBlur={() => (formTouched = true)}
+                onInput={() => (touched.description = true)}
             />
         </div>
         <div class="flex items-center justify-end gap-4">
