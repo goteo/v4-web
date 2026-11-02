@@ -28,7 +28,7 @@
 </script>
 
 <div
-    class="border-grey flex h-58 w-full cursor-pointer overflow-hidden rounded-4xl border bg-white shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg md:flex-row"
+    class="flex h-58 w-full cursor-pointer overflow-hidden rounded-4xl bg-white shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg md:flex-row"
 >
     <div class="flex h-full w-2/5 shrink-0 overflow-hidden">
         <img
@@ -37,7 +37,9 @@
             class="h-full w-full object-cover"
         />
     </div>
-    <div class="flex w-full flex-col justify-center gap-4 p-6">
+    <div
+        class="border-grey flex w-full flex-col justify-center gap-4 rounded-r-4xl border border-l-0 p-6"
+    >
         <div class="flex flex-col gap-1">
             {#if money === undefined}
                 <Spinner />
