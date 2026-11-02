@@ -43,7 +43,9 @@
         },
     });
 
-    let validation: Partial<Record<keyof typeof form, z.core.$ZodIssue[]>> = $state({});
+    let validation: Partial<Record<keyof typeof form, z.core.$ZodIssue[]>> = $state({
+        categories: zCreateProjectForm.shape.categories.safeParse(form.categories).error?.issues,
+    });
     let isValid = $derived(Object.values(validation).every((issues) => !issues?.length));
     let submitState = $state<ActionableState>("actionable");
     let showError = $state(false);
@@ -52,10 +54,6 @@
         const result = zCreateProjectForm.shape[field].safeParse(form[field]);
 
         validation[field] = result.error?.issues;
-    }
-
-    function hasError(field: keyof typeof form) {
-        return validation[field] && validation[field].length > 0;
     }
 
     function getValidationMessage(field: keyof typeof form) {
@@ -227,19 +225,15 @@
             <Title level={2} variant="subsection">
                 {$t("pages.project.create.categories.title")}
             </Title>
-            <p
-                class={twJoin(
-                    "transition-all duration-300 ease-in-out",
-                    hasError("categories") ? "text-tertiary" : "text-black",
-                )}
-            >
-                {#if hasError("categories")}
-                    {getValidationMessage("categories")}
-                {:else}
-                    {$t("pages.project.create.categories.subtitle")}
-                {/if}
+            <p class="text-black transition-all duration-300 ease-in-out">
+                {$t("pages.project.create.categories.subtitle")}
             </p>
-            <CategorySelect max={2} options={categories} onChange={handleCategories} />
+            <CategorySelect
+                max={2}
+                options={categories}
+                onChange={handleCategories}
+                error={getValidationMessage("categories")}
+            />
         </div>
         <div class="flex flex-col gap-4">
             <Title level={2} variant="subsection">
