@@ -18,6 +18,7 @@
     import { t } from "../../../i18n/store";
     import { apiProjectsIdPatch } from "../../../openapi/client";
     import { zProjectProjectUpdationDto } from "../../../openapi/client/zod.gen";
+    import { PUBLISH_TRANSITIONS } from "../../../utils/projectStatus";
     import { validate } from "../../../utils/validation";
     import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
     import EditIcon from "../../icons/actions/Edit.svelte";
@@ -28,7 +29,6 @@
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
     import TabNavigation, { type Tab } from "../../library/layout/TabNavigation.svelte";
 
-    import type { Project } from "../../../openapi/client";
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
     import type { Snippet } from "svelte";
 
@@ -57,20 +57,6 @@
         { id: "5", label: $t("pages.project.edit.tabs.budget") },
         { id: "6", label: $t("pages.project.edit.tabs.aboutYou") },
     ]);
-
-    type ProjectStatus = NonNullable<Project["status"]>;
-
-    /**
-     * Status the publish button moves the project to, by its current status.
-     * `confirm` names the irreversible transitions that ask for confirmation first.
-     */
-    const PUBLISH_TRANSITIONS: Partial<
-        Record<ProjectStatus, { to: ProjectStatus; confirm?: "review" | "campaign" }>
-    > = {
-        in_draft: { to: "to_campaign_review", confirm: "review" },
-        "in_campaign_review.to_change": { to: "in_campaign_review.to_review" },
-        to_campaign: { to: "in_campaign", confirm: "campaign" },
-    };
 
     let errorMessage: string | undefined = $state();
     let previewOpen = $state(false);

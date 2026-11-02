@@ -130,3 +130,18 @@ export const REVIEW_STATUSES_BY_TYPE: Record<
     campaign: CAMPAIGN_REVIEW_STATUSES,
     financial: FUNDING_REVIEW_STATUSES,
 };
+
+/**
+ * Status the project editor's publish button moves a project to, by its current status.
+ * `confirm` names the irreversible transitions that ask for confirmation first.
+ */
+export const PUBLISH_TRANSITIONS: Partial<
+    Record<
+        NonNullable<Project["status"]>,
+        { to: NonNullable<Project["status"]>; confirm?: "review" | "campaign" }
+    >
+> = {
+    in_draft: { to: "to_campaign_review", confirm: "review" },
+    "in_campaign_review.to_change": { to: "in_campaign_review.to_review" },
+    to_campaign: { to: "in_campaign", confirm: "campaign" },
+};
