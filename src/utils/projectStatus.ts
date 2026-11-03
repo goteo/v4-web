@@ -156,3 +156,17 @@ export const PROJECT_STATUSES: NonNullable<Project["status"]>[] = [
 /** Translation key of a status: the API separates with dots, the translations with underscores. */
 export const projectStatusLabelKey = (status: string): string =>
     `domain.project.status.${status.replaceAll(".", "_")}`;
+/**
+ * Status the project editor's publish button moves a project to, by its current status.
+ * `confirm` names the irreversible transitions that ask for confirmation first.
+ */
+export const PUBLISH_TRANSITIONS: Partial<
+    Record<
+        NonNullable<Project["status"]>,
+        { to: NonNullable<Project["status"]>; confirm?: "review" | "campaign" }
+    >
+> = {
+    in_draft: { to: "to_campaign_review", confirm: "review" },
+    "in_campaign_review.to_change": { to: "in_campaign_review.to_review" },
+    to_campaign: { to: "in_campaign", confirm: "campaign" },
+};

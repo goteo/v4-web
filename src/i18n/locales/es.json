@@ -349,6 +349,19 @@
   },
   "common": {
     "_": "Traducciones globales de la interfaz (botones, etiquetas, etc.)",
+    "password": {
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "change": "Cambiar contraseña",
+      "save": "Guardar contraseña",
+      "success": "Contraseña actualizada correctamente",
+      "error": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "La contraseña debe tener al menos 8 caracteres",
+        "mismatch": "Las contraseñas no coinciden",
+        "generic": "No se ha podido actualizar la contraseña. Inténtalo de nuevo más tarde."
+      }
+    },
     "greeting": "Hola",
     "farewell": "Adiós",
     "donate": "Donar",
@@ -826,7 +839,18 @@
         },
         "header": {
           "titlePlaceholder": "Título de proyecto",
-          "unsentChanges": "Hay cambios sin enviar"
+          "unsentChanges": "Hay cambios sin enviar",
+          "publish": {
+            "review": {
+              "title": "Enviar a revisión",
+              "description": "Tu proyecto se enviará a revisión. Esta acción no se puede deshacer."
+            },
+            "campaign": {
+              "title": "Lanzar campaña",
+              "description": "Tu proyecto pasará a campaña y será público. Esta acción no se puede deshacer."
+            },
+            "error": "No se ha podido publicar el proyecto. Inténtalo de nuevo."
+          }
         },
         "tabs": {
           "configuration": "Configuración",
@@ -1574,6 +1598,7 @@
         "charges": "Cobros",
         "projects": "Proyectos",
         "users": "Usuarios",
+        "categorization": "Categorización",
         "comm": "Comunicación",
         "home": "Portada",
         "reviews": "Revisiones"
@@ -1587,6 +1612,47 @@
       "landing": {
         "title": "Administración",
         "subtitle": "Accede rápidamente a las distintas secciones de gestión de la plataforma."
+      },
+      "categorization": {
+        "title": "Categorización",
+        "description": "Gestiona las categorías y los temas que clasifican los proyectos.",
+        "table": {
+          "headers": {
+            "name": "Nombre",
+            "slug": "Slug",
+            "locales": "Traducciones",
+            "type": "Tipo"
+          },
+          "types": {
+            "category": "Categoría",
+            "theme": "Tema"
+          }
+        },
+        "actions": {
+          "createCategory": "Crear categoría",
+          "createTheme": "Crear tema"
+        },
+        "modal": {
+          "createCategory": "Crear categoría",
+          "editCategory": "Editar categoría",
+          "createTheme": "Crear tema",
+          "editTheme": "Editar tema",
+          "name": "Nombre",
+          "slug": "Slug",
+          "locales": "Idiomas disponibles",
+          "save": "Guardar",
+          "cancel": "Cancelar"
+        },
+        "delete": {
+          "title": "Eliminar {{ type }}",
+          "description": "Se eliminará «{{ name }}». Esta acción no se puede deshacer."
+        },
+        "errors": {
+          "loadFailed": "No se pudieron cargar las traducciones del elemento.",
+          "saveFailed": "No se pudo guardar el elemento.",
+          "incompleteLanguages": "Faltan nombres en: {{ languages }}"
+        },
+        "empty": "No hay elementos para mostrar."
       },
       "home": {
         "description": "Elige qué se muestra en la portada.",
@@ -2411,6 +2477,10 @@
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
           "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
           "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
+        },
+        "password": {
+          "title": "Cambiar contraseña",
+          "subtitle": "Actualiza la contraseña de tu cuenta"
         },
         "preferences": {
           "title": "Preferencias",
