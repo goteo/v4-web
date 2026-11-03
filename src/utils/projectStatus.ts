@@ -131,6 +131,31 @@ export const REVIEW_STATUSES_BY_TYPE: Record<
     financial: FUNDING_REVIEW_STATUSES,
 };
 
+/** Every status the API knows a project by, in lifecycle order. */
+export const PROJECT_STATUSES: NonNullable<Project["status"]>[] = [
+    "in_draft",
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_change",
+    "in_campaign_review.to_review",
+    "campaign_review.rejected",
+    "to_campaign",
+    "in_campaign",
+    "campaign.failed",
+    "campaign.cancelled",
+    "to_funding_review",
+    "in_funding_review",
+    "in_funding_review.to_change",
+    "in_funding_review.to_review",
+    "funding_review.rejected",
+    "to_funding",
+    "in_funding",
+    "funding.paid",
+];
+
+/** Translation key of a status: the API separates with dots, the translations with underscores. */
+export const projectStatusLabelKey = (status: string): string =>
+    `domain.project.status.${status.replaceAll(".", "_")}`;
 /**
  * Status the project editor's publish button moves a project to, by its current status.
  * `confirm` names the irreversible transitions that ask for confirmation first.
