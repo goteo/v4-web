@@ -58,6 +58,12 @@
 
     let categories = $derived($draft.latest.categories.map((c) => extractId(c)!));
 
+    let categoriesError = $derived(
+        categories.length === 0
+            ? $t("pages.project.create.validation.categoriesNotEnough", { min: "1" })
+            : undefined,
+    );
+
     function handleCategoryChange(selected: Category[]) {
         draft.patch({
             categories: selected.map((s) => {
@@ -131,6 +137,7 @@
                     {options}
                     bind:selectedIds={categories}
                     onChange={handleCategoryChange}
+                    error={categoriesError}
                 />
             </div>
         {/if}

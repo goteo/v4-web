@@ -317,10 +317,15 @@
     </fieldset>
 
     <div class="flex flex-wrap gap-4">
-        <ActionableButton kind="secondary" action={() => submit(false)} class="w-fit px-6">
+        <ActionableButton
+            kind="secondary"
+            action={() => submit(false)}
+            autoreset={2000}
+            class="w-fit px-6"
+        >
             {$t("pages.admin.comm.blog.form.saveAndExit")}
         </ActionableButton>
-        <ActionableButton action={() => submit(true)} class="w-fit px-6">
+        <ActionableButton action={() => submit(true)} autoreset={2000} class="w-fit px-6">
             {$t("pages.admin.comm.blog.form.publish")}
         </ActionableButton>
     </div>

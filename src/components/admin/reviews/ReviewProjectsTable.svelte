@@ -45,11 +45,12 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
+    import { projectStatusLabelKey, REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
     import { RISK_SQUARE_CLASSES } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
@@ -74,7 +75,7 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: ProjectStatus) => void;
+        onStatusChange?: (projectId: number, status: ProjectStatus) => Promise<void>;
         onAssignAdvisor?: (project: ReviewProjectRow) => void;
     }
 
@@ -94,8 +95,18 @@
 
     let openRow = $state<number | null>(null);
 
-    const statusLabel = (status: string) =>
-        $t(`domain.project.status.${status.replaceAll(".", "_")}`);
+    const updatingStatus = new SvelteSet<number>();
+
+    async function handleStatusChange(projectId: number, status: ProjectStatus) {
+        updatingStatus.add(projectId);
+        try {
+            await onStatusChange?.(projectId, status);
+        } finally {
+            updatingStatus.delete(projectId);
+        }
+    }
+
+    const statusLabel = (status: string) => $t(projectStatusLabelKey(status));
 
     /**
      * Statuses a project can move to for the kind of review it is going through.
@@ -169,10 +180,10 @@
                 <select
                     class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
                     value={project.status ?? ""}
-                    disabled={!project.status}
+                    disabled={!project.status || updatingStatus.has(project.id)}
                     aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
                     onchange={(e) =>
-                        onStatusChange?.(project.id, e.currentTarget.value as ProjectStatus)}
+                        handleStatusChange(project.id, e.currentTarget.value as ProjectStatus)}
                 >
                     {#if !project.status}
                         <option value="">—</option>

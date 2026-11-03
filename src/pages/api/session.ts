@@ -1,7 +1,27 @@
-import { passwordGrant } from "../../auth/grant";
+import { OAuthError, passwordGrant } from "../../auth/grant";
 import { buildSession, setSession } from "../../auth/session";
 
 import type { APIRoute } from "astro";
+
+/**
+ * Maps the OAuth2 error codes returned by the token endpoint to descriptive,
+ * localized messages. The key is returned to the client, which translates it,
+ * so a missing translation can never leak a raw key to the user.
+ */
+const LOGIN_ERROR_KEYS: Record<string, string> = {
+    invalid_grant: "pages.checkout.login.error.invalidCredentials",
+    invalid_client: "pages.checkout.login.error.clientAuthentication",
+    unauthorized_client: "pages.checkout.login.error.clientAuthentication",
+    invalid_request: "pages.checkout.login.error.invalidRequest",
+};
+
+function loginErrorKey(error: unknown): string {
+    if (error instanceof OAuthError && error.code && LOGIN_ERROR_KEYS[error.code]) {
+        return LOGIN_ERROR_KEYS[error.code];
+    }
+
+    return "pages.checkout.login.error.unexpectedLogin";
+}
 
 /**
  * Exposes the current session to client-side code.
@@ -18,13 +38,19 @@ export const GET: APIRoute = ({ locals }) => {
 /**
  * Handles the POST request to log in using the OAuth2 password grant.
  */
-export const POST: APIRoute = async ({ request, cookies, locals }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
     try {
         const body = (await request.json()) as { identifier?: string; password?: string };
         const { identifier, password } = body;
 
         if (typeof identifier !== "string" || typeof password !== "string") {
-            throw new Error(locals.t("system.OAuth.The user credentials were incorrect"));
+            return new Response(
+                JSON.stringify({ error: "pages.checkout.login.error.invalidCredentials" }),
+                {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
         }
 
         const token = await passwordGrant({ identifier, password });
@@ -40,14 +66,9 @@ export const POST: APIRoute = async ({ request, cookies, locals }) => {
     } catch (err) {
         console.error(err);
 
-        return new Response(
-            JSON.stringify({
-                error: err instanceof Error ? err.message : String(err),
-            }),
-            {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            },
-        );
+        return new Response(JSON.stringify({ error: loginErrorKey(err) }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 };

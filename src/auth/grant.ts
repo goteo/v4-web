@@ -1,6 +1,22 @@
 import { withHttpHeaders } from "./token";
 import { type OAuthToken } from "./types";
 
+/**
+ * Error thrown when the OAuth2 token endpoint rejects a grant request.
+ * It carries the OAuth2 error code (e.g. `invalid_grant`, `invalid_client`) so
+ * callers can map it to a descriptive, localized message instead of showing a
+ * generic error.
+ */
+export class OAuthError extends Error {
+    code?: string;
+
+    constructor(token: OAuthToken) {
+        super(token.error_description ?? token.error ?? "OAuth error");
+        this.name = "OAuthError";
+        this.code = token.error;
+    }
+}
+
 export async function authorizationCode(args: {
     code: string;
     redirectUri: string;
@@ -22,7 +38,7 @@ export async function authorizationCode(args: {
 
     if (oauth.error!) {
         console.error(oauth);
-        throw new Error(oauth.error_description);
+        throw new OAuthError(oauth);
     }
 
     return oauth;
@@ -49,7 +65,7 @@ export async function passwordGrant(args: {
 
     if (oauth.error!) {
         console.error(oauth);
-        throw new Error(oauth.error_description);
+        throw new OAuthError(oauth);
     }
 
     return oauth;
@@ -76,7 +92,7 @@ export async function refreshToken(token: OAuthToken): Promise<OAuthToken> {
 
     if (oauth.error!) {
         console.error(oauth);
-        throw new Error(oauth.error_description);
+        throw new OAuthError(oauth);
     }
 
     return oauth;

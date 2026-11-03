@@ -2,6 +2,7 @@
     import { defineMeta } from "@storybook/addon-svelte-csf";
 
     import ResourceSearch from "./ResourceSearch.svelte";
+    import UserResultRow from "../dropdown/UserResultRow.svelte";
 
     const PROJECTS = [
         { name: "La Marea - Climática", subtitle: "Periodismo independiente" },
@@ -10,7 +11,7 @@
         { name: "L'éstiu va arribar aviat", subtitle: "Artes escénicas" },
     ];
 
-    const USERS = [{ name: "Lara Soto", handle: "lara" }];
+    const USERS = [{ name: "Lara Soto", handle: "lara", email: "lara@goteo.org" }];
 
     const normalize = (value) => value.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -35,6 +36,17 @@
     const combined = async (query) =>
         (await Promise.all([fakeSearch("Proyectos")(query), fakeSearch("Usuarios")(query)])).flat();
 
+    const userSearch = async (query) =>
+        (await fakeSearch("Usuarios")(query)).map((item) => ({
+            ...item,
+            raw: {
+                id: item.id,
+                handle: USERS[0].handle,
+                email: USERS[0].email,
+                displayName: item.label,
+            },
+        }));
+
     const { Story } = defineMeta({
         component: ResourceSearch,
         title: "Library/ResourceSearch",
@@ -54,3 +66,16 @@
 <Story name="Grouped" args={{ search: combined }} />
 
 <Story name="WithError" args={{ error: "Elige un proyecto de la lista" }} />
+
+<Story
+    name="UserRows"
+    args={{
+        search: userSearch,
+        label: "Busca un usuario",
+        useRow: (item) => Boolean(item.raw),
+    }}
+>
+    {#snippet row(item)}
+        <UserResultRow user={item.raw} />
+    {/snippet}
+</Story>

@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
+import { PROJECT_STATUSES, projectStatusLabelKey } from "./projectStatus";
 import {
     searchAccountings,
     searchCategories,
@@ -43,6 +44,7 @@ export type FilterResource = "projects" | "gateway_charges" | "users" | "project
 
 export interface FilterOption {
     value: string;
+    /** Resolved with `$t` where the option is rendered: an i18n key, or a literal used as-is. */
     label: string;
 }
 
@@ -75,27 +77,17 @@ const chargeTypes: FilterOption[] = [
     { value: "recurring", label: "Recurring" },
 ];
 
+// Roles are a closed set with no listing endpoint, so the composer offers them as options.
+// The labels reuse the already translated admin users table keys to avoid duplicating them.
+const userRoleOptions: FilterOption[] = [
+    { value: "ROLE_USER", label: "pages.admin.users.table.rows.roles.ROLE_USER" },
+    { value: "ROLE_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_ADMIN" },
+    { value: "ROLE_SUPER_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_SUPER_ADMIN" },
+];
+
 const reviewTypes: FilterOption[] = [
     { value: "campaign", label: "domain.filterComposer.subjectOption.reviewType.campaign" },
     { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
-];
-
-const projectStatuses: FilterOption[] = [
-    { value: "in_draft", label: "In draft" },
-    { value: "to_campaign_review", label: "To campaign review" },
-    { value: "in_campaign_review", label: "In campaign review" },
-    { value: "in_campaign_review.request_change", label: "Request change (campaign)" },
-    { value: "campaign_review.rejected", label: "Rejected (campaign)" },
-    { value: "to_campaign", label: "To campaign" },
-    { value: "in_campaign", label: "In campaign" },
-    { value: "campaign.failed", label: "Failed (campaign)" },
-    { value: "to_funding_review", label: "To funding review" },
-    { value: "in_funding_review", label: "In funding review" },
-    { value: "in_funding_review.request_change", label: "Request change (funding)" },
-    { value: "funding_review.rejected", label: "Rejected (funding)" },
-    { value: "to_funding", label: "To funding" },
-    { value: "in_funding", label: "In funding" },
-    { value: "funding.paid", label: "Funding paid" },
 ];
 
 const currentLocale = get(locale) || getDefaultLanguage();
@@ -123,6 +115,9 @@ const filterSubjects: Record<string, FilterSubject> = {
     },
     description: {
         key: "description",
+        // The API names the project description `descBrief`. Without this, the row would send
+        // `description`, which the API does not know about and drops silently.
+        param: "descBrief",
         type: "string",
         compatibleOperators: ["equals"],
         resources: ["projects"],
@@ -134,7 +129,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        options: projectStatuses,
+        options: PROJECT_STATUSES.map((value) => ({ value, label: projectStatusLabelKey(value) })),
         allowsMultipleEquals: true,
     },
     chargeStatus: {
@@ -169,12 +164,6 @@ const filterSubjects: Record<string, FilterSubject> = {
         resources: ["projects"],
         suggest: searchProjectsBySlug,
         allowsMultipleEquals: true,
-    },
-    budgetAmount: {
-        key: "budgetAmount",
-        type: "money",
-        compatibleOperators: ["gte", "gt", "lte", "lt"],
-        resources: ["projects"],
     },
     gateway: {
         key: "gateway",
@@ -285,8 +274,14 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
         options: [
-            { value: "individual", label: "Individual" },
-            { value: "organization", label: "Organización" },
+            {
+                value: "individual",
+                label: "domain.filterComposer.subjectOption.userType.individual",
+            },
+            {
+                value: "organization",
+                label: "domain.filterComposer.subjectOption.userType.organization",
+            },
         ],
         allowsMultipleEquals: true,
     },
@@ -296,8 +291,8 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals"],
         resources: ["users"],
         options: [
-            { value: "true", label: "Activo" },
-            { value: "false", label: "Inactivo" },
+            { value: "true", label: "domain.filterComposer.subjectOption.active.true" },
+            { value: "false", label: "domain.filterComposer.subjectOption.active.false" },
         ],
     },
     userRoles: {
@@ -306,6 +301,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["users"],
+        options: userRoleOptions,
         allowsMultipleEquals: true,
     },
     territory: {
@@ -351,7 +347,9 @@ export function createFilterRow(
                     }
                     return { [key]: String(referent) };
                 case "is_any_of":
-                    return { [key]: referent as string[] };
+                    // The API only unions multiple values when they arrive as `key[]`: a repeated
+                    // bare key keeps just the last one (verified against projects and users).
+                    return { [`${key}[]`]: referent as string[] };
                 case "before":
                 case "after":
                 case "strictly_before":

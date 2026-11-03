@@ -1,0 +1,26 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import App from "../../layouts/App.svelte";
+import Register from "../../components/checkout/Register.svelte";
+import { goto } from "../../utils/navigation";
+
+const { t, lang, session } = Astro.locals;
+
+// Only same-site paths, to avoid open redirects
+const param = Astro.url.searchParams.get("callback");
+const callback = param?.startsWith("/") && !param.startsWith("//") ? param : undefined;
+
+if (session) {
+    return goto(callback || "/");
+}
+---
+
+<Layout title={t("pages.register.title")} description={t("pages.register.description")}>
+    <App client:load locale={lang} session={session} class="mb-20">
+        <div class="wrapper pt-6">
+            <div class="mx-auto max-w-2xl">
+                <Register client:load standalone callback={callback} />
+            </div>
+        </div>
+    </App>
+</Layout>

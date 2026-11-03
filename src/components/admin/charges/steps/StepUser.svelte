@@ -2,10 +2,10 @@
     import { t } from "../../../../i18n/store";
     import { apiUsersGetCollection, type User } from "../../../../openapi/client";
     import { debounce } from "../../../../utils/debounce";
-    import { highlightMatch } from "../../../../utils/highlights";
     import CloseIcon from "../../../icons/navigation/Close.svelte";
     import Spinner from "../../../icons/status/Spinner.svelte";
     import Button from "../../../library/buttons/Button.svelte";
+    import UserResultRow from "../../../library/dropdown/UserResultRow.svelte";
     import PasswordInput from "../../../library/inputs/PasswordInput.svelte";
     import RadioButton from "../../../library/inputs/RadioButton.svelte";
     import TextInput from "../../../library/inputs/TextInput.svelte";
@@ -193,19 +193,8 @@
                     onclick={() => selectUser(u)}
                     class="border-secondary hover:bg-purple-soft/30 cursor-pointer rounded-lg border bg-white p-4 text-left shadow-sm transition hover:shadow-md"
                 >
-                    <div class="text-secondary text-base font-bold">
-                        {@html highlightMatch(
-                            u.displayName ?? u.handle ?? u.email,
-                            form.user.email,
-                        )}
-                    </div>
-                    <div class="text-content mt-1 text-sm">
-                        {u.email}
-                    </div>
+                    <UserResultRow user={u} highlightQuery={form.user.email} />
                     <div class="text-content mt-1 flex flex-wrap gap-2 text-xs">
-                        <span class="rounded-full bg-gray-100 px-2 py-0.5">
-                            @{u.handle}
-                        </span>
                         <span class="rounded-full bg-gray-100 px-2 py-0.5">
                             {$t(
                                 u.type === "organization"

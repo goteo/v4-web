@@ -54,11 +54,14 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
+    import { SvelteSet } from "svelte/reactivity";
 
     import ProjectsDetailsRow from "./ProjectsDetailsRow.svelte";
     import { t } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
+    import { PROJECT_STATUSES, projectStatusLabelKey } from "../../../utils/projectStatus";
     import Chevron from "../../icons/navigation/Chevron.svelte";
+    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
     import DataTable from "../../library/tables/DataTable.svelte";
 
     let {
@@ -87,7 +90,7 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: string) => void;
+        onStatusChange?: (projectId: number, status: string) => Promise<void>;
         onOpenPaidModal?: (project: ProjectRow, e: MouseEvent) => void;
         onOpenAnnotationsModal?: (project: ProjectRow, e: MouseEvent) => void;
         onChangeStatus?: (projectId: number) => void;
@@ -95,69 +98,29 @@
 
     let openRow = $state<number | null>(null);
 
-    const statusOptions = [
-        { value: "in_draft", label: $t("domain.project.status.in_draft") },
-        {
-            value: "to_campaign_review",
-            label: $t("domain.project.status.to_campaign_review"),
-        },
-        {
-            value: "in_campaign_review",
-            label: $t("domain.project.status.in_campaign_review"),
-        },
-        {
-            value: "in_campaign_review.to_change",
-            label: $t("domain.project.status.in_campaign_review_to_change"),
-        },
-        {
-            value: "in_campaign_review.to_review",
-            label: $t("domain.project.status.in_campaign_review_to_review"),
-        },
-        {
-            value: "campaign_review_rejected",
-            label: $t("domain.project.status.campaign_review_rejected"),
-        },
-        { value: "to_campaign", label: $t("domain.project.status.to_campaign") },
-        { value: "in_campaign", label: $t("domain.project.status.in_campaign") },
-        {
-            value: "campaign_failed",
-            label: $t("domain.project.status.campaign_failed"),
-        },
-        {
-            value: "campaign_cancelled",
-            label: $t("domain.project.status.campaign_cancelled"),
-        },
-        {
-            value: "to_funding_review",
-            label: $t("domain.project.status.to_funding_review"),
-        },
-        {
-            value: "in_funding_review",
-            label: $t("domain.project.status.in_funding_review"),
-        },
-        {
-            value: "in_funding_review.to_change",
-            label: $t("domain.project.status.in_funding_review_to_change"),
-        },
-        {
-            value: "in_funding_review.to_review",
-            label: $t("domain.project.status.in_funding_review_to_review"),
-        },
-        {
-            value: "funding_review_rejected",
-            label: $t("domain.project.status.funding_review_rejected"),
-        },
-        { value: "to_funding", label: $t("domain.project.status.to_funding") },
-        { value: "in_funding", label: $t("domain.project.status.in_funding") },
-        { value: "funding_paid", label: $t("domain.project.status.funding_paid") },
-    ];
+    let openStatus = $state<number | null>(null);
+
+    const statusOptions = $derived(
+        PROJECT_STATUSES.map((status) => ({
+            id: status,
+            label: $t(projectStatusLabelKey(status)),
+            selected: false,
+        })),
+    );
 
     function toggleRow(_row: ProjectRow, index: number): void {
         openRow = openRow === index ? null : index;
     }
 
-    function handleStatusChangeInline(project: ProjectRow, newStatus: string) {
-        onStatusChange?.(project.id, newStatus);
+    const updatingStatus = new SvelteSet<number>();
+
+    async function handleStatusChangeInline(project: ProjectRow, newStatus: string) {
+        updatingStatus.add(project.id);
+        try {
+            await onStatusChange?.(project.id, newStatus);
+        } finally {
+            updatingStatus.delete(project.id);
+        }
     }
 </script>
 
@@ -205,15 +168,35 @@
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             <div onclick={(e) => e.stopPropagation()} role="presentation">
-                <select
-                    class="border-secondary text-secondary rounded-sm border py-1 text-sm"
-                    value={project.status}
-                    onchange={(e) => handleStatusChangeInline(project, e.currentTarget.value)}
+                <DropdownMenu
+                    variant="basic"
+                    singleSelect
+                    options={statusOptions}
+                    selected={statusOptions.filter((o) => o.id === project.status)}
+                    bind:isOpen={
+                        () => openStatus === project.id,
+                        (open) => (openStatus = open ? project.id : null)
+                    }
+                    onChange={(option) => handleStatusChangeInline(project, option.id)}
                 >
-                    {#each statusOptions as opt}
-                        <option value={opt.value}>{opt.label}</option>
-                    {/each}
-                </select>
+                    {#snippet trigger(listId)}
+                        <button
+                            type="button"
+                            class="border-secondary text-secondary flex w-full cursor-pointer items-center justify-between gap-1 rounded-sm border px-2 py-1 text-left text-sm disabled:cursor-default disabled:opacity-50"
+                            aria-expanded={openStatus === project.id}
+                            aria-controls={listId}
+                            aria-label={$t("pages.admin.projects.table.headers.process")}
+                            disabled={updatingStatus.has(project.id)}
+                            onclick={() =>
+                                (openStatus = openStatus === project.id ? null : project.id)}
+                        >
+                            <span class="truncate">
+                                {project.status ? $t(projectStatusLabelKey(project.status)) : "—"}
+                            </span>
+                            <Chevron direction="down" width="16" height="16" class="shrink-0" />
+                        </button>
+                    {/snippet}
+                </DropdownMenu>
             </div>
         </TableBodyCell>
         <TableBodyCell
