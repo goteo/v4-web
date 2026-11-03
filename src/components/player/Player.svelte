@@ -7,17 +7,17 @@
     let {
         src,
         title = $t("pages.project.view.video.title"),
-        thumbnails = "",
+        thumbnail = "",
         poster = { src: "", alt: $t("pages.project.view.video.poster") },
-    } = $props<{
+    }: {
         src: string;
         title?: string;
-        thumbnails?: string;
+        thumbnail?: string;
         poster?: {
             src: string;
             alt: string;
         };
-    }>();
+    } = $props();
 
     let showIframe = $state(false);
     let isCheckingProvider = $state(true);
@@ -28,7 +28,7 @@
     let isLoading = $state(false);
     let iframeEl: HTMLIFrameElement | null = $state(null);
 
-    let previewImage = $derived(poster.src || thumbnails);
+    let previewImage = $derived(poster.src || thumbnail);
 
     $effect(() => {
         noVideoSrc = !src;

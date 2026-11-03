@@ -305,7 +305,10 @@
             path: { id: String(projectId) },
             body: { status: status as any },
         });
-        if (error) console.error("Failed to update project status:", error);
+        if (error) return console.error("Failed to update project status:", error);
+
+        const row = projectRows.find((p) => p.id === projectId);
+        if (row) row.status = status;
     }
 
     function openPaidModal(project: ProjectRow, e: MouseEvent) {

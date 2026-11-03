@@ -14,6 +14,11 @@ import { proposedCampaignsRepository } from "../../repositories/proposedCampaign
 import type { ProposedCampaignTab } from "../../repositories/proposedCampaigns";
 
 const { t } = Astro.locals;
+const chosenProjects = {
+    "impulsa-la-cooperativa-de-informacion-climatica": "",
+    "fons-cooperatiu-front-l-emergencia-social-i-sanita": "",
+    "la-benefica": "",
+};
 
 const data = await proposedCampaignsRepository.get();
 
@@ -51,7 +56,10 @@ await Promise.all(
             size: "small" as const,
             slug: project.slug!,
             title: project.title!,
-            image: project.video?.thumbnail! || project.cover!,
+            image:
+                chosenProjects[project.slug! as keyof typeof chosenProjects] ||
+                project.cover ||
+                project.video?.thumbnail!,
             minimum: project.budget?.minimum?.money!,
             obtained: accounting!.balance as Money,
             optimum: project.budget?.optimum?.money,
