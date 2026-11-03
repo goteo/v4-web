@@ -12,12 +12,16 @@
         apiThemesIdOrSlugGetUrl,
     } from "../../openapi/client";
     import { client } from "../../openapi/client/client.gen";
-    import { CAMPAIGN_MAX_END_DATE, CAMPAIGN_MIN_START_DATE } from "../../utils/dates";
+    import { CAMPAIGN_MAX_END_DATE, CAMPAIGN_MIN_START_DATE, formatDate } from "../../utils/dates";
     import { getValidationParams } from "../../utils/validation";
     import {
         zCreateProjectForm,
         zProjectCampaignRelease,
     } from "../../validation/projectValidation";
+    import BookmarkIcon from "../icons/actions/Bookmark.svelte";
+    import CalendarIcon from "../icons/Calendar.svelte";
+    import CategoryIcon from "../icons/Category.svelte";
+    import LocationIcon from "../icons/Location.svelte";
     import ActionableButton, {
         type ActionableState,
     } from "../library/buttons/ActionableButton.svelte";
@@ -28,7 +32,9 @@
     import TerritoryInput from "../library/inputs/TerritoryInput.svelte";
     import TextArea from "../library/inputs/TextArea.svelte";
     import TextInput from "../library/inputs/TextInput.svelte";
+    import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
+    import TerritoryTag from "../project/TerritoryTag.svelte";
 
     import type z from "zod";
 
@@ -47,6 +53,8 @@
     let isValid = $derived(Object.values(validation).every((issues) => !issues?.length));
     let submitState = $state<ActionableState>("actionable");
     let showError = $state(false);
+    let selectedCategories = $state<Category[]>([]);
+    let selectedThemes = $state<Theme[]>([]);
 
     function validate(field: keyof typeof form) {
         const result = zCreateProjectForm.shape[field].safeParse(form[field]);
@@ -102,12 +110,14 @@
     }
 
     function handleCategories(categories: Category[]) {
+        selectedCategories = categories;
         form.categories = toIris(categories, apiCategoriesIdOrSlugGetUrl);
 
         validate("categories");
     }
 
     function handleThemes(themes: Theme[]) {
+        selectedThemes = themes;
         form.themes = toIris(themes, apiThemesIdOrSlugGetUrl);
     }
 
@@ -293,9 +303,9 @@
     <Toast floating variant="error" bind:showToast={showError}>
         {$t("system.error.unknown")}
     </Toast>
-    <div class="ml-auto">
+    <div class="mb-20 ml-auto">
         <BaseCard
-            class="border-grey flex h-full max-h-126.5 w-full max-w-109.25 flex-col bg-white"
+            class="border-grey flex w-full max-w-109.25 flex-col bg-white md:sticky md:top-(--sticky-top)"
             style="box-shadow: 0 35px 10px 0 rgba(0, 0, 0, 0.00), 0 22px 9px 0 rgba(0, 0, 0, 0.01), 0 13px 8px 0 rgba(0, 0, 0, 0.05), 0 6px 6px 0 rgba(0, 0, 0, 0.09), 0 1px 3px 0 rgba(0, 0, 0, 0.10);"
         >
             <Title
@@ -306,11 +316,37 @@
             >
                 {form.title || $t("pages.project.create.description.titlePlaceholder")}
             </Title>
-            <p
-                class="text-content w-full overflow-hidden text-base font-normal text-ellipsis whitespace-nowrap"
-            >
+            <p class="text-content line-clamp-4 w-full text-base font-normal break-words">
                 {form.subtitle || $t("pages.project.create.description.subtitlePlaceholder")}
             </p>
+            <div class="flex flex-wrap gap-2 pt-4">
+                {#if selectedCategories.length}
+                    <Tag>
+                        <CategoryIcon width="24" height="24" />
+                        <span>{selectedCategories.map(({ name }) => name).join(", ")}</span>
+                    </Tag>
+                {/if}
+                {#if selectedThemes.length}
+                    <Tag>
+                        <BookmarkIcon />
+                        <span>{selectedThemes.map(({ name }) => name).join(", ")}</span>
+                    </Tag>
+                {/if}
+                {#if form.territory?.country}
+                    <TerritoryTag territory={form.territory} iconSize="24" class="border-0" />
+                {:else}
+                    <Tag class="opacity-24">
+                        <LocationIcon width="24" height="24" />
+                        <span>{$t("pages.project.create.address.placeholder")}</span>
+                    </Tag>
+                {/if}
+                {#if form.calendar?.release}
+                    <Tag>
+                        <CalendarIcon width="24" height="24" />
+                        <span>{formatDate(new Date(form.calendar.release), $locale)}</span>
+                    </Tag>
+                {/if}
+            </div>
         </BaseCard>
     </div>
 </section>
