@@ -2,9 +2,15 @@
     import { actions } from "astro:actions";
 
     import ReviewOptionsModal from "./ReviewOptionsModal.svelte";
+    import ReviewStateTag from "./ReviewStateTag.svelte";
     import RisksCard from "./RisksCard.svelte";
     import { t } from "../../i18n/store";
-    import { PROJECT_REVIEW_STATUS_LABELS } from "../../utils/review";
+    import {
+        CAMPAIGN_REVIEW_DECISIONS,
+        CAMPAIGN_REVIEW_DECISION_STATUSES,
+        CAMPAIGN_REVIEW_STATE_LABELS,
+        PROMOTER_CHANGES_DONE_STATUS,
+    } from "../../utils/review";
     import BackButton from "../library/buttons/BackButton.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Toast from "../library/feedback/Toast.svelte";
@@ -26,6 +32,7 @@
         projectStatus = undefined,
         canAssessRisks = false,
         canChangeStatus = false,
+        isPromoter = false,
         locale = "es",
     }: {
         /** Identifier of the review, used to build the chat links. */
@@ -40,6 +47,8 @@
         projectStatus?: Project["status"];
         canAssessRisks?: boolean;
         canChangeStatus?: boolean;
+        /** The signed in user is the promoter of the project, not its consultant. */
+        isPromoter?: boolean;
         locale?: string;
     } = $props();
 
@@ -52,37 +61,33 @@
 
     let errorMessage = $state("");
     let showError = $state(false);
+    let showSuccess = $state(false);
 
     let savingAreaId = $state<number | null>(null);
     let savingStatus = $state(false);
     let isStatusModalOpen = $state(false);
 
-    /** Only set once the consultant picks a status; until then the project decides. */
+    /** Only set once a decision is applied; until then the project decides. */
     let chosenStatus = $state<ProjectReviewStatus | undefined>(undefined);
 
-    let selectedStatus = $derived(chosenStatus ?? asReviewStatus(projectStatus));
+    let shownStatus = $derived(chosenStatus ?? projectStatus);
 
-    let statusOptions = $derived.by(() => {
-        const options = (Object.keys(PROJECT_REVIEW_STATUS_LABELS) as ProjectReviewStatus[]).map(
-            (status) => ({ value: status, label: $t(PROJECT_REVIEW_STATUS_LABELS[status]) }),
-        );
+    /**
+     * A consultant picks one of the three outcomes of the review; a promoter only
+     * has one thing to say, that the requested changes are done, which is a button
+     * of its own.
+     */
+    let statusOptions = $derived(
+        CAMPAIGN_REVIEW_DECISIONS.map((decision) => ({
+            value: CAMPAIGN_REVIEW_DECISION_STATUSES[decision],
+            label: $t(CAMPAIGN_REVIEW_STATE_LABELS[decision]),
+        })),
+    );
 
-        // A project can sit in a status outside the review flow. Listing it keeps the
-        // control honest instead of showing another status as the selected one.
-        const current = asReviewStatus(projectStatus);
-
-        if (current && !options.some((option) => option.value === current)) {
-            return [{ value: current, label: $t(`domain.project.status.${current}`) }, ...options];
-        }
-
-        return options;
-    });
-
-    function asReviewStatus(status?: Project["status"]): ProjectReviewStatus | undefined {
-        return status && status in PROJECT_REVIEW_STATUS_LABELS
-            ? (status as ProjectReviewStatus)
-            : undefined;
-    }
+    /** The promoter may only report their changes back while they were requested. */
+    let promoterCanAct = $derived(
+        isPromoter && canChangeStatus && shownStatus === "in_campaign_review.to_change",
+    );
 
     function fail(message: string) {
         errorMessage = message;
@@ -127,12 +132,41 @@
         if (error) {
             chosenStatus = previous;
             fail(error.message);
+            return;
         }
+
+        showSuccess = true;
+    }
+
+    /**
+     * A promoter announcing that the requested changes are done has nothing to
+     * decide, so the move is immediate instead of opening the status modal.
+     */
+    async function markChangesDone() {
+        savingStatus = true;
+
+        const { error } = await actions.updateReviewProjectStatus({
+            reviewId,
+            status: PROMOTER_CHANGES_DONE_STATUS,
+        });
+
+        savingStatus = false;
+
+        if (error) {
+            fail(error.message);
+            return;
+        }
+
+        chosenStatus = PROMOTER_CHANGES_DONE_STATUS;
+        showSuccess = true;
     }
 </script>
 
 <div class="flex w-full flex-col gap-10 pb-10">
     <Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+    <Toast variant="success" bind:showToast={showSuccess}>
+        {$t("pages.review.status.updated")}
+    </Toast>
     <header class="space-y-6">
         <BackButton class="self-start" />
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -144,27 +178,33 @@
                     <p class="text-content text-base">{subtitle}</p>
                 {/if}
             </div>
-            <div class="self-start">
-                {#if canChangeStatus}
+            <div class="flex flex-wrap items-center gap-3 self-start">
+                <ReviewStateTag status={shownStatus} />
+                {#if promoterCanAct}
+                    <Button
+                        kind="primary"
+                        size="sm"
+                        disabled={savingStatus}
+                        onclick={markChangesDone}
+                    >
+                        {$t("pages.review.btns.changesDone")}
+                    </Button>
+                {:else if canChangeStatus && !isPromoter}
                     <Button
                         kind="primary"
                         size="sm"
                         disabled={savingStatus}
                         onclick={() => (isStatusModalOpen = true)}
                     >
-                        {$t("pages.review.btns.changeStatus")}
+                        {$t("pages.review.btns.decide")}
                     </Button>
                     <ReviewOptionsModal
                         bind:open={isStatusModalOpen}
-                        title={$t("pages.review.btns.changeStatus")}
+                        title={$t("pages.review.btns.decide")}
                         options={statusOptions}
-                        value={selectedStatus ?? ""}
+                        value={chosenStatus ?? ""}
                         onSelect={handleStatusChange}
                     />
-                {:else if projectStatus}
-                    <span class="text-secondary text-sm font-bold">
-                        {$t(`domain.project.status.${projectStatus}`)}
-                    </span>
                 {/if}
             </div>
         </div>

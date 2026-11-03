@@ -39,18 +39,138 @@ export const RISK_SQUARE_CLASSES: Record<ProjectReviewRisk, string> = {
 };
 
 /**
- * Translation key of each review status.
+ * The five states a campaign review is shown as.
  *
- * The API writes the status of a review with a dot separator (`campaign_review.rejected`)
- * while the translations folder names it with an underscore, hence the explicit map.
+ * The API moves a project through six raw statuses. Two of them mean the same to
+ * the person deciding — the project is waiting for a review — so the screens
+ * collapse them into one and expose five states in total.
  */
-export const PROJECT_REVIEW_STATUS_LABELS: Record<ProjectReviewStatus, string> = {
-    in_campaign_review: "domain.project.status.in_campaign_review",
-    "in_campaign_review.to_change": "domain.project.status.in_campaign_review_to_change",
-    "in_campaign_review.to_review": "domain.project.status.in_campaign_review_to_review",
-    "campaign_review.rejected": "domain.project.status.campaign_review_rejected",
-    to_campaign: "domain.project.status.to_campaign",
+export const CAMPAIGN_REVIEW_STATES = [
+    "pending",
+    "changes_requested",
+    "changes_done",
+    "rejected",
+    "approved",
+] as const;
+
+export type CampaignReviewState = (typeof CAMPAIGN_REVIEW_STATES)[number];
+
+/** Translation key of each public review state. */
+export const CAMPAIGN_REVIEW_STATE_LABELS: Record<CampaignReviewState, string> = {
+    pending: "domain.review.state.pending",
+    changes_requested: "domain.review.state.changesRequested",
+    changes_done: "domain.review.state.changesDone",
+    rejected: "domain.review.state.rejected",
+    approved: "domain.review.state.approved",
 };
+
+/**
+ * Tag variant each state is painted with.
+ *
+ * A pending review is the normal state of the queue, so it keeps the default
+ * white tag; the rest stand out by how much they ask of the reader.
+ */
+export const CAMPAIGN_REVIEW_STATE_VARIANTS: Record<
+    CampaignReviewState,
+    "success" | "warning" | "error" | "bold" | undefined
+> = {
+    pending: undefined,
+    changes_requested: "warning",
+    changes_done: "bold",
+    rejected: "error",
+    approved: "success",
+};
+
+/**
+ * Public state each raw campaign status is shown as.
+ *
+ * `to_campaign_review` belongs here even though the review flow cannot move a
+ * project back into it: a project waiting for its first review is pending too.
+ */
+export const CAMPAIGN_REVIEW_STATE_BY_STATUS: Record<string, CampaignReviewState> = {
+    to_campaign_review: "pending",
+    in_campaign_review: "pending",
+    "in_campaign_review.to_change": "changes_requested",
+    "in_campaign_review.to_review": "changes_done",
+    "campaign_review.rejected": "rejected",
+    to_campaign: "approved",
+};
+
+/**
+ * @param status A raw project status
+ * @returns The public state it reads as, or undefined outside the campaign review
+ */
+export function campaignReviewState(status?: string | null): CampaignReviewState | undefined {
+    return status ? CAMPAIGN_REVIEW_STATE_BY_STATUS[status] : undefined;
+}
+
+/**
+ * Raw project statuses each public state covers, as the Project collection
+ * filters by them.
+ *
+ * The reviews endpoint cannot filter by the status of the reviewed project, so
+ * the table resolves a state into these statuses first.
+ */
+export const CAMPAIGN_REVIEW_STATE_STATUSES: Record<CampaignReviewState, string[]> = {
+    pending: ["to_campaign_review", "in_campaign_review"],
+    changes_requested: ["in_campaign_review.to_change"],
+    changes_done: ["in_campaign_review.to_review"],
+    rejected: ["campaign_review.rejected"],
+    approved: ["to_campaign"],
+};
+
+/**
+ * Expands public review states into the raw statuses the Project collection
+ * filters by.
+ *
+ * Values the flow does not know are dropped instead of widening the query, so a
+ * stale filter never brings unrelated projects in.
+ * @param states Public states picked in the filter bar
+ * @returns The raw statuses covering them, without duplicates
+ */
+export function expandCampaignReviewStates(states: string[]): string[] {
+    return [
+        ...new Set(
+            states.flatMap(
+                (state) => CAMPAIGN_REVIEW_STATE_STATUSES[state as CampaignReviewState] ?? [],
+            ),
+        ),
+    ];
+}
+
+/**
+ * The three outcomes a consultant decides a campaign review with.
+ *
+ * The other two public states are reached by the flow itself: the promoter sends
+ * the changes back and the review keeps waiting, so offering them as choices
+ * would let an admin fake a step that belongs to somebody else.
+ */
+export const CAMPAIGN_REVIEW_DECISIONS = ["changes_requested", "rejected", "approved"] as const;
+
+export type CampaignReviewDecision = (typeof CAMPAIGN_REVIEW_DECISIONS)[number];
+
+/** Raw project status written by each decision. */
+export const CAMPAIGN_REVIEW_DECISION_STATUSES: Record<
+    CampaignReviewDecision,
+    ProjectReviewStatus
+> = {
+    changes_requested: "in_campaign_review.to_change",
+    rejected: "campaign_review.rejected",
+    approved: "to_campaign",
+};
+
+/**
+ * @param status A raw project status
+ * @returns The decision it is, if it is one
+ */
+export function campaignReviewDecision(status?: string | null): CampaignReviewDecision | undefined {
+    return CAMPAIGN_REVIEW_DECISIONS.find(
+        (decision) => CAMPAIGN_REVIEW_DECISION_STATUSES[decision] === status,
+    );
+}
+
+/** Status a promoter moves the review to once the requested changes are done. */
+export const PROMOTER_CHANGES_DONE_STATUS: ProjectReviewStatus = "in_campaign_review.to_review";
 
 /**
  * The moment a conversation was last touched, used for the activity line of a card.
