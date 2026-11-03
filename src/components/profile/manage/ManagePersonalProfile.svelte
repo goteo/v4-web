@@ -32,11 +32,11 @@
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
+    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TerritoryInput from "../../library/inputs/TerritoryInput.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
-    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
 
     import type z from "zod";
 
