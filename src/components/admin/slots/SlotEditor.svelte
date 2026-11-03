@@ -4,6 +4,7 @@
 
     import { t } from "../../../i18n/store";
     import { debounce } from "../../../utils/debounce";
+    import { useFormDraft } from "../../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
@@ -32,6 +33,9 @@
 
         /** Persists the assigned values in slot order. */
         onSave: (slots: SlotContent<T>[]) => Promise<{ error?: { message: string } } | void>;
+
+        /** Identifies the draft of this editor, so two of them do not write over each other. */
+        draftId?: string;
     }
 
     let {
@@ -42,6 +46,7 @@
         labels,
         search,
         onSave,
+        draftId = "slot-editor",
     }: Props = $props();
 
     /**
@@ -59,6 +64,15 @@
     let candidates = $state<SlotContent<T>[]>([]);
     let showError = $state(false);
     let errorMessage = $state("");
+
+    /**
+     * The assigned slots are what the editor holds, so they are what can be kept.
+     */
+    const { restored } = useFormDraft(draftId, () => ({ assignments }));
+
+    if (restored?.assignments) {
+        assignments = restored.assignments;
+    }
 
     const runSearch = debounce(async (term: string) => {
         candidates = await search(term);
