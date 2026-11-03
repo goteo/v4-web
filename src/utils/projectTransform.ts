@@ -21,7 +21,7 @@ export async function transformProjectToCampaign(project: Project): Promise<Camp
     });
 
     // Get image URL - simple fallback to video thumbnail
-    const image = (project as any).cover || project.video?.thumbnail || "";
+    const image = project.cover || project.video?.thumbnail || "";
 
     // Get minimum budget
     const minimum: Money = project.budget?.minimum?.money || {
