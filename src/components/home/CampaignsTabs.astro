@@ -28,7 +28,7 @@ const { data: projects } = await apiProjectsGetCollection({
 const campaigns: Campaign[] = await Promise.all(
     projects!.map(async (project) => {
         const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: extractId(project.accounting) },
+            path: { id: extractId(project.accounting)! },
         });
 
         return {

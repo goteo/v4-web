@@ -3,7 +3,11 @@
     import { t } from "../../i18n/store";
     import AnnotationIcon from "../icons/Comments.svelte";
 
-    const { id } = $props<{ id: string }>();
+    interface Props {
+        id: string;
+    }
+
+    const { id }: Props = $props();
 
     let date = $state<string | null>(null);
     let time = $state<string | null>(null);

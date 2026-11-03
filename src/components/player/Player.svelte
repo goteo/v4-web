@@ -4,12 +4,7 @@
     import Spinner from "../icons/status/Spinner.svelte";
     import Loader from "../library/feedback/Loader.svelte";
 
-    let {
-        src,
-        title = $t("pages.project.view.video.title"),
-        thumbnails = "",
-        poster = { src: "", alt: $t("pages.project.view.video.poster") },
-    } = $props<{
+    interface Props {
         src: string;
         title?: string;
         thumbnails?: string;
@@ -17,7 +12,14 @@
             src: string;
             alt: string;
         };
-    }>();
+    }
+
+    let {
+        src,
+        title = $t("pages.project.view.video.title"),
+        thumbnails = "",
+        poster = { src: "", alt: $t("pages.project.view.video.poster") },
+    }: Props = $props();
 
     let showIframe = $state(false);
     let isCheckingProvider = $state(true);

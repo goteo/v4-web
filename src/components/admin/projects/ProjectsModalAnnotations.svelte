@@ -5,15 +5,13 @@
     import Button from "../../library/buttons/Button.svelte";
     import TextArea from "../../library/inputs/TextArea.svelte";
 
-    let {
-        open = $bindable(false),
-        annotationText = $bindable(""),
-        onsave,
-    } = $props<{
+    interface Props {
         open: boolean;
         annotationText: string;
         onsave?: (text: string) => void;
-    }>();
+    }
+
+    let { open = $bindable(false), annotationText = $bindable(""), onsave }: Props = $props();
 </script>
 
 <Modal
