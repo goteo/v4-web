@@ -1,13 +1,15 @@
 <script lang="ts">
-    import type { ClassNameValue } from "tailwind-merge";
+    import { twMerge, type ClassNameValue } from "tailwind-merge";
 
-    let { class: classes } = $props<{
+    interface Props {
         class?: ClassNameValue;
-    }>();
+    }
+
+    let { class: classes }: Props = $props();
 </script>
 
 <svg
-    class={classes}
+    class={twMerge(classes)}
     width="26"
     height="26"
     viewBox="0 0 26 26"

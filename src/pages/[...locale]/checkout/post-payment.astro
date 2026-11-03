@@ -23,7 +23,7 @@ const mapProjectToCard = (project: Project, obtained?: Money) =>
         slug: project.slug || "",
         title: project.title || "",
         subtitle: project.subtitle || "",
-        description: project.description || "",
+        description: project.descBrief || "",
         image: project.video?.thumbnail || "/images/placeholder-project.jpg",
         obtained: obtained || { amount: 0, currency: getDefaultCurrency() },
         minimum: project.budget?.minimum?.money || { amount: 0, currency: getDefaultCurrency() },

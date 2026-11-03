@@ -15,17 +15,14 @@
     const dateRegex =
         /^(dateCreated|dateUpdated)\[(after|before|strictly_after|strictly_before)\]$/;
 
-    let {
-        title,
-        filters,
-        onCloseFilter,
-        resource = undefined,
-    } = $props<{
+    interface Props {
         title: string;
         filters?: Record<string, any>;
         onCloseFilter: (filters: Record<string, any>) => void;
         resource?: FilterResource;
-    }>();
+    }
+
+    let { title, filters, onCloseFilter, resource = undefined }: Props = $props();
 
     let tags: FilterTag[] = $state([]);
 

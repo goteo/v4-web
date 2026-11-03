@@ -5,10 +5,12 @@
 
     import type { Project, Accounting } from "../../openapi/client/index";
 
-    let { project, accounting } = $props<{
+    interface Props {
         project: Project;
         accounting: Accounting;
-    }>();
+    }
+
+    let { project, accounting }: Props = $props();
 </script>
 
 <div class="flex flex-col gap-6 lg:flex-row lg:items-center">

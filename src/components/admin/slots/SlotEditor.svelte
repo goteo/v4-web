@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
     import { Modal } from "flowbite-svelte";
+    import { untrack } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
@@ -48,7 +49,7 @@
      * user put them instead of compacting them upwards. Gaps are only collapsed
      * at save time, which is what the persistence layer expects.
      */
-    let assignments = $state<(SlotContent<T> | undefined)[]>([...contents]);
+    let assignments = $state<(SlotContent<T> | undefined)[]>(untrack(() => [...contents]));
     let pickerOpen = $state(false);
     let editingIndex = $state<number | null>(null);
     let query = $state("");

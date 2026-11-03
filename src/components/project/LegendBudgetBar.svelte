@@ -5,9 +5,11 @@
 
     import type { ProjectBudgetItem, Project } from "../../openapi/client/index";
 
-    let { project } = $props<{
+    interface Props {
         project: Project;
-    }>();
+    }
+
+    let { project }: Props = $props();
 
     const legendEntries = Object.entries(budgetTypeColors) as [ProjectBudgetItem["type"], string][];
 

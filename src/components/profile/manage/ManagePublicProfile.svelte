@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ProfileHeader from "./ProfileHeader.svelte";
     import ProfileIdentityRow from "./ProfileIdentityRow.svelte";
@@ -33,13 +34,16 @@
 
     let { user }: Props = $props();
 
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initialUser = untrack(() => user);
+
     let form: ProfileForm = $state({
-        avatar: user.avatar || undefined,
-        description: user.description ?? "",
-        links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
+        avatar: initialUser.avatar || undefined,
+        description: initialUser.description ?? "",
+        links: toSocialLinks((initialUser.links ?? []).flatMap((link) => link.url ?? [])),
     });
 
-    let displayName = $state(user.displayName ?? user.handle);
+    let displayName = $state(initialUser.displayName ?? initialUser.handle);
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);

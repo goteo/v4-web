@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import FormNotice from "./FormNotice.svelte";
     import ProfileHeader from "./ProfileHeader.svelte";
@@ -32,11 +33,11 @@
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
+    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TerritoryInput from "../../library/inputs/TerritoryInput.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
-    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
 
     import type z from "zod";
 
@@ -50,31 +51,36 @@
 
     let { user, person, organization }: Props = $props();
 
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initial = untrack(() => ({ user, person, organization }));
+
     const country =
-        user.territory?.country === UNKNOWN_COUNTRY_CODE ? "" : (user.territory?.country ?? "");
+        initial.user.territory?.country === UNKNOWN_COUNTRY_CODE
+            ? ""
+            : (initial.user.territory?.country ?? "");
 
     // Changing the profile kind belongs to the public section, here it only routes the tax id
-    const isOrganization = user.type === "organization";
+    const isOrganization = initial.user.type === "organization";
 
     let form: PersonalProfileForm = $state({
-        handle: user.handle,
-        firstName: person?.firstName ?? "",
-        lastName: person?.lastName ?? "",
-        taxId: isOrganization ? "" : (person?.taxId ?? ""),
+        handle: initial.user.handle,
+        firstName: initial.person?.firstName ?? "",
+        lastName: initial.person?.lastName ?? "",
+        taxId: isOrganization ? "" : (initial.person?.taxId ?? ""),
         type: isOrganization ? "organization" : "individual",
-        legalName: organization?.legalName ?? "",
-        businessName: organization?.businessName ?? "",
+        legalName: initial.organization?.legalName ?? "",
+        businessName: initial.organization?.businessName ?? "",
         country,
-        subLvl1: user.territory?.subLvl1 ?? "",
-        subLvl2: user.territory?.subLvl2 ?? "",
-        address: user.territory?.address ?? "",
+        subLvl1: initial.user.territory?.subLvl1 ?? "",
+        subLvl2: initial.user.territory?.subLvl2 ?? "",
+        address: initial.user.territory?.address ?? "",
     });
 
     // Not persisted: the API has no visibility or anonymity flag
     let shareLocation = $state(false);
 
     // Subdivisions are ISO codes, show them as "Subdivision, Country" in the search box
-    let locality = $state(country ? getTerritoryDisplayName(user.territory!, $locale) : "");
+    let locality = $state(country ? getTerritoryDisplayName(initial.user.territory!, $locale) : "");
     let countries = $derived(getCountries($locale));
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
