@@ -11,8 +11,7 @@ const { t } = Astro.locals;
 const chosenProjects = {
     "impulsa-la-cooperativa-de-informacion-climatica": "",
     "fons-cooperatiu-front-l-emergencia-social-i-sanita": "",
-    "la-benefica":
-        "https://i.vimeocdn.com/video/1286954665-1fc1ccfa1b381946d23072ca518e4f0094c566416243095e6_900x500?region=us",
+    "la-benefica": "",
 };
 
 // Mock campaign data - using same campaigns as the main Campaigns component
@@ -28,7 +27,7 @@ const { data: projects } = await apiProjectsGetCollection({
 const campaigns: Campaign[] = await Promise.all(
     projects!.map(async (project) => {
         const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: extractId(project.accounting) },
+            path: { id: extractId(project.accounting)! },
         });
 
         return {
@@ -38,7 +37,7 @@ const campaigns: Campaign[] = await Promise.all(
             title: project.title!,
             image:
                 chosenProjects[project.slug! as keyof typeof chosenProjects] ||
-                project.video?.thumbnail!,
+                project.cover || project.video?.thumbnail!,
             minimum: project.budget?.minimum?.money!,
             optimum: project.budget?.optimum?.money,
             obtained: accounting!.balance as Money,
