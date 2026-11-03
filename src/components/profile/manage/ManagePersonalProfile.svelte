@@ -20,6 +20,7 @@
         type User,
     } from "../../../openapi/client";
     import { getCountries } from "../../../utils/countries";
+    import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import {
@@ -72,7 +73,8 @@
     let shareLocation = $state(false);
 
     // Subdivisions are ISO codes, show them as "Subdivision, Country" in the search box
-    let locality = $state(country ? getTerritoryDisplayName(user.territory!, $locale) : "");
+    const initialLocality = country ? getTerritoryDisplayName(user.territory!, $locale) : "";
+    let locality = $state(initialLocality);
     let countries = $derived(getCountries($locale));
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
@@ -80,6 +82,43 @@
     let showSuccess = $state(false);
     let showError = $state(false);
     let formError = $state("");
+
+    /**
+     * Everything the form holds but the tax id, which is fiscal data and is left out on
+     * purpose: the visitor types it again.
+     */
+    const { restored } = useFormDraft("manage-personal-profile", () => ({
+        handle: form.handle,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        type: form.type,
+        legalName: form.legalName,
+        businessName: form.businessName,
+        country: form.country,
+        subLvl1: form.subLvl1,
+        subLvl2: form.subLvl2,
+        address: form.address,
+        shareLocation,
+        locality,
+    }));
+
+    if (restored) {
+        restoreFields(form, restored, [
+            "handle",
+            "firstName",
+            "lastName",
+            "type",
+            "legalName",
+            "businessName",
+            "country",
+            "subLvl1",
+            "subLvl2",
+            "address",
+        ]);
+
+        shareLocation = restored.shareLocation ?? false;
+        locality = restored.locality ?? initialLocality;
+    }
 
     function handleLocality(territory: Territory) {
         form.country = territory.country ?? form.country;

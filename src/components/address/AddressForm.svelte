@@ -10,6 +10,7 @@
     import { locale, t } from "../../i18n/store";
     import { apiAddressesIdPatch, apiAddressesPost } from "../../openapi/client";
     import { getCountries } from "../../utils/countries";
+    import { useFormDraft, restoreFields } from "../../utils/forms/useFormDraft.svelte";
     import Select from "../library/inputs/Select.svelte";
     import TextInput from "../library/inputs/TextInput.svelte";
 
@@ -18,10 +19,13 @@
     let {
         address,
         userIri,
+        draftId = "address",
     }: {
         /** Address to edit. Absent, a new one is created. */
         address?: Address;
         userIri: string;
+        /** Identifies the draft of this form, so two of them do not write over each other. */
+        draftId?: string;
     } = $props();
 
     // Seeded once: parents mount a fresh form for every address they edit.
@@ -41,6 +45,23 @@
     let fieldErrors = $state<Record<string, string>>({});
 
     let countries = $derived(getCountries($locale));
+
+    /**
+     * Addresses hold nothing sensitive, so all of it can be kept.
+     */
+    const { restored } = useFormDraft(draftId, () => ({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        line1: form.line1,
+        line2: form.line2,
+        city: form.city,
+        postCode: form.postCode,
+        country: form.country,
+    }));
+
+    if (restored) {
+        restoreFields(form, restored);
+    }
 
     /** Saves the Address. Resolves to it, or to `undefined` with the errors shown. */
     export async function save(): Promise<Address | undefined> {

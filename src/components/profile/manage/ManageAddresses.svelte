@@ -169,7 +169,12 @@
         <!-- A fresh form per opening, seeded with the address being edited -->
         {#if formOpen}
             {#key editing}
-                <AddressForm bind:this={addressForm} address={editing} {userIri} />
+                <AddressForm
+                    bind:this={addressForm}
+                    address={editing}
+                    {userIri}
+                    draftId={`manage-address-${editing?.id ?? "new"}`}
+                />
             {/key}
         {/if}
     </form>

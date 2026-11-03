@@ -13,6 +13,7 @@
     } from "../../openapi/client";
     import { client } from "../../openapi/client/client.gen";
     import { CAMPAIGN_MAX_END_DATE, CAMPAIGN_MIN_START_DATE } from "../../utils/dates";
+    import { useFormDraft, restoreFields } from "../../utils/forms/useFormDraft.svelte";
     import { getValidationParams } from "../../utils/validation";
     import {
         zCreateProjectForm,
@@ -47,6 +48,49 @@
     let isValid = $derived(Object.values(validation).every((issues) => !issues?.length));
     let submitState = $state<ActionableState>("actionable");
     let showError = $state(false);
+
+    /**
+     * Identifiers of the picked categories and themes.
+     *
+     * The tags themselves are rendered from them, so they are what has to be kept to bring
+     * the selection back after a language switch.
+     */
+    let selectedCategoryIds = $state<string[]>([]);
+    let selectedThemeIds = $state<string[]>([]);
+    /** Text of the territory search, which is what shows the picked place. */
+    let territoryQuery = $state("");
+
+    /**
+     * Nothing sensitive goes into this form, so everything it holds can be kept.
+     */
+    const { restored } = useFormDraft("create-project", () => ({
+        title: form.title ?? "",
+        subtitle: form.subtitle ?? "",
+        categoryIds: selectedCategoryIds,
+        themeIds: selectedThemeIds,
+        territory: form.territory,
+        territoryQuery,
+        release: form.calendar?.release,
+    }));
+
+    if (restored) {
+        restoreFields(form, restored, ["title", "subtitle", "territory"]);
+
+        const categoryIds = restored.categoryIds ?? [];
+        const themeIds = restored.themeIds ?? [];
+
+        selectedCategoryIds = categoryIds;
+        selectedThemeIds = themeIds;
+
+        form.categories = categoriesIri(categoryIds);
+        form.themes = themesIri(themeIds);
+
+        territoryQuery = restored.territoryQuery ?? "";
+
+        if (restored.release) {
+            form.calendar = { release: restored.release };
+        }
+    }
 
     function validate(field: keyof typeof form) {
         const result = zCreateProjectForm.shape[field].safeParse(form[field]);
@@ -99,6 +143,22 @@
 
     function toIris(items: { id?: string }[], url: string) {
         return items.map(({ id }) => client.buildUrl({ url, path: { idOrSlug: String(id) } }));
+    }
+
+    /** IRIs of the categories with those identifiers. */
+    function categoriesIri(ids: string[]): string[] {
+        return toIris(
+            categories.filter((category) => category.id && ids.includes(category.id)),
+            apiCategoriesIdOrSlugGetUrl,
+        );
+    }
+
+    /** IRIs of the themes with those identifiers. */
+    function themesIri(ids: string[]): string[] {
+        return toIris(
+            themes.filter((theme) => theme.id && ids.includes(theme.id)),
+            apiThemesIdOrSlugGetUrl,
+        );
     }
 
     function handleCategories(categories: Category[]) {
@@ -239,7 +299,12 @@
                     {$t("pages.project.create.categories.subtitle")}
                 {/if}
             </p>
-            <CategorySelect max={2} options={categories} onChange={handleCategories} />
+            <CategorySelect
+                max={2}
+                options={categories}
+                bind:selectedIds={selectedCategoryIds}
+                onChange={handleCategories}
+            />
         </div>
         <div class="flex flex-col gap-4">
             <Title level={2} variant="subsection">
@@ -248,7 +313,12 @@
             <p class="text-black transition-all duration-300 ease-in-out">
                 {$t("pages.project.create.themes.subtitle")}
             </p>
-            <CategorySelect max={1} options={themes} onChange={handleThemes} />
+            <CategorySelect
+                max={1}
+                options={themes}
+                bind:selectedIds={selectedThemeIds}
+                onChange={handleThemes}
+            />
         </div>
         <div class="flex flex-col gap-4">
             <Title level={2} variant="subsection">
@@ -259,6 +329,7 @@
             </p>
             <TerritoryInput
                 placeholder={$t("pages.project.create.address.placeholder")}
+                bind:value={territoryQuery}
                 onInput={handleTerritory}
                 error={getValidationMessage("territory")}
             />

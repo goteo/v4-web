@@ -5,6 +5,7 @@
 
     import { locale, t } from "../../i18n/store";
     import { getDefaultCountry } from "../../utils/consts";
+    import { useFormDraft, restoreFields } from "../../utils/forms/useFormDraft.svelte";
     import { getValidationParams } from "../../utils/validation";
     import { zRegisterForm } from "../../validation/registerValidation";
     import Spinner from "../icons/status/Spinner.svelte";
@@ -87,6 +88,36 @@
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let formError = $state("");
     let showFormToast = $state(false);
+
+    /**
+     * The fields worth keeping across a language switch. The password and the tax id are
+     * left out on purpose: they are sensitive, and the visitor can type them again.
+     */
+    const { restored } = useFormDraft("checkout-register", () => ({
+        type: form.type,
+        identifier: form.identifier,
+        firstname: form.firstname,
+        lastname: form.lastname,
+        legalName: form.legalName,
+        taxIdCountry: form.taxIdCountry,
+        showTaxIdField,
+        acceptTerms,
+    }));
+
+    if (restored) {
+        form.type = restored.type === "organization" ? "organization" : "individual";
+
+        restoreFields(form, restored, [
+            "identifier",
+            "firstname",
+            "lastname",
+            "legalName",
+            "taxIdCountry",
+        ]);
+
+        showTaxIdField = restored.showTaxIdField ?? false;
+        acceptTerms = restored.acceptTerms ?? false;
+    }
 
     function validate(field: FieldName) {
         // taxId validity depends on country and type, so it is checked by the schema refinement
