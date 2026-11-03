@@ -50,11 +50,17 @@
     });
 
     let validation: Partial<Record<keyof typeof form, z.core.$ZodIssue[]>> = $state({});
-    let isValid = $derived(Object.values(validation).every((issues) => !issues?.length));
     let submitState = $state<ActionableState>("actionable");
     let showError = $state(false);
     let selectedCategories = $state<Category[]>([]);
     let selectedThemes = $state<Theme[]>([]);
+
+    let titleSection: HTMLElement | undefined = $state();
+    let subtitleSection: HTMLElement | undefined = $state();
+    let categoriesSection: HTMLElement | undefined = $state();
+    let themesSection: HTMLElement | undefined = $state();
+    let territorySection: HTMLElement | undefined = $state();
+    let releaseSection: HTMLElement | undefined = $state();
 
     function validate(field: keyof typeof form) {
         const result = zCreateProjectForm.shape[field].safeParse(form[field]);
@@ -63,7 +69,43 @@
     }
 
     function hasError(field: keyof typeof form) {
-        return validation[field] && validation[field].length > 0;
+        return (validation[field]?.length ?? 0) > 0;
+    }
+
+    /**
+     * Form fields in the order they are displayed, so the first invalid one is
+     * also the topmost one.
+     */
+    const fieldSections: {
+        field: keyof typeof form;
+        getSection: () => HTMLElement | undefined;
+    }[] = [
+        { field: "title", getSection: () => titleSection },
+        { field: "subtitle", getSection: () => subtitleSection },
+        { field: "categories", getSection: () => categoriesSection },
+        { field: "themes", getSection: () => themesSection },
+        { field: "territory", getSection: () => territorySection },
+        { field: "calendar", getSection: () => releaseSection },
+    ];
+
+    /**
+     * Scrolls to the topmost invalid field and focuses it, so the user knows
+     * which field has to be fixed.
+     */
+    function focusFirstInvalidField() {
+        const section = fieldSections.find(({ field }) => hasError(field))?.getSection();
+
+        if (!section) {
+            return;
+        }
+
+        section.scrollIntoView({ behavior: "smooth", block: "center" });
+
+        const focusable = section.querySelector<HTMLElement>(
+            "input, textarea, select, button:not([disabled])",
+        );
+
+        focusable?.focus({ preventScroll: true });
     }
 
     function getValidationMessage(field: keyof typeof form) {
@@ -79,6 +121,12 @@
 
         if (issue.code === "invalid_format" && field === "title") {
             return $t("pages.project.create.validation.titleBadFormat");
+        }
+
+        if (issue.code === "too_small" && field === "title") {
+            return $t("pages.project.create.validation.titleTooShort", {
+                min: String(issue.minimum),
+            });
         }
 
         if (issue.code === "too_small" && field === "subtitle") {
@@ -171,6 +219,22 @@
 
                 validation[field] = [...(validation[field] ?? []), issue];
             }
+        }
+
+        // The API allows a null release date, but a campaign cannot be created without it
+        if (!form.calendar?.release && !hasError("calendar")) {
+            validation.calendar = [
+                {
+                    code: "custom",
+                    path: ["calendar"],
+                    message: "pages.project.create.validation.releaseMissing",
+                    input: form.calendar,
+                },
+            ];
+        }
+
+        if (Object.values(validation).some((issues) => issues?.length)) {
+            focusFirstInvalidField();
 
             throw new Error("Invalid project form");
         }
@@ -185,6 +249,10 @@
         if (error) {
             if ("violations" in error) {
                 handleViolations(error.violations ?? []);
+
+                if (hasError("title")) {
+                    focusFirstInvalidField();
+                }
             } else {
                 showError = true;
             }
@@ -215,15 +283,17 @@
             <p class="text-black transition-all duration-300 ease-in-out">
                 {$t("pages.project.create.description.description")}
             </p>
-            <TextInput
-                bind:value={form.title}
-                onInput={() => validate("title")}
-                helperText={$t("pages.project.create.description.titlePrompt")}
-                placeholder={$t("pages.project.create.description.titlePlaceholder")}
-                error={getValidationMessage("title")}
-                required
-            />
-            <div class="relative">
+            <div bind:this={titleSection}>
+                <TextInput
+                    bind:value={form.title}
+                    onInput={() => validate("title")}
+                    helperText={$t("pages.project.create.description.titlePrompt")}
+                    placeholder={$t("pages.project.create.description.titlePlaceholder")}
+                    error={getValidationMessage("title")}
+                    required
+                />
+            </div>
+            <div class="relative" bind:this={subtitleSection}>
                 <TextArea
                     bind:value={form.subtitle}
                     onInput={() => validate("subtitle")}
@@ -233,25 +303,21 @@
                 />
             </div>
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4" bind:this={categoriesSection}>
             <Title level={2} variant="subsection">
                 {$t("pages.project.create.categories.title")}
             </Title>
-            <p
-                class={twJoin(
-                    "transition-all duration-300 ease-in-out",
-                    hasError("categories") ? "text-tertiary" : "text-black",
-                )}
-            >
-                {#if hasError("categories")}
-                    {getValidationMessage("categories")}
-                {:else}
-                    {$t("pages.project.create.categories.subtitle")}
-                {/if}
+            <p class="text-black transition-all duration-300 ease-in-out">
+                {$t("pages.project.create.categories.subtitle")}
             </p>
-            <CategorySelect max={2} options={categories} onChange={handleCategories} />
+            <CategorySelect
+                max={2}
+                options={categories}
+                onChange={handleCategories}
+                error={getValidationMessage("categories")}
+            />
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4" bind:this={themesSection}>
             <Title level={2} variant="subsection">
                 {$t("pages.project.create.themes.title")}
             </Title>
@@ -260,7 +326,7 @@
             </p>
             <CategorySelect max={1} options={themes} onChange={handleThemes} />
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4" bind:this={territorySection}>
             <Title level={2} variant="subsection">
                 {$t("pages.project.create.address.title")}
             </Title>
@@ -273,7 +339,7 @@
                 error={getValidationMessage("territory")}
             />
         </div>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4" bind:this={releaseSection}>
             <Title level={2} variant="subsection">
                 {$t("pages.project.create.release.title")}
             </Title>
@@ -290,13 +356,7 @@
                 error={getValidationMessage("calendar")}
             />
         </div>
-        <ActionableButton
-            type="submit"
-            action={submit}
-            bind:state={submitState}
-            disabled={!isValid || submitState !== "actionable"}
-            class="w-fit"
-        >
+        <ActionableButton type="submit" action={submit} bind:state={submitState} class="w-fit">
             {$t("pages.project.create.submit")}
         </ActionableButton>
     </form>

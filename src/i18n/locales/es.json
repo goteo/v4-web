@@ -1151,6 +1151,7 @@
         "submitSuccess": "Proyecto creado",
         "validation": {
           "titleBadFormat": "El título debe contener al menos una letra.",
+          "titleTooShort": "El título debe tener al menos {{ min }} caracteres.",
           "categoriesNotEnough": "Debes seleccionar al menos {{ min }} categoría(s).",
           "territoryMissing": "Debes especificar un lugar.",
           "releaseMissing": "Debes especificar una fecha de salida aproximada",
