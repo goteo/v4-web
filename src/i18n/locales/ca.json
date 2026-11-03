@@ -1151,6 +1151,7 @@
         "submitSuccess": "Projecte creat",
         "validation": {
           "titleBadFormat": "El títol ha de contenir almenys una lletra.",
+          "titleTooShort": "El títol ha de tenir almenys {{ min }} caràcters.",
           "categoriesNotEnough": "Has de seleccionar almenys {{ min }} categoria/es.",
           "territoryMissing": "Has d'especificar un lloc.",
           "releaseMissing": "Has d'especificar una data de llançament aproximada",
