@@ -67,9 +67,9 @@
                             slug: project.slug!,
                             title: project.title!,
                             image:
-                                project.video?.thumbnail ??
-                                project.video?.cover ??
                                 project.cover ??
+                                project.video?.cover ??
+                                project.video?.thumbnail ??
                                 "/images/project/placeholder-project-update.jpg",
                             minimum: project.budget?.minimum?.money,
                             optimum: project.budget?.optimum?.money,

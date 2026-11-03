@@ -179,7 +179,7 @@
             <Player
                 src={project.video?.src || ""}
                 title={project.title || ""}
-                thumbnails={project.video?.thumbnail || ""}
+                thumbnail={project.video?.thumbnail || ""}
                 poster={{
                     src: project.cover || project.video?.cover || "",
                     alt: project.title || "",

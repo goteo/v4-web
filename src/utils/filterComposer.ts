@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
+import { PROJECT_STATUSES, projectStatusLabelKey } from "./projectStatus";
 import {
     searchAccountings,
     searchCategories,
@@ -89,24 +90,6 @@ const reviewTypes: FilterOption[] = [
     { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
 ];
 
-const projectStatuses: FilterOption[] = [
-    { value: "in_draft", label: "In draft" },
-    { value: "to_campaign_review", label: "To campaign review" },
-    { value: "in_campaign_review", label: "In campaign review" },
-    { value: "in_campaign_review.request_change", label: "Request change (campaign)" },
-    { value: "campaign_review.rejected", label: "Rejected (campaign)" },
-    { value: "to_campaign", label: "To campaign" },
-    { value: "in_campaign", label: "In campaign" },
-    { value: "campaign.failed", label: "Failed (campaign)" },
-    { value: "to_funding_review", label: "To funding review" },
-    { value: "in_funding_review", label: "In funding review" },
-    { value: "in_funding_review.request_change", label: "Request change (funding)" },
-    { value: "funding_review.rejected", label: "Rejected (funding)" },
-    { value: "to_funding", label: "To funding" },
-    { value: "in_funding", label: "In funding" },
-    { value: "funding.paid", label: "Funding paid" },
-];
-
 const currentLocale = get(locale) || getDefaultLanguage();
 const currencyName = new Intl.DisplayNames([currentLocale], { type: "currency" });
 
@@ -146,7 +129,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        options: projectStatuses,
+        options: PROJECT_STATUSES.map((value) => ({ value, label: projectStatusLabelKey(value) })),
         allowsMultipleEquals: true,
     },
     chargeStatus: {

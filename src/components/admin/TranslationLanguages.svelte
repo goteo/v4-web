@@ -8,7 +8,7 @@
     import LanguagesDropdown from "../header/LanguagesDropdown.svelte";
     import Trash from "../icons/actions/Trash.svelte";
     import Button from "../library/buttons/Button.svelte";
-    import DropdownMenu from "../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../library/dropdown/DropdownSearch.svelte";
     import DeleteModal from "../library/feedback/DeleteModal.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -45,7 +45,6 @@
 
     let isAddModalOpen = $state(false);
     let languageSearch = $state("");
-    let candidateOptions = $state<DropdownOption[]>([]);
     let selectedLanguageOption = $state<DropdownOption[]>([]);
     let isRemoveModalOpen = $state(false);
     let isRemoveAllModalOpen = $state(false);
@@ -61,31 +60,24 @@
     function openAddModal() {
         languageSearch = "";
         selectedLanguageOption = [];
-        refreshLanguageOptions();
         isAddModalOpen = true;
     }
 
-    function refreshLanguageOptions(query = "") {
+    function searchLanguages(query: string): DropdownOption[] {
         // Once an option is picked its label fills the search; it must not filter the list.
-        const search = query.trim().toLowerCase();
+        const search = query.toLowerCase();
         const selectedLabel = ALL_LANGUAGE_OPTIONS.find(
             (option) => option.id === selectedLanguageOption[0]?.id,
         )?.label.toLowerCase();
         const needle = search && search !== selectedLabel ? search : "";
 
-        candidateOptions = ALL_LANGUAGE_OPTIONS.filter(
+        return ALL_LANGUAGE_OPTIONS.filter(
             (option) =>
                 !languages.includes(option.id) &&
                 (!needle ||
                     option.label.toLowerCase().includes(needle) ||
                     option.id.includes(needle)),
-        ).map((option) => ({ ...option, selected: selectedLanguageOption[0]?.id === option.id }));
-    }
-
-    function handleAddLanguageChange(option: DropdownOption) {
-        selectedLanguageOption = [option];
-        languageSearch = option.label;
-        refreshLanguageOptions(option.label);
+        );
     }
 
     function confirmAddLanguage() {
@@ -165,16 +157,14 @@
             {$t("domain.translationLanguages.addModal.description")}
         </p>
 
-        <DropdownMenu
+        <DropdownSearch
             variant="basic"
             singleSelect
-            hasSearch
-            bind:searchValue={languageSearch}
-            bind:options={candidateOptions}
+            search={searchLanguages}
+            debounceMs={0}
+            bind:value={languageSearch}
             bind:selected={selectedLanguageOption}
-            onSearch={(query) => refreshLanguageOptions(query)}
-            onChange={handleAddLanguageChange}
-            searchPlaceholder={$t("domain.translationLanguages.addModal.searchPlaceholder")}
+            placeholder={$t("domain.translationLanguages.addModal.searchPlaceholder")}
             itemClass="text-start"
         />
     </div>
