@@ -4,11 +4,7 @@
     import ProjectPickerModal, { type PickedProject } from "./ProjectPickerModal.svelte";
     import ProjectSlotCard from "./ProjectSlotCard.svelte";
     import { t } from "../../../i18n/store";
-    import { apiProjectsGetCollection } from "../../../openapi/client/sdk.gen";
-    import { toCollectionItems } from "../../../utils/hydra";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
-    import Button from "../../library/buttons/Button.svelte";
-    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import RadioButton from "../../library/inputs/RadioButton.svelte";
     import Select from "../../library/inputs/Select.svelte";
@@ -67,8 +63,6 @@
     let type = $state(config.highlight?.type ?? "recent");
     let layout = $state(config.highlight?.layout ?? "2x3");
     let addOpen = $state(false);
-    let projectQuery = $state("");
-    let selectedOption = $state<DropdownOption[]>([]);
     let editingSlotIndex = $state<number | null>(null);
     let showError = $state(false);
     let errorMessage = $state("");
@@ -81,30 +75,8 @@
         Array.from({ length: slotCount }, (_, i) => slotAssignments.find((a) => a.position === i)),
     );
 
-    async function searchProjects(title: string, signal: AbortSignal): Promise<DropdownOption[]> {
-        const { data, error } = await apiProjectsGetCollection({
-            baseUrl: "/api/relay",
-            headers: { Accept: "application/ld+json" },
-            query: { title, itemsPerPage: 10 },
-            signal,
-        });
-
-        if (error) console.error("Project search failed:", error);
-
-        const projects = toCollectionItems<Project>(data);
-        if (!signal.aborted) searchResults = projects;
-
-        return projects.map((p) => ({
-            id: String(p.id),
-            label: p.title ?? p.slug ?? "",
-            selected: false,
-        }));
-    }
-
     function handleAddProject(slotIndex: number) {
         editingSlotIndex = slotIndex;
-        projectQuery = "";
-        selectedOption = [];
         addOpen = true;
     }
 
@@ -230,48 +202,9 @@
 
 <ProjectPickerModal
     bind:open={addOpen}
-    closeBtnClass="top-3 end-3 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="fixed top-1/2 left-1/2 mx-2 flex w-full max-w-172 -translate-x-1/2 -translate-y-1/2 flex-col gap-6 divide-y-0 overflow-visible rounded-3xl bg-white p-6 shadow-lg backdrop:bg-[#878282B2] backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    headerClass="md:p-0 p-0 border-none"
-    bodyClass="md:p-0 p-0 border-none overflow-y-visible"
-    footerClass="md:p-0 p-0 border-none flex items-center justify-end gap-4"
->
-    {#snippet header()}
-        <Title level={2} variant="subsection">
-            {$t("pages.admin.home.highlights.projects.modal.title")}
-        </Title>
-    {/snippet}
-    <div class="flex flex-col gap-6">
-        <p class="text-content text-base font-normal">
-            {$t("pages.admin.home.highlights.projects.modal.description")}
-        </p>
-        <div class="relative">
-            {#if projectQuery}
-                <span
-                    class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 transform bg-white px-1 text-sm font-medium"
-                >
-                    {$t("pages.admin.home.highlights.projects.modal.search")}
-                </span>
-            {/if}
-            <DropdownSearch
-                variant="basic"
-                singleSelect
-                clearable
-                search={searchProjects}
-                minChars={2}
-                bind:selected={selectedOption}
-                bind:value={projectQuery}
-                searchClasses="rounded-3xl border-secondary shadow-none"
-                placeholder={$t("pages.admin.home.highlights.projects.modal.search")}
-            />
-        </div>
-    </div>
-    {#snippet footer()}
-        <Button kind="ghost" onclick={() => (addOpen = false)} class="w-fit">
-            {$t("common.cancel")}
-        </Button>
-        <Button onclick={handleConfirmAdd} class="w-fit">
-            {$t("pages.admin.home.highlights.projects.modal.submit")}
-        </Button>
-    {/snippet}
-</Modal>
+    title={$t("pages.admin.home.highlights.projects.modal.title")}
+    description={$t("pages.admin.home.highlights.projects.modal.description")}
+    searchLabel={$t("pages.admin.home.highlights.projects.modal.search")}
+    submitLabel={$t("pages.admin.home.highlights.projects.modal.submit")}
+    onConfirm={handleConfirmAdd}
+/>
