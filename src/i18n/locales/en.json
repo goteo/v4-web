@@ -1151,6 +1151,7 @@
         "submitSuccess": "Project created",
         "validation": {
           "titleBadFormat": "The title must contain at least one letter.",
+          "titleTooShort": "The title must be at least {{ min }} characters long.",
           "categoriesNotEnough": "You must select at least {{ min }} category(ies).",
           "territoryMissing": "You must specify a location.",
           "releaseMissing": "You must specify an approximate launch date",
