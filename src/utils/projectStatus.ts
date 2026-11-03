@@ -130,3 +130,29 @@ export const REVIEW_STATUSES_BY_TYPE: Record<
     campaign: CAMPAIGN_REVIEW_STATUSES,
     financial: FUNDING_REVIEW_STATUSES,
 };
+
+/** Every status the API knows a project by, in lifecycle order. */
+export const PROJECT_STATUSES: NonNullable<Project["status"]>[] = [
+    "in_draft",
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_change",
+    "in_campaign_review.to_review",
+    "campaign_review.rejected",
+    "to_campaign",
+    "in_campaign",
+    "campaign.failed",
+    "campaign.cancelled",
+    "to_funding_review",
+    "in_funding_review",
+    "in_funding_review.to_change",
+    "in_funding_review.to_review",
+    "funding_review.rejected",
+    "to_funding",
+    "in_funding",
+    "funding.paid",
+];
+
+/** Translation key of a status: the API separates with dots, the translations with underscores. */
+export const projectStatusLabelKey = (status: string): string =>
+    `domain.project.status.${status.replaceAll(".", "_")}`;

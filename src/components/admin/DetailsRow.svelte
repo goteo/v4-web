@@ -3,7 +3,7 @@
 
     export interface DetailsField {
         label: string;
-        value: string | number | undefined;
+        value?: string | number;
         /** Custom content painted instead of `value`, for fields that are not plain text. */
         snippet?: Snippet;
         /** Hover text; defaults to the value. */

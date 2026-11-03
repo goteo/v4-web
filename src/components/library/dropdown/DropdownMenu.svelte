@@ -185,7 +185,7 @@
             <div
                 id={listId}
                 role="listbox"
-                class="absolute top-full left-0 z-100 mt-2 w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl"
+                class="absolute top-full left-0 z-100 mt-2 max-h-80 w-full flex-col overflow-y-auto rounded-lg bg-white shadow-2xl"
             >
                 {#each renderedItems as item}
                     <DropdownItem
