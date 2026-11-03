@@ -94,7 +94,7 @@
 
         runSearch(trimmed);
     }
-  
+
     async function searchOptions(term: string, signal: AbortSignal): Promise<DropdownOption[]> {
         const results = await search(term);
         // A superseded search must not replace the candidates the options index into.
