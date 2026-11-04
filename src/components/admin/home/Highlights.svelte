@@ -4,11 +4,10 @@
 
     import { t } from "../../../i18n/store";
     import { apiProjectsGetCollection } from "../../../openapi/client/sdk.gen";
-    import { debounce } from "../../../utils/debounce";
     import { toCollectionItems } from "../../../utils/hydra";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import RadioButton from "../../library/inputs/RadioButton.svelte";
     import Select from "../../library/inputs/Select.svelte";
@@ -71,7 +70,6 @@
     let layout = $state(config.highlight?.layout ?? "2x3");
     let addOpen = $state(false);
     let projectQuery = $state("");
-    let searchOptions = $state<DropdownOption[]>([]);
     let selectedOption = $state<DropdownOption[]>([]);
     let editingSlotIndex = $state<number | null>(null);
     let searchResults: Project[] = [];
@@ -86,39 +84,29 @@
         Array.from({ length: slotCount }, (_, i) => slotAssignments.find((a) => a.position === i)),
     );
 
-    const searchProjects = debounce(async (title: string) => {
+    async function searchProjects(title: string, signal: AbortSignal): Promise<DropdownOption[]> {
         const { data, error } = await apiProjectsGetCollection({
             baseUrl: "/api/relay",
             headers: { Accept: "application/ld+json" },
             query: { title, itemsPerPage: 10 },
+            signal,
         });
 
         if (error) console.error("Project search failed:", error);
 
-        searchResults = toCollectionItems<Project>(data);
-        searchOptions = searchResults.map((p) => ({
+        const projects = toCollectionItems<Project>(data);
+        if (!signal.aborted) searchResults = projects;
+
+        return projects.map((p) => ({
             id: String(p.id),
             label: p.title ?? p.slug ?? "",
             selected: false,
         }));
-    });
-
-    function handleSearch(query: string) {
-        const trimmed = query.trim();
-
-        if (trimmed.length < 2) {
-            searchProjects.cancel();
-            searchOptions = [];
-            return;
-        }
-
-        searchProjects(trimmed);
     }
 
     function handleAddProject(slotIndex: number) {
         editingSlotIndex = slotIndex;
         projectQuery = "";
-        searchOptions = [];
         selectedOption = [];
         addOpen = true;
     }
@@ -306,17 +294,16 @@
                     {$t("pages.admin.home.highlights.projects.modal.search")}
                 </span>
             {/if}
-            <DropdownMenu
+            <DropdownSearch
                 variant="basic"
-                hasSearch
                 singleSelect
                 clearable
-                options={searchOptions}
+                search={searchProjects}
+                minChars={2}
                 bind:selected={selectedOption}
-                bind:searchValue={projectQuery}
-                onSearch={handleSearch}
+                bind:value={projectQuery}
                 searchClasses="rounded-3xl border-secondary shadow-none"
-                searchPlaceholder={$t("pages.admin.home.highlights.projects.modal.search")}
+                placeholder={$t("pages.admin.home.highlights.projects.modal.search")}
             />
         </div>
     </div>

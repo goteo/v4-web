@@ -14,6 +14,7 @@
     import { locale, t } from "../../../i18n/store";
     import {
         apiUsersIdOrHandleGet,
+        apiUsersIdPatch,
         type Organization,
         type Person,
         type Territory,
@@ -32,9 +33,11 @@
         type PersonalProfileForm,
     } from "../../../validation/personalProfileValidation";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
+    import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
+    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
     import Select from "../../library/inputs/Select.svelte";
     import TerritoryInput from "../../library/inputs/TerritoryInput.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
@@ -96,6 +99,12 @@
     let showNoChanges = $state(false);
     let formError = $state("");
 
+    let newPassword = $state("");
+    let confirmPassword = $state("");
+    let passwordError = $state("");
+    let passwordSuccess = $state(false);
+    let changingPassword = $state(false);
+
     function handleLocality(territory: Territory) {
         form.country = territory.country ?? form.country;
         form.subLvl1 = territory.subLvl1 ?? "";
@@ -117,6 +126,41 @@
         }
 
         return $t(issue.message);
+    }
+
+    async function changePassword() {
+        passwordError = "";
+        passwordSuccess = false;
+
+        if (!newPassword) {
+            passwordError = $t("common.password.error.required");
+            return;
+        }
+        if (newPassword.length < 8) {
+            passwordError = $t("common.password.error.minLength");
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            passwordError = $t("common.password.error.mismatch");
+            return;
+        }
+
+        changingPassword = true;
+        const { error } = await apiUsersIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String(user.id) },
+            body: { password: newPassword },
+        });
+        changingPassword = false;
+
+        if (error) {
+            passwordError = $t("common.password.error.generic");
+            return;
+        }
+
+        newPassword = "";
+        confirmPassword = "";
+        passwordSuccess = true;
     }
 
     async function handleSubmit() {
@@ -418,6 +462,38 @@
         <FormNotice text={$t("pages.me.manage.location.disclaimer")} />
     </Card>
 
+    <Card class="items-start gap-6 p-8">
+        {@render cardHeader(
+            $t("pages.me.manage.password.title"),
+            $t("pages.me.manage.password.subtitle"),
+        )}
+
+        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+            <PasswordInput
+                bind:value={newPassword}
+                labelText={$t("common.password.new")}
+                class="h-14"
+                disabled={changingPassword}
+            />
+            <PasswordInput
+                bind:value={confirmPassword}
+                labelText={$t("common.password.confirm")}
+                class="h-14"
+                disabled={changingPassword}
+            />
+        </div>
+
+        {#if passwordError}
+            <p class="text-tertiary text-sm">{passwordError}</p>
+        {/if}
+
+        <div class="flex justify-end">
+            <Button type="button" kind="ghost" disabled={changingPassword} onclick={changePassword}>
+                {$t("common.password.change")}
+            </Button>
+        </div>
+    </Card>
+
     {#if showSuccess}
         <Toast floating variant="success" bind:showToast={showSuccess}>
             {$t("pages.me.manage.personal.success")}
@@ -426,6 +502,11 @@
     {#if showNoChanges}
         <Toast floating variant="notification" bind:showToast={showNoChanges}>
             {$t("pages.me.manage.noChanges")}
+        </Toast>
+    {/if}
+    {#if passwordSuccess}
+        <Toast floating variant="success" bind:showToast={passwordSuccess}>
+            {$t("common.password.success")}
         </Toast>
     {/if}
     {#if showError}
