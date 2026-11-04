@@ -3391,6 +3391,15 @@ export type VersionJsonld = {
     readonly dateCreated?: string | null;
 };
 
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoney = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
 export type ApiAccountingsGetCollectionData = {
     body?: never;
     path?: never;
@@ -5163,6 +5172,66 @@ export type ApiProjectsPostResponses = {
 };
 
 export type ApiProjectsPostResponse = ApiProjectsPostResponses[keyof ApiProjectsPostResponses];
+
+export type ApiProjectsmoneyTotalGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        slug?: string;
+        'slug[]'?: Array<string>;
+        accounting?: string;
+        'accounting[]'?: Array<string>;
+        owner?: string;
+        'owner[]'?: Array<string>;
+        title?: string;
+        subtitle?: string;
+        categories?: string;
+        'categories[]'?: Array<string>;
+        themes?: string;
+        'themes[]'?: Array<string>;
+        'territory.country'?: string;
+        'territory.country[]'?: Array<string>;
+        'territory.subLvl1'?: string;
+        'territory.subLvl1[]'?: Array<string>;
+        'territory.subLvl2'?: string;
+        'territory.subLvl2[]'?: Array<string>;
+        descBrief?: string;
+        status?: string;
+        'status[]'?: Array<string>;
+        'calendar.release[before]'?: string;
+        'calendar.release[strictly_before]'?: string;
+        'calendar.release[after]'?: string;
+        'calendar.release[strictly_after]'?: string;
+        'calendar.minimum[before]'?: string;
+        'calendar.minimum[strictly_before]'?: string;
+        'calendar.minimum[after]'?: string;
+        'calendar.minimum[strictly_after]'?: string;
+        'calendar.optimum[before]'?: string;
+        'calendar.optimum[strictly_before]'?: string;
+        'calendar.optimum[after]'?: string;
+        'calendar.optimum[strictly_after]'?: string;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/projects/money_total';
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponses = {
+    /**
+     * Totalized money
+     */
+    200: ProjectTotalizedMoney;
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponse = ApiProjectsmoneyTotalGetCollectionResponses[keyof ApiProjectsmoneyTotalGetCollectionResponses];
 
 export type ApiProjectsIdOrSlugGetData = {
     body?: never;
