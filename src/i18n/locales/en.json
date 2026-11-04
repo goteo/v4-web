@@ -1660,6 +1660,7 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "Featured Projects",
+          "proposed": "Proposed campaigns",
           "featuredUsers": "Promoters",
           "banners": "Banners"
         },
@@ -1733,19 +1734,27 @@
           "projects": {
             "title": "Select the projects",
             "description": "Remember that projects will be placed from top to bottom and from left to right.",
-            "slot": "Project {{ number }}",
-            "empty": "Search for a project and feature it on the homepage",
-            "add": "Add project",
-            "replace": "Change project",
-            "remove": "Remove",
-            "change": "Change to another project",
-            "position": "This project in position {{ number }}",
             "modal": {
               "title": "Add Project",
               "description": "Search for and add the project you want to feature",
               "search": "Search for a project",
               "submit": "Add"
             }
+          }
+        },
+        "proposed": {
+          "title": "Proposed campaigns",
+          "description": "Add the campaigns that will be featured on the homepage as proposed campaigns",
+          "save": "Save new proposal",
+          "modal": {
+            "title": "Add project",
+            "description": "Search for and add the project you want to propose",
+            "search": "Search for a project",
+            "submit": "Add"
+          },
+          "projects": {
+            "title": "Select the projects",
+            "description": "Remember that projects will be added from top to bottom and from left to right."
           }
         },
         "featuredUsers": {
@@ -1763,6 +1772,17 @@
             "search": "Search for a user"
           }
         }
+      },
+      "slotCard": {
+        "slot": "Project {{ number }}",
+        "position": "Position {{ number }}",
+        "empty": "Search for a project and feature it on the homepage",
+        "add": "Add project",
+        "replace": "Change project",
+        "remove": "Remove",
+        "addTitle": "Add more projects",
+        "addSubtitle": "Add more projects to the carousel",
+        "addMore": "Add more"
       },
       "charges": {
         "title": "Charges",
@@ -1995,7 +2015,7 @@
         "description": "Search for projects and manage them as quickly as possible thanks to the search tool",
         "lastProjects": "Project list:",
         "totalizers": {
-          "selected": "selected projects:",
+          "selected": "Selected projects:",
           "totalEarned": "Total raised:"
         },
         "filters": {
@@ -2046,6 +2066,8 @@
               "email": "Email",
               "phone": "Phone",
               "remaining": "Pending payment",
+              "status": "Status",
+              "statusChangeError": "The project status could not be changed",
               "btns": {
                 "contributions": "Contributions",
                 "annotations": "Annotations",
