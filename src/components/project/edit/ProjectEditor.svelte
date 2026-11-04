@@ -216,16 +216,19 @@
             <TabNavigation tabs={steps} currentTab={step} onTabClick={(s) => onStepChange?.(s)} />
         </div>
 
-        <TranslationLanguages
-            class="mb-8"
-            languages={$draft.languages}
-            selected={$draft.lang}
-            onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
-            onRemove={(code) =>
-                draft.setLanguages($draft.languages.filter((other) => other !== code))}
-            onSelect={onLangChange}
-            removable={(code) => !$draft.actual.locales?.includes(code)}
-        />
+        <!-- Rewards are translated one by one, inside each Reward's form. -->
+        {#if step !== "3"}
+            <TranslationLanguages
+                class="mb-8"
+                languages={$draft.languages}
+                selected={$draft.lang}
+                onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
+                onRemove={(code) =>
+                    draft.setLanguages($draft.languages.filter((other) => other !== code))}
+                onSelect={onLangChange}
+                removable={(code) => !$draft.actual.locales?.includes(code)}
+            />
+        {/if}
 
         <!-- Step Content -->
         <div class="min-h-100">
