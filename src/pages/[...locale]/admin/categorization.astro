@@ -1,0 +1,16 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import App from "../../../layouts/App.svelte";
+import Categorization from "../../../components/admin/categorization/Categorization.svelte";
+
+const { t, lang, session } = Astro.locals;
+---
+
+<Layout
+    title={t("pages.admin.categorization.title")}
+    description={t("pages.admin.categorization.description")}
+>
+    <App client:load locale={lang} session={session} admin>
+        <Categorization client:load />
+    </App>
+</Layout>

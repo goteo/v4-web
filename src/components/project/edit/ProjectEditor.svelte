@@ -18,6 +18,7 @@
     import { t } from "../../../i18n/store";
     import { apiProjectsIdPatch } from "../../../openapi/client";
     import { zProjectProjectUpdationDto } from "../../../openapi/client/zod.gen";
+    import { PUBLISH_TRANSITIONS } from "../../../utils/projectStatus";
     import { validate } from "../../../utils/validation";
     import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
     import EditIcon from "../../icons/actions/Edit.svelte";
@@ -25,6 +26,7 @@
     import Eye from "../../icons/media/Eye.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
+    import DeleteModal from "../../library/feedback/DeleteModal.svelte";
     import TabNavigation, { type Tab } from "../../library/layout/TabNavigation.svelte";
 
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
@@ -35,7 +37,6 @@
         step,
         children,
         onSave,
-        onPublish,
         onStepChange,
         onLangChange,
     }: {
@@ -43,7 +44,6 @@
         step: string;
         children: Snippet;
         onSave?: () => void;
-        onPublish?: () => void;
         onStepChange?: (step: string) => void;
         onLangChange?: (lang: string) => void;
     } = $props();
@@ -60,6 +60,9 @@
 
     let errorMessage: string | undefined = $state();
     let previewOpen = $state(false);
+    let publishConfirmOpen = $state(false);
+
+    let publishTransition = $derived(PUBLISH_TRANSITIONS[$draft.actual.status!]);
 
     function handleTitleChange(title: string) {
         const [error] = validate(title, zProjectProjectUpdationDto.shape.title);
@@ -92,6 +95,26 @@
             body: $draft.patch,
         });
 
+        draft.update({ actual: project, patch: {} });
+    }
+
+    async function handlePublish() {
+        if (!publishTransition) return;
+
+        // Pending edits go out with the status change, so nothing unsaved is left behind.
+        const { data: project, error } = await apiProjectsIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String($draft.actual.id) },
+            headers: { "Content-Language": $draft.lang },
+            body: { ...$draft.patch, status: publishTransition.to },
+        });
+
+        if (error || !project) {
+            errorMessage = $t("pages.project.edit.header.publish.error");
+            return;
+        }
+
+        errorMessage = undefined;
         draft.update({ actual: project, patch: {} });
     }
 </script>
@@ -170,7 +193,14 @@
                     class="disabled:pointer-events-none disabled:opacity-24"
                     kind="primary"
                     size="md"
-                    onclick={() => {}}
+                    disabled={!publishTransition}
+                    onclick={() => {
+                        if (publishTransition?.confirm) {
+                            publishConfirmOpen = true;
+                        } else {
+                            handlePublish();
+                        }
+                    }}
                 >
                     {$t("common.publish")}
                 </Button>
@@ -199,3 +229,18 @@
 </div>
 
 <ProjectPreviewModal bind:open={previewOpen} project={$draft.latest} />
+
+{#if publishTransition?.confirm}
+    <DeleteModal
+        bind:open={publishConfirmOpen}
+        title={$t(`pages.project.edit.header.publish.${publishTransition.confirm}.title`)}
+        description={$t(
+            `pages.project.edit.header.publish.${publishTransition.confirm}.description`,
+        )}
+        confirmText={$t("common.publish")}
+        onclick={async () => {
+            await handlePublish();
+            publishConfirmOpen = false;
+        }}
+    />
+{/if}

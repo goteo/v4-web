@@ -49,7 +49,7 @@
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { REVIEW_STATUSES_BY_TYPE, projectStatusLabelKey } from "../../../utils/projectStatus";
+    import { projectStatusLabelKey, REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
     import { RISK_SQUARE_CLASSES } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";

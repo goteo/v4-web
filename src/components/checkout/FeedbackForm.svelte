@@ -24,7 +24,7 @@
                 path: { idOrSlug: project.id },
             });
 
-            const support = projectSupports.find((ps) => ps.project === iri)!;
+            const support = projectSupports.find((ps) => iri.endsWith(ps.project!))!;
 
             return { project, support };
         }),
