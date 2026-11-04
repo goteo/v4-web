@@ -17,7 +17,7 @@
     import Tag from "../../library/tags/Tag.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { AddressAddressUpdationDto } from "../../../openapi/client";
+    import type { AddressAddressUpdationDtoJsonMergePatch } from "../../../openapi/client";
     import type { DefaultableAddress } from "../../../utils/defaultAddress";
 
     let {
@@ -70,7 +70,7 @@
             baseUrl: "/api/relay",
             path: { id: String(address.id) },
             // Pending in the API, see `DefaultableAddress`
-            body: { isDefault: true } as AddressAddressUpdationDto,
+            body: { isDefault: true } as AddressAddressUpdationDtoJsonMergePatch,
         });
 
         if (error) {

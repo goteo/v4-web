@@ -1386,7 +1386,6 @@ export const apiTipjarsIdPatch = <ThrowOnError extends boolean = false>(options:
  * Retrieves the collection of User resources.
  */
 export const apiUsersGetCollection = <ThrowOnError extends boolean = false>(options?: Options<ApiUsersGetCollectionData, ThrowOnError>): RequestResult<ApiUsersGetCollectionResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ApiUsersGetCollectionResponses, unknown, ThrowOnError>({
-    querySerializer: { parameters: { 'roles[]': { array: { style: 'deepObject' } } } },
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/v4/users',
     ...options
