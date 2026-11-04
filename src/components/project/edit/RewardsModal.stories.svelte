@@ -109,8 +109,11 @@
 
         await pickLanguage("Català");
         await expect(title().value).toBe("Camiseta ca");
-        await userEvent.click(button("Eliminar traducción"));
-        await userEvent.click(button("Borrar"));
+
+        // Emptying a language is how its translation is removed.
+        await userEvent.clear(title());
+        await userEvent.click(description());
+        await userEvent.keyboard("{Control>}a{/Control}{Backspace}");
 
         await userEvent.click(save());
 
