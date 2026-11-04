@@ -9,8 +9,8 @@
         apiProjectsIdPatch,
         apiAccountingsIdGet,
         apiUsersIdOrHandleGet,
-        apiProjectSupportsmoneyTotalGetCollection,
         apiProjectsGetCollectionUrl,
+        apiProjectsmoneyTotalGetCollection,
         type Project,
         type Accounting,
         type User,
@@ -27,10 +27,7 @@
     import Toast from "../../library/feedback/Toast.svelte";
     import Dashboard from "../AdminDashboard.svelte";
 
-    import type {
-        ApiProjectSupportsmoneyTotalGetCollectionData,
-        ApiProjectsGetCollectionData,
-    } from "../../../openapi/client/types.gen";
+    import type { ApiProjectsGetCollectionData } from "../../../openapi/client/types.gen";
     import type { ProjectStatus } from "../../../utils/projectStatus";
 
     type ProjectsQuery = Partial<ApiProjectsGetCollectionData["query"]>;
@@ -61,6 +58,7 @@
     let filters: ProjectsQuery = $state(initialParams.filters);
     let projectRows = $state<ProjectRow[]>([]);
     let totalEarned = $state("—");
+    let isTotalEarnedLoading = $state(false);
 
     let accountingsCache = $state(new Map<string, Accounting>());
     let ownersCache = $state(new Map<string, User>());
@@ -92,18 +90,16 @@
     ]);
 
     /**
-     * Totals the money earned by every project matching the table filters (not only the
-     * current page): `money_total` takes the same filters as the projects collection under `project.`.
+     * Totals the money earned by every project matching the table filters, not only the current
+     * page: `money_total` takes the same filters as the projects collection.
      */
     async function fetchTotalEarned(projectFilters: ProjectsQuery) {
-        const query = Object.fromEntries(
-            Object.entries(projectFilters ?? {}).map(([key, value]) => [`project.${key}`, value]),
-        ) as ApiProjectSupportsmoneyTotalGetCollectionData["query"];
-
-        const { data, error } = await apiProjectSupportsmoneyTotalGetCollection({
+        isTotalEarnedLoading = true;
+        const { data, error } = await apiProjectsmoneyTotalGetCollection({
             baseUrl: "/api/relay",
-            query,
+            query: projectFilters,
         });
+        isTotalEarnedLoading = false;
         if (error || !data) {
             console.error("Failed to fetch money total:", error);
             totalEarned = "—";
@@ -377,7 +373,7 @@
     }}
     slider={{
         slides: projectSlides,
-        isLoading: table.isLoading,
+        isLoading: table.isLoading || isTotalEarnedLoading,
     }}
 >
     <ProjectsTable
