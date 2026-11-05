@@ -119,7 +119,7 @@
     bodyClass="flex p-0"
 >
     <div
-        class="flex min-h-0 flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
+        class="flex min-h-0 w-full flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
         onclick={(e) => e.stopPropagation()}
         onkeydown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
