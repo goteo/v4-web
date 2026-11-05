@@ -2453,14 +2453,51 @@
           "country": "Country",
           "locality": "Town/City",
           "localityPlaceholder": "Search for your town/city",
-          "address": "Address (specify whether it is a street, square, avenue, etc.)",
-          "type": "Legal form",
           "taxId": "Document number",
-          "representative": "Representative details"
+          "representative": "Representative details",
+          "userType": "Profile type",
+          "taxIdType": "Document type",
+          "birthYear": "Year of birth",
+          "gender": "Gender",
+          "legalForm": "Legal form",
+          "publicEntity": "Public entity",
+          "taxIdTypeOptions": {
+            "national_id": "Spanish tax ID / foreigner's ID card",
+            "passport": "Passport",
+            "other": "Other"
+          },
+          "genderOptions": {
+            "female": "Woman",
+            "male": "Man",
+            "non_binary": "Non-binary",
+            "other": "Other / Prefer not to say"
+          },
+          "legalFormOptions": {
+            "association": "Association",
+            "foundation": "Foundation",
+            "cooperative": "Cooperative",
+            "company": "Company",
+            "self_employed": "Self-employed",
+            "public_administration": "Public administration",
+            "other": "Other"
+          }
         },
         "location": {
           "share": "*Share my location",
           "disclaimer": "*Sharing your location with our team will help generate information (anonymized, without ever disclosing your personal data to third parties) as well as impact indicators that make our work and support for projects more effective."
+        },
+        "referral": {
+          "title": "How did you hear about us?",
+          "subtitle": "It helps us understand how people find the platform",
+          "label": "Select an option",
+          "options": {
+            "search_engine": "Search engine",
+            "social_media": "Social media",
+            "friend": "Friends or acquaintances",
+            "press": "Press or media",
+            "event": "Event, talk, or workshop",
+            "other": "Other"
+          }
         },
         "social": {
           "title": "Social media",
@@ -2516,11 +2553,17 @@
             "label": "Select a language",
             "helper": "The application will use this language for the interface and will try to serve you content in this language first"
           },
+          "privacy": {
+            "title": "Privacy",
+            "anonymous": "Keep profile anonymous when making a donation"
+          },
           "save": "Save preferences",
           "toast": {
-            "saved": "Preferences saved successfully"
+            "saved": "Preferences saved successfully",
+            "error": "Preferences could not be saved"
           }
-        }
+        },
+        "noChanges": "You haven't made any changes"
       },
       "period": {
         "label": "Period",
