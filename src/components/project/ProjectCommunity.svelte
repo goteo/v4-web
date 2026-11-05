@@ -7,6 +7,7 @@
     import { t } from "../../i18n/store";
     import { apiProjectSupportsGetCollection } from "../../openapi/client/index";
     import { formatCurrency } from "../../utils/currencies";
+    import Goteo from "../icons/Goteo.svelte";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Loader from "../library/feedback/Loader.svelte";
     import Grid from "../library/layout/Grid.svelte";
@@ -24,7 +25,8 @@
 
     const projectId = $derived(project.id?.toString());
 
-    let projectsSupportItems = $state<ProjectSupport[]>([]);
+    let supportItems = $state<ProjectSupport[]>([]);
+    let matchfundingItems = $state<ProjectSupport[]>([]);
 
     let selectedProjectSupport: ProjectSupport | null = $state(null);
 
@@ -33,49 +35,44 @@
     let hasMore = $state(false);
     let currentPage = $state(1);
 
-    const groupedItems = $derived.by(() =>
-        projectsSupportItems.reduce(
-            (groups, item) => {
-                const type = item.matchfunding ? "matchfunding" : "default";
-                (groups[type] ??= []).push(item);
-                return groups;
-            },
-            {} as Record<string, typeof projectsSupportItems>,
-        ),
-    );
-
     const PAGE_SIZE = 30;
-    const FIRST_PAGE_SIZE = 29;
 
     async function fetchPage(page: number): Promise<ProjectSupport[]> {
-        const itemsPerPage = page === 1 ? FIRST_PAGE_SIZE : PAGE_SIZE;
         const { data } = await apiProjectSupportsGetCollection({
-            query: { project: projectId, anonymous: false, page, itemsPerPage },
+            query: {
+                project: projectId,
+                anonymous: false,
+                matchfunding: false,
+                page,
+                itemsPerPage: PAGE_SIZE,
+            },
         });
 
         const items = (data as ProjectSupport[]) ?? [];
-        hasMore = items.length === itemsPerPage;
+        hasMore = items.length === PAGE_SIZE;
 
         return items;
     }
 
-    const matchfundingCount = $derived(groupedItems.matchfunding?.length ?? 0);
-    const hasMatchfunding = $derived(matchfundingCount > 0);
-    const isSingleMatchfunding = $derived(matchfundingCount === 1);
+    const hasMatchfunding = $derived(matchfundingItems.length > 0);
+    const isSingleMatchfunding = $derived(matchfundingItems.length === 1);
 
+    // Without matchers the anonymous card shares the grid: hold back the last loaded
+    // item while more pages remain so rows stay full.
     const visibleDefaultItems = $derived(
-        hasMatchfunding
-            ? groupedItems.default
-            : groupedItems.default?.slice(
-                  0,
-                  PAGE_SIZE - 1 + Math.max(0, (currentPage - 1) * PAGE_SIZE),
-              ),
+        hasMatchfunding || !hasMore ? supportItems : supportItems.slice(0, -1),
     );
 
     $effect(() => {
-        fetchPage(1)
-            .then((items) => {
-                projectsSupportItems = items;
+        Promise.all([
+            apiProjectSupportsGetCollection({
+                query: { project: projectId, matchfunding: true },
+            }),
+            fetchPage(1),
+        ])
+            .then(([{ data: matchers }, items]) => {
+                matchfundingItems = (matchers as ProjectSupport[]) ?? [];
+                supportItems = items;
             })
             .finally(() => {
                 isLoaded = true;
@@ -85,7 +82,7 @@
     async function loadMore() {
         const nextPage = currentPage + 1;
         const supports = await fetchPage(nextPage);
-        projectsSupportItems = [...projectsSupportItems, ...supports];
+        supportItems = [...supportItems, ...supports];
         currentPage = nextPage;
     }
 </script>
@@ -104,7 +101,7 @@
                 <Grid
                     class={`grid-cols-1 gap-6 ${isSingleMatchfunding ? "md:grid-cols-2 lg:grid-cols-2" : "md:grid-cols-3"}`}
                 >
-                    {#each groupedItems.matchfunding as item (item.id)}
+                    {#each matchfundingItems as item (item.id)}
                         <ProjectCommunityMatchfunding
                             {item}
                             bind:openModal
@@ -148,9 +145,15 @@
             role="presentation"
         >
             <div class="flex flex-row items-center justify-between gap-4">
-                <div>
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg">😀</div>
-                </div>
+                {#if selectedProjectSupport.displayImage}
+                    <img
+                        src={selectedProjectSupport.displayImage}
+                        alt={selectedProjectSupport.displayName}
+                        class="h-16 w-16 shrink-0 rounded-xl object-cover"
+                    />
+                {:else}
+                    <Goteo />
+                {/if}
                 <div class="flex flex-col items-end">
                     <div class="font-bold text-black">
                         {$t("pages.project.view.tabs.community.contribution")}
