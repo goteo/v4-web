@@ -54,6 +54,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         subSections: [
             { href: "/admin/home/hero", labelKey: "pages.admin.home.tabs.hero" },
             { href: "/admin/home/highlights", labelKey: "pages.admin.home.tabs.highlights" },
+            { href: "/admin/home/proposed", labelKey: "pages.admin.home.tabs.proposed" },
             { href: "/admin/home/featured-users", labelKey: "pages.admin.home.tabs.featuredUsers" },
             { href: "/admin/home/banners", labelKey: "pages.admin.home.tabs.banners" },
         ],

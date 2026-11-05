@@ -1,9 +1,8 @@
 <script lang="ts" module>
-    import type { Project, ProjectReview } from "../../../openapi/client/index.ts";
+    import type { ProjectReview } from "../../../openapi/client/index.ts";
     import type { ProjectReviewRisk } from "../../../types/projectReview";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
-
-    export type ProjectStatus = NonNullable<Project["status"]>;
 
     export type ReviewProjectRow = {
         id: number;
@@ -106,8 +105,6 @@
         }
     }
 
-    const statusLabel = (status: string) => $t(projectStatusLabelKey(status));
-
     /**
      * Statuses a project can move to for the kind of review it is going through.
      * Whatever status the project holds is always offered, so a review that
@@ -189,7 +186,7 @@
                         <option value="">—</option>
                     {/if}
                     {#each statusOptions(project) as status (status)}
-                        <option value={status}>{statusLabel(status)}</option>
+                        <option value={status}>{$t(projectStatusLabelKey(status))}</option>
                     {/each}
                 </select>
             </div>
