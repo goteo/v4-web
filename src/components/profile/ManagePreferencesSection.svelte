@@ -4,24 +4,30 @@
     import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
     import { languagesList } from "../../i18n/locales";
     import { locale, t } from "../../i18n/store";
+    import { apiUsersIdPatch } from "../../openapi/client";
     import { getCookie, setCookie } from "../../utils/cookies";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
+    import Checkbox from "../library/inputs/Checkbox.svelte";
     import Select from "../library/inputs/Select.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    import type { Category } from "../../openapi/client";
+    import type { Category, User } from "../../openapi/client";
 
     interface Props {
+        user: User;
         /** Categories to offer, read by the page from `apiCategoriesGetCollection` */
         categories?: Category[];
         class?: ClassNameValue;
     }
 
-    let { categories = [], class: classes = "" }: Props = $props();
+    let { user, categories = [], class: classes = "" }: Props = $props();
 
     let language: string = $state($locale ?? "es");
+    let isAnonymous = $state(user.isAnonymous ?? false);
+    let savedIsAnonymous = user.isAnonymous ?? false;
     let toast = $state(false);
+    let errorToast = $state(false);
     let motivatingProjects: Category[] = $state([]);
 
     const CATEGORIES_COOKIE = "preferred-categories";
@@ -42,8 +48,8 @@
         }
     });
 
-    /* The preferred language is the only preference this screen owns, and the API has no
-       endpoint for it: it lives in a cookie, read back by `src/middleware/index.ts`. */
+    /* The API has no endpoint for the preferred language: it lives in a cookie, read back by
+       `src/middleware/index.ts`. Anonymity is the only preference stored on the `User`. */
     async function save() {
         setCookie("preferred-lang", language);
 
@@ -53,6 +59,21 @@
             .map((id) => String(id));
 
         setCookie(CATEGORIES_COOKIE, JSON.stringify(ids));
+
+        if (isAnonymous !== savedIsAnonymous) {
+            const { error } = await apiUsersIdPatch({
+                baseUrl: "/api/relay",
+                path: { id: String(user.id) },
+                body: { isAnonymous },
+            });
+
+            if (error) {
+                errorToast = true;
+                throw error;
+            }
+
+            savedIsAnonymous = isAnonymous;
+        }
 
         toast = true;
     }
@@ -99,9 +120,23 @@
             </div>
         </div>
     </section>
+    <section class="flex flex-col gap-3">
+        <Title level={2} variant="subsection">
+            {$t("pages.me.manage.preferences.privacy.title")}
+        </Title>
+
+        <Checkbox
+            bind:checked={isAnonymous}
+            label={$t("pages.me.manage.preferences.privacy.anonymous")}
+            class="mt-2 gap-2"
+        />
+    </section>
     <MotivatingProjectsSection options={categories} bind:selected={motivatingProjects} />
 </form>
 
 <Toast bind:showToast={toast} variant="success">
     {$t("pages.me.manage.preferences.toast.saved")}
+</Toast>
+<Toast bind:showToast={errorToast} variant="error">
+    {$t("pages.me.manage.preferences.toast.error")}
 </Toast>

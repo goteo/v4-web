@@ -19,13 +19,13 @@ import type {
     ProjectReward,
     ProjectCollaboration,
     ProjectBudgetItem,
-    ProjectProjectUpdationDto,
+    ProjectProjectUpdationDtoJsonMergePatch,
 } from "../openapi/client";
 import type { ProjectDraftResources } from "../stores/drafts/projectDraft";
 
 export async function patchProject(
     projectId: string,
-    body: ProjectProjectUpdationDto,
+    body: ProjectProjectUpdationDtoJsonMergePatch,
     session: Session,
 ) {
     return apiProjectsIdPatch({
