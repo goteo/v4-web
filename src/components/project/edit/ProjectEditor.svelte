@@ -17,7 +17,7 @@
     import ProjectPreviewModal from "./ProjectPreviewModal.svelte";
     import { t } from "../../../i18n/store";
     import { apiProjectsIdPatch } from "../../../openapi/client";
-    import { zProjectProjectUpdationDto } from "../../../openapi/client/zod.gen";
+    import { zProjectProjectUpdationDtoJsonMergePatch } from "../../../openapi/client/zod.gen";
     import { PUBLISH_TRANSITIONS } from "../../../utils/projectStatus";
     import { validate } from "../../../utils/validation";
     import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
@@ -65,7 +65,7 @@
     let publishTransition = $derived(PUBLISH_TRANSITIONS[$draft.actual.status!]);
 
     function handleTitleChange(title: string) {
-        const [error] = validate(title, zProjectProjectUpdationDto.shape.title);
+        const [error] = validate(title, zProjectProjectUpdationDtoJsonMergePatch.shape.title);
 
         if (!error) {
             draft.patch({ title });

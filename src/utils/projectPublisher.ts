@@ -17,7 +17,7 @@ import type { Session } from "../auth/types";
 import type {
     ProjectBudgetItem,
     ProjectCollaboration,
-    ProjectProjectUpdationDto,
+    ProjectProjectUpdationDtoJsonMergePatch,
     ProjectReward,
 } from "../openapi/client";
 import type { Draft, ProjectDraftResources } from "../stores/drafts/projectDraft";
@@ -161,7 +161,7 @@ export async function publishDraft(draft: Draft, session: Session, projectId: st
             deadline: wizard.configuration.deadline,
             territory: draft.createProject.territory,
             cover: firstImage?.url ?? "",
-        } as ProjectProjectUpdationDto & { cover?: string },
+        } as ProjectProjectUpdationDtoJsonMergePatch & { cover?: string },
         session,
     );
 

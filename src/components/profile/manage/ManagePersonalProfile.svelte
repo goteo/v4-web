@@ -73,10 +73,7 @@
         country,
         subLvl1: user.territory?.subLvl1 ?? "",
         subLvl2: user.territory?.subLvl2 ?? "",
-        address: user.territory?.address ?? "",
-        postalCode: user.territory?.postalCode ?? "",
         shareLocation: user.shareLocation ?? false,
-        supportAnonymously: user.supportAnonymously ?? false,
         referralSource: user.referralSource ?? "",
         taxIdType: (isOrganization ? organization?.taxIdType : person?.taxIdType) ?? "",
         birthYear: person?.birthYear ? String(person.birthYear) : "",
@@ -290,76 +287,40 @@
                 </div>
             {/if}
 
-            <div class="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3">
-                <Select
-                    bind:value={form.country}
-                    labelText={$t("pages.me.manage.info.country")}
-                    onChange={() => validate("taxId")}
-                    disabled={isSubmitting}
-                >
-                    <option value="">{$t("common.select")}</option>
-                    {#each countries as { code, name } (code)}
-                        <option value={code}>{name}</option>
-                    {/each}
-                </Select>
-                <div class="relative">
-                    <span
-                        class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 bg-white px-1 text-sm font-medium"
-                        class:opacity-50={isSubmitting}
-                    >
-                        {$t("pages.me.manage.info.locality")}
-                    </span>
-                    <TerritoryInput
-                        bind:value={locality}
-                        placeholder={$t("pages.me.manage.info.localityPlaceholder")}
-                        searchClasses="border-secondary h-14 shadow-none"
-                        onInput={handleLocality}
-                        disabled={isSubmitting}
-                    />
-                </div>
-                <TextInput
-                    bind:value={form.postalCode}
-                    labelText={$t("pages.me.manage.info.postalCode")}
-                    class="h-14"
-                    disabled={isSubmitting}
-                />
-            </div>
-            <div class="md:col-span-2">
-                <TextInput
-                    bind:value={form.address}
-                    labelText={$t("pages.me.manage.info.address")}
-                    class="h-14"
-                    disabled={isSubmitting}
-                />
-            </div>
-
-            <div class="flex flex-wrap gap-6 md:col-span-2">
-                <Checkbox
-                    bind:checked={form.shareLocation}
-                    label={$t("pages.me.manage.location.share")}
-                    class="gap-2"
-                    disabled={isSubmitting}
-                />
-                <Checkbox
-                    bind:checked={form.supportAnonymously}
-                    label={$t("pages.me.manage.location.supportAnonymously")}
-                    class="gap-2"
-                    disabled={isSubmitting}
-                />
-            </div>
-
             <Select
-                bind:value={form.referralSource}
-                labelText={$t("pages.me.manage.info.referralSource")}
+                bind:value={form.country}
+                labelText={$t("pages.me.manage.info.country")}
+                onChange={() => validate("taxId")}
                 disabled={isSubmitting}
             >
                 <option value="">{$t("common.select")}</option>
-                {#each REFERRAL_SOURCES as value (value)}
-                    <option {value}>
-                        {$t(`pages.me.manage.info.referralSourceOptions.${value}`)}
-                    </option>
+                {#each countries as { code, name } (code)}
+                    <option value={code}>{name}</option>
                 {/each}
             </Select>
+            <div class="relative">
+                <span
+                    class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 bg-white px-1 text-sm font-medium"
+                    class:opacity-50={isSubmitting}
+                >
+                    {$t("pages.me.manage.info.locality")}
+                </span>
+                <TerritoryInput
+                    bind:value={locality}
+                    placeholder={$t("pages.me.manage.info.localityPlaceholder")}
+                    searchClasses="border-secondary h-14 shadow-none"
+                    onInput={handleLocality}
+                    disabled={isSubmitting}
+                />
+            </div>
+
+            <Checkbox
+                bind:checked={form.shareLocation}
+                label={$t("pages.me.manage.location.share")}
+                class="gap-2 md:col-span-2"
+                disabled={isSubmitting}
+            />
+
             <Select
                 bind:value={form.type}
                 labelText={$t("pages.me.manage.info.userType")}
@@ -460,6 +421,28 @@
         </div>
 
         <FormNotice text={$t("pages.me.manage.location.disclaimer")} />
+    </Card>
+
+    <Card class="items-start gap-6 p-8">
+        {@render cardHeader(
+            $t("pages.me.manage.referral.title"),
+            $t("pages.me.manage.referral.subtitle"),
+        )}
+
+        <div class="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
+            <Select
+                bind:value={form.referralSource}
+                labelText={$t("pages.me.manage.referral.label")}
+                disabled={isSubmitting}
+            >
+                <option value="">{$t("common.select")}</option>
+                {#each REFERRAL_SOURCES as value (value)}
+                    <option {value}>
+                        {$t(`pages.me.manage.referral.options.${value}`)}
+                    </option>
+                {/each}
+            </Select>
+        </div>
     </Card>
 
     <Card class="items-start gap-6 p-8">

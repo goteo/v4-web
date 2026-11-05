@@ -45,10 +45,7 @@ export const zPersonalProfileForm = z
         country: z.string().length(2).or(z.literal("")),
         subLvl1: z.string(),
         subLvl2: z.string(),
-        address: z.string(),
-        postalCode: z.string(),
         shareLocation: z.boolean(),
-        supportAnonymously: z.boolean(),
         referralSource: zReferralSource.or(z.literal("")),
         taxIdType: zTaxIdType.or(z.literal("")),
         birthYear: z

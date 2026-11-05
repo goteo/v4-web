@@ -8,13 +8,13 @@ import {
     apiUsersIdPatch,
     apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
-    type Organization,
-    type Person,
-    type UserUserUpdationDto,
+    type OrganizationJsonMergePatch,
+    type PersonJsonMergePatch,
+    type UserUserUpdationDtoJsonMergePatch,
 } from "../openapi/client/index.ts";
 import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
 
-const TERRITORY_FIELDS = ["country", "subLvl1", "subLvl2", "address", "postalCode"];
+const TERRITORY_FIELDS = ["country", "subLvl1", "subLvl2"];
 
 /**
  * Saves the private part of the profile: the `Person` and `Organization` records, the `Territory`
@@ -55,11 +55,10 @@ export const updatePersonalProfile = defineAction({
         const hasFields = (values: object) => Object.keys(values).length > 0;
 
         try {
-            const userPatch: Partial<UserUserUpdationDto> = pick({
+            const userPatch: UserUserUpdationDtoJsonMergePatch = pick({
                 handle: input.handle,
                 type: input.type,
                 shareLocation: input.shareLocation,
-                supportAnonymously: input.supportAnonymously,
                 referralSource: input.referralSource || null,
             });
 
@@ -68,8 +67,8 @@ export const updatePersonalProfile = defineAction({
                     country: input.country,
                     subLvl1: input.subLvl1 || null,
                     subLvl2: input.subLvl2 || null,
-                    address: input.address.trim() || null,
-                    postalCode: input.postalCode.trim() || null,
+                    // The API replaces the whole Territory, keep the address this form does not edit
+                    address: session.user.territory?.address ?? null,
                 };
             }
 
@@ -77,7 +76,7 @@ export const updatePersonalProfile = defineAction({
                 const { error } = await apiUsersIdPatch({
                     path: { id },
                     headers,
-                    body: userPatch as UserUserUpdationDto,
+                    body: userPatch,
                 });
 
                 if (error) {
@@ -85,7 +84,7 @@ export const updatePersonalProfile = defineAction({
                 }
             }
 
-            const organizationPatch: Partial<Organization> = pick(
+            const organizationPatch: OrganizationJsonMergePatch = pick(
                 {
                     legalName: input.legalName.trim(),
                     businessName: input.businessName.trim(),
@@ -101,7 +100,7 @@ export const updatePersonalProfile = defineAction({
                 const { error } = await apiUsersIdorganizationPatch({
                     path: { id },
                     headers,
-                    body: organizationPatch as Organization,
+                    body: organizationPatch,
                 });
 
                 if (error) {
@@ -109,7 +108,7 @@ export const updatePersonalProfile = defineAction({
                 }
             }
 
-            const personPatch: Partial<Person> = {
+            const personPatch: PersonJsonMergePatch = {
                 ...pick({ firstName: input.firstName.trim(), lastName: input.lastName.trim() }),
                 // On organizations the tax id belongs to the Organization record
                 ...(!isOrganization &&
@@ -128,7 +127,7 @@ export const updatePersonalProfile = defineAction({
                 const { error } = await apiUsersIdpersonPatch({
                     path: { id },
                     headers,
-                    body: personPatch as Person,
+                    body: personPatch,
                 });
 
                 if (error) {
