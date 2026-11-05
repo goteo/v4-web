@@ -3,7 +3,11 @@
     import CreateCard from "./CreateCard.svelte";
     import { t } from "../../../i18n/store";
     import { withoutCache } from "../../../openapi/cacheInterceptor";
-    import { apiProjectBudgetItemsGetCollection, type MoneyInput } from "../../../openapi/client";
+    import {
+        apiProjectBudgetItemsGetCollection,
+        type MoneyInput,
+        type ProjectBudgetItem,
+    } from "../../../openapi/client";
     import { formatCurrency } from "../../../utils/currencies";
     import { addMoney } from "../../../utils/money";
     import Button from "../../library/buttons/Button.svelte";
@@ -22,28 +26,18 @@
     } = $props();
 
     let minBudgetItems = $state(loadMinBudgetItems());
-    let minBudgetMoney = $derived.by(async () => {
-        return minBudgetItems.then((items) => {
-            let minTotal = items[0].money;
-            items.slice(1).forEach((item) => {
-                minTotal = addMoney(item.money, minTotal) as MoneyInput;
-            });
-
-            return minTotal;
-        });
-    });
+    let minBudgetMoney = $derived.by(async () => sumMoney(await minBudgetItems));
 
     let optBudgetItems = $state(loadOptBudgetItems());
-    let optBudgetMoney = $derived.by(async () => {
-        return optBudgetItems.then((items) => {
-            let optTotal = items[0].money;
-            items.slice(1).forEach((item) => {
-                optTotal = addMoney(item.money, optTotal) as MoneyInput;
-            });
+    let optBudgetMoney = $derived.by(async () => sumMoney(await optBudgetItems));
 
-            return optTotal;
-        });
-    });
+    /** Budgets start empty, so there may be no item to add up yet. */
+    function sumMoney(items: ProjectBudgetItem[]): MoneyInput | undefined {
+        return items.reduce<MoneyInput | undefined>(
+            (total, item) => (total ? (addMoney(item.money, total) as MoneyInput) : item.money),
+            undefined,
+        );
+    }
 
     async function loadMinBudgetItems() {
         return withoutCache(() =>
@@ -103,7 +97,7 @@
             <span class="text-secondary text-3xl font-bold">
                 {$t("domain.project.budget.minimum")}:
                 {#await minBudgetMoney then minBudgetMoney}
-                    {formatCurrency(minBudgetMoney)}
+                    {formatCurrency(minBudgetMoney) || "—"}
                 {/await}
             </span>
         </div>
@@ -143,7 +137,7 @@
             <span class="text-secondary text-3xl font-bold">
                 {$t("domain.project.budget.optimum")}:
                 {#await optBudgetMoney then optBudgetMoney}
-                    {formatCurrency(optBudgetMoney)}
+                    {formatCurrency(optBudgetMoney) || "—"}
                 {/await}
             </span>
         </div>
