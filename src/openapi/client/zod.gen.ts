@@ -1611,6 +1611,15 @@ export const zVersionJsonld = z.object({
 });
 
 /**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoney = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
  * v4 features an advanced economy model under the hood.
  * Accountings are implemented as a common interface for issuing and receiving Transactions,
  * which allows different resources to have money-capabalities.
@@ -2520,6 +2529,57 @@ export const zApiUsersIdpersonPatchResponse = zPerson;
  * Ping resource
  */
 export const zApiPingGetResponse = zPing;
+
+export const zApiProjectsmoneyTotalGetCollectionQuery = z.object({
+    slug: z.string().optional(),
+    'slug[]': z.array(z.string()).optional(),
+    accounting: z.string().optional(),
+    'accounting[]': z.array(z.string()).optional(),
+    owner: z.string().optional(),
+    'owner[]': z.array(z.string()).optional(),
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    categories: z.string().optional(),
+    'categories[]': z.array(z.string()).optional(),
+    themes: z.string().optional(),
+    'themes[]': z.array(z.string()).optional(),
+    'territory.country': z.string().optional(),
+    'territory.country[]': z.array(z.string()).optional(),
+    'territory.subLvl1': z.string().optional(),
+    'territory.subLvl1[]': z.array(z.string()).optional(),
+    'territory.subLvl2': z.string().optional(),
+    'territory.subLvl2[]': z.array(z.string()).optional(),
+    descBrief: z.string().optional(),
+    status: z.string().optional(),
+    'status[]': z.array(z.string()).optional(),
+    'calendar.release[before]': z.string().optional(),
+    'calendar.release[strictly_before]': z.string().optional(),
+    'calendar.release[after]': z.string().optional(),
+    'calendar.release[strictly_after]': z.string().optional(),
+    'calendar.minimum[before]': z.string().optional(),
+    'calendar.minimum[strictly_before]': z.string().optional(),
+    'calendar.minimum[after]': z.string().optional(),
+    'calendar.minimum[strictly_after]': z.string().optional(),
+    'calendar.optimum[before]': z.string().optional(),
+    'calendar.optimum[strictly_before]': z.string().optional(),
+    'calendar.optimum[after]': z.string().optional(),
+    'calendar.optimum[strictly_after]': z.string().optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * Totalized money
+ */
+export const zApiProjectsmoneyTotalGetCollectionResponse = zProjectTotalizedMoney;
 
 export const zApiProjectsIdDeletePath = z.object({
     id: z.string()

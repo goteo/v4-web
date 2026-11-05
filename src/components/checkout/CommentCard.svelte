@@ -40,7 +40,7 @@
     <div class="grid w-full grid-cols-2 gap-6">
         <div class="border-grey overflow-hidden rounded-3xl border">
             <img
-                src={project.video?.thumbnail}
+                src={project.cover || project.video?.thumbnail}
                 alt={project.title}
                 class="h-full w-full object-cover"
             />

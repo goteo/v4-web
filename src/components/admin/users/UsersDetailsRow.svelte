@@ -13,8 +13,9 @@
     import { formatDate } from "../../../utils/dates";
     import Close from "../../icons/navigation/Close.svelte";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
+    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
     import { chargeStatusStyles } from "../charges/ChargesTable.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
@@ -39,6 +40,11 @@
     let savingRoles = $state(false);
     let showError = $state(false);
     let errorMessage = $state("");
+    let passwordModal = $state(false);
+    let newPassword = $state("");
+    let savingPassword = $state(false);
+    let passwordError = $state("");
+    let passwordSuccess = $state(false);
 
     $effect(() => {
         if (user.accounting) {
@@ -81,20 +87,20 @@
         return normalized.startsWith("ROLE_") ? normalized : `ROLE_${normalized}`;
     }
 
-    const roleOptions = $derived.by(() => {
-        const search = roleSearch.trim().toLowerCase();
+    function searchRoles(query: string): DropdownOption[] {
+        const search = query.toLowerCase();
         const all = [...new Set([...user.roles, ...selectedRoles.map((o) => o.id)])].map(
             toRoleOption,
         );
         const matches = all.filter((o) => o.id.toLowerCase().includes(search));
 
-        const custom = toRoleId(roleSearch);
+        const custom = toRoleId(query);
         if (custom && !all.some((o) => o.id === custom)) {
             matches.push(toRoleOption(custom));
         }
 
         return matches;
-    });
+    }
 
     async function saveRoles() {
         savingRoles = true;
@@ -116,6 +122,48 @@
 
         rolesModal = false;
         onRolesUpdated?.(user.id, roles);
+    }
+
+    function openPasswordModal() {
+        newPassword = "";
+        passwordError = "";
+        passwordSuccess = false;
+        passwordModal = true;
+    }
+
+    async function savePassword() {
+        passwordError = "";
+        passwordSuccess = false;
+
+        if (!newPassword) {
+            passwordError = $t("common.password.error.required");
+            return;
+        }
+        if (newPassword.length < 8) {
+            passwordError = $t("common.password.error.minLength");
+            return;
+        }
+
+        savingPassword = true;
+        const { error, response } = await apiUsersIdPatch({
+            baseUrl: "/api/relay",
+            path: { id: String(user.id) },
+            body: { password: newPassword },
+        });
+        savingPassword = false;
+
+        if (error) {
+            errorMessage = $t(getErrorTranslationKey(createAuthError(response).type));
+            showError = true;
+            return;
+        }
+
+        passwordSuccess = true;
+        newPassword = "";
+        setTimeout(() => {
+            passwordModal = false;
+            passwordSuccess = false;
+        }, 800);
     }
 
     function chargeDateFilterUrl(charge: GatewayCharge): string | undefined {
@@ -204,6 +252,13 @@
             >
                 {$t("pages.admin.users.table.rows.details.btns.roles")}
             </button>
+            <button
+                type="button"
+                class="border-secondary text-secondary cursor-pointer rounded-full border bg-white px-5 py-2 text-sm"
+                onclick={openPasswordModal}
+            >
+                {$t("common.password.change")}
+            </button>
         </div>
     {/snippet}
 </DetailsRow>
@@ -225,18 +280,51 @@
     </button>
 
     <div class="flex flex-col gap-6">
-        <DropdownMenu
+        <DropdownSearch
             variant="multiselect"
             chips
-            hasSearch
-            searchPlaceholder={$t("pages.admin.users.table.rows.details.roles.placeholder")}
-            options={roleOptions}
+            search={searchRoles}
+            debounceMs={0}
+            placeholder={$t("pages.admin.users.table.rows.details.roles.placeholder")}
             bind:selected={selectedRoles}
-            bind:searchValue={roleSearch}
+            bind:value={roleSearch}
         />
         <div class="flex justify-end">
             <Button kind="primary" disabled={savingRoles} onclick={saveRoles}>
                 {$t("pages.admin.users.table.rows.details.roles.save")}
+            </Button>
+        </div>
+    </div>
+</Modal>
+
+<Modal
+    bind:open={passwordModal}
+    title={$t("common.password.change")}
+    dismissable={false}
+    class="relative max-w-lg"
+>
+    <button
+        type="button"
+        class="text-secondary absolute inset-e-4 top-4 cursor-pointer bg-transparent p-1 shadow-none hover:opacity-80 focus:ring-0"
+        onclick={() => (passwordModal = false)}
+        aria-label={$t("common.close")}
+    >
+        <Close width="24" height="24" />
+    </button>
+
+    <div class="flex flex-col gap-4">
+        <PasswordInput
+            bind:value={newPassword}
+            labelText={$t("common.password.new")}
+            class="h-14"
+            disabled={savingPassword}
+        />
+        {#if passwordError}
+            <p class="text-tertiary text-sm">{passwordError}</p>
+        {/if}
+        <div class="flex justify-end">
+            <Button kind="primary" disabled={savingPassword} onclick={savePassword}>
+                {$t("common.password.save")}
             </Button>
         </div>
     </div>
@@ -284,3 +372,6 @@
 </Modal>
 
 <Toast floating variant="error" bind:showToast={showError}>{errorMessage}</Toast>
+<Toast floating variant="success" bind:showToast={passwordSuccess}>
+    {$t("common.password.success")}
+</Toast>

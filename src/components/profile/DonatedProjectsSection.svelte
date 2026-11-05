@@ -139,7 +139,7 @@
                                     ...project,
                                     slug: project.slug!,
                                     title: project.title!,
-                                    image: project.video?.thumbnail!,
+                                    image: project.cover || project.video?.thumbnail!,
                                     minimum: project.budget?.minimum?.money!,
                                     optimum: project.budget?.optimum?.money,
                                     obtained: accounting.balance as Money,

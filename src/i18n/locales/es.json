@@ -349,6 +349,19 @@
   },
   "common": {
     "_": "Traducciones globales de la interfaz (botones, etiquetas, etc.)",
+    "password": {
+      "new": "Nueva contraseña",
+      "confirm": "Confirmar nueva contraseña",
+      "change": "Cambiar contraseña",
+      "save": "Guardar contraseña",
+      "success": "Contraseña actualizada correctamente",
+      "error": {
+        "required": "La contraseña es obligatoria",
+        "minLength": "La contraseña debe tener al menos 8 caracteres",
+        "mismatch": "Las contraseñas no coinciden",
+        "generic": "No se ha podido actualizar la contraseña. Inténtalo de nuevo más tarde."
+      }
+    },
     "greeting": "Hola",
     "farewell": "Adiós",
     "donate": "Donar",
@@ -826,11 +839,22 @@
         },
         "header": {
           "titlePlaceholder": "Título de proyecto",
-          "unsentChanges": "Hay cambios sin enviar"
+          "unsentChanges": "Hay cambios sin enviar",
+          "publish": {
+            "review": {
+              "title": "Enviar a revisión",
+              "description": "Tu proyecto se enviará a revisión. Esta acción no se puede deshacer."
+            },
+            "campaign": {
+              "title": "Lanzar campaña",
+              "description": "Tu proyecto pasará a campaña y será público. Esta acción no se puede deshacer."
+            },
+            "error": "No se ha podido publicar el proyecto. Inténtalo de nuevo."
+          }
         },
         "tabs": {
           "configuration": "Configuración",
-          "campaign": "Información de campaña",
+          "campaign": "Información del proyecto",
           "rewards": "Recompensas",
           "collaborations": "Colaboraciones",
           "budget": "Presupuesto",
@@ -838,10 +862,10 @@
         },
         "configuration": {
           "title": "Configuración",
-          "subtitle": "Configura los datos básicos de tu campaña",
+          "subtitle": "Configura los datos básicos de tu proyecto",
           "languages": {
-            "title": "Idiomas de la campaña",
-            "description": "Cuáles son los idiomas en los que publicarás el contenido de  la campaña",
+            "title": "Idiomas del proyecto",
+            "description": "Cuáles son los idiomas en los que publicarás el contenido del proyecto",
             "primaryLabel": "Idioma principal del contenido",
             "secondaryLabel": "Idioma secundario del contenido",
             "removeCurrent": "No puedes eliminar el idioma que estás editando. Cambia de idioma en la barra superior."
@@ -857,7 +881,7 @@
             "option1": "1 Ronda",
             "option2": "2 Rondas"
           },
-          "continue": "Continuar con info de campaña",
+          "continue": "Continuar con info del proyecto",
           "geography": {
             "scopeLabel": "Ámbito de actuación",
             "scopePlaceholder": "Selecciona el ámbito",
@@ -872,11 +896,11 @@
           }
         },
         "campaignInfo": {
-          "title": "Información de campaña",
-          "subtitle": "Completa la información necesaria para tu campaña",
+          "title": "Información del proyecto",
+          "subtitle": "Completa la información necesaria para tu proyecto",
           "media": {
             "title": "Imágen y vídeo de presentación",
-            "description": "Añade una imagen o vídeo que represente tu proyecto. Será lo primero que vean los futuros donantes de tu campaña",
+            "description": "Añade una imagen o vídeo que represente tu proyecto. Será lo primero que vean los futuros donantes de tu proyecto",
             "addImage": "Añadir imagen",
             "addVideo": "Añadir vídeo",
             "uploading": "Subiendo…",
@@ -891,7 +915,7 @@
             }
           },
           "goals": {
-            "title": "Objetivos y propósito de tu campaña",
+            "title": "Objetivos y propósito de tu proyecto",
             "description": "Indica los objetivos y el propósito de tu proyecto. Responde al qué, cómo y por qué"
           },
           "legacy": {
@@ -908,7 +932,7 @@
           },
           "communicationStrategy": {
             "title": "Cuéntanos tu plan de difusión",
-            "description": "En el caso de que tu campaña sea aprobada, ¿cuál será tu plan de difusión?"
+            "description": "En el caso de que tu proyecto sea aprobado, ¿cuál será tu plan de difusión?"
           },
           "continue": "Continuar con recompensas",
           "video": {
@@ -958,10 +982,10 @@
         },
         "collaborations": {
           "title": "Colaboraciones",
-          "subtitle": "Añade colaboraciones que consideres oportunas para ayudar a tu campaña",
+          "subtitle": "Añade colaboraciones que consideres oportunas para ayudar a tu proyecto",
           "continue": "Continuar a presupuesto",
           "add": {
-            "title": "¡Amplía tu campaña! Busca colaboradores, no solo dinero",
+            "title": "¡Amplía tu proyecto! Busca colaboradores, no solo dinero",
             "description": "Las donaciones aumentan un 30%* en campañas con múltiples y atractivas recompensas. Es simple: más opciones significan más posibilidades de conectar con los intereses de potenciales donantes. ¿Productos exclusivos? ¿Experiencias únicas? ¿Reconocimientos especiales? ¡Tu creatividad es el límite! Cuanto más variado sea tu menú de recompensas, mayor será tu éxito.",
             "button": "Añadir colaboración"
           },
@@ -1040,17 +1064,17 @@
         },
         "aboutYou": {
           "title": "Más sobre ti",
-          "subtitle": "Descríbete al impulsor de la campaña.",
+          "subtitle": "Descríbete al impulsor del proyecto.",
           "prefill": "Seleccione datos guardados",
           "legalEntity": "Forma jurídica",
-          "legalEntityHelper": "Indica la forma jurídica de quien impulsa esta campaña.",
+          "legalEntityHelper": "Indica la forma jurídica de quien impulsa este proyecto.",
           "individual": "Persona física",
           "organization": "Persona jurídica",
           "name": "Indica el nombre del impulsor",
-          "nameHelper": "Dinos cómo denominaremos el impulsor. Esta denominación aparecerá en la parte pública de la campaña.",
+          "nameHelper": "Dinos cómo denominaremos el impulsor. Esta denominación aparecerá en la parte pública del proyecto.",
           "namePlaceholder": "Nombre del impulsor",
           "taxId": "Indica el NIF del impulsor",
-          "taxIdHelper": "Solo lo verá el impulsor. Esta información no será pública, solo se usará para formalizar los acuerdos y condiciones de la campaña.",
+          "taxIdHelper": "Solo lo verá el impulsor. Esta información no será pública, solo se usará para formalizar los acuerdos y condiciones del proyecto.",
           "taxIdPlaceholder": "Indica el CIF",
           "location": "Lugar de actividad",
           "locationHelper": "Indica cuál es el ámbito geográfico de actuación del impulsor o grupo impulsor.",
@@ -1060,13 +1084,13 @@
           "teamDescriptionHelper": "Cuéntanos a qué se dedica la entidad impulsora, qué tipo de actividades lleva a cabo en el día a día y cuáles son sus objetivos.",
           "teamDescriptionPlaceholder": "Describe brevemente la actividad del impulsor",
           "privateContacts": "Datos de contacto privados",
-          "privateContactsHelper": "Completa al menos un dato de contacto. La información no será pública, solo lo podrá usar Goteo para comunicarse sobre usos relacionados con la campaña que estás preparando.",
+          "privateContactsHelper": "Completa al menos un dato de contacto. La información no será pública, solo lo podrá usar Goteo para comunicarse sobre usos relacionados con el proyecto que estás preparando.",
           "email": "Mail",
           "phone": "Teléfono",
           "addContact": "Añadir contacto",
           "preferred": "Preferido",
           "publicContacts": "Datos de contacto públicos",
-          "publicContactsHelper": "Indicaremos qué datos de contacto/públicos quieres que aparezcan en tu campaña y en tu perfil impulsor.",
+          "publicContactsHelper": "Indicaremos qué datos de contacto/públicos quieres que aparezcan en tu proyecto y en tu perfil impulsor.",
           "placeholders": {
             "website": "Inserta tu web",
             "email": "Inserta tu cuenta de correo",
@@ -1077,7 +1101,7 @@
           },
           "paymentData": {
             "title": "Datos de pago",
-            "subtitle": "Indica los datos bancarios necesarios para gestionar los pagos de la campaña.",
+            "subtitle": "Indica los datos bancarios necesarios para gestionar los pagos del proyecto.",
             "iban": "IBAN",
             "ibanHelper": "Introduce el IBAN de la cuenta bancaria donde recibirás los fondos recaudados.",
             "ibanPlaceholder": "ES00 0000 0000 0000 0000 0000",
@@ -1127,6 +1151,7 @@
         "submitSuccess": "Proyecto creado",
         "validation": {
           "titleBadFormat": "El título debe contener al menos una letra.",
+          "titleTooShort": "El título debe tener al menos {{ min }} caracteres.",
           "categoriesNotEnough": "Debes seleccionar al menos {{ min }} categoría(s).",
           "territoryMissing": "Debes especificar un lugar.",
           "releaseMissing": "Debes especificar una fecha de salida aproximada",
@@ -1135,10 +1160,10 @@
         }
       },
       "view": {
-        "owner": "Campaña de crowdfunding impulsada por {{ owner }}",
+        "owner": "Proyecto de crowdfunding impulsado por {{ owner }}",
         "tabs": {
           "project": {
-            "title": "Información de campaña",
+            "title": "Información del proyecto",
             "descAbout": "Descripción del proyecto. Características, fortalezas y diferencias.",
             "descGoal": "Motivación y a quién va dirigido el proyecto.",
             "descTeam": "Experiencia previa y equipo."
@@ -1146,13 +1171,13 @@
           "rewards": "Recompensas",
           "budget": {
             "title": "Presupuesto",
-            "headline": "Conoce las necesidades clave de esta campaña y descubre cómo tu apoyo puede hacer realidad este proyecto.",
+            "headline": "Conoce las necesidades clave de este proyecto y descubre cómo tu apoyo puede hacerlo realidad.",
             "minimum": "Mínimo",
             "optimal": "Óptimo",
             "raised": "Obtenido",
             "total": "Total",
-            "empty": "Esta campaña no tiene partidas de presupuesto.",
-            "chartTitle": "Este es el presupuesto para esta campaña. Descubre cómo tu apoyo puede llevarnos al éxito.",
+            "empty": "Este proyecto no tiene partidas de presupuesto.",
+            "chartTitle": "Este es el presupuesto del proyecto. Descubre cómo tu apoyo puede llevarnos al éxito.",
             "chart": {
               "secondRound": "2ª Ronda",
               "start": "Inicio"
@@ -1163,7 +1188,7 @@
             "modalTitle": "Nueva actualización",
             "by": "Por:",
             "content": {
-              "title": "No pierdas detalle de los avances de esta campaña",
+              "title": "No pierdas detalle de los avances de este proyecto",
               "empty": "No existen más actualizaciones previstas.",
               "btn": {
                 "readMore": "Seguir leyendo",
@@ -1224,20 +1249,20 @@
         "share": {
           "modal": {
             "title": "Difunde este proyecto por el mundo",
-            "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X.  Incluso copiar un fragmento de código, para insertar en otra web un banner de la campaña. ¡Haz que llegue más lejos!"
+            "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X.  Incluso copiar un fragmento de código, para insertar en otra web un banner del proyecto. ¡Haz que llegue más lejos!"
           },
           "iframe-modal": {
             "title": "Así es como se verá en tu plataforma",
-            "description": "Copia este fragmento de código y pégalo en el código de tu página. Así conseguirás que la campaña llegue a más gente",
+            "description": "Copia este fragmento de código y pégalo en el código de tu página. Así conseguirás que el proyecto llegue a más gente",
             "btnCopy": "Copiar código",
             "btnCopied": "¡Código copiado!"
           }
         },
         "video": {
-          "title": "Vídeo de la campaña",
+          "title": "Vídeo del proyecto",
           "poster": "Imagen del vídeo",
-          "not-found": "Disculpa, esta campaña no tiene vídeo de presentación",
-          "not-supported": "No ha sido posible cargar el vídeo. Por favor, revisa el enlace o contacta con el administrador de la campaña."
+          "not-found": "Disculpa, este proyecto no tiene vídeo de presentación",
+          "not-supported": "No ha sido posible cargar el vídeo. Por favor, revisa el enlace o contacta con el administrador del proyecto."
         }
       },
       "manage": {
@@ -1358,7 +1383,7 @@
           },
           "transparency": {
             "title": "Transparencia y confianza",
-            "description": "Las campañas pasan por un proceso de validación y asesoría. La comunidad sabe que los proyectos publicados cumplen unos mínimos de calidad y coherencia, lo que aumenta la credibilidad."
+            "description": "Los proyectos pasan por un proceso de validación y asesoría antes de salir a campaña. La comunidad sabe que los proyectos publicados cumplen unos mínimos de calidad y coherencia, lo que aumenta la credibilidad."
           },
           "provenMethodology": {
             "title": "Metodología probada",
@@ -1574,6 +1599,7 @@
         "charges": "Cobros",
         "projects": "Proyectos",
         "users": "Usuarios",
+        "categorization": "Categorización",
         "comm": "Comunicación",
         "home": "Portada",
         "reviews": "Revisiones"
@@ -1588,11 +1614,53 @@
         "title": "Administración",
         "subtitle": "Accede rápidamente a las distintas secciones de gestión de la plataforma."
       },
+      "categorization": {
+        "title": "Categorización",
+        "description": "Gestiona las categorías y los temas que clasifican los proyectos.",
+        "table": {
+          "headers": {
+            "name": "Nombre",
+            "slug": "Slug",
+            "locales": "Traducciones",
+            "type": "Tipo"
+          },
+          "types": {
+            "category": "Categoría",
+            "theme": "Tema"
+          }
+        },
+        "actions": {
+          "createCategory": "Crear categoría",
+          "createTheme": "Crear tema"
+        },
+        "modal": {
+          "createCategory": "Crear categoría",
+          "editCategory": "Editar categoría",
+          "createTheme": "Crear tema",
+          "editTheme": "Editar tema",
+          "name": "Nombre",
+          "slug": "Slug",
+          "locales": "Idiomas disponibles",
+          "save": "Guardar",
+          "cancel": "Cancelar"
+        },
+        "delete": {
+          "title": "Eliminar {{ type }}",
+          "description": "Se eliminará «{{ name }}». Esta acción no se puede deshacer."
+        },
+        "errors": {
+          "loadFailed": "No se pudieron cargar las traducciones del elemento.",
+          "saveFailed": "No se pudo guardar el elemento.",
+          "incompleteLanguages": "Faltan nombres en: {{ languages }}"
+        },
+        "empty": "No hay elementos para mostrar."
+      },
       "home": {
         "description": "Elige qué se muestra en la portada.",
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
+          "proposed": "Campañas propuestas",
           "featuredUsers": "Impulsores",
           "banners": "Anuncios"
         },
@@ -1666,19 +1734,27 @@
           "projects": {
             "title": "Selecciona los proyectos",
             "description": "Recuerda que los proyectos se irán colocando de arriba a abajo y de izquierda a derecha.",
-            "slot": "Proyecto {{ number }}",
-            "empty": "Busca un proyecto y destácalo en portada",
-            "add": "Añade proyecto",
-            "replace": "Cambiar proyecto",
-            "remove": "Quitar",
-            "change": "Cambia a otro proyecto",
-            "position": "Este proyecto en la posición {{ number }}",
             "modal": {
               "title": "Añade Proyecto",
               "description": "Busca y añade el proyecto que quieres destacar",
               "search": "Busca un proyecto",
               "submit": "Añadir"
             }
+          }
+        },
+        "proposed": {
+          "title": "Campañas propuestas",
+          "description": "Añade las campañas que se destacarán en la portada como propuestas",
+          "save": "Guardar nueva propuesta",
+          "modal": {
+            "title": "Añade proyecto",
+            "description": "Busca y añade el proyecto que quieres proponer",
+            "search": "Busca un proyecto",
+            "submit": "Añadir"
+          },
+          "projects": {
+            "title": "Selecciona los proyectos",
+            "description": "Recuerda que los proyectos se irán subiendo de arriba a abajo y de izquierda a derecha."
           }
         },
         "featuredUsers": {
@@ -1696,6 +1772,17 @@
             "search": "Busca un usuario"
           }
         }
+      },
+      "slotCard": {
+        "slot": "Proyecto {{ number }}",
+        "position": "Posición {{ number }}",
+        "empty": "Busca un proyecto y destácalo en portada",
+        "add": "Añade proyecto",
+        "replace": "Cambiar proyecto",
+        "remove": "Quitar",
+        "addTitle": "Añade más proyectos",
+        "addSubtitle": "Añade más proyectos al carrusel",
+        "addMore": "Añade más"
       },
       "charges": {
         "title": "Cobros",
@@ -1926,9 +2013,9 @@
       "projects": {
         "title": "Proyectos",
         "description": "Busca proyectos y gestiónalos de la manera más rápida posible gracias al buscador",
-        "lastProjects": "Listado de campañas:",
+        "lastProjects": "Listado de proyectos:",
         "totalizers": {
-          "selected": "proyectos seleccionadas:",
+          "selected": "Proyectos seleccionados:",
           "totalEarned": "Total conseguido:"
         },
         "filters": {
@@ -1979,6 +2066,8 @@
               "email": "Email",
               "phone": "Teléfono",
               "remaining": "Falta por pagar",
+              "status": "Estado",
+              "statusChangeError": "No se ha podido cambiar el estado del proyecto",
               "btns": {
                 "contributions": "Aportes",
                 "annotations": "Anotaciones",
@@ -2411,6 +2500,10 @@
           "handleInvalid": "Solo se permiten minúsculas, números y guiones bajos (4-30 caracteres)",
           "taxIdInvalid": "El número no tiene un formato válido para el país seleccionado",
           "linkInvalid": "Introduce tu usuario o un enlace a tu perfil de esta red social"
+        },
+        "password": {
+          "title": "Cambiar contraseña",
+          "subtitle": "Actualiza la contraseña de tu cuenta"
         },
         "preferences": {
           "title": "Preferencias",
