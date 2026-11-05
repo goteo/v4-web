@@ -2453,14 +2453,51 @@
           "country": "País",
           "locality": "Localitat",
           "localityPlaceholder": "Busca la teva localitat",
-          "address": "Adreça (indica si és carrer, plaça, avinguda, etc.)",
-          "type": "Forma jurídica",
           "taxId": "Número de document",
-          "representative": "Dades del representant"
+          "representative": "Dades del representant",
+          "userType": "Tipus de perfil",
+          "taxIdType": "Tipus de document",
+          "birthYear": "Any de naixement",
+          "gender": "Sexe",
+          "legalForm": "Forma legal",
+          "publicEntity": "Entitat pública",
+          "taxIdTypeOptions": {
+            "national_id": "NIF / NIE",
+            "passport": "Passaport",
+            "other": "Altre"
+          },
+          "genderOptions": {
+            "female": "Dona",
+            "male": "Home",
+            "non_binary": "No binari",
+            "other": "Altre / Prefereixo no dir-ho"
+          },
+          "legalFormOptions": {
+            "association": "Associació",
+            "foundation": "Fundació",
+            "cooperative": "Cooperativa",
+            "company": "Empresa",
+            "self_employed": "Autònom",
+            "public_administration": "Administració pública",
+            "other": "Una altra"
+          }
         },
         "location": {
           "share": "*Compartir la meva ubicació",
           "disclaimer": "*Compartir la teva ubicació amb el nostre equip servirà per generar informació (anònima, sense revelar mai a tercers les teves dades personals), així com indicadors d'impacte que facin més eficaç la nostra feina i el suport a projectes."
+        },
+        "referral": {
+          "title": "Com ens vas conèixer?",
+          "subtitle": "Ens ajuda a entendre com arriba la gent a la plataforma",
+          "label": "Selecciona una opció",
+          "options": {
+            "search_engine": "Cercador",
+            "social_media": "Xarxes socials",
+            "friend": "Amics o coneguts",
+            "press": "Premsa o mitjans",
+            "event": "Esdeveniment, xerrada o taller",
+            "other": "Altre"
+          }
         },
         "social": {
           "title": "Xarxes socials",
@@ -2516,11 +2553,17 @@
             "label": "Selecciona un idioma",
             "helper": "L'aplicació utilitzarà aquest idioma per a la interfície i intentarà oferir-te el contingut primer en aquest idioma"
           },
+          "privacy": {
+            "title": "Privacitat",
+            "anonymous": "En fer una donació, mantenir el perfil anònim"
+          },
           "save": "Desa les preferències",
           "toast": {
-            "saved": "Preferències desades correctament"
+            "saved": "Preferències desades correctament",
+            "error": "No s'han pogut desar les preferències"
           }
-        }
+        },
+        "noChanges": "No has fet cap canvi"
       },
       "period": {
         "label": "Període",
