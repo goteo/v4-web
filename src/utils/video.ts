@@ -37,14 +37,15 @@ function bareHost(url: URL): string {
  */
 function youtubeId(url: URL): string | null {
     const host = bareHost(url);
-    const segments = url.pathname.split("/").filter(Boolean);
-
-    if (host === "youtu.be") {
-        return segments[0] ?? null;
-    }
-
+    
     if (!YOUTUBE_HOSTS.includes(host)) {
         return null;
+    }
+    
+    const segments = url.pathname.split("/").filter(Boolean);
+    
+    if (host === "youtu.be") {
+        return segments[0] ?? null;
     }
 
     if (segments[0] === "watch") {
