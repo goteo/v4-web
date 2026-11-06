@@ -14,6 +14,7 @@
         placeholder?: string;
         helperText?: string;
         error?: string;
+        disabled?: boolean;
         onInput?: (territory: Territory) => void;
         onBlur?: () => void;
         multiple?: boolean;
@@ -28,6 +29,7 @@
         placeholder,
         helperText,
         error = undefined,
+        disabled = false,
         onInput = undefined,
         onBlur = undefined,
         multiple = false,
@@ -95,6 +97,7 @@
     {placeholder}
     {helperText}
     {error}
+    {disabled}
     onSelect={handleSelect}
     onChange={handleChange}
     onClear={handleClear}
