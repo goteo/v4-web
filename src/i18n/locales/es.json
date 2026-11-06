@@ -1245,6 +1245,7 @@
           }
         },
         "langNotAvailable": "El idioma seleccionado \"{{lang}}\" no está disponible para este proyecto. Mostrando contenido en el idioma disponible.",
+        "notInCampaignYet": "Este proyecto todavía no está en campaña y aún no admite pagos.",
         "outOfCampaign": "Este proyecto está fuera de campaña y ya no admite pagos.",
         "share": {
           "modal": {
