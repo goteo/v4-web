@@ -937,7 +937,8 @@
           "continue": "Continue with rewards",
           "video": {
             "validation": {
-              "invalid_url": "The video URL is not valid"
+              "invalid_url": "The video URL is not valid",
+              "unsupported_provider": "The link must be a YouTube, Vimeo, or PeerTube video"
             }
           }
         },
