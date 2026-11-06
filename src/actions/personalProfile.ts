@@ -6,7 +6,7 @@ import {
     apiUsersIdPatch,
     apiUsersIdpersonGet,
     apiUsersIdpersonPatch,
-    type UserUserUpdationDto,
+    type UserUserUpdationDtoJsonMergePatch,
 } from "../openapi/client/index.ts";
 import { zPersonalProfileForm } from "../validation/personalProfileValidation.ts";
 
@@ -34,7 +34,7 @@ export const updatePersonalProfile = defineAction({
         const isOrganization = input.type === "organization";
 
         try {
-            const userPatch: Partial<UserUserUpdationDto> = input;
+            const userPatch: Partial<UserUserUpdationDtoJsonMergePatch> = input;
 
             if (input.country) {
                 const currentTerritory = session.user.territory;
@@ -63,7 +63,7 @@ export const updatePersonalProfile = defineAction({
                 const { error } = await apiUsersIdPatch({
                     path: { id },
                     headers,
-                    body: userPatch as UserUserUpdationDto,
+                    body: userPatch as UserUserUpdationDtoJsonMergePatch,
                 });
                 userError = error;
             }
