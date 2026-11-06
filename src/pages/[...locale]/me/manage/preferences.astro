@@ -4,7 +4,7 @@ import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import ManagePreferencesSection from "../../../../components/profile/ManagePreferencesSection.svelte";
 import { PROFILE_NAV_ITEMS, PROFILE_PATHS } from "../../../../components/profile/meSections";
-import { apiCategoriesGetCollection } from "../../../../openapi/client";
+import { apiCategoriesGetCollection, apiUsersIdOrHandleGet } from "../../../../openapi/client";
 import { withoutCache } from "../../../../openapi/cacheInterceptor";
 import { toCollectionItems } from "../../../../utils/hydra";
 import { goto } from "../../../../utils/navigation";
@@ -27,12 +27,18 @@ const { data: categoriesRaw } = await withoutCache(() =>
     }),
 );
 const categories = toCollectionItems<Category>(categoriesRaw);
+
+// The session cookie holds a snapshot of the User taken at login, read the current one
+const { data: user } = await apiUsersIdOrHandleGet({
+    path: { idOrHandle: String(session.user.id) },
+    headers: session.token.asHttpHeaders,
+});
 ---
 
 <Layout title={t("pages.me.manage.preferences.title")}>
     <App client:load locale={lang} session={session} me>
         <WithSidebar client:idle {navItems} {activePath}>
-            <ManagePreferencesSection client:load {categories} />
+            <ManagePreferencesSection client:load user={user ?? session.user} {categories} />
         </WithSidebar>
     </App>
 </Layout>

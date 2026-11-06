@@ -1661,6 +1661,7 @@
         "tabs": {
           "hero": "Hero",
           "highlights": "P. Destacados",
+          "proposed": "Campañas propuestas",
           "featuredUsers": "Impulsores",
           "banners": "Anuncios"
         },
@@ -1734,19 +1735,27 @@
           "projects": {
             "title": "Selecciona los proyectos",
             "description": "Recuerda que los proyectos se irán colocando de arriba a abajo y de izquierda a derecha.",
-            "slot": "Proyecto {{ number }}",
-            "empty": "Busca un proyecto y destácalo en portada",
-            "add": "Añade proyecto",
-            "replace": "Cambiar proyecto",
-            "remove": "Quitar",
-            "change": "Cambia a otro proyecto",
-            "position": "Este proyecto en la posición {{ number }}",
             "modal": {
               "title": "Añade Proyecto",
               "description": "Busca y añade el proyecto que quieres destacar",
               "search": "Busca un proyecto",
               "submit": "Añadir"
             }
+          }
+        },
+        "proposed": {
+          "title": "Campañas propuestas",
+          "description": "Añade las campañas que se destacarán en la portada como propuestas",
+          "save": "Guardar nueva propuesta",
+          "modal": {
+            "title": "Añade proyecto",
+            "description": "Busca y añade el proyecto que quieres proponer",
+            "search": "Busca un proyecto",
+            "submit": "Añadir"
+          },
+          "projects": {
+            "title": "Selecciona los proyectos",
+            "description": "Recuerda que los proyectos se irán subiendo de arriba a abajo y de izquierda a derecha."
           }
         },
         "featuredUsers": {
@@ -1764,6 +1773,17 @@
             "search": "Busca un usuario"
           }
         }
+      },
+      "slotCard": {
+        "slot": "Proyecto {{ number }}",
+        "position": "Posición {{ number }}",
+        "empty": "Busca un proyecto y destácalo en portada",
+        "add": "Añade proyecto",
+        "replace": "Cambiar proyecto",
+        "remove": "Quitar",
+        "addTitle": "Añade más proyectos",
+        "addSubtitle": "Añade más proyectos al carrusel",
+        "addMore": "Añade más"
       },
       "charges": {
         "title": "Cobros",
@@ -1996,7 +2016,7 @@
         "description": "Busca proyectos y gestiónalos de la manera más rápida posible gracias al buscador",
         "lastProjects": "Listado de proyectos:",
         "totalizers": {
-          "selected": "proyectos seleccionadas:",
+          "selected": "Proyectos seleccionados:",
           "totalEarned": "Total conseguido:"
         },
         "filters": {
@@ -2047,6 +2067,8 @@
               "email": "Email",
               "phone": "Teléfono",
               "remaining": "Falta por pagar",
+              "status": "Estado",
+              "statusChangeError": "No se ha podido cambiar el estado del proyecto",
               "btns": {
                 "contributions": "Aportes",
                 "annotations": "Anotaciones",
@@ -2432,14 +2454,51 @@
           "country": "País",
           "locality": "Localidad",
           "localityPlaceholder": "Busca tu localidad",
-          "address": "Dirección (indicar si es calle, plaza, avenida, etc)",
-          "type": "Forma jurídica",
           "taxId": "Número de documento",
-          "representative": "Datos del representante"
+          "representative": "Datos del representante",
+          "userType": "Tipo de perfil",
+          "taxIdType": "Tipo de documento",
+          "birthYear": "Año de nacimiento",
+          "gender": "Sexo",
+          "legalForm": "Forma jurídica",
+          "publicEntity": "Entidad pública",
+          "taxIdTypeOptions": {
+            "national_id": "NIF / NIE",
+            "passport": "Pasaporte",
+            "other": "Otro"
+          },
+          "genderOptions": {
+            "female": "Mujer",
+            "male": "Hombre",
+            "non_binary": "No binario",
+            "other": "Otro / Prefiero no decirlo"
+          },
+          "legalFormOptions": {
+            "association": "Asociación",
+            "foundation": "Fundación",
+            "cooperative": "Cooperativa",
+            "company": "Empresa",
+            "self_employed": "Autónomo",
+            "public_administration": "Administración pública",
+            "other": "Otra"
+          }
         },
         "location": {
           "share": "*Compartir mi ubicación",
           "disclaimer": "*Compartir tu ubicación con nuestro equipo servirá para generar información (anónima, sin revelar nunca a terceros tus datos personales) así como indicadores de impacto que hagan más eficaz nuestro trabajo y el apoyo a proyectos."
+        },
+        "referral": {
+          "title": "¿Cómo nos conociste?",
+          "subtitle": "Nos ayuda a entender cómo llega la gente a la plataforma",
+          "label": "Selecciona una opción",
+          "options": {
+            "search_engine": "Buscador",
+            "social_media": "Redes sociales",
+            "friend": "Amigos o conocidos",
+            "press": "Prensa o medios",
+            "event": "Evento, charla o taller",
+            "other": "Otro"
+          }
         },
         "social": {
           "title": "Redes sociales",
@@ -2495,11 +2554,17 @@
             "label": "Selecciona un idioma",
             "helper": "La aplicación usará este idioma para la interfaz e intentará servirte contenido primero en este idioma"
           },
+          "privacy": {
+            "title": "Privacidad",
+            "anonymous": "Al realizar una donación mantener perfil anónimo"
+          },
           "save": "Guardar preferencias",
           "toast": {
-            "saved": "Preferencias guardadas correctamente"
+            "saved": "Preferencias guardadas correctamente",
+            "error": "No se han podido guardar las preferencias"
           }
-        }
+        },
+        "noChanges": "No has realizado ningún cambio"
       },
       "period": {
         "label": "Periodo",

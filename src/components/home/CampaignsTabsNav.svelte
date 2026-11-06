@@ -1,44 +1,41 @@
 <script lang="ts">
     import { t } from "../../i18n/store";
+    import Clock from "../icons/Clock.svelte";
     import Flash from "../icons/media/Flash.svelte";
     import Tabs from "../library/layout/Tabs.svelte";
 
     interface Props {
         activeTab?: string;
         onTabChange?: (tabId: string) => void;
+        alignment?: "left" | "center";
     }
 
-    let { activeTab = "most-successful", onTabChange }: Props = $props();
+    let { activeTab = "ending-soon", onTabChange, alignment = "left" }: Props = $props();
 </script>
+
+{#snippet clockIconSnippet()}
+    <Clock class="size-4" />
+{/snippet}
 
 {#snippet flashIconSnippet()}
     <Flash class="size-4" />
 {/snippet}
 
-<!-- The "ending soon" and "matchfunding" tabs below are disabled; re-add their
-     icon snippets (Clock / Flames) together with the tab entries. -->
-
 <Tabs
     tabs={[
+        {
+            id: "ending-soon",
+            label: $t("pages.home.campaigns.tabs.endingSoon"),
+            icon: clockIconSnippet,
+        },
         {
             id: "most-successful",
             label: $t("pages.home.campaigns.tabs.mostSuccessful"),
             icon: flashIconSnippet,
         },
-        // Uncomment when ready to enable
-        // {
-        //     id: "ending-soon",
-        //     label: $t("pages.home.campaigns.tabs.endingSoon"),
-        //     icon: clockIconSnippet,
-        // },
-        // {
-        //     id: "matchfunding",
-        //     label: $t("pages.home.campaigns.tabs.withMatchfunding"),
-        //     icon: matchFundingIconSnippet,
-        // },
     ]}
     {activeTab}
-    alignment="left"
+    {alignment}
     useDataAttributes={false}
     {onTabChange}
 />
