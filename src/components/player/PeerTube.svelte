@@ -17,8 +17,10 @@
     let player: any = $state(null);
     let isReady = $state(false);
 
+    // The link arrives already pointing at the instance's embed URL; only the
+    // parameters of the player are missing.
     function makeEmbedSrc(url: string): string {
-        const base = url.replace("/videos/watch/", "/videos/embed/").split("?")[0];
+        const base = url.split("?")[0];
         const params = new URLSearchParams({
             api: "1",
             autoplay: "1",
