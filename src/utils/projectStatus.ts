@@ -155,6 +155,40 @@ export const PROJECT_STATUSES: NonNullable<Project["status"]>[] = [
     "funding.paid",
 ];
 
+/** The campaign lifecycle stage the public project page distinguishes. */
+export type CampaignPhase = "before" | "during" | "after";
+
+/**
+ * Classifies every project status by its position relative to the campaign.
+ *
+ * The record is exhaustive: adding a status to the API's union forces this map to
+ * be updated instead of silently falling into the wrong phase.
+ */
+const CAMPAIGN_PHASE_BY_STATUS: Record<ProjectStatus, CampaignPhase> = {
+    in_draft: "before",
+    to_campaign_review: "before",
+    in_campaign_review: "before",
+    "in_campaign_review.to_change": "before",
+    "in_campaign_review.to_review": "before",
+    "campaign_review.rejected": "before",
+    to_campaign: "before",
+    in_campaign: "during",
+    "campaign.failed": "after",
+    "campaign.cancelled": "after",
+    to_funding_review: "after",
+    in_funding_review: "after",
+    "in_funding_review.to_change": "after",
+    "in_funding_review.to_review": "after",
+    "funding_review.rejected": "after",
+    to_funding: "after",
+    in_funding: "after",
+    "funding.paid": "after",
+};
+
+export function getCampaignPhase(status: ProjectStatus): CampaignPhase {
+    return CAMPAIGN_PHASE_BY_STATUS[status];
+}
+
 /** Translation key of a status: the API separates with dots, the translations with underscores. */
 export const projectStatusLabelKey = (status: string): string =>
     `domain.project.status.${status.replaceAll(".", "_")}`;

@@ -19,6 +19,7 @@
     } from "../../openapi/client/index";
     import { getCurrentDeadline } from "../../utils/campaign";
     import { getLanguageDisplayName } from "../../utils/lang";
+    import { getCampaignPhase } from "../../utils/projectStatus";
     import LanguagesDropdown from "../header/LanguagesDropdown.svelte";
     import RememberIcon from "../icons/actions/RememberIcon.svelte";
     import Arrow from "../icons/navigation/Arrow.svelte";
@@ -90,9 +91,24 @@
         project = data!;
     }
 
-    let outOfCampaign = $state(false);
+    const campaignNoticeKey = $derived.by(() => {
+        // Unknown statuses keep the historical "out of campaign" fallback rather
+        // than claiming a campaign that may never have been announced.
+        const phase = project.status ? getCampaignPhase(project.status) : "after";
+
+        if (phase === "before") {
+            return "pages.project.view.notInCampaignYet";
+        }
+
+        return phase === "after" ? "pages.project.view.outOfCampaign" : undefined;
+    });
+
+    let showCampaignNotice = $state(false);
     $effect(() => {
-        outOfCampaign = project.status !== "in_campaign";
+        // Reopen the dismissable notice when the project changes; dismissing it
+        // must not trigger this effect again.
+        void project.id;
+        showCampaignNotice = campaignNoticeKey !== undefined;
     });
 
     let langMismatch = $state(false);
@@ -132,9 +148,11 @@
         })}
     </Toast>
 
-    <Toast variant="notification" bind:showToast={outOfCampaign} class="w-full">
-        {$t("pages.project.view.outOfCampaign")}
-    </Toast>
+    {#if campaignNoticeKey}
+        <Toast variant="notification" bind:showToast={showCampaignNotice} class="w-full">
+            {$t(campaignNoticeKey)}
+        </Toast>
+    {/if}
 
     <div class="my-10 flex w-full flex-col-reverse gap-5 lg:flex-row lg:justify-between">
         <div class="flex w-full flex-col gap-2.5 lg:w-[70%]">
