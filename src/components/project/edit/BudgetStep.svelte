@@ -5,11 +5,11 @@
     import { withoutCache } from "../../../openapi/cacheInterceptor";
     import {
         apiProjectBudgetItemsGetCollection,
-        type MoneyInput,
+        type Money,
         type ProjectBudgetItem,
     } from "../../../openapi/client";
     import { formatCurrency } from "../../../utils/currencies";
-    import { addMoney } from "../../../utils/money";
+    import { sumMoney } from "../../../utils/money";
     import Button from "../../library/buttons/Button.svelte";
     import Grid from "../../library/layout/Grid.svelte";
     import Title from "../../library/typography/Title.svelte";
@@ -26,17 +26,14 @@
     } = $props();
 
     let minBudgetItems = $state(loadMinBudgetItems());
-    let minBudgetMoney = $derived.by(async () => sumMoney(await minBudgetItems));
+    let minBudgetMoney = $derived.by(async () => budgetTotal(await minBudgetItems));
 
     let optBudgetItems = $state(loadOptBudgetItems());
-    let optBudgetMoney = $derived.by(async () => sumMoney(await optBudgetItems));
+    let optBudgetMoney = $derived.by(async () => budgetTotal(await optBudgetItems));
 
-    /** Budgets start empty, so there may be no item to add up yet. */
-    function sumMoney(items: ProjectBudgetItem[]): MoneyInput | undefined {
-        return items.reduce<MoneyInput | undefined>(
-            (total, item) => (total ? (addMoney(item.money, total) as MoneyInput) : item.money),
-            undefined,
-        );
+    /** Budgets start empty, so there is no total to show yet. */
+    function budgetTotal(items: ProjectBudgetItem[]): Money | undefined {
+        return items.length ? sumMoney(items.map((item) => item.money)) : undefined;
     }
 
     async function loadMinBudgetItems() {
