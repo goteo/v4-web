@@ -1,6 +1,6 @@
+import { fetchAccounting } from "./accountings";
 import { extractId } from "./extractId";
 import {
-    apiAccountingsIdGet,
     apiProjectsIdOrSlugGet,
     apiTipjarsIdGet,
     apiUsersIdOrHandleGet,
@@ -45,10 +45,7 @@ export function resolveAccountingOwner(accountingIri: string): Promise<OwnerRef 
         const id = extractId(accountingIri);
         if (!id) return undefined;
 
-        const { data: accounting } = await apiAccountingsIdGet({
-            baseUrl: "/api/relay",
-            path: { id },
-        });
+        const accounting = await fetchAccounting(accountingIri, { baseUrl: "/api/relay" });
         if (!accounting?.owner) return undefined;
 
         const ownerIri = accounting.owner;

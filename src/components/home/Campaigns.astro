@@ -2,15 +2,11 @@
 import CampaignCard from "./CampaignCard.svelte";
 import type { Campaign } from "../../types/campaign";
 import Arrow from "../../components/icons/navigation/Arrow.svelte";
-import {
-    apiAccountingsIdGet,
-    apiProjectsIdOrSlugGet,
-    type Money,
-    type Project,
-} from "../../openapi/client";
+import { apiProjectsIdOrSlugGet, type Money, type Project } from "../../openapi/client";
 import { getLanguage } from "../../middleware/utils";
 import Grid from "../library/layout/Grid.svelte";
 import Button from "../library/buttons/Button.svelte";
+import { fetchAccountingsByIds } from "../../utils/accountings";
 import { extractId } from "../../utils/extractId";
 import { highlightRepository } from "../../repositories/highlights";
 
@@ -50,24 +46,24 @@ const resolved = (
     )
 ).filter((r): r is { project: Project; index: number } => r !== null);
 
-const campaigns = await Promise.all(
-    resolved.map(async ({ project, index }) => {
-        const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: extractId(project.accounting)! },
-        });
+const accountingIds = resolved.map(({ project }) => extractId(project.accounting));
+const accountings = await fetchAccountingsByIds(accountingIds);
 
-        return {
-            ...project,
-            size: sizeMap[index] ?? "small",
-            slug: project.slug!,
-            title: project.title!,
-            image: project.video?.thumbnail! || project.cover!,
-            minimum: project.budget?.minimum?.money!,
-            obtained: accounting!.balance as Money,
-            optimum: project.budget?.optimum?.money,
-        } satisfies Campaign;
-    }),
-);
+const campaigns = resolved.map(({ project, index }) => {
+    const accountingId = accountingIds[index];
+    const accounting = accountingId ? accountings.get(accountingId) : undefined;
+
+    return {
+        ...project,
+        size: sizeMap[index] ?? "small",
+        slug: project.slug!,
+        title: project.title!,
+        image: project.video?.thumbnail! || project.cover!,
+        minimum: project.budget?.minimum?.money!,
+        obtained: accounting!.balance as Money,
+        optimum: project.budget?.optimum?.money,
+    } satisfies Campaign;
+});
 ---
 
 <section class="wrapper">
