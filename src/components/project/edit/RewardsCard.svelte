@@ -1,11 +1,7 @@
 <script lang="ts">
     import RewardsModal from "./RewardsModal.svelte";
     import { t } from "../../../i18n/store";
-    import {
-        apiProjectRewardsIdDelete,
-        apiProjectRewardsIdPatch,
-        type ProjectReward,
-    } from "../../../openapi/client";
+    import { apiProjectRewardsIdDelete, type ProjectReward } from "../../../openapi/client";
     import InfinityIcon from "../../icons/Infinity.svelte";
     import Close from "../../icons/navigation/Close.svelte";
     import UnitIcon from "../../icons/UnitIcon.svelte";
@@ -32,23 +28,6 @@
     let openDeleteModal = $state(false);
     let showDeleteError = $state(false);
     let deleteErrorMessage = $state("");
-
-    async function handleSave(newReward: ProjectReward) {
-        const { error } = await apiProjectRewardsIdPatch({
-            baseUrl: "/api/relay",
-            headers: { "Content-Language": $draft.lang },
-            path: { id: String(reward.id) },
-            body: newReward,
-        });
-
-        if (!error) {
-            openModal = false;
-            onSave?.(newReward);
-            return;
-        }
-
-        console.error(error);
-    }
 
     async function handleDelete(reward: ProjectReward) {
         const { error } = await apiProjectRewardsIdDelete({
@@ -107,13 +86,7 @@
         {$t("common.edit")}
     </Button>
 
-    <RewardsModal
-        bind:open={openModal}
-        {draft}
-        {reward}
-        onSave={handleSave}
-        onDelete={handleDelete}
-    />
+    <RewardsModal bind:open={openModal} {draft} {reward} {onSave} onDelete={handleDelete} />
 
     <DeleteModal
         title={$t("pages.project.edit.rewards.deleteModal.title")}

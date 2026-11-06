@@ -20,7 +20,7 @@
     import { zProjectProjectUpdationDtoJsonMergePatch } from "../../../openapi/client/zod.gen";
     import { PUBLISH_TRANSITIONS } from "../../../utils/projectStatus";
     import { validate } from "../../../utils/validation";
-    import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
+    import TranslationLanguages from "../../admin/TranslationLanguages.svelte";
     import EditIcon from "../../icons/actions/Edit.svelte";
     import Bullet from "../../icons/Bullet.svelte";
     import Eye from "../../icons/media/Eye.svelte";
@@ -155,11 +155,6 @@
 
             <!-- Right section: Action Buttons -->
             <div class="flex shrink-0 items-center gap-4">
-                <LanguagesDropdown
-                    languages={$draft.languages}
-                    selected={$draft.lang}
-                    onSelect={onLangChange}
-                />
                 <Button
                     class="whitespace-nowrap"
                     kind="ghost"
@@ -220,6 +215,20 @@
         <div class="mb-8">
             <TabNavigation tabs={steps} currentTab={step} onTabClick={(s) => onStepChange?.(s)} />
         </div>
+
+        <!-- Rewards are translated one by one, inside each Reward's form. -->
+        {#if step !== "3"}
+            <TranslationLanguages
+                class="mb-8"
+                languages={$draft.languages}
+                selected={$draft.lang}
+                onAdd={(code) => draft.setLanguages([...$draft.languages, code])}
+                onRemove={(code) =>
+                    draft.setLanguages($draft.languages.filter((other) => other !== code))}
+                onSelect={onLangChange}
+                removable={(code) => !$draft.actual.locales?.includes(code)}
+            />
+        {/if}
 
         <!-- Step Content -->
         <div class="min-h-100">
