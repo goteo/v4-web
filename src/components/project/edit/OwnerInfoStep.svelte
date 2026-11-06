@@ -1,6 +1,5 @@
 <script lang="ts">
     import { t } from "../../../i18n/store";
-    import { currentDraft, updateProject } from "../../../stores/drafts/projectDraft";
     import Close from "../../icons/navigation/Close.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
@@ -11,10 +10,10 @@
     import ToggleSwitch from "../../library/inputs/ToggleSwitch.svelte";
     import Title from "../../library/typography/Title.svelte";
 
-    import type { Project } from "../../../openapi/client";
-    import type { UploadedFile } from "../../../stores/drafts/projectDraft";
+    import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
+    import type { UploadedObject } from "../../../utils/media/objectStorage.types";
 
-    let { project: _project, onPublish }: { project: Project; onPublish?: () => void } = $props();
+    let { draft, onPublish }: { draft: ProjectDraftStore; onPublish?: () => void } = $props();
 
     type ContactEntry = {
         id: string;
@@ -32,7 +31,7 @@
     ]);
     let preferredIndex = $state(0);
     let iban = $state("");
-    let bankCertificateFiles = $state<UploadedFile[]>([]);
+    let bankCertificateFiles = $state<UploadedObject[]>([]);
     // let publicLinks = $state({
     //     website: "",
     //     email: "",
@@ -175,9 +174,9 @@
             <p class="text-content text-base">{$t("pages.project.edit.aboutYou.locationHelper")}</p>
             <TerritoryInput
                 placeholder={$t("pages.project.edit.aboutYou.locationPlaceholder")}
-                value={$currentDraft?.createProject.address ?? ""}
+                value={$draft.latest.territory?.address ?? ""}
                 onInput={(territory) => {
-                    updateProject({ address: territory.address ?? "", territory });
+                    draft.patch({ territory });
                 }}
             />
         </div>

@@ -1,10 +1,8 @@
 <script lang="ts">
     import BaseActivityCard from "./BaseActivityCard.svelte";
     import { locale, t } from "../../i18n/store";
-    import {
-        apiAccountingsIdGet,
-        apiMatchCallsGetCollection,
-    } from "../../openapi/client/sdk.gen.ts";
+    import { apiMatchCallsGetCollection } from "../../openapi/client/sdk.gen.ts";
+    import { fetchAccountingsByIds } from "../../utils/accountings";
     import { getDefaultCurrency } from "../../utils/consts";
     import { formatAmountWithSymbol } from "../../utils/currencies";
     import { extractId } from "../../utils/extractId";
@@ -89,37 +87,21 @@
         }
 
         // Fetch accounting data for each call to get donation amounts
-        const callAccountings = await Promise.all(
-            calls.map(async (call) => {
-                const accountingId = extractId(call.accounting);
-                if (!accountingId)
-                    return {
-                        callId: call.id,
-                        amount: 0,
-                        currency: getDefaultCurrency(),
-                    };
+        const accountingIds = calls.map((call) => extractId(call.accounting));
+        const accountings = await fetchAccountingsByIds(accountingIds, {
+            baseUrl: "/api/relay",
+            headers,
+        });
 
-                try {
-                    const { data: accounting } = await apiAccountingsIdGet({
-                        baseUrl: "/api/relay",
-                        path: { id: accountingId },
-                        headers,
-                    });
+        const callAccountings = calls.map((call, index) => {
+            const balance = accountings.get(accountingIds[index] ?? "")?.balance;
 
-                    return {
-                        callId: call.id,
-                        amount: accounting?.balance?.amount || 0,
-                        currency: accounting?.balance?.currency || getDefaultCurrency(),
-                    };
-                } catch {
-                    return {
-                        callId: call.id,
-                        amount: 0,
-                        currency: getDefaultCurrency(),
-                    };
-                }
-            }),
-        );
+            return {
+                callId: call.id,
+                amount: balance?.amount || 0,
+                currency: balance?.currency || getDefaultCurrency(),
+            };
+        });
 
         // Calculate total donated across all calls
         const totalDonatedMoney = sumMoney(
