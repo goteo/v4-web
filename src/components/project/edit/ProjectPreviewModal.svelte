@@ -10,6 +10,7 @@
     import { Modal } from "flowbite-svelte";
     import { untrack } from "svelte";
 
+    import { refreshSession } from "../../../auth/store";
     import { t } from "../../../i18n/store";
     import {
         apiAccountingBalancePointsGetCollection,
@@ -44,7 +45,7 @@
 
     let preview = $state<PreviewData | null>(null);
     let loading = $state(false);
-    let failed = $state(false);
+    let failure = $state<"unknown" | "unauthorized" | null>(null);
 
     // Re-fetch every time the modal is opened: `project` changes on every keystroke,
     // so it is read untracked to keep the effect subscribed to `open` only.
@@ -56,10 +57,10 @@
         void loadPreview(untrack(() => project));
     });
 
-    async function loadPreview(snapshot: Project) {
+    async function loadPreview(snapshot: Project, canRetry = true) {
         loading = true;
         preview = null;
-        failed = false;
+        failure = null;
 
         try {
             const ownerId = extractId(snapshot.owner);
@@ -70,11 +71,27 @@
                 accountingId ? apiAccountingsIdGet({ path: { id: accountingId } }) : undefined,
             ]);
 
+            const unauthorized =
+                ownerResult?.response?.status === 401 || accountingResult?.response?.status === 401;
+
+            if (unauthorized) {
+                // The token is cached in the browser when the page loads. A tab left open
+                // across the expiry still holds it, so re-read the session (the server
+                // refreshes it) and try once more before giving up.
+                if (canRetry && (await refreshSession())) {
+                    await loadPreview(snapshot, false);
+                    return;
+                }
+
+                failure = "unauthorized";
+                return;
+            }
+
             const owner = ownerResult?.data;
             const accounting = accountingResult?.data;
 
             if (!owner || !accounting) {
-                failed = true;
+                failure = "unknown";
                 return;
             }
 
@@ -95,7 +112,7 @@
             preview = { owner, accounting, totalSupports, balancePoints: balancePoints ?? [] };
         } catch (error) {
             console.error(error);
-            failed = true;
+            failure = "unknown";
         } finally {
             loading = false;
         }
@@ -155,9 +172,13 @@
                         totalSupports={preview.totalSupports}
                         balancePoints={preview.balancePoints}
                     />
-                {:else if failed}
+                {:else if failure}
                     <div class="text-content p-20 text-center">
-                        {$t("system.error.unknown")}
+                        {$t(
+                            failure === "unauthorized"
+                                ? "system.error.unauthorized"
+                                : "system.error.unknown",
+                        )}
                     </div>
                 {/if}
             </div>
