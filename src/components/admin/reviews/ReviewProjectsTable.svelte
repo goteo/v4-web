@@ -45,8 +45,8 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
-    import { SvelteSet } from "svelte/reactivity";
 
+    import ReviewStatusDropdown from "./ReviewStatusDropdown.svelte";
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
@@ -66,7 +66,6 @@
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import DataTable from "../../library/tables/DataTable.svelte";
-    import ReviewStateTag from "../../review/ReviewStateTag.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
     import {
         PROJECT_ITEMS_PER_PAGE_LABEL,
@@ -74,6 +73,7 @@
         type ProjectSortKey,
     } from "../projects/ProjectsTable.svelte";
 
+    import type { DropdownOption } from "../../library/dropdown/dropdown.types";
     import type { Snippet } from "svelte";
 
     interface Props {
@@ -109,17 +109,6 @@
 
     let openRow = $state<number | null>(null);
 
-    const updatingStatus = new SvelteSet<number>();
-
-    async function handleStatusChange(projectId: number, status: ProjectStatus) {
-        updatingStatus.add(projectId);
-        try {
-            await onStatusChange?.(projectId, status);
-        } finally {
-            updatingStatus.delete(projectId);
-        }
-    }
-
     const statusLabel = (status: string) =>
         $t(`domain.project.status.${status.replaceAll(".", "_")}`);
 
@@ -151,16 +140,39 @@
     }
 
     /**
-     * Sends the chosen decision up and leaves the select in the status the project
-     * really holds: the change needs a confirmation, so the control only shows the
-     * decision once it has been saved and the table is loaded again.
+     * Options of the status dropdown: the status the project holds plus, for a
+     * campaign review, the decisions that move it forward.
      */
-    function handleDecisionChange(event: Event, project: ReviewProjectRow): void {
-        const select = event.currentTarget as HTMLSelectElement;
-        const status = select.value as ProjectStatus;
+    function statusDropdownOptions(project: ReviewProjectRow): DropdownOption[] {
+        if (project.reviewType === "financial") {
+            return statusOptions(project).map((status) => ({
+                id: status,
+                label: statusLabel(status),
+                selected: status === project.status,
+            }));
+        }
 
-        select.value = project.status ?? "";
-        onStatusChange?.(project, status);
+        const options: DropdownOption[] = decisionOptions.map((option) => ({
+            id: option.value,
+            label: option.label,
+            selected: option.value === project.status,
+        }));
+
+        // Pending and "changes done" are not decisions yet, so the real state is
+        // added as the selected entry the trigger shows.
+        if (!campaignReviewDecision(project.status)) {
+            options.unshift({
+                id: project.status ?? "",
+                label: currentStateLabel(project.status),
+                selected: true,
+            });
+        }
+
+        return options;
+    }
+
+    function statusDropdownDisabled(project: ReviewProjectRow): boolean {
+        return project.reviewType === "financial" ? !project.status : !canDecide(project);
     }
 
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
@@ -226,41 +238,13 @@
                 onclick={(e) => e.stopPropagation()}
                 role="presentation"
             >
-                <ReviewStateTag status={project.status} />
-                {#if project.reviewType === "financial"}
-                    <select
-                        class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
-                        value={project.status ?? ""}
-                        disabled={!project.status}
-                        aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
-                        onchange={(e) =>
-                            onStatusChange?.(project, e.currentTarget.value as ProjectStatus)}
-                    >
-                        {#if !project.status}
-                            <option value="">—</option>
-                        {/if}
-                        {#each statusOptions(project) as status (status)}
-                            <option value={status}>{statusLabel(status)}</option>
-                        {/each}
-                    </select>
-                {:else}
-                    <select
-                        class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
-                        value={project.status ?? ""}
-                        disabled={!canDecide(project)}
-                        aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
-                        onchange={(e) => handleDecisionChange(e, project)}
-                    >
-                        {#if !campaignReviewDecision(project.status)}
-                            <option value={project.status ?? ""} disabled>
-                                {currentStateLabel(project.status)}
-                            </option>
-                        {/if}
-                        {#each decisionOptions as option (option.value)}
-                            <option value={option.value}>{option.label}</option>
-                        {/each}
-                    </select>
-                {/if}
+                <ReviewStatusDropdown
+                    options={statusDropdownOptions(project)}
+                    value={project.status}
+                    label={currentStateLabel(project.status)}
+                    disabled={statusDropdownDisabled(project)}
+                    onChange={(status) => onStatusChange?.(project, status as ProjectStatus)}
+                />
             </div>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">

@@ -82,6 +82,20 @@ export const CAMPAIGN_REVIEW_STATE_VARIANTS: Record<
 };
 
 /**
+ * Classes painting the status dropdown trigger with the colour of each state.
+ *
+ * Uses the same palette as {@link CAMPAIGN_REVIEW_STATE_VARIANTS}, so the control
+ * that replaced the state tag keeps giving the same colour cue.
+ */
+export const CAMPAIGN_REVIEW_STATE_TRIGGER_CLASSES: Record<CampaignReviewState, string> = {
+    pending: "border-grey bg-white",
+    changes_requested: "border-variant4 bg-variant4",
+    changes_done: "border-purple-soft bg-grey text-secondary",
+    rejected: "border-tertiary bg-tertiary text-white",
+    approved: "border-variant2 bg-variant2",
+};
+
+/**
  * Public state each raw campaign status is shown as.
  *
  * `to_campaign_review` belongs here even though the review flow cannot move a

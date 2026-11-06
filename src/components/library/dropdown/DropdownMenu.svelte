@@ -14,6 +14,8 @@
 
     interface Props {
         class?: ClassNameValue;
+        /** Extra classes for the collapsed button trigger, e.g. to paint it by state. */
+        buttonClass?: ClassNameValue;
         searchClasses?: ClassNameValue;
         variant: DropdownVariant;
         options: DropdownOption[];
@@ -49,6 +51,7 @@
 
     let {
         class: classes = undefined,
+        buttonClass = undefined,
         searchClasses = undefined,
         variant,
         options = $bindable([]),
@@ -203,7 +206,10 @@
     {:else}
         <button
             type="button"
-            class="group flex w-full items-center justify-between rounded-lg border border-gray-100 bg-white p-4 text-base/6 font-normal text-black shadow-sm outline-none focus:outline-none"
+            class={twMerge(
+                "group flex w-full items-center justify-between rounded-lg border border-gray-100 bg-white p-4 text-base/6 font-normal text-black shadow-sm outline-none focus:outline-none",
+                buttonClass,
+            )}
             aria-expanded={isOpen}
             aria-controls={listId}
             onclick={() => (isOpen = !isOpen)}
