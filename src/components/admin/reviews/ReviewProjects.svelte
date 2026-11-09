@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { actions } from "astro:actions";
     import { SvelteMap } from "svelte/reactivity";
 
     import AssignAdvisorModal from "./AssignAdvisorModal.svelte";
@@ -12,7 +13,6 @@
         apiProjectReviewAreasGetCollection,
         apiProjectReviewsGetCollection,
         apiProjectReviewsGetCollectionUrl,
-        apiProjectReviewsIdPatch,
         apiProjectsGetCollection,
         apiProjectsGetCollectionUrl,
         apiProjectsIdPatch,
@@ -508,7 +508,6 @@
     let assignState = $state<{
         reviewId: number;
         projectId: number;
-        projectStatus?: ProjectStatus;
         projectName: string;
         reviewer?: string;
         advisor?: string;
@@ -521,7 +520,6 @@
         assignState = {
             reviewId: project.reviewId,
             projectId: project.id,
-            projectStatus: project.status,
             projectName: project.name || `#${project.id}`,
             reviewer: project.reviewer,
             advisor: project.advisor,
@@ -530,11 +528,8 @@
     }
 
     /**
-     * Assigning the first advisor opens the review.
-     *
-     * The API moves the project when it enters the review, not when a reviewer is
-     * set, so without this the review would stay pending for everybody. A
-     * reassignment must not touch the project, hence the status check.
+     * Hands the review to an advisor through the server action, which checks the
+     * consultant permission and opens the review when it is the first assignment.
      */
     async function handleAssignReviewer(iri: string, name: string): Promise<void> {
         const state = assignState;
@@ -543,45 +538,27 @@
 
         if (!state) return;
 
-        let failed = false;
-
-        const { error } = await apiProjectReviewsIdPatch({
-            baseUrl: "/api/relay",
-            path: { id: String(state.reviewId) },
-            body: { reviewer: iri },
+        const { data, error } = await actions.assignReviewAdvisor({
+            reviewId: state.reviewId,
+            reviewer: iri,
         });
 
         if (error) {
             console.error("Failed to assign advisor:", error);
-            failed = true;
             notify(
                 "error",
                 $t("pages.admin.reviews.projects.toasts.advisorNotAssigned", {
                     project: state.projectName,
                 }),
             );
-        }
-
-        if (!failed && state.projectStatus === "to_campaign_review") {
-            const { error: statusError } = await apiProjectsIdPatch({
-                baseUrl: "/api/relay",
-                path: { id: String(state.projectId) },
-                body: { status: "in_campaign_review" },
-            });
-
-            if (statusError) {
-                console.error("Failed to open the review:", statusError);
-                failed = true;
-                notify(
-                    "error",
-                    $t("pages.admin.reviews.projects.toasts.statusNotUpdated", {
-                        project: state.projectName,
-                    }),
-                );
-            }
-        }
-
-        if (!failed) {
+        } else if (data?.openFailed) {
+            notify(
+                "error",
+                $t("pages.admin.reviews.projects.toasts.statusNotUpdated", {
+                    project: state.projectName,
+                }),
+            );
+        } else {
             notify(
                 "success",
                 $t("pages.admin.reviews.projects.toasts.advisorAssigned", {

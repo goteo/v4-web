@@ -4,6 +4,7 @@ import { apiProjectsIdPatch } from "../openapi/client";
 import {
     createReviewAreaComment,
     getReview,
+    setReviewAdvisor,
     setReviewAreaRisk,
     type ReviewError,
 } from "../services/projectReview";
@@ -16,6 +17,7 @@ import {
 import { extractId } from "../utils/extractId";
 import { PROMOTER_CHANGES_DONE_STATUS } from "../utils/review";
 import {
+    zAssignReviewAdvisorInput,
     zSendReviewAreaCommentInput,
     zUpdateReviewAreaRiskInput,
     zUpdateReviewProjectStatusInput,
@@ -29,7 +31,11 @@ import {
 /**
  * Turns a failure of the review service into the error the screens display.
  */
-function fail(error: ReviewError | undefined, t: (key: string) => string): ActionError {
+function fail(
+    error: ReviewError | undefined,
+    t: (key: string) => string,
+    notFoundKey = "pages.review.errors.areaNotFound",
+): ActionError {
     if (error?.status === 401 || error?.status === 403) {
         return new ActionError({
             code: "FORBIDDEN",
@@ -40,7 +46,7 @@ function fail(error: ReviewError | undefined, t: (key: string) => string): Actio
     if (error === undefined || error.status === 404) {
         return new ActionError({
             code: "NOT_FOUND",
-            message: t("pages.review.errors.areaNotFound"),
+            message: t(notFoundKey),
         });
     }
 
@@ -162,6 +168,44 @@ export const updateReviewProjectStatus = defineAction({
         }
 
         return { status: input.status };
+    },
+});
+
+/**
+ * Hands a review to an advisor.
+ *
+ * Only a consultant admin may do it: the action is posted to `/_actions/*`,
+ * which no firewall rule matches, so the permission is checked here instead of
+ * relying on the admin screen that renders the button.
+ *
+ * The review and its project are resolved on the server, so the caller cannot
+ * point the assignment or the opening of the review at another resource.
+ */
+export const assignReviewAdvisor = defineAction({
+    accept: "json",
+    input: zAssignReviewAdvisorInput,
+    handler: async (input, context) => {
+        const { session, t, lang } = context.locals;
+
+        if (!isConsultant(session)) {
+            throw new ActionError({
+                code: "FORBIDDEN",
+                message: t("pages.review.errors.forbidden"),
+            });
+        }
+
+        const { data, error } = await setReviewAdvisor(
+            input.reviewId,
+            input.reviewer,
+            session!,
+            lang,
+        );
+
+        if (error || !data) {
+            throw fail(error, t, "pages.review.errors.notFound");
+        }
+
+        return data;
     },
 });
 
