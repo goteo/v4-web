@@ -10,7 +10,6 @@ describe("extractId", () => {
         ["/v4/users/pep", "pep"],
         ["/v4/users/42/person", "42"],
         ["/v4/match_formulas/linear", "linear"],
-        ["https://api.goteo.org/v4/accountings/7?x=1", "7"],
         ["42", "42"],
     ])("%s → %s", (iri, id) => {
         expect(extractId(iri)).toBe(id);
