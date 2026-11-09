@@ -659,15 +659,13 @@
         onConfirm={confirmStatusChange}
         onCancel={cancelStatusChange}
     />
-    {#if assignState}
-        <AssignAdvisorModal
-            bind:open={assignModalOpen}
-            title={$t("pages.admin.reviews.projects.table.rows.details.btns.assignAdvisor")}
-            currentReviewer={assignState.reviewer}
-            currentReviewerName={assignState.advisor}
-            onAssign={handleAssignReviewer}
-        />
-    {/if}
+    <AssignAdvisorModal
+        bind:open={assignModalOpen}
+        title={$t("pages.admin.reviews.projects.table.rows.details.btns.assignAdvisor")}
+        currentReviewer={assignState?.reviewer}
+        currentReviewerName={assignState?.advisor}
+        onAssign={handleAssignReviewer}
+    />
 </Dashboard>
 
 <Toast floating variant={toastVariant} bind:showToast>{toastMessage}</Toast>
