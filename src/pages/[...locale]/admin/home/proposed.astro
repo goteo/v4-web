@@ -3,14 +3,15 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import ProposedCampaigns from "../../../../components/admin/home/ProposedCampaigns.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import { apiProjectsIdOrSlugGet } from "../../../../openapi/client/sdk.gen";
 import { proposedCampaignsRepository } from "../../../../repositories/proposedCampaigns";
-import { SUBSECTIONS } from "./subsections";
 
 import type { ProposedCampaignSlotView } from "../../../../repositories/proposedCampaigns";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/proposed";
+const navItems = getSubSections("/admin/home");
 
 const data = await proposedCampaignsRepository.get();
 
@@ -34,7 +35,7 @@ const slots: ProposedCampaignSlotView[] = await Promise.all(
 
 <Layout title={t("pages.admin.home.proposed.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <ProposedCampaigns client:load config={{ slots }} />
         </WithSidebar>
     </App>
