@@ -177,7 +177,7 @@
     open={isModalOpen}
     onclose={closeModal}
     size="lg"
-    class="flex w-full max-w-224.5 flex-col gap-6 rounded-3xl bg-white p-6 shadow-lg"
+    class="backdrop:bg-overlay flex w-full max-w-224.5 flex-col gap-6 rounded-3xl bg-white p-6 shadow-lg backdrop:backdrop-blur-[5px]"
     closeBtnClass="absolute top-4 right-4 text-secondary cursor-pointer hover:scale-110 transition-transform duration-200 hover:bg-transparent"
     headerClass="md:p-0 p-0 border-b-0"
     bodyClass="md:p-0 p-0 border-b-0"

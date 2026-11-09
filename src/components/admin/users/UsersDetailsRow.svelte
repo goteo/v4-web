@@ -212,7 +212,7 @@
     bind:open={rolesModal}
     title={$t("pages.admin.users.table.rows.details.roles.title")}
     dismissable={false}
-    class="relative max-w-lg overflow-visible"
+    class="backdrop:bg-overlay relative max-w-lg overflow-visible backdrop:backdrop-blur-[5px]"
     bodyClass="overflow-visible"
 >
     <button
@@ -246,7 +246,7 @@
     bind:open={chargesModal}
     title={$t("pages.admin.users.table.rows.details.recentCharges")}
     dismissable={false}
-    class="relative max-w-200"
+    class="backdrop:bg-overlay relative max-w-200 backdrop:backdrop-blur-[5px]"
 >
     <button
         type="button"

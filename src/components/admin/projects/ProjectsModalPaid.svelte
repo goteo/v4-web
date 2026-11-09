@@ -41,7 +41,7 @@
     bind:open
     title={$t("pages.admin.projects.modals.paid.title")}
     dismissable={false}
-    class="relative max-w-lg"
+    class="backdrop:bg-overlay relative max-w-lg backdrop:backdrop-blur-[5px]"
 >
     <button
         type="button"

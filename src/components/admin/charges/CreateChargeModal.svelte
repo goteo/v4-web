@@ -242,7 +242,7 @@
     bind:open
     title={$t("pages.admin.charges.create.title")}
     closeBtnClass="top-4 end-4 bg-transparent text-secondary hover:bg-transparent hover:text-secondary focus:ring-0 shadow-none cursor-pointer"
-    class="max-w-3xl"
+    class="backdrop:bg-overlay max-w-3xl backdrop:backdrop-blur-[5px]"
     onclose={resetModal}
 >
     <div class="flex flex-col gap-6">
