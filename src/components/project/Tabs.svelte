@@ -122,7 +122,7 @@
                     aria-labelledby="tab-button-rewards"
                     class="w-full"
                 >
-                    <ProjectRewards bind:lang {project} />
+                    <ProjectRewards bind:lang {project} {accounting} />
                 </div>
             {:else if activeTab === "project"}
                 <div

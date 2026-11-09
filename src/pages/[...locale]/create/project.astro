@@ -2,9 +2,9 @@
 import Layout from "../../../layouts/Layout.astro";
 import App from "../../../layouts/App.svelte";
 import CreateProjectForm from "../../../components/create/CreateProjectForm.svelte";
-import { apiCategoriesGetCollection } from "../../../openapi/client";
+import { apiCategoriesGetCollection, apiThemesGetCollection } from "../../../openapi/client";
 import { toCollectionItems } from "../../../utils/hydra";
-import type { Category } from "../../../openapi/client";
+import type { Category, Theme } from "../../../openapi/client";
 import { goto } from "../../../utils/navigation";
 import { withoutCache } from "../../../openapi/cacheInterceptor";
 
@@ -14,16 +14,18 @@ if (!session) {
     return goto("/login", { query: { callback: "/create/project" } });
 }
 
-const { data: categoriesRaw } = await withoutCache(() =>
-    apiCategoriesGetCollection({
-        headers: { "Accept-Language": langs },
-    }),
+const [{ data: categoriesRaw }, { data: themesRaw }] = await withoutCache(() =>
+    Promise.all([
+        apiCategoriesGetCollection({ headers: { "Accept-Language": langs } }),
+        apiThemesGetCollection({ headers: { "Accept-Language": langs } }),
+    ]),
 );
 const categories = toCollectionItems<Category>(categoriesRaw);
+const themes = toCollectionItems<Theme>(themesRaw);
 ---
 
 <Layout title={t("pages.project.create.title")}>
     <App client:load locale={lang} session={session}>
-        <CreateProjectForm client:load {categories} />
+        <CreateProjectForm client:load {categories} {themes} />
     </App>
 </Layout>

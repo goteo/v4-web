@@ -15,7 +15,8 @@
         className?: string;
     }>();
 
-    const baseClasses = "text-white text-sm px-2 rounded z-[9999] backdrop-blur-sm";
+    const baseClasses =
+        "text-white text-sm px-2 rounded z-[9999] backdrop-blur-sm whitespace-nowrap";
 
     function showTooltip(event: MouseEvent) {
         const tooltipClasses = `${baseClasses} ${tooltipClass ?? "bg-gray-800/90"}`.trim();

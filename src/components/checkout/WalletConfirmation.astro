@@ -11,7 +11,7 @@ const { accounting } = Astro.props;
         id="payment"
         method="POST"
         class="flex flex-col gap-4"
-        data-balance={accounting.balance.amount}
+        data-balance={accounting.balance?.amount ?? 0}
     >
         <input type="hidden" name="paymentMethod" value="wallet" />
         <input type="hidden" name="cartData" id="cartData" />

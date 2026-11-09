@@ -107,7 +107,7 @@
         <label
             for={finalId}
             class={twMerge(
-                "text-secondary absolute -top-2 left-3 bg-white px-1 text-xs leading-4 font-medium transition-all duration-200",
+                "text-secondary absolute -top-2 left-3 z-10 bg-white px-1 text-xs leading-4 font-medium transition-all duration-200",
                 error && "text-tertiary",
             )}
         >
@@ -118,35 +118,39 @@
         </label>
     {/if}
 
-    <!-- Select Element -->
-    <select
-        {name}
-        {required}
-        {disabled}
-        id={finalId}
-        bind:value
-        onclick={() => (isOpen = !isOpen)}
-        onchange={handleChange}
-        onblur={handleBlur}
-        onkeydown={(e) => e.key === "Escape" && (isOpen = false)}
-        class={twMerge(
-            "w-full appearance-none rounded-lg border bg-white px-4 py-4 pr-10 text-base leading-6 transition-colors focus:outline-none disabled:cursor-not-allowed",
-            error ? "border-tertiary text-tertiary focus:ring-0" : "border-secondary focus:ring-0",
-            className,
-        )}
-        aria-invalid={error ? "true" : "false"}
-        aria-describedby={error ? errorId : helperText ? helperId : undefined}
-        style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;"
-    >
-        {@render children()}
-    </select>
-    <div class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
-        <Chevron direction={isOpen ? "up" : "down"} width="20" height="20" />
+    <!-- Select Element (own relative box so the chevron centers on the select, not the helper) -->
+    <div class="relative">
+        <select
+            {name}
+            {required}
+            {disabled}
+            id={finalId}
+            bind:value
+            onclick={() => (isOpen = !isOpen)}
+            onchange={handleChange}
+            onblur={handleBlur}
+            onkeydown={(e) => e.key === "Escape" && (isOpen = false)}
+            class={twMerge(
+                "w-full appearance-none rounded-lg border bg-white px-4 py-4 pr-10 text-base leading-6 transition-colors focus:outline-none disabled:cursor-not-allowed",
+                error
+                    ? "border-tertiary text-tertiary focus:ring-0"
+                    : "border-secondary focus:ring-0",
+                className,
+            )}
+            aria-invalid={error ? "true" : "false"}
+            aria-describedby={error ? errorId : helperText ? helperId : undefined}
+            style="-webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: none;"
+        >
+            {@render children()}
+        </select>
+        <div class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">
+            <Chevron direction={isOpen ? "up" : "down"} width="20" height="20" />
+        </div>
     </div>
 
     <!-- Helper Text -->
     {#if !error && helperText}
-        <p id={helperId} class="mt-1 text-xs text-gray-500">
+        <p id={helperId} class="ml-4 text-xs text-gray-500">
             {helperText}
         </p>
     {/if}

@@ -111,10 +111,13 @@
 <Modal
     bind:open
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
-    bodyClass="p-0"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 mx-2 flex max-h-[90vh] w-full max-w-225 -translate-x-1/2 -translate-y-1/2 divide-y-0 bg-transparent backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-0"
+    bodyClass="flex p-0"
 >
-    <form class="flex flex-col gap-8 rounded-3xl bg-white p-6 shadow-lg" onsubmit={handleSubmit}>
+    <form
+        class="flex min-h-0 flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
+        onsubmit={handleSubmit}
+    >
         <Title level={2} variant="subsection">
             {$t("pages.project.edit.collaborations.modal.title")}
         </Title>

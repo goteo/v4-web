@@ -8,6 +8,7 @@
     import { apiProjectBudgetItemsGetCollection } from "../../openapi/client/index";
     import { formatCurrency } from "../../utils/currencies";
     import { renderMarkdown } from "../../utils/renderMarkdown";
+    import Loader from "../library/feedback/Loader.svelte";
     import Carousel from "../library/layout/Carousel.svelte";
 
     import type { Project, ProjectBudgetItem, Accounting } from "../../openapi/client/index";
@@ -31,6 +32,7 @@
     let projectsBudgetItems: ProjectBudgetItem[] = $state([]);
     let minimumItems: ProjectBudgetItem[] = $state([]);
     let optimumItems: ProjectBudgetItem[] = $state([]);
+    let isLoading = $state(true);
     let itemsPerGroup = $state(3);
     let openModal = $state(false);
     let selectedBudgetItem: ProjectBudgetItem | null = $state(null);
@@ -51,11 +53,15 @@
         apiProjectBudgetItemsGetCollection({
             query: { project: projectId },
             headers: { "Accept-Language": lang },
-        }).then((data) => {
-            projectsBudgetItems = data.data!;
-            minimumItems = projectsBudgetItems.filter((item) => item.deadline === "minimum");
-            optimumItems = projectsBudgetItems.filter((item) => item.deadline === "optimum");
-        });
+        })
+            .then((data) => {
+                projectsBudgetItems = data.data ?? [];
+                minimumItems = projectsBudgetItems.filter((item) => item.deadline === "minimum");
+                optimumItems = projectsBudgetItems.filter((item) => item.deadline === "optimum");
+            })
+            .finally(() => {
+                isLoading = false;
+            });
     });
 
     function updateItemsPerGroup() {
@@ -100,11 +106,13 @@
                 )}
             </span>
             <Carousel gap={16} showDots={true} {itemsPerGroup}>
-                {#if minimumItems.length === 0}
+                {#if isLoading}
+                    <Loader />
+                {:else if minimumItems.length === 0}
                     <div
                         class="flex h-35 w-full items-center justify-center rounded bg-indigo-100 font-bold"
                     >
-                        {$t("pages.project.view.tabs.updates.content.empty")}
+                        {$t("pages.project.view.tabs.budget.empty")}
                     </div>
                 {/if}
 
@@ -128,11 +136,13 @@
                 )}
             </span>
             <Carousel gap={16} showDots={true} {itemsPerGroup}>
-                {#if optimumItems.length === 0}
+                {#if isLoading}
+                    <Loader />
+                {:else if optimumItems.length === 0}
                     <div
                         class="flex h-35 w-full items-center justify-center rounded bg-indigo-100 font-bold"
                     >
-                        {$t("pages.project.view.tabs.updates.content.empty")}
+                        {$t("pages.project.view.tabs.budget.empty")}
                     </div>
                 {/if}
 

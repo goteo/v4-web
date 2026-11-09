@@ -1,4 +1,5 @@
 import { ActionError, defineAction } from "astro:actions";
+import { z } from "zod";
 
 import { setSession } from "../auth/session.ts";
 import { apiUsersIdOrHandleGet, apiUsersIdPatch } from "../openapi/client/index.ts";
@@ -7,8 +8,12 @@ import { zProfileForm } from "../validation/publicProfileValidation.ts";
 
 export const updatePublicProfile = defineAction({
     accept: "json",
-    input: zProfileForm,
-    handler: async (input, context) => {
+    input: z.object({
+        form: zProfileForm,
+        // Fields the user edited since the last save, tracked by the form
+        changed: z.array(zProfileForm.keyof()),
+    }),
+    handler: async ({ form: input, changed: changedFields }, context) => {
         const { t, session } = context.locals;
 
         if (!session) {
@@ -32,20 +37,23 @@ export const updatePublicProfile = defineAction({
             }),
         ];
 
-        try {
-            // User first: switching to `organization` makes the API create the Organization record
-            const { error: userError } = await apiUsersIdPatch({
-                path: { id },
-                headers,
-                body: {
-                    avatar: input.avatar,
-                    description: input.description.trim(),
-                    links,
-                },
-            });
+        // Only send what the user edited: the API re-validates every field it gets
+        const changed = new Set<string>(changedFields);
+        const userPatch = Object.fromEntries(
+            Object.entries({
+                avatar: input.avatar,
+                description: input.description.trim(),
+                links,
+            }).filter(([key]) => changed.has(key)),
+        );
 
-            if (userError) {
-                throw userError;
+        try {
+            if (Object.keys(userPatch).length > 0) {
+                const { error } = await apiUsersIdPatch({ path: { id }, headers, body: userPatch });
+
+                if (error) {
+                    throw error;
+                }
             }
 
             // Keep the session cookie in sync so header and profile pages show fresh data

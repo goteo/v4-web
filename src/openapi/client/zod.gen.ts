@@ -7,38 +7,60 @@ import * as z from 'zod';
  */
 export const zAddress = z.object({
     id: z.int().readonly().optional(),
-    user: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    line1: z.string(),
+    user: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    line1: z.string().optional(),
     line2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
-    country: z.string()
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
 });
 
 /**
  * Addresses represent named locations that postal services can reach.
  */
-export const zAddressJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    id: z.int().readonly().optional(),
+export const zAddressAddressCreationDto = z.object({
     user: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    line1: z.string(),
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    line1: z.string().min(1),
+    line2: z.string().min(1).nullish(),
+    city: z.string().min(1),
+    postCode: z.string().min(3),
+    country: z.string(),
+    isDefault: z.boolean().nullish()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressAddressUpdationDtoJsonMergePatch = z.object({
+    firstName: z.string().min(1).nullish(),
+    lastName: z.string().min(1).nullish(),
+    line1: z.string().min(1).nullish(),
+    line2: z.string().min(1).nullish(),
+    city: z.string().min(1).nullish(),
+    postCode: z.string().min(3).nullish(),
+    country: z.string().nullish(),
+    isDefault: z.boolean().nullish()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressCsv = z.object({
+    id: z.int().readonly().optional(),
+    user: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    line1: z.string().optional(),
     line2: z.string().nullish(),
-    city: z.string(),
-    postCode: z.string(),
-    country: z.string()
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
 });
 
 /**
@@ -62,16 +84,7 @@ export const zCategory = z.object({
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
  */
-export const zCategoryJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zCategoryCsv = z.object({
     id: z.string().optional(),
     slug: z.string().readonly().optional(),
     name: z.string(),
@@ -79,40 +92,32 @@ export const zCategoryJsonld = z.object({
 });
 
 /**
- * Unprocessable entity
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
+ * \
+ * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
  */
-export const zConstraintViolationJson = z.object({
-    status: z.int().optional().default(422),
-    violations: z.array(z.object({
-        propertyPath: z.string().optional(),
-        message: z.string().optional()
-    })).optional(),
-    detail: z.string().readonly().optional(),
-    type: z.string().readonly().optional(),
-    title: z.string().readonly().nullish(),
-    instance: z.string().readonly().nullish()
+export const zCategoryJsonMergePatch = z.object({
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string().optional(),
+    locales: z.array(z.string()).readonly().optional()
 });
 
 /**
  * Unprocessable entity
  */
-export const zConstraintViolationJsonldJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zConstraintViolation = z.object({
     status: z.int().optional().default(422),
     violations: z.array(z.object({
-        propertyPath: z.string().optional(),
-        message: z.string().optional()
+        propertyPath: z.string(),
+        message: z.string(),
+        code: z.string().optional(),
+        hint: z.string().optional(),
+        payload: z.record(z.string(), z.unknown()).optional()
     })).optional(),
     detail: z.string().readonly().optional(),
-    description: z.string().readonly().optional(),
     type: z.string().readonly().optional(),
     title: z.string().readonly().nullish(),
     instance: z.string().readonly().nullish()
@@ -124,30 +129,9 @@ export const zConstraintViolationJsonldJsonld = z.object({
 export const zError = z.object({
     title: z.string().readonly().nullish(),
     detail: z.string().readonly().nullish(),
-    status: z.number().optional().default(400),
+    status: z.int().nullish().default(400),
     instance: z.string().readonly().nullish(),
     type: z.string().readonly().optional()
-});
-
-/**
- * A representation of common errors.
- */
-export const zErrorJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    title: z.string().readonly().nullish(),
-    detail: z.string().readonly().nullish(),
-    status: z.number().optional().default(400),
-    instance: z.string().readonly().nullish(),
-    type: z.string().readonly().optional(),
-    description: z.string().readonly().nullish()
 });
 
 /**
@@ -170,16 +154,7 @@ export const zGateway = z.object({
  * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
  * perform corroboration of funds and store the Transactions into the system.
  */
-export const zGatewayJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zGatewayCsv = z.object({
     id: z.string().optional(),
     name: z.string().optional(),
     supports: z.array(z.enum(['single', 'recurring'])).optional()
@@ -188,7 +163,7 @@ export const zGatewayJsonld = z.object({
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export const zGatewayChargeChargeUpdationDto = z.object({
+export const zGatewayChargeChargeUpdationDtoJsonMergePatch = z.object({
     id: z.int().readonly().optional(),
     status: z.enum([
         'to_charge',
@@ -203,7 +178,7 @@ export const zGatewayChargeChargeUpdationDto = z.object({
 /**
  * A GatewayCheckout represents a payment session with a Gateway.
  */
-export const zGatewayCheckoutCheckoutUpdationDto = z.object({
+export const zGatewayCheckoutCheckoutUpdationDtoJsonMergePatch = z.object({
     id: z.int().readonly().optional(),
     refund: z.enum(['to_wallet', 'to_gateway']).optional()
 });
@@ -223,16 +198,7 @@ export const zGatewayLink = z.object({
     ]).readonly().optional()
 });
 
-export const zGatewayLinkJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zGatewayLinkCsv = z.object({
     method: z.string().optional(),
     type: z.enum(['debug', 'payment']).optional(),
     url: z.string().optional(),
@@ -247,6 +213,133 @@ export const zGatewayLinkJsonld = z.object({
     ]).readonly().optional()
 });
 
+export const zGatewayLinkJsonld = z.object({
+    method: z.string().optional(),
+    type: z.enum(['debug', 'payment']).optional(),
+    url: z.string().optional(),
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
+});
+
+export const zHydraCollectionBaseSchemaNoPagination = z.object({
+    totalItems: z.int().gte(0).optional(),
+    search: z.object({
+        '@type': z.string().optional(),
+        template: z.string().optional(),
+        variableRepresentation: z.string().optional(),
+        mapping: z.array(z.object({
+            '@type': z.string().optional(),
+            variable: z.string().optional(),
+            property: z.string().nullish(),
+            required: z.boolean().optional()
+        })).optional()
+    }).optional()
+});
+
+export const zHydraCollectionBaseSchema = zHydraCollectionBaseSchemaNoPagination.and(z.object({
+    view: z.object({
+        '@id': z.string().optional(),
+        '@type': z.string().optional(),
+        first: z.string().nullish(),
+        last: z.string().nullish(),
+        previous: z.string().nullish(),
+        next: z.string().nullish()
+    }).optional()
+}));
+
+export const zHydraItemBaseSchema = z.object({
+    '@context': z.union([
+        z.string(),
+        z.object({
+            '@vocab': z.string(),
+            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
+        })
+    ]).optional(),
+    '@id': z.string(),
+    '@type': z.string()
+});
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export const zAddressJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    user: z.string().optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    line1: z.string().optional(),
+    line2: z.string().nullish(),
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
+}));
+
+/**
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
+ * \
+ * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export const zCategoryJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string(),
+    locales: z.array(z.string()).readonly().optional()
+}));
+
+/**
+ * Unprocessable entity
+ */
+export const zConstraintViolationJsonld = zHydraItemBaseSchema.and(z.object({
+    status: z.int().optional().default(422),
+    violations: z.array(z.object({
+        propertyPath: z.string(),
+        message: z.string(),
+        code: z.string().optional(),
+        hint: z.string().optional(),
+        payload: z.record(z.string(), z.unknown()).optional()
+    })).optional(),
+    detail: z.string().readonly().optional(),
+    description: z.string().readonly().optional(),
+    type: z.string().readonly().optional(),
+    title: z.string().readonly().nullish(),
+    instance: z.string().readonly().nullish()
+}));
+
+/**
+ * A representation of common errors.
+ */
+export const zErrorJsonld = zHydraItemBaseSchema.and(z.object({
+    title: z.string().readonly().nullish(),
+    detail: z.string().readonly().nullish(),
+    status: z.int().nullish().default(400),
+    instance: z.string().readonly().nullish(),
+    type: z.string().readonly().optional(),
+    description: z.string().readonly().nullish()
+}));
+
+/**
+ * Gateways represent payment services used to perform the necessary payments for Transactions between Accounts.\
+ * \
+ * For each Gateway there is an internal implementation that handles the creation and validation of Transactions between Accounts.
+ * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
+ * perform corroboration of funds and store the Transactions into the system.
+ */
+export const zGatewayJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+    supports: z.array(z.enum(['single', 'recurring'])).optional()
+}));
+
 export const zLink = z.object({
     url: z.string().optional(),
     rel: z.string().nullish(),
@@ -260,16 +353,20 @@ export const zLink = z.object({
     ]).readonly().optional()
 });
 
+export const zLinkCsv = z.object({
+    url: z.string().optional(),
+    rel: z.string().nullish(),
+    org: z.enum([
+        'instagram',
+        'facebook',
+        'github',
+        'linkedin',
+        'identica',
+        'unknown'
+    ]).readonly().optional()
+});
+
 export const zLinkJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     url: z.string().optional(),
     rel: z.string().nullish(),
     org: z.enum([
@@ -308,24 +405,7 @@ export const zMatchCallSubmissionMatchCallSubmissionCreationDto = z.object({
 /**
  * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
  */
-export const zMatchCallSubmissionMatchCallSubmissionCreationDtoJsonld = z.object({
-    call: z.string(),
-    project: z.string()
-});
-
-/**
- * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
- */
-export const zMatchCallSubmissionJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zMatchCallSubmissionCsv = z.object({
     id: z.int().readonly().optional(),
     call: z.string().readonly().optional(),
     project: z.string().readonly().optional(),
@@ -336,6 +416,36 @@ export const zMatchCallSubmissionJsonld = z.object({
         'rejected'
     ]).optional().default('to_review')
 });
+
+/**
+ * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
+ */
+export const zMatchCallSubmissionJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    call: z.string().readonly().optional(),
+    project: z.string().readonly().optional(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'accepted',
+        'rejected'
+    ]).optional().default('to_review')
+});
+
+/**
+ * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
+ */
+export const zMatchCallSubmissionJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    call: z.string().readonly().optional(),
+    project: z.string().readonly().optional(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'accepted',
+        'rejected'
+    ]).optional().default('to_review')
+}));
 
 /**
  * A MatchFormula is a predefined code implementation for matching funds in Transactions under a MatchCall.
@@ -350,19 +460,19 @@ export const zMatchFormula = z.object({
  * A MatchFormula is a predefined code implementation for matching funds in Transactions under a MatchCall.
  * MatchFormulas can be chosen by the managers in a MatchCall and their behaviour fine-tuned.
  */
-export const zMatchFormulaJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zMatchFormulaCsv = z.object({
     name: z.string().readonly().optional(),
     expression: z.string().readonly().optional()
 });
+
+/**
+ * A MatchFormula is a predefined code implementation for matching funds in Transactions under a MatchCall.
+ * MatchFormulas can be chosen by the managers in a MatchCall and their behaviour fine-tuned.
+ */
+export const zMatchFormulaJsonld = zHydraItemBaseSchema.and(z.object({
+    name: z.string().readonly().optional(),
+    expression: z.string().readonly().optional()
+}));
 
 /**
  * A MatchRule is a predefined code implementation for validating
@@ -377,19 +487,19 @@ export const zMatchRule = z.object({
  * A MatchRule is a predefined code implementation for validating
  * that a match making condition is met when there is a Charge to be matched.
  */
-export const zMatchRuleJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zMatchRuleCsv = z.object({
     name: z.string().readonly().optional(),
     description: z.string().readonly().optional()
 });
+
+/**
+ * A MatchRule is a predefined code implementation for validating
+ * that a match making condition is met when there is a Charge to be matched.
+ */
+export const zMatchRuleJsonld = zHydraItemBaseSchema.and(z.object({
+    name: z.string().readonly().optional(),
+    description: z.string().readonly().optional()
+}));
 
 export const zMoneyInput = z.object({
     amount: z.int().gt(0),
@@ -428,7 +538,7 @@ export const zGatewayCheckoutCheckoutCreationDto = z.object({
 export const zMatchStrategy = z.object({
     id: z.int().readonly().optional(),
     call: z.string(),
-    ranking: z.int().gte(0).optional().default(0),
+    ranking: z.int().gte(0).optional(),
     rules: z.array(z.string()).optional(),
     formula: z.string(),
     limit: zMoneyInput,
@@ -438,39 +548,6 @@ export const zMatchStrategy = z.object({
         'budget_min',
         'budget_opt'
     ]).optional().default('charge')
-});
-
-export const zMoneyInputJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
-    amount: z.int().gt(0),
-    currency: z.string()
-});
-
-export const zChargeCreationDtoJsonld = z.object({
-    type: z.enum(['single', 'recurring']).default('single'),
-    title: z.string(),
-    description: z.string().nullish(),
-    target: z.string(),
-    money: zMoneyInputJsonld
-});
-
-/**
- * A GatewayCheckout represents a payment session with a Gateway.
- */
-export const zGatewayCheckoutCheckoutCreationDtoJsonld = z.object({
-    gateway: z.string(),
-    origin: z.string(),
-    charges: z.array(zChargeCreationDtoJsonld).min(1),
-    returnUrl: z.url(),
-    refund: z.enum(['to_wallet', 'to_gateway']).optional().default('to_wallet')
 });
 
 /**
@@ -483,19 +560,70 @@ export const zGatewayCheckoutCheckoutCreationDtoJsonld = z.object({
  * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
  * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
  */
-export const zMatchStrategyJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zMatchStrategyJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    call: z.string().optional(),
+    ranking: z.int().gte(0).optional(),
+    rules: z.array(z.string()).optional(),
+    formula: z.string().optional(),
+    limit: zMoneyInput.optional(),
+    factor: z.number().gt(0).optional(),
+    against: z.enum([
+        'charge',
+        'budget_min',
+        'budget_opt'
+    ]).optional().default('charge')
+});
+
+export const zMoneyInputCsv = z.object({
+    amount: z.int().gt(0),
+    currency: z.string()
+});
+
+/**
+ * A MatchStrategy defines how will a MatchCall perform the match-making process.
+ * \
+ * The match-making flow is:
+ * 1. A Project accepted in a MatchCall receives a successful Charge.
+ * 2. The match-making loads the MatchCall's MatchStrategies.
+ * 3. For each MatchStrategy the rules are executed, if one rule fails the match-making is cancelled for the strategy.
+ * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
+ */
+export const zMatchStrategyCsv = z.object({
     id: z.int().readonly().optional(),
     call: z.string(),
-    ranking: z.int().gte(0).optional().default(0),
+    ranking: z.int().gte(0).optional(),
+    rules: z.array(z.string()).optional(),
+    formula: z.string(),
+    limit: zMoneyInputCsv,
+    factor: z.number().gt(0),
+    against: z.enum([
+        'charge',
+        'budget_min',
+        'budget_opt'
+    ]).optional().default('charge')
+});
+
+export const zMoneyInputJsonld = z.object({
+    amount: z.int().gt(0),
+    currency: z.string()
+});
+
+/**
+ * A MatchStrategy defines how will a MatchCall perform the match-making process.
+ * \
+ * The match-making flow is:
+ * 1. A Project accepted in a MatchCall receives a successful Charge.
+ * 2. The match-making loads the MatchCall's MatchStrategies.
+ * 3. For each MatchStrategy the rules are executed, if one rule fails the match-making is cancelled for the strategy.
+ * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
+ */
+export const zMatchStrategyJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    call: z.string(),
+    ranking: z.int().gte(0).optional(),
     rules: z.array(z.string()).optional(),
     formula: z.string(),
     limit: zMoneyInputJsonld,
@@ -505,7 +633,7 @@ export const zMatchStrategyJsonld = z.object({
         'budget_min',
         'budget_opt'
     ]).optional().default('charge')
-});
+}));
 
 /**
  * Sometimes an Organization is behind a User account,
@@ -519,7 +647,22 @@ export const zOrganization = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2),
     legalName: z.string().min(1),
-    businessName: z.string().min(1).optional()
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional()
 });
 
 /**
@@ -530,21 +673,87 @@ export const zOrganization = z.object({
  * All Organization records are only visible to their respective owners and platform admins.
  * Sensitive data is encrypted before being stored in the database.
  */
-export const zOrganizationJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zOrganizationCsv = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2),
     legalName: z.string().min(1),
-    businessName: z.string().min(1).optional()
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional()
 });
+
+/**
+ * Sometimes an Organization is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an individual, to exist all at the same level.\
+ * \
+ * All Organization records are only visible to their respective owners and platform admins.
+ * Sensitive data is encrypted before being stored in the database.
+ */
+export const zOrganizationJsonMergePatch = z.object({
+    user: z.string().readonly().optional(),
+    taxId: z.string().min(2).optional(),
+    legalName: z.string().min(1).optional(),
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional()
+});
+
+/**
+ * Sometimes an Organization is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an individual, to exist all at the same level.\
+ * \
+ * All Organization records are only visible to their respective owners and platform admins.
+ * Sensitive data is encrypted before being stored in the database.
+ */
+export const zOrganizationJsonld = zHydraItemBaseSchema.and(z.object({
+    user: z.string().readonly().optional(),
+    taxId: z.string().min(2),
+    legalName: z.string().min(1),
+    businessName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    legalForm: z.enum([
+        'association',
+        'foundation',
+        'cooperative',
+        'company',
+        'self_employed',
+        'public_administration',
+        'other'
+    ]).nullish(),
+    publicEntity: z.boolean().optional()
+}));
 
 /**
  * Most times a real person is behind a User account,
@@ -558,7 +767,19 @@ export const zPerson = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2).optional(),
     firstName: z.string().min(1).optional(),
-    lastName: z.string().min(1).optional()
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
 });
 
 /**
@@ -569,40 +790,120 @@ export const zPerson = z.object({
  * All Person records are only visible to their respective owners and platform admins.
  * Sensitive personal data is encrypted before being stored in the database.
  */
-export const zPersonJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zPersonCsv = z.object({
     user: z.string().readonly().optional(),
     taxId: z.string().min(2).optional(),
     firstName: z.string().min(1).optional(),
-    lastName: z.string().min(1).optional()
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
 });
+
+/**
+ * Most times a real person is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an organization, to exist all at the same level.\
+ * \
+ * All Person records are only visible to their respective owners and platform admins.
+ * Sensitive personal data is encrypted before being stored in the database.
+ */
+export const zPersonJsonMergePatch = z.object({
+    user: z.string().readonly().optional(),
+    taxId: z.string().min(2).optional(),
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
+});
+
+/**
+ * Most times a real person is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an organization, to exist all at the same level.\
+ * \
+ * All Person records are only visible to their respective owners and platform admins.
+ * Sensitive personal data is encrypted before being stored in the database.
+ */
+export const zPersonJsonld = zHydraItemBaseSchema.and(z.object({
+    user: z.string().readonly().optional(),
+    taxId: z.string().min(2).optional(),
+    firstName: z.string().min(1).optional(),
+    lastName: z.string().min(1).optional(),
+    taxIdType: z.enum([
+        'national_id',
+        'passport',
+        'other'
+    ]).nullish(),
+    birthYear: z.int().gte(1900).nullish(),
+    gender: z.enum([
+        'female',
+        'male',
+        'non_binary',
+        'other'
+    ]).nullish()
+}));
 
 export const zPing = z.object({
     time: z.int().optional(),
     message: z.string().optional()
 });
 
-export const zPingJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zPingCsv = z.object({
     time: z.int().optional(),
     message: z.string().optional()
 });
+
+export const zPingJsonld = zHydraItemBaseSchema.and(z.object({
+    time: z.int().optional(),
+    message: z.string().optional()
+}));
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoney = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoneyCsv = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoneyJsonld = zHydraItemBaseSchema.and(z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+}));
 
 /**
  * A Project's budget is composed via BudgetItem records.\
@@ -629,16 +930,47 @@ export const zProjectBudgetItem = z.object({
  * \
  * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
  */
-export const zProjectBudgetItemJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
+export const zProjectBudgetItemCsv = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string(),
+    type: z.enum([
+        'infrastructure',
+        'material',
+        'task'
+    ]),
+    title: z.string(),
+    description: z.string(),
+    money: zMoneyInputCsv,
+    deadline: z.enum(['minimum', 'optimum']),
+    locales: z.array(z.string()).readonly().optional()
+});
+
+/**
+ * A Project's budget is composed via BudgetItem records.\
+ * \
+ * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
+ */
+export const zProjectBudgetItemJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    type: z.enum([
+        'infrastructure',
+        'material',
+        'task'
     ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    money: zMoneyInput.optional(),
+    deadline: z.enum(['minimum', 'optimum']).optional(),
+    locales: z.array(z.string()).readonly().optional()
+});
+
+/**
+ * A Project's budget is composed via BudgetItem records.\
+ * \
+ * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
+ */
+export const zProjectBudgetItemJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     project: z.string(),
     type: z.enum([
@@ -651,7 +983,7 @@ export const zProjectBudgetItemJsonld = z.object({
     money: zMoneyInputJsonld,
     deadline: z.enum(['minimum', 'optimum']),
     locales: z.array(z.string()).readonly().optional()
-});
+}));
 
 export const zProjectCalendar = z.object({
     release: z.iso.datetime().nullable(),
@@ -659,16 +991,13 @@ export const zProjectCalendar = z.object({
     optimum: z.iso.datetime().nullish()
 });
 
+export const zProjectCalendarCsv = z.object({
+    release: z.iso.datetime().nullable(),
+    minimum: z.iso.datetime().nullish(),
+    optimum: z.iso.datetime().nullish()
+});
+
 export const zProjectCalendarJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     release: z.iso.datetime().nullable(),
     minimum: z.iso.datetime().nullish(),
     optimum: z.iso.datetime().nullish()
@@ -682,7 +1011,7 @@ export const zProjectCollaboration = z.object({
     project: z.string(),
     title: z.string(),
     description: z.string(),
-    isFulfilled: z.boolean().default(false),
+    isFulfilled: z.boolean(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
@@ -691,25 +1020,44 @@ export const zProjectCollaboration = z.object({
 /**
  * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
  */
-export const zProjectCollaborationJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectCollaborationCsv = z.object({
     id: z.int().readonly().optional(),
     project: z.string(),
     title: z.string(),
     description: z.string(),
-    isFulfilled: z.boolean().default(false),
+    isFulfilled: z.boolean(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
+
+/**
+ * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
+ */
+export const zProjectCollaborationJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    isFulfilled: z.boolean().optional(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
+ */
+export const zProjectCollaborationJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    project: z.string(),
+    title: z.string(),
+    description: z.string(),
+    isFulfilled: z.boolean(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
 
 /**
  * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
@@ -732,16 +1080,7 @@ export const zProjectCollaborationCandidacy = z.object({
 /**
  * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
  */
-export const zProjectCollaborationCandidacyJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectCollaborationCandidacyCsv = z.object({
     id: z.int().readonly().optional(),
     collaboration: z.string(),
     user: z.string(),
@@ -755,6 +1094,42 @@ export const zProjectCollaborationCandidacyJsonld = z.object({
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export const zProjectCollaborationCandidacyJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    collaboration: z.string().optional(),
+    user: z.string().optional(),
+    description: z.string().optional(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'rejected',
+        'approved'
+    ]).optional().default('to_review'),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export const zProjectCollaborationCandidacyJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    collaboration: z.string(),
+    user: z.string(),
+    description: z.string(),
+    status: z.enum([
+        'to_review',
+        'in_review',
+        'rejected',
+        'approved'
+    ]).default('to_review'),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
 
 /**
  * ProjectReviews are launched as health-checks for Projects.\
@@ -786,16 +1161,7 @@ export const zProjectReview = z.object({
  * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
  * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
  */
-export const zProjectReviewJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectReviewCsv = z.object({
     id: z.int().readonly().optional(),
     project: z.string().optional(),
     reviewer: z.string().optional(),
@@ -804,6 +1170,46 @@ export const zProjectReviewJsonld = z.object({
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export const zProjectReviewJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    reviewer: z.string().optional(),
+    type: z.enum(['campaign', 'financial']).optional(),
+    areas: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export const zProjectReviewJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    reviewer: z.string().optional(),
+    type: z.enum(['campaign', 'financial']).optional(),
+    areas: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
 
 /**
  * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
@@ -834,16 +1240,7 @@ export const zProjectReviewArea = z.object({
  * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
  * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
  */
-export const zProjectReviewAreaJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectReviewAreaCsv = z.object({
     id: z.int().readonly().optional(),
     review: z.string().optional(),
     title: z.string().optional(),
@@ -857,6 +1254,50 @@ export const zProjectReviewAreaJsonld = z.object({
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export const zProjectReviewAreaJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    review: z.string().optional(),
+    title: z.string().optional(),
+    summary: z.string().optional(),
+    risk: z.enum([
+        'low',
+        'mid',
+        'high'
+    ]).optional(),
+    comments: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export const zProjectReviewAreaJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    review: z.string().optional(),
+    title: z.string().optional(),
+    summary: z.string().optional(),
+    risk: z.enum([
+        'low',
+        'mid',
+        'high'
+    ]).optional(),
+    comments: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
 
 /**
  * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
@@ -873,16 +1314,7 @@ export const zProjectReviewComment = z.object({
 /**
  * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
  */
-export const zProjectReviewCommentJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectReviewCommentCsv = z.object({
     id: z.int().readonly().optional(),
     area: z.string(),
     author: z.string(),
@@ -890,6 +1322,18 @@ export const zProjectReviewCommentJsonld = z.object({
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export const zProjectReviewCommentJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    area: z.string(),
+    author: z.string(),
+    body: z.string().min(15),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
 
 /**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
@@ -901,10 +1345,11 @@ export const zProjectReward = z.object({
     description: z.string().nullable(),
     cover: z.url().optional(),
     money: zMoneyInput,
-    isFinite: z.boolean().default(false),
+    hasShipping: z.boolean(),
+    isFinite: z.boolean(),
     unitsTotal: z.int().nullish(),
-    unitsClaimed: z.int().readonly().optional().default(0),
-    unitsAvailable: z.int().readonly().optional().default(0),
+    unitsClaimed: z.int().readonly().optional(),
+    unitsAvailable: z.int().readonly().optional(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
@@ -913,30 +1358,62 @@ export const zProjectReward = z.object({
 /**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
-export const zProjectRewardJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectRewardCsv = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string(),
+    title: z.string(),
+    description: z.string().nullable(),
+    cover: z.url().optional(),
+    money: zMoneyInputCsv,
+    hasShipping: z.boolean(),
+    isFinite: z.boolean(),
+    unitsTotal: z.int().nullish(),
+    unitsClaimed: z.int().readonly().optional(),
+    unitsAvailable: z.int().readonly().optional(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
+ */
+export const zProjectRewardJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    title: z.string().optional(),
+    description: z.string().nullish(),
+    cover: z.url().optional(),
+    money: zMoneyInput.optional(),
+    hasShipping: z.boolean().optional(),
+    isFinite: z.boolean().optional(),
+    unitsTotal: z.int().nullish(),
+    unitsClaimed: z.int().readonly().optional(),
+    unitsAvailable: z.int().readonly().optional(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
+ */
+export const zProjectRewardJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     project: z.string(),
     title: z.string(),
     description: z.string().nullable(),
     cover: z.url().optional(),
     money: zMoneyInputJsonld,
-    isFinite: z.boolean().default(false),
+    hasShipping: z.boolean(),
+    isFinite: z.boolean(),
     unitsTotal: z.int().nullish(),
-    unitsClaimed: z.int().readonly().optional().default(0),
-    unitsAvailable: z.int().readonly().optional().default(0),
+    unitsClaimed: z.int().readonly().optional(),
+    unitsAvailable: z.int().readonly().optional(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
-});
+}));
 
 /**
  * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
@@ -971,19 +1448,7 @@ export const zProjectRewardClaimRewardClaimCreationDto = z.object({
  * Once created ProjectRewardClaims can only be deleted by the User who owns it,
  * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
-export const zProjectRewardClaimRewardClaimCreationDtoJsonld = z.object({
-    charge: z.string(),
-    reward: z.string(),
-    address: z.string().nullish()
-});
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export const zProjectRewardClaimRewardClaimUpdationDto = z.object({
+export const zProjectRewardClaimRewardClaimUpdationDtoJsonMergePatch = z.object({
     status: z.enum(['in_pending', 'fulfilled']).optional(),
     address: z.string().nullish()
 });
@@ -994,23 +1459,29 @@ export const zProjectRewardClaimRewardClaimUpdationDto = z.object({
  * Once created ProjectRewardClaims can only be deleted by the User who owns it,
  * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
-export const zProjectRewardClaimJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectRewardClaimCsv = z.object({
+    id: z.int().readonly().optional(),
+    owner: z.string().optional(),
+    charge: z.string().optional(),
+    reward: z.string().optional(),
+    status: z.enum(['in_pending', 'fulfilled']).optional(),
+    address: zAddressCsv.nullish()
+});
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export const zProjectRewardClaimJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     owner: z.string().optional(),
     charge: z.string().optional(),
     reward: z.string().optional(),
     status: z.enum(['in_pending', 'fulfilled']).optional(),
     address: zAddressJsonld.nullish()
-});
+}));
 
 /**
  * ProjectSupports gather Transactions going from one same origin to one same Project.\
@@ -1030,13 +1501,23 @@ export const zProjectSupportTotalizedMoney = z.object({
  * MatchCalls specially might make several different Transactions to the same Project,
  * but their ProjectSupport remains the same just with updated money.
  */
-export const zProjectSupportTotalizedMoneyJsonld = z.object({
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectSupportTotalizedMoneyCsv = z.object({
     amount: z.int().optional(),
     currency: z.string().optional(),
     length: z.int().optional()
 });
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export const zProjectSupportTotalizedMoneyJsonld = zHydraItemBaseSchema.and(z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+}));
 
 /**
  * A ProjectUpdate offers records of significant news during a Project's life.\
@@ -1064,16 +1545,7 @@ export const zProjectUpdate = z.object({
  * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
  * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
  */
-export const zProjectUpdateJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectUpdateCsv = z.object({
     id: z.int().readonly().optional(),
     project: z.string(),
     title: z.string(),
@@ -1087,22 +1559,59 @@ export const zProjectUpdateJsonld = z.object({
     dateUpdated: z.iso.datetime().readonly().optional()
 });
 
+/**
+ * A ProjectUpdate offers records of significant news during a Project's life.\
+ * \
+ * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
+ * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
+ */
+export const zProjectUpdateJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().optional(),
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    body: z.string().optional(),
+    date: z.iso.datetime().optional().default('now'),
+    cover: z.url().optional(),
+    author: z.string().readonly().nullish(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A ProjectUpdate offers records of significant news during a Project's life.\
+ * \
+ * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
+ * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
+ */
+export const zProjectUpdateJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    project: z.string(),
+    title: z.string(),
+    subtitle: z.string(),
+    body: z.string(),
+    date: z.iso.datetime().optional().default('now'),
+    cover: z.url().optional(),
+    author: z.string().readonly().nullish(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+}));
+
 export const zProjectVideo = z.object({
     src: z.string().nullish(),
     cover: z.string().nullish(),
     thumbnail: z.string().nullish()
 });
 
+export const zProjectVideoCsv = z.object({
+    src: z.string().nullish(),
+    cover: z.string().nullish(),
+    thumbnail: z.string().nullish()
+});
+
 export const zProjectVideoJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     src: z.string().nullish(),
     cover: z.string().nullish(),
     thumbnail: z.string().nullish()
@@ -1149,6 +1658,39 @@ export const zMatchCall = z.object({
 });
 
 /**
+ * A MatchCall is a managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
+ * This means money going to a Project in a MatchCall can be matched with funds from the MatchCall accounting.
+ * \
+ * \
+ * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
+ * \
+ * \
+ * How and when does a MatchCall match funds is determined by the MatchStrategy.
+ * Everytime there is a Charge item going to a Project accepted in a MatchCall the strategy is evaluated for matching.
+ * The strategy defines a series of rules that determine if the Charge is eligible for triggering the matching of funds.
+ * When a Charge is to be matched the strategy uses a MatchFormula,
+ * which is a predefined implementation for common mathematical operations used to match money.
+ * The formula is fine-tuned in the strategy by defining the variables in the formula.
+ */
+export const zMatchCallJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    accounting: z.string().readonly().optional(),
+    strategies: z.array(z.string()).readonly().optional(),
+    submissions: z.array(z.string()).readonly().optional(),
+    managers: z.array(z.string()).optional(),
+    title: z.string().optional(),
+    description: z.string().optional(),
+    territory: zTerritory.optional(),
+    status: z.enum([
+        'in_editing',
+        'in_calling',
+        'in_matchmaking',
+        'to_closed',
+        'closed'
+    ]).optional().default('in_editing')
+});
+
+/**
  * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
  */
 export const zProjectProjectCreationDto = z.object({
@@ -1183,7 +1725,7 @@ export const zProjectProjectCreationDto = z.object({
 /**
  * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
  */
-export const zProjectProjectUpdationDto = z.object({
+export const zProjectProjectUpdationDtoJsonMergePatch = z.object({
     id: z.int().readonly().optional(),
     title: z.string().min(3).regex(/^(.*[a-zA-Z]{1,}.*)$/).optional(),
     subtitle: z.string().optional(),
@@ -1220,16 +1762,7 @@ export const zProjectProjectUpdationDto = z.object({
     ]).optional()
 });
 
-export const zTerritoryJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zTerritoryCsv = z.object({
     country: z.string().nullable(),
     subLvl1: z.string().nullish(),
     subLvl2: z.string().nullish(),
@@ -1251,16 +1784,47 @@ export const zTerritoryJsonld = z.object({
  * which is a predefined implementation for common mathematical operations used to match money.
  * The formula is fine-tuned in the strategy by defining the variables in the formula.
  */
-export const zMatchCallJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zMatchCallCsv = z.object({
+    id: z.int().readonly().optional(),
+    accounting: z.string().readonly().optional(),
+    strategies: z.array(z.string()).readonly().optional(),
+    submissions: z.array(z.string()).readonly().optional(),
+    managers: z.array(z.string()).optional(),
+    title: z.string(),
+    description: z.string().optional(),
+    territory: zTerritoryCsv,
+    status: z.enum([
+        'in_editing',
+        'in_calling',
+        'in_matchmaking',
+        'to_closed',
+        'closed'
+    ]).optional().default('in_editing')
+});
+
+export const zTerritoryJsonld = z.object({
+    country: z.string().nullable(),
+    subLvl1: z.string().nullish(),
+    subLvl2: z.string().nullish(),
+    address: z.string().nullish()
+});
+
+/**
+ * A MatchCall is a managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
+ * This means money going to a Project in a MatchCall can be matched with funds from the MatchCall accounting.
+ * \
+ * \
+ * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
+ * \
+ * \
+ * How and when does a MatchCall match funds is determined by the MatchStrategy.
+ * Everytime there is a Charge item going to a Project accepted in a MatchCall the strategy is evaluated for matching.
+ * The strategy defines a series of rules that determine if the Charge is eligible for triggering the matching of funds.
+ * When a Charge is to be matched the strategy uses a MatchFormula,
+ * which is a predefined implementation for common mathematical operations used to match money.
+ * The formula is fine-tuned in the strategy by defining the variables in the formula.
+ */
+export const zMatchCallJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     accounting: z.string().readonly().optional(),
     strategies: z.array(z.string()).readonly().optional(),
@@ -1276,39 +1840,7 @@ export const zMatchCallJsonld = z.object({
         'to_closed',
         'closed'
     ]).optional().default('in_editing')
-});
-
-/**
- * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
- */
-export const zProjectProjectCreationDtoJsonld = z.object({
-    title: z.string().min(3).regex(/^(.*[a-zA-Z]{1,}.*)$/),
-    subtitle: z.string(),
-    categories: z.array(z.string()).min(1).max(2),
-    themes: z.array(z.string()).max(1).optional(),
-    territory: zTerritoryJsonld,
-    calendar: zProjectCalendarJsonld,
-    status: z.enum([
-        'in_draft',
-        'to_campaign_review',
-        'in_campaign_review',
-        'in_campaign_review.to_change',
-        'in_campaign_review.to_review',
-        'campaign_review.rejected',
-        'to_campaign',
-        'in_campaign',
-        'campaign.failed',
-        'campaign.cancelled',
-        'to_funding_review',
-        'in_funding_review',
-        'in_funding_review.to_change',
-        'in_funding_review.to_review',
-        'funding_review.rejected',
-        'to_funding',
-        'in_funding',
-        'funding.paid'
-    ]).readonly().optional().default('in_draft')
-});
+}));
 
 /**
  * A Theme, like in books, works as a "topic intent" grouping, for example:
@@ -1331,21 +1863,40 @@ export const zTheme = z.object({
  * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
  */
-export const zThemeJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zThemeCsv = z.object({
     id: z.string().optional(),
     slug: z.string().readonly().optional(),
     name: z.string(),
     locales: z.array(z.string()).readonly().optional()
 });
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export const zThemeJsonMergePatch = z.object({
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string().optional(),
+    locales: z.array(z.string()).readonly().optional()
+});
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export const zThemeJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.string().optional(),
+    slug: z.string().readonly().optional(),
+    name: z.string(),
+    locales: z.array(z.string()).readonly().optional()
+}));
 
 /**
  * Unlike other Money recipients a Tipjar receives money with no further goal.\
@@ -1363,20 +1914,33 @@ export const zTipjar = z.object({
  * \
  * Tips to the platform owners and other no-purpose money can target a Tipjar.
  */
-export const zTipjarJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zTipjarCsv = z.object({
     id: z.int().readonly().optional(),
     accounting: z.string().readonly().optional(),
     name: z.string()
 });
+
+/**
+ * Unlike other Money recipients a Tipjar receives money with no further goal.\
+ * \
+ * Tips to the platform owners and other no-purpose money can target a Tipjar.
+ */
+export const zTipjarJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    accounting: z.string().readonly().optional(),
+    name: z.string().optional()
+});
+
+/**
+ * Unlike other Money recipients a Tipjar receives money with no further goal.\
+ * \
+ * Tips to the platform owners and other no-purpose money can target a Tipjar.
+ */
+export const zTipjarJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().optional(),
+    accounting: z.string().readonly().optional(),
+    name: z.string()
+}));
 
 export const zTotalizedMoney = z.object({
     amount: z.int().optional(),
@@ -1392,16 +1956,7 @@ export const zGatewayChargeChargesTotalsDto = z.object({
     money: zTotalizedMoney.optional()
 });
 
-export const zTotalizedMoneyJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zTotalizedMoneyCsv = z.object({
     amount: z.int().optional(),
     currency: z.string().optional(),
     length: z.int().optional()
@@ -1410,28 +1965,36 @@ export const zTotalizedMoneyJsonld = z.object({
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export const zGatewayChargeChargesTotalsDtoJsonld = z.object({
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zGatewayChargeChargesTotalsDtoCsv = z.object({
+    projects: z.int().optional(),
+    money: zTotalizedMoneyCsv.optional()
+});
+
+export const zTotalizedMoneyJsonld = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
+ * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
+ */
+export const zGatewayChargeChargesTotalsDtoJsonld = zHydraItemBaseSchema.and(z.object({
     projects: z.int().optional(),
     money: zTotalizedMoneyJsonld.optional()
-});
+}));
 
 export const zTracking = z.object({
     title: z.string().optional(),
     value: z.string().optional()
 });
 
+export const zTrackingCsv = z.object({
+    title: z.string().optional(),
+    value: z.string().optional()
+});
+
 export const zTrackingJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     title: z.string().optional(),
     value: z.string().optional()
 });
@@ -1456,6 +2019,18 @@ export const zUser = z.object({
     links: z.array(zLink).readonly().optional(),
     territory: zTerritory.optional(),
     description: z.string().optional(),
+    shareLocation: z.boolean().optional(),
+    isAnonymous: z.boolean().optional(),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    preferredCategories: z.array(z.string()).optional(),
+    preferredThemes: z.array(z.string()).optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
 });
@@ -1472,16 +2047,7 @@ export const zUserUserSignupDto = z.object({
 /**
  * Users represent people who interact with the platform.
  */
-export const zUserUserSignupDtoJsonld = z.object({
-    email: z.email(),
-    password: z.string().min(8),
-    type: z.enum(['individual', 'organization']).default('individual')
-});
-
-/**
- * Users represent people who interact with the platform.
- */
-export const zUserUserUpdationDto = z.object({
+export const zUserUserUpdationDtoJsonMergePatch = z.object({
     handle: z.string().min(4).max(30).regex(/^([a-z0-9_]+)$/).optional(),
     email: z.email().optional(),
     password: z.string().min(8).optional(),
@@ -1490,22 +2056,61 @@ export const zUserUserUpdationDto = z.object({
     roles: z.array(z.string()).optional(),
     links: z.array(z.string()).optional(),
     territory: zTerritory.optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    shareLocation: z.boolean().optional(),
+    isAnonymous: z.boolean().optional(),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    preferredCategories: z.array(z.string()).optional(),
+    preferredThemes: z.array(z.string()).optional()
 });
 
 /**
  * Users represent people who interact with the platform.
  */
-export const zUserJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zUserCsv = z.object({
+    id: z.int().readonly().optional(),
+    handle: z.string().min(4).max(30).regex(/^([a-z0-9_]+)$/),
+    email: z.email(),
+    emailConfirmed: z.boolean().readonly().optional(),
+    avatar: z.url().optional(),
+    type: z.enum(['individual', 'organization']).optional(),
+    roles: z.array(z.string()).optional(),
+    displayName: z.string().readonly().optional(),
+    person: z.string().readonly().optional(),
+    organization: z.string().readonly().nullish(),
+    accounting: z.string().readonly().optional(),
+    projects: z.array(z.string()).readonly().optional(),
+    active: z.boolean().readonly().optional(),
+    links: z.array(zLinkCsv).readonly().optional(),
+    territory: zTerritoryCsv.optional(),
+    description: z.string().optional(),
+    shareLocation: z.boolean().optional(),
+    isAnonymous: z.boolean().optional(),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    preferredCategories: z.array(z.string()).optional(),
+    preferredThemes: z.array(z.string()).optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * Users represent people who interact with the platform.
+ */
+export const zUserJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     handle: z.string().min(4).max(30).regex(/^([a-z0-9_]+)$/),
     email: z.email(),
@@ -1522,9 +2127,21 @@ export const zUserJsonld = z.object({
     links: z.array(zLinkJsonld).readonly().optional(),
     territory: zTerritoryJsonld.optional(),
     description: z.string().optional(),
+    shareLocation: z.boolean().optional(),
+    isAnonymous: z.boolean().optional(),
+    referralSource: z.enum([
+        'search_engine',
+        'social_media',
+        'friend',
+        'press',
+        'event',
+        'other'
+    ]).nullish(),
+    preferredCategories: z.array(z.string()).optional(),
+    preferredThemes: z.array(z.string()).optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
-});
+}));
 
 /**
  * Some resources are versioned. This means v4 keeps track of the changes performed in subsets of specific properties within these resources.\
@@ -1548,16 +2165,7 @@ export const zVersion = z.object({
  * This allows us to keep track of the flow and the evolution of records in the platform.
  * Looking at the changes done between one version and the next one we can reconstruct how a resource was at a certain point in time.
  */
-export const zVersionJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zVersionCsv = z.object({
     id: z.int().readonly().nullish(),
     action: z.string().readonly().nullish(),
     resource: z.string().readonly().optional(),
@@ -1566,6 +2174,22 @@ export const zVersionJsonld = z.object({
     resourceChanges: z.unknown().optional(),
     dateCreated: z.iso.datetime().readonly().nullish()
 });
+
+/**
+ * Some resources are versioned. This means v4 keeps track of the changes performed in subsets of specific properties within these resources.\
+ * \
+ * This allows us to keep track of the flow and the evolution of records in the platform.
+ * Looking at the changes done between one version and the next one we can reconstruct how a resource was at a certain point in time.
+ */
+export const zVersionJsonld = zHydraItemBaseSchema.and(z.object({
+    id: z.int().readonly().nullish(),
+    action: z.string().readonly().nullish(),
+    resource: z.string().readonly().optional(),
+    resourceId: z.int().readonly().optional(),
+    resourceVersion: z.int().readonly().nullish(),
+    resourceChanges: z.unknown().optional(),
+    dateCreated: z.iso.datetime().readonly().nullish()
+}));
 
 /**
  * v4 features an advanced economy model under the hood.
@@ -1591,22 +2215,29 @@ export const zAccounting = z.object({
  * \
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
-export const zAccountingJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zAccountingCsv = z.object({
+    id: z.int().optional(),
+    owner: z.string().optional(),
+    ownerObject: z.string().optional(),
+    currency: z.string().optional(),
+    balance: z.lazy((): any => zMoneyOutputCsv).optional()
+});
+
+/**
+ * v4 features an advanced economy model under the hood.
+ * Accountings are implemented as a common interface for issuing and receiving Transactions,
+ * which allows different resources to have money-capabalities.
+ * \
+ * \
+ * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
+ */
+export const zAccountingJsonld = zHydraItemBaseSchema.and(z.lazy(() => z.object({
     id: z.int().optional(),
     owner: z.string().optional(),
     ownerObject: z.string().optional(),
     currency: z.string().optional(),
     balance: z.lazy((): any => zMoneyOutputJsonld).optional()
-});
+})));
 
 /**
  * AccountingBalancePoints represent a dated aggregate Accounting balance.\
@@ -1627,14 +2258,25 @@ export const zAccountingBalancePoint = z.object({
  * Each point is the sum of money at incoming and outgoing transactions in an Accounting for a period of time,
  * you can query multiple balance points to obtain the evolution of the Accounting's balance over time.
  */
-export const zAccountingBalancePointJsonld = z.object({
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zAccountingBalancePointCsv = z.object({
+    start: z.iso.datetime().optional(),
+    end: z.iso.datetime().optional(),
+    balance: z.lazy((): any => zMoneyOutputCsv).optional(),
+    length: z.int().optional()
+});
+
+/**
+ * AccountingBalancePoints represent a dated aggregate Accounting balance.\
+ * \
+ * Each point is the sum of money at incoming and outgoing transactions in an Accounting for a period of time,
+ * you can query multiple balance points to obtain the evolution of the Accounting's balance over time.
+ */
+export const zAccountingBalancePointJsonld = zHydraItemBaseSchema.and(z.lazy(() => z.object({
     start: z.iso.datetime().optional(),
     end: z.iso.datetime().optional(),
     balance: z.lazy((): any => zMoneyOutputJsonld).optional(),
     length: z.int().optional()
-});
+})));
 
 /**
  * AccountingTransactions represent a movement of money from one Accounting (origin) into another (target).\
@@ -1661,37 +2303,40 @@ export const zAccountingTransaction = z.object({
  * \
  * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
  */
-export const zAccountingTransactionJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zAccountingTransactionCsv = z.object({
+    id: z.int().readonly().optional(),
+    money: z.lazy((): any => zMoneyOutputCsv).optional(),
+    origin: z.string().optional(),
+    target: z.string().optional()
+});
+
+/**
+ * AccountingTransactions represent a movement of money from one Accounting (origin) into another (target).\
+ * \
+ * When a transaction targets an Accounting it means that the Accounting receives it, this will add to that Accounting.
+ * When a transaction originates from an Accounting the Accounting issues the transaction and it will deduct from it if,
+ * specially when the transaction comes from a GatewayCharge processed by the `wallet` Gateway.\
+ * \
+ * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
+ */
+export const zAccountingTransactionJsonld = zHydraItemBaseSchema.and(z.lazy(() => z.object({
     id: z.int().readonly().optional(),
     money: z.lazy((): any => zMoneyOutputJsonld).optional(),
     origin: z.string().optional(),
     target: z.string().optional()
-});
+})));
 
 export const zBudget = z.object({
     minimum: z.lazy((): any => zBudgetSummary).readonly().optional(),
     optimum: z.lazy((): any => zBudgetSummary).readonly().optional()
 });
 
+export const zBudgetCsv = z.object({
+    minimum: z.lazy((): any => zBudgetSummaryCsv).readonly().optional(),
+    optimum: z.lazy((): any => zBudgetSummaryCsv).readonly().optional()
+});
+
 export const zBudgetJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     minimum: z.lazy((): any => zBudgetSummaryJsonld).readonly().optional(),
     optimum: z.lazy((): any => zBudgetSummaryJsonld).readonly().optional()
 });
@@ -1703,16 +2348,14 @@ export const zBudgetSummary = z.object({
     infra: z.lazy((): any => zMoneyOutput).optional()
 });
 
+export const zBudgetSummaryCsv = z.object({
+    money: z.lazy((): any => zMoneyOutputCsv).optional(),
+    task: z.lazy((): any => zMoneyOutputCsv).optional(),
+    material: z.lazy((): any => zMoneyOutputCsv).optional(),
+    infra: z.lazy((): any => zMoneyOutputCsv).optional()
+});
+
 export const zBudgetSummaryJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     money: z.lazy((): any => zMoneyOutputJsonld).optional(),
     task: z.lazy((): any => zMoneyOutputJsonld).optional(),
     material: z.lazy((): any => zMoneyOutputJsonld).optional(),
@@ -1728,16 +2371,16 @@ export const zConversion = z.object({
     provider: z.string().optional()
 });
 
+export const zConversionCsv = z.object({
+    rounding: z.string().optional(),
+    from: z.lazy((): any => zMoneyCsv).optional(),
+    to: z.lazy((): any => zMoneyCsv).optional(),
+    rate: z.number().optional(),
+    date: z.string().optional(),
+    provider: z.string().optional()
+});
+
 export const zConversionJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     rounding: z.string().optional(),
     from: z.lazy((): any => zMoneyJsonld).optional(),
     to: z.lazy((): any => zMoneyJsonld).optional(),
@@ -1772,16 +2415,30 @@ export const zGatewayCharge = z.object({
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export const zGatewayChargeJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zGatewayChargeCsv = z.object({
+    id: z.int().readonly().nullish(),
+    checkout: z.string().optional(),
+    type: z.enum(['single', 'recurring']).default('single'),
+    title: z.string(),
+    description: z.string().nullish(),
+    target: z.string(),
+    money: z.lazy((): any => zMoneyOutputCsv),
+    status: z.enum([
+        'to_charge',
+        'in_charge',
+        'to_refund',
+        'refunded',
+        'to_wallet',
+        'walleted'
+    ]).readonly().optional().default('to_charge'),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
+ */
+export const zGatewayChargeJsonld = zHydraItemBaseSchema.and(z.lazy(() => z.object({
     id: z.int().readonly().nullish(),
     checkout: z.string().optional(),
     type: z.enum(['single', 'recurring']).default('single'),
@@ -1799,7 +2456,7 @@ export const zGatewayChargeJsonld = z.object({
     ]).readonly().optional().default('to_charge'),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
-});
+})));
 
 /**
  * A GatewayCheckout represents a payment session with a Gateway.
@@ -1821,16 +2478,24 @@ export const zGatewayCheckout = z.object({
 /**
  * A GatewayCheckout represents a payment session with a Gateway.
  */
-export const zGatewayCheckoutJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zGatewayCheckoutCsv = z.object({
+    id: z.int().readonly().optional(),
+    gateway: z.string(),
+    origin: z.string(),
+    charges: z.array(zGatewayChargeCsv).min(1),
+    returnUrl: z.url(),
+    refund: z.enum(['to_wallet', 'to_gateway']).optional().default('to_wallet'),
+    status: z.enum(['to_charge', 'charged']).readonly().optional().default('to_charge'),
+    links: z.array(zGatewayLinkCsv).readonly().optional(),
+    trackings: z.array(zTrackingCsv).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * A GatewayCheckout represents a payment session with a Gateway.
+ */
+export const zGatewayCheckoutJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     gateway: z.string(),
     origin: z.string(),
@@ -1842,7 +2507,7 @@ export const zGatewayCheckoutJsonld = z.object({
     trackings: z.array(zTrackingJsonld).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
-});
+}));
 
 export const zMoney = z.object({
     amount: z.int().optional(),
@@ -1850,16 +2515,13 @@ export const zMoney = z.object({
     conversion: zConversion.nullish()
 });
 
+export const zMoneyCsv = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    conversion: zConversionCsv.nullish()
+});
+
 export const zMoneyJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     amount: z.int().optional(),
     currency: z.string().optional(),
     conversion: zConversionJsonld.nullish()
@@ -1871,16 +2533,13 @@ export const zMoneyOutput = z.object({
     conversion: zConversion.nullish()
 });
 
+export const zMoneyOutputCsv = z.object({
+    amount: z.int().gt(0),
+    currency: z.string(),
+    conversion: zConversionCsv.nullish()
+});
+
 export const zMoneyOutputJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
     amount: z.int().gt(0),
     currency: z.string(),
     conversion: zConversionJsonld.nullish()
@@ -1942,16 +2601,60 @@ export const zProject = z.object({
 /**
  * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
  */
-export const zProjectJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectCsv = z.object({
+    id: z.int().readonly().optional(),
+    slug: z.string().readonly().optional(),
+    accounting: z.string().readonly().optional(),
+    owner: z.string().readonly().optional(),
+    title: z.string(),
+    subtitle: z.string(),
+    cover: z.url().optional(),
+    deadline: z.enum(['minimum', 'optimum']).readonly().optional(),
+    calendar: zProjectCalendarCsv.readonly().optional(),
+    categories: z.array(z.string()),
+    themes: z.array(z.string()),
+    territory: zTerritoryCsv,
+    descBrief: z.string().optional(),
+    descAbout: z.string().optional(),
+    descGoal: z.string().optional(),
+    descTeam: z.string().optional(),
+    video: zProjectVideoCsv.readonly().optional(),
+    status: z.enum([
+        'in_draft',
+        'to_campaign_review',
+        'in_campaign_review',
+        'in_campaign_review.to_change',
+        'in_campaign_review.to_review',
+        'campaign_review.rejected',
+        'to_campaign',
+        'in_campaign',
+        'campaign.failed',
+        'campaign.cancelled',
+        'to_funding_review',
+        'in_funding_review',
+        'in_funding_review.to_change',
+        'in_funding_review.to_review',
+        'funding_review.rejected',
+        'to_funding',
+        'in_funding',
+        'funding.paid'
+    ]).optional().default('in_draft'),
+    rewards: z.array(z.string()).readonly().optional(),
+    budget: zBudgetCsv.readonly().optional(),
+    budgetItems: z.array(z.string()).readonly().optional(),
+    collaborations: z.array(z.string()).readonly().optional(),
+    updates: z.array(z.string()).readonly().optional(),
+    matchCallSubmissions: z.array(z.string()).readonly().optional(),
+    links: z.array(zLinkCsv).readonly().optional(),
+    locales: z.array(z.string()).readonly().optional(),
+    dateCreated: z.iso.datetime().readonly().optional(),
+    dateUpdated: z.iso.datetime().readonly().optional()
+});
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     slug: z.string().readonly().optional(),
     accounting: z.string().readonly().optional(),
@@ -1999,7 +2702,7 @@ export const zProjectJsonld = z.object({
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
-});
+}));
 
 /**
  * ProjectSupports gather Transactions going from one same origin to one same Project.\
@@ -2026,16 +2729,45 @@ export const zProjectSupport = z.object({
  * MatchCalls specially might make several different Transactions to the same Project,
  * but their ProjectSupport remains the same just with updated money.
  */
-export const zProjectSupportJsonld = z.object({
-    '@context': z.union([
-        z.string(),
-        z.object({
-            '@vocab': z.string(),
-            hydra: z.enum(['http://www.w3.org/ns/hydra/core#'])
-        })
-    ]).optional(),
-    '@id': z.string().readonly().optional(),
-    '@type': z.string().readonly().optional(),
+export const zProjectSupportCsv = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().readonly().optional(),
+    origin: z.string().readonly().nullish(),
+    displayName: z.string().readonly().nullish(),
+    displayImage: z.string().readonly().nullish(),
+    transactions: z.array(z.string()).readonly().optional(),
+    money: zMoneyOutputCsv.readonly().optional(),
+    anonymous: z.boolean().default(true),
+    matchfunding: z.boolean().readonly().optional(),
+    message: z.string().nullish()
+});
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export const zProjectSupportJsonMergePatch = z.object({
+    id: z.int().readonly().optional(),
+    project: z.string().readonly().optional(),
+    origin: z.string().readonly().nullish(),
+    displayName: z.string().readonly().nullish(),
+    displayImage: z.string().readonly().nullish(),
+    transactions: z.array(z.string()).readonly().optional(),
+    money: zMoneyOutput.readonly().optional(),
+    anonymous: z.boolean().optional().default(true),
+    matchfunding: z.boolean().readonly().optional(),
+    message: z.string().nullish()
+});
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export const zProjectSupportJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     project: z.string().readonly().optional(),
     origin: z.string().readonly().nullish(),
@@ -2046,11 +2778,17 @@ export const zProjectSupportJsonld = z.object({
     anonymous: z.boolean().default(true),
     matchfunding: z.boolean().readonly().optional(),
     message: z.string().nullish()
-});
+}));
 
 export const zApiAddressesGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
-    itemsPerPage: z.int().gte(0).lte(100).optional().default(30)
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    user: z.string().optional(),
+    'user[]': z.array(z.string()).optional(),
+    city: z.string().optional(),
+    postCode: z.string().optional(),
+    country: z.string().optional(),
+    'country[]': z.array(z.string()).optional()
 });
 
 /**
@@ -2061,7 +2799,7 @@ export const zApiAddressesGetCollectionResponse = z.array(zAddress);
 /**
  * The new Address resource
  */
-export const zApiAddressesPostBody = zAddress;
+export const zApiAddressesPostBody = zAddressAddressCreationDto;
 
 /**
  * Address resource created
@@ -2089,7 +2827,7 @@ export const zApiAddressesIdGetResponse = zAddress;
 /**
  * The updated Address resource
  */
-export const zApiAddressesIdPatchBody = zAddress;
+export const zApiAddressesIdPatchBody = zAddressAddressUpdationDtoJsonMergePatch;
 
 export const zApiAddressesIdPatchPath = z.object({
     id: z.string()
@@ -2144,7 +2882,7 @@ export const zApiCategoriesIdDeleteResponse = z.void();
 /**
  * The updated Category resource
  */
-export const zApiCategoriesIdPatchBody = zCategory;
+export const zApiCategoriesIdPatchBody = zCategoryJsonMergePatch;
 
 export const zApiCategoriesIdPatchPath = z.object({
     id: z.string()
@@ -2268,7 +3006,7 @@ export const zApiMatchCallsIdGetResponse = zMatchCall;
 /**
  * The updated MatchCall resource
  */
-export const zApiMatchCallsIdPatchBody = zMatchCall;
+export const zApiMatchCallsIdPatchBody = zMatchCallJsonMergePatch;
 
 export const zApiMatchCallsIdPatchPath = z.object({
     id: z.string()
@@ -2317,7 +3055,7 @@ export const zApiMatchCallSubmissionsIdGetResponse = zMatchCallSubmission;
 /**
  * The updated MatchCallSubmission resource
  */
-export const zApiMatchCallSubmissionsIdPatchBody = zMatchCallSubmission;
+export const zApiMatchCallSubmissionsIdPatchBody = zMatchCallSubmissionJsonMergePatch;
 
 export const zApiMatchCallSubmissionsIdPatchPath = z.object({
     id: z.string()
@@ -2410,7 +3148,7 @@ export const zApiMatchStrategiesIdGetResponse = zMatchStrategy;
 /**
  * The updated MatchStrategy resource
  */
-export const zApiMatchStrategiesIdPatchBody = zMatchStrategy;
+export const zApiMatchStrategiesIdPatchBody = zMatchStrategyJsonMergePatch;
 
 export const zApiMatchStrategiesIdPatchPath = z.object({
     id: z.string()
@@ -2433,7 +3171,7 @@ export const zApiUsersIdorganizationGetResponse = zOrganization;
 /**
  * The updated Organization resource
  */
-export const zApiUsersIdorganizationPatchBody = zOrganization;
+export const zApiUsersIdorganizationPatchBody = zOrganizationJsonMergePatch;
 
 export const zApiUsersIdorganizationPatchPath = z.object({
     id: z.string()
@@ -2456,7 +3194,7 @@ export const zApiUsersIdpersonGetResponse = zPerson;
 /**
  * The updated Person resource
  */
-export const zApiUsersIdpersonPatchBody = zPerson;
+export const zApiUsersIdpersonPatchBody = zPersonJsonMergePatch;
 
 export const zApiUsersIdpersonPatchPath = z.object({
     id: z.string()
@@ -2471,6 +3209,57 @@ export const zApiUsersIdpersonPatchResponse = zPerson;
  * Ping resource
  */
 export const zApiPingGetResponse = zPing;
+
+export const zApiProjectsmoneyTotalGetCollectionQuery = z.object({
+    slug: z.string().optional(),
+    'slug[]': z.array(z.string()).optional(),
+    accounting: z.string().optional(),
+    'accounting[]': z.array(z.string()).optional(),
+    owner: z.string().optional(),
+    'owner[]': z.array(z.string()).optional(),
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    categories: z.string().optional(),
+    'categories[]': z.array(z.string()).optional(),
+    themes: z.string().optional(),
+    'themes[]': z.array(z.string()).optional(),
+    'territory.country': z.string().optional(),
+    'territory.country[]': z.array(z.string()).optional(),
+    'territory.subLvl1': z.string().optional(),
+    'territory.subLvl1[]': z.array(z.string()).optional(),
+    'territory.subLvl2': z.string().optional(),
+    'territory.subLvl2[]': z.array(z.string()).optional(),
+    descBrief: z.string().optional(),
+    status: z.string().optional(),
+    'status[]': z.array(z.string()).optional(),
+    'calendar.release[before]': z.string().optional(),
+    'calendar.release[strictly_before]': z.string().optional(),
+    'calendar.release[after]': z.string().optional(),
+    'calendar.release[strictly_after]': z.string().optional(),
+    'calendar.minimum[before]': z.string().optional(),
+    'calendar.minimum[strictly_before]': z.string().optional(),
+    'calendar.minimum[after]': z.string().optional(),
+    'calendar.minimum[strictly_after]': z.string().optional(),
+    'calendar.optimum[before]': z.string().optional(),
+    'calendar.optimum[strictly_before]': z.string().optional(),
+    'calendar.optimum[after]': z.string().optional(),
+    'calendar.optimum[strictly_after]': z.string().optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * Totalized money
+ */
+export const zApiProjectsmoneyTotalGetCollectionResponse = zProjectTotalizedMoney;
 
 export const zApiProjectsIdDeletePath = z.object({
     id: z.string()
@@ -2528,7 +3317,7 @@ export const zApiProjectBudgetItemsIdGetResponse = zProjectBudgetItem;
 /**
  * The updated ProjectBudgetItem resource
  */
-export const zApiProjectBudgetItemsIdPatchBody = zProjectBudgetItem;
+export const zApiProjectBudgetItemsIdPatchBody = zProjectBudgetItemJsonMergePatch;
 
 export const zApiProjectBudgetItemsIdPatchPath = z.object({
     id: z.string()
@@ -2593,7 +3382,7 @@ export const zApiProjectCollaborationsIdGetResponse = zProjectCollaboration;
 /**
  * The updated ProjectCollaboration resource
  */
-export const zApiProjectCollaborationsIdPatchBody = zProjectCollaboration;
+export const zApiProjectCollaborationsIdPatchBody = zProjectCollaborationJsonMergePatch;
 
 export const zApiProjectCollaborationsIdPatchPath = z.object({
     id: z.string()
@@ -2662,7 +3451,7 @@ export const zApiProjectCollaborationCandidaciesIdGetResponse = zProjectCollabor
 /**
  * The updated ProjectCollaborationCandidacy resource
  */
-export const zApiProjectCollaborationCandidaciesIdPatchBody = zProjectCollaborationCandidacy;
+export const zApiProjectCollaborationCandidaciesIdPatchBody = zProjectCollaborationCandidacyJsonMergePatch;
 
 export const zApiProjectCollaborationCandidaciesIdPatchPath = z.object({
     id: z.string()
@@ -2720,7 +3509,7 @@ export const zApiProjectReviewsIdGetResponse = zProjectReview;
 /**
  * The updated ProjectReview resource
  */
-export const zApiProjectReviewsIdPatchBody = zProjectReview;
+export const zApiProjectReviewsIdPatchBody = zProjectReviewJsonMergePatch;
 
 export const zApiProjectReviewsIdPatchPath = z.object({
     id: z.string()
@@ -2784,7 +3573,7 @@ export const zApiProjectReviewAreasIdGetResponse = zProjectReviewArea;
 /**
  * The updated ProjectReviewArea resource
  */
-export const zApiProjectReviewAreasIdPatchBody = zProjectReviewArea;
+export const zApiProjectReviewAreasIdPatchBody = zProjectReviewAreaJsonMergePatch;
 
 export const zApiProjectReviewAreasIdPatchPath = z.object({
     id: z.string()
@@ -2857,6 +3646,7 @@ export const zApiProjectRewardsGetCollectionQuery = z.object({
     'order[unitsAvailable]': z.enum(['asc', 'desc']).optional().default('asc'),
     'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
     'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    hasShipping: z.boolean().optional(),
     isFinite: z.boolean().optional(),
     'dateCreated[before]': z.string().optional(),
     'dateCreated[strictly_before]': z.string().optional(),
@@ -2904,7 +3694,7 @@ export const zApiProjectRewardsIdGetResponse = zProjectReward;
 /**
  * The updated ProjectReward resource
  */
-export const zApiProjectRewardsIdPatchBody = zProjectReward;
+export const zApiProjectRewardsIdPatchBody = zProjectRewardJsonMergePatch;
 
 export const zApiProjectRewardsIdPatchPath = z.object({
     id: z.string()
@@ -2967,7 +3757,7 @@ export const zApiProjectRewardClaimsIdGetResponse = zProjectRewardClaim;
 /**
  * The updated ProjectRewardClaim resource
  */
-export const zApiProjectRewardClaimsIdPatchBody = zProjectRewardClaimRewardClaimUpdationDto;
+export const zApiProjectRewardClaimsIdPatchBody = zProjectRewardClaimRewardClaimUpdationDtoJsonMergePatch;
 
 export const zApiProjectRewardClaimsIdPatchPath = z.object({
     id: z.string()
@@ -3048,7 +3838,7 @@ export const zApiProjectUpdatesIdGetResponse = zProjectUpdate;
 /**
  * The updated ProjectUpdate resource
  */
-export const zApiProjectUpdatesIdPatchBody = zProjectUpdate;
+export const zApiProjectUpdatesIdPatchBody = zProjectUpdateJsonMergePatch;
 
 export const zApiProjectUpdatesIdPatchPath = z.object({
     id: z.string()
@@ -3103,7 +3893,7 @@ export const zApiThemesIdDeleteResponse = z.void();
 /**
  * The updated Theme resource
  */
-export const zApiThemesIdPatchBody = zTheme;
+export const zApiThemesIdPatchBody = zThemeJsonMergePatch;
 
 export const zApiThemesIdPatchPath = z.object({
     id: z.string()
@@ -3158,7 +3948,7 @@ export const zApiTipjarsIdGetResponse = zTipjar;
 /**
  * The updated Tipjar resource
  */
-export const zApiTipjarsIdPatchBody = zTipjar;
+export const zApiTipjarsIdPatchBody = zTipjarJsonMergePatch;
 
 export const zApiTipjarsIdPatchPath = z.object({
     id: z.string()
@@ -3241,7 +4031,7 @@ export const zApiUsersIdDeleteResponse = z.void();
 /**
  * The updated User resource
  */
-export const zApiUsersIdPatchBody = zUserUserUpdationDto;
+export const zApiUsersIdPatchBody = zUserUserUpdationDtoJsonMergePatch;
 
 export const zApiUsersIdPatchPath = z.object({
     id: z.string()
@@ -3279,7 +4069,9 @@ export const zApiVersionsIdGetResponse = zVersion;
 
 export const zApiAccountingsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
-    itemsPerPage: z.int().gte(0).lte(100).optional().default(30)
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    id: z.int().optional(),
+    'id[]': z.array(z.int()).optional()
 });
 
 /**
@@ -3389,7 +4181,7 @@ export const zApiGatewayChargesIdGetResponse = zGatewayCharge;
 /**
  * The updated GatewayCharge resource
  */
-export const zApiGatewayChargesIdPatchBody = zGatewayChargeChargeUpdationDto;
+export const zApiGatewayChargesIdPatchBody = zGatewayChargeChargeUpdationDtoJsonMergePatch;
 
 export const zApiGatewayChargesIdPatchPath = z.object({
     id: z.string()
@@ -3440,7 +4232,7 @@ export const zApiGatewayCheckoutsIdGetResponse = zGatewayCheckout;
 /**
  * The updated GatewayCheckout resource
  */
-export const zApiGatewayCheckoutsIdPatchBody = zGatewayCheckoutCheckoutUpdationDto;
+export const zApiGatewayCheckoutsIdPatchBody = zGatewayCheckoutCheckoutUpdationDtoJsonMergePatch;
 
 export const zApiGatewayCheckoutsIdPatchPath = z.object({
     id: z.string()
@@ -3526,7 +4318,7 @@ export const zApiProjectsIdOrSlugGetResponse = zProject;
 /**
  * The updated Project resource
  */
-export const zApiProjectsIdPatchBody = zProjectProjectUpdationDto;
+export const zApiProjectsIdPatchBody = zProjectProjectUpdationDtoJsonMergePatch;
 
 export const zApiProjectsIdPatchPath = z.object({
     id: z.string()
@@ -3565,7 +4357,7 @@ export const zApiProjectSupportsIdGetResponse = zProjectSupport;
 /**
  * The updated ProjectSupport resource
  */
-export const zApiProjectSupportsIdPatchBody = zProjectSupport;
+export const zApiProjectSupportsIdPatchBody = zProjectSupportJsonMergePatch;
 
 export const zApiProjectSupportsIdPatchPath = z.object({
     id: z.string()

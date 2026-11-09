@@ -1,7 +1,8 @@
 <script lang="ts">
+    import Spinner from "../../components/icons/status/Spinner.svelte";
     import WarningIcon from "../../components/icons/status/Warning.svelte";
     import { t } from "../../i18n/store";
-    import { cartAmount, cartByRecipient } from "../../stores/checkoutsStore";
+    import { cartAmount, cartByRecipient, checkoutHydrated } from "../../stores/checkoutsStore";
     import { formatCurrency } from "../../utils/currencies";
     import { multiplyMoney, sumMoney } from "../../utils/money";
     import CollapsibleBox from "../library/layout/CollapsibleBox.svelte";
@@ -58,7 +59,11 @@
             <p
                 class={`text-double leading-tight font-bold lg:text-[3.5rem] ${hasError ? "text-tertiary" : "text-secondary"}`}
             >
-                {formatCurrency(displayTotal)}
+                {#if total || $checkoutHydrated}
+                    {formatCurrency(displayTotal)}
+                {:else}
+                    <Spinner />
+                {/if}
             </p>
         {/snippet}
 

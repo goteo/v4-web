@@ -2,17 +2,21 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import Check from "../../icons/actions/Check.svelte";
+    import Checkbox from "../inputs/Checkbox.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
+    import type { Snippet } from "svelte";
 
     interface Props {
         option: DropdownOption;
         variant: DropdownVariant;
         onChange?: (option: DropdownOption) => void;
+        /** Replaces the label with a richer row. Return `null` to fall back. */
+        row?: Snippet<[DropdownOption]>;
         class?: ClassNameValue;
     }
 
-    let { option, variant, onChange, class: classes }: Props = $props();
+    let { option, variant, onChange, row = undefined, class: classes }: Props = $props();
 
     function handleChange(o: DropdownOption) {
         option = { ...o, selected: !o.selected };
@@ -30,21 +34,31 @@
     aria-selected={option.selected}
 >
     {#if variant === "multiselect"}
-        <label class="flex cursor-pointer justify-between p-4">
-            <span class="text-base text-black">{@html option.label}</span>
-            <input
-                type="checkbox"
-                checked={option.selected}
-                onchange={() => handleChange(option)}
-                class="text-primary border-secondary mt-1 size-5 shrink-0 rounded-sm border ring-0"
-            />
-        </label>
+        <Checkbox
+            checked={option.selected}
+            onchange={() => handleChange(option)}
+            class="flex-row-reverse justify-between p-4"
+        >
+            <span class="text-base text-black">
+                {#if row}
+                    {@render row(option)}
+                {:else}
+                    {@html option.label}
+                {/if}
+            </span>
+        </Checkbox>
     {:else if variant === "basic"}
         <button
             class={twMerge("block w-full cursor-pointer p-4 text-base text-black", classes)}
             onclick={() => handleChange(option)}
         >
-            <span>{@html option.label}</span>
+            <span>
+                {#if row}
+                    {@render row(option)}
+                {:else}
+                    {@html option.label}
+                {/if}
+            </span>
             {#if option.selected}
                 <Check width="20" height="20" class="text-primary shrink-0" />
             {/if}

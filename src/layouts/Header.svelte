@@ -58,7 +58,7 @@
                 >
                     <div class="flex items-center gap-2 md:gap-4">
                         <a href="/" class="shrink-0"><Logo /></a>
-                        <div class="hidden sm:block">
+                        <div class="hidden lg:block">
                             <HeaderButtons />
                         </div>
                     </div>
@@ -86,7 +86,7 @@
                                             {:else}
                                                 <UserIcon class="size-8" />
                                             {/if}
-                                            <span class="hidden sm:inline">
+                                            <span class="hidden max-w-40 truncate sm:inline-block">
                                                 {$t("common.greeting")}, {$session.user.displayName}
                                             </span>
                                         </button>
@@ -125,11 +125,16 @@
                                     </a>
                                 {/if}
                             </li>
-                            <li class="hidden items-center pr-2 md:flex">
+                            <li class="hidden items-center pr-2 lg:flex">
                                 <UiLanguages />
                             </li>
-                            <li class="flex items-center {children ? '' : 'sm:hidden'}">
-                                <button class="p-1" onclick={menuToggle}>
+                            <li class="flex items-center {children ? '' : 'lg:hidden'}">
+                                <button
+                                    class="p-1"
+                                    onclick={menuToggle}
+                                    aria-label={$t("common.header.menu")}
+                                    aria-expanded={menuOpen}
+                                >
                                     <Hamburger
                                         close={menuOpen}
                                         class="text-primary"
@@ -150,9 +155,9 @@
                     : 'grid-rows-[0fr]'}"
             >
                 <div class="overflow-hidden">
-                    <div class="flex flex-col gap-4 p-4 sm:hidden">
-                        <HeaderButtons />
+                    <div class="flex flex-wrap items-center justify-between gap-4 p-4 lg:hidden">
                         <UiLanguages />
+                        <HeaderButtons />
                     </div>
                     {@render children?.()}
                 </div>

@@ -1,5 +1,7 @@
 import type { Project, ProjectReview } from "../openapi/client/index.ts";
 
+export type ProjectStatus = NonNullable<Project["status"]>;
+
 /**
  * Public project statuses for the public search page.
  *
@@ -99,7 +101,7 @@ export const RAISED_STATUSES = new Set<string>([
 ]);
 
 /** Campaign review statuses: listed in the admin review page and selectable in its dropdown. */
-export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+export const CAMPAIGN_REVIEW_STATUSES: ProjectStatus[] = [
     "to_campaign_review",
     "in_campaign_review",
     "in_campaign_review.to_review",
@@ -109,7 +111,7 @@ export const CAMPAIGN_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
 ];
 
 /** Financial (funding) review statuses, the counterpart of {@link CAMPAIGN_REVIEW_STATUSES}. */
-export const FUNDING_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
+export const FUNDING_REVIEW_STATUSES: ProjectStatus[] = [
     "to_funding_review",
     "in_funding_review",
     "in_funding_review.to_review",
@@ -125,8 +127,48 @@ export const FUNDING_REVIEW_STATUSES: NonNullable<Project["status"]>[] = [
  */
 export const REVIEW_STATUSES_BY_TYPE: Record<
     NonNullable<ProjectReview["type"]>,
-    NonNullable<Project["status"]>[]
+    ProjectStatus[]
 > = {
     campaign: CAMPAIGN_REVIEW_STATUSES,
     financial: FUNDING_REVIEW_STATUSES,
+};
+
+/** Every status the API knows a project by, in lifecycle order. */
+export const PROJECT_STATUSES: NonNullable<Project["status"]>[] = [
+    "in_draft",
+    "to_campaign_review",
+    "in_campaign_review",
+    "in_campaign_review.to_change",
+    "in_campaign_review.to_review",
+    "campaign_review.rejected",
+    "to_campaign",
+    "in_campaign",
+    "campaign.failed",
+    "campaign.cancelled",
+    "to_funding_review",
+    "in_funding_review",
+    "in_funding_review.to_change",
+    "in_funding_review.to_review",
+    "funding_review.rejected",
+    "to_funding",
+    "in_funding",
+    "funding.paid",
+];
+
+/** Translation key of a status: the API separates with dots, the translations with underscores. */
+export const projectStatusLabelKey = (status: string): string =>
+    `domain.project.status.${status.replaceAll(".", "_")}`;
+/**
+ * Status the project editor's publish button moves a project to, by its current status.
+ * `confirm` names the irreversible transitions that ask for confirmation first.
+ */
+export const PUBLISH_TRANSITIONS: Partial<
+    Record<
+        NonNullable<Project["status"]>,
+        { to: NonNullable<Project["status"]>; confirm?: "review" | "campaign" }
+    >
+> = {
+    in_draft: { to: "to_campaign_review", confirm: "review" },
+    "in_campaign_review.to_change": { to: "in_campaign_review.to_review" },
+    to_campaign: { to: "in_campaign", confirm: "campaign" },
 };

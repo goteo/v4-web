@@ -27,6 +27,7 @@ Converted from CampaignCard.astro to maintain exact functionality
         key: string;
         label: string;
         kind: OwnedCardAction["kind"];
+        href?: string;
     }
 
     export interface OwnedCardConfig {
@@ -228,7 +229,7 @@ Converted from CampaignCard.astro to maintain exact functionality
                 {#if ownedConfig?.actions}
                     <div class="flex w-full flex-col gap-4 md:flex-row">
                         {#each ownedConfig.actions as action}
-                            <Button kind={action.kind} class="flex-1">
+                            <Button kind={action.kind} href={action.href} class="flex-1">
                                 {action.label}
                             </Button>
                         {/each}

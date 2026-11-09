@@ -4,6 +4,7 @@
 
     import CloseIcon from "../../../components/icons/navigation/Close.svelte";
     import { t } from "../../../i18n/store";
+    import { detectVideo } from "../../../utils/video";
     import VideoIcon from "../../icons/media/VideoIcon.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
@@ -41,6 +42,15 @@
 
         if (!isValidUrl(url)) {
             validationError = $t("pages.project.edit.campaignInfo.video.validation.invalid_url");
+            return;
+        }
+
+        // The player is built from the link, so a link we cannot read would
+        // leave the campaign without a video at all.
+        if (!detectVideo(url)) {
+            validationError = $t(
+                "pages.project.edit.campaignInfo.video.validation.unsupported_provider",
+            );
             return;
         }
 

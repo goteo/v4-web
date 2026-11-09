@@ -2,6 +2,7 @@
     import { t } from "../../i18n/store";
     import { apiProjectSupportsmoneyTotalGetCollection, type Project } from "../../openapi/client";
     import { formatCurrency } from "../../utils/currencies";
+    import Spinner from "../icons/status/Spinner.svelte";
 
     let {
         project,
@@ -13,8 +14,8 @@
 
     let projectId = $derived(String(project.id!));
 
-    let money = $state(0);
-    let length = $state(0);
+    let money = $state<number>();
+    let length = $state<number>();
 
     $effect(() => {
         apiProjectSupportsmoneyTotalGetCollection({
@@ -27,7 +28,7 @@
 </script>
 
 <div
-    class="border-grey flex h-58 w-full cursor-pointer overflow-hidden rounded-4xl border bg-white shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg md:flex-row"
+    class="flex h-58 w-full cursor-pointer overflow-hidden rounded-4xl bg-white shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg md:flex-row"
 >
     <div class="flex h-full w-2/5 shrink-0 overflow-hidden">
         <img
@@ -36,13 +37,19 @@
             class="h-full w-full object-cover"
         />
     </div>
-    <div class="flex w-full flex-col justify-center gap-4 p-6">
+    <div
+        class="border-grey flex w-full flex-col justify-center gap-4 rounded-r-4xl border border-l-0 p-6"
+    >
         <div class="flex flex-col gap-1">
-            <div class="text-sm font-bold text-black">
-                {length}
-                {$t("pages.project.view.tabs.community.anonymous.length")}
-            </div>
-            <p class="text-2xl font-bold text-black">{formatCurrency(money, currency)}</p>
+            {#if money === undefined}
+                <Spinner />
+            {:else}
+                <div class="text-sm font-bold text-black">
+                    {length}
+                    {$t("pages.project.view.tabs.community.anonymous.length")}
+                </div>
+                <p class="text-2xl font-bold text-black">{formatCurrency(money, currency)}</p>
+            {/if}
         </div>
         <div class="text-xl font-bold text-black">
             {$t("pages.project.view.tabs.community.anonymous.title")}

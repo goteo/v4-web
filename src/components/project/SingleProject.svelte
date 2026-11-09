@@ -43,12 +43,19 @@
         balancePoints: AccountingBalancePoint[];
     } = $props();
 
-    const projectDeadline = $derived(getCurrentDeadline(project.calendar!));
+    const projectDeadline = $derived(
+        project.calendar ? getCurrentDeadline(project.calendar) : undefined,
+    );
 
     // Seeds the initial pick; the language selector owns it from then on.
-    let projectLanguage = $state(untrack(() => guessProjectLanguage(project.locales!)));
+    let projectLanguage = $state(
+        untrack(() => guessProjectLanguage(project.locales ?? ($locale ? [$locale] : ["es"]))),
+    );
 
-    function guessProjectLanguage(pLangs: string[]): string {
+    function guessProjectLanguage(pLangs: string[] | undefined | null): string {
+        if (!pLangs || !Array.isArray(pLangs) || pLangs.length === 0) {
+            return $locale || "es";
+        }
         if (typeof navigator === "undefined" || !navigator.languages) {
             return pLangs[0];
         }
@@ -172,7 +179,7 @@
             <Player
                 src={project.video?.src || ""}
                 title={project.title || ""}
-                thumbnails={project.video?.thumbnail || ""}
+                thumbnail={project.video?.thumbnail || ""}
                 poster={{
                     src: project.cover || project.video?.cover || "",
                     alt: project.title || "",

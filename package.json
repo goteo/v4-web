@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
-    "@astrojs/cloudflare": "14.2.6",
+    "@astrojs/cloudflare": "14.4.1",
     "@astrojs/node": "^11.1.5",
     "@astrojs/svelte": "^9.0.1",
     "@aws-sdk/client-s3": "^3.1090.0",
@@ -40,10 +40,11 @@
     "@tiptap/starter-kit": "^3.28.0",
     "@tiptap/static-renderer": "3.28.0",
     "@types/iso-3166-2": "^1.0.4",
-    "astro": "7.2.10",
+    "astro": "7.4.1",
     "bits-ui": "^2.18.1",
     "chart.js": "^4.5.1",
     "csrf": "^3.1.0",
+    "dequal": "^2.0.3",
     "dexie": "^4.4.2",
     "dinero.js": "^2.0.2",
     "dotenv": "^17.4.2",
@@ -53,6 +54,7 @@
     "marked": "^18.0.6",
     "media-icons": "^1.1.5",
     "murmurhash-js": "^1.0.0",
+    "observable-slim": "^0.2.2",
     "stdnum": "^1.12.6",
     "svelte": "^5.56.6",
     "tailwind-merge": "^3.6.0",
@@ -98,6 +100,6 @@
     "vite": "^8.3.0",
     "vitest": "^4.1.10",
     "wait-on": "^9.0.10",
-    "wrangler": "^4.127.1"
+    "wrangler": "^4.151.3"
   }
 }

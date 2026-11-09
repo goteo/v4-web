@@ -12,7 +12,7 @@
     }
 </script>
 
-<div class="flex gap-2">
+<div class="flex items-center gap-2">
     <Button size="sm" kind="secondary" onclick={openSearch}>
         <SearchIcon width="16" height="16" />
         {$t("common.header.search")}
