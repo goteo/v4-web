@@ -1246,6 +1246,7 @@
           }
         },
         "langNotAvailable": "The selected language \"{{lang}}\" is not available for this project. Showing content in the available language.",
+        "notInCampaignYet": "This project is not yet in campaign and does not accept payments yet.",
         "outOfCampaign": "This project is no longer in campaign mode and no longer accepts payments.",
         "share": {
           "modal": {
