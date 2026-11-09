@@ -17,6 +17,7 @@
     import { t } from "../../../i18n/store";
     import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
     import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
+    import { trackChanges } from "../../../utils/trackChanges.svelte";
     import { zProfileForm, type ProfileForm } from "../../../validation/publicProfileValidation";
     import Spinner from "../../icons/status/Spinner.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -36,7 +37,8 @@
 
     const initialDisplayName = user.displayName ?? user.handle;
 
-    let form: ProfileForm = $state({
+    // Only the fields edited since the last save travel in the payload
+    const { form, changed, commit } = trackChanges<ProfileForm>({
         avatar: user.avatar || undefined,
         description: user.description ?? "",
         links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
@@ -48,6 +50,7 @@
     let isSubmitting = $state(false);
     let showSuccess = $state(false);
     let showError = $state(false);
+    let showNoChanges = $state(false);
     let formError = $state("");
 
     /**
@@ -93,6 +96,12 @@
         validation = {};
         showSuccess = false;
         showError = false;
+        showNoChanges = false;
+
+        if (changed.size === 0) {
+            showNoChanges = true;
+            return;
+        }
 
         const result = zProfileForm.safeParse(form);
 
@@ -107,7 +116,10 @@
 
         isSubmitting = true;
 
-        const { data, error } = await actions.updatePublicProfile(result.data);
+        const { data, error } = await actions.updatePublicProfile({
+            form: result.data,
+            changed: [...changed],
+        });
 
         isSubmitting = false;
 
@@ -129,7 +141,7 @@
         displayName = data.user.displayName ?? data.user.handle;
         // The API resolves each link (scheme, redirects), show what was stored
         form.links = toSocialLinks((data.user.links ?? []).flatMap((link) => link.url ?? []));
-
+        commit();
         showSuccess = true;
     }
 
@@ -169,6 +181,9 @@
 
     <Toast floating variant="success" bind:showToast={showSuccess}>
         {$t("pages.me.manage.success")}
+    </Toast>
+    <Toast floating variant="notification" bind:showToast={showNoChanges}>
+        {$t("pages.me.manage.noChanges")}
     </Toast>
     <Toast floating variant="error" bind:showToast={showError}>
         {formError}

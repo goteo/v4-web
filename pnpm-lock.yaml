@@ -74,6 +74,9 @@ importers:
       csrf:
         specifier: ^3.1.0
         version: 3.1.0
+      dequal:
+        specifier: ^2.0.3
+        version: 2.0.3
       dexie:
         specifier: ^4.4.2
         version: 4.4.6
@@ -101,6 +104,9 @@ importers:
       murmurhash-js:
         specifier: ^1.0.0
         version: 1.0.0
+      observable-slim:
+        specifier: ^0.2.2
+        version: 0.2.2
       stdnum:
         specifier: ^1.12.6
         version: 1.12.6
@@ -3857,6 +3863,10 @@ packages:
   object.values@1.2.1:
     resolution: {integrity: sha512-gXah6aZrcUxjWg2zR2MwouP2eHlCBzdV4pygudehaKXSGW4v2AsRQUK+lwwXhii6KFZcunEnmSUoYp5CXibxtA==}
     engines: {node: '>= 0.4'}
+
+  observable-slim@0.2.2:
+    resolution: {integrity: sha512-YY8fgqgx31w2oAyk2PKLvwbnqoRxKpPiFrLWKq8caC4vQ+XSaZV9mueJCkhnqJkz+eT9vi8b5segk+Qd0A8JrQ==}
+    engines: {node: '>=18'}
 
   obug@2.2.1:
     resolution: {integrity: sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q==}
@@ -8981,6 +8991,8 @@ snapshots:
       call-bound: 1.0.4
       define-properties: 1.2.1
       es-object-atoms: 1.1.2
+
+  observable-slim@0.2.2: {}
 
   obug@2.2.1: {}
 
