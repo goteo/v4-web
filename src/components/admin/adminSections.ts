@@ -61,6 +61,16 @@ export const ADMIN_SECTIONS: AdminSection[] = [
             { href: "/admin/home/banners", labelKey: "pages.admin.home.tabs.banners" },
         ],
     },
+    {
+        href: "/admin/customize",
+        labelKey: "pages.admin.nav.customize",
+        descriptionKey: "pages.admin.customize.description",
+        subSections: [
+            { href: "/admin/customize/logo", labelKey: "pages.admin.customize.tabs.logo" },
+            { href: "/admin/customize/colours", labelKey: "pages.admin.customize.tabs.colours" },
+            { href: "/admin/customize/footer", labelKey: "pages.admin.customize.tabs.footer" },
+        ],
+    },
 ];
 
 /**
