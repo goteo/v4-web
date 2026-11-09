@@ -13,6 +13,9 @@ export type ClientOptions = {
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
 export type Accounting = {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     id?: number;
     /**
      * IRI of the resource owning this Accounting.
@@ -36,6 +39,9 @@ export type Accounting = {
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
 export type AccountingCsv = {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     id?: number;
     /**
      * IRI of the resource owning this Accounting.
@@ -59,6 +65,9 @@ export type AccountingCsv = {
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
 export type AccountingJsonld = HydraItemBaseSchema & {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     id?: number;
     /**
      * IRI of the resource owning this Accounting.
@@ -258,6 +267,11 @@ export type Address = {
      * e.g: ES (Spain).
      */
     country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
 };
 
 /**
@@ -294,6 +308,10 @@ export type AddressAddressCreationDto = {
      * e.g: ES (Spain).
      */
     country: string;
+    /**
+     * Whether this is the User's default Address.
+     */
+    isDefault?: boolean | null;
 };
 
 /**
@@ -329,6 +347,10 @@ export type AddressAddressUpdationDtoJsonMergePatch = {
      * e.g: ES (Spain).
      */
     country?: string | null;
+    /**
+     * Whether this is the User's default Address.
+     */
+    isDefault?: boolean | null;
 };
 
 /**
@@ -366,6 +388,11 @@ export type AddressCsv = {
      * e.g: ES (Spain).
      */
     country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
 };
 
 /**
@@ -403,6 +430,11 @@ export type AddressJsonld = HydraItemBaseSchema & {
      * e.g: ES (Spain).
      */
     country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
 };
 
 export type Budget = {
@@ -2547,6 +2579,33 @@ export type ProjectProjectUpdationDtoJsonMergePatch = {
      * The status of a Project represents how far it is in it's life-cycle.
      */
     status?: 'in_draft' | 'to_campaign_review' | 'in_campaign_review' | 'in_campaign_review.to_change' | 'in_campaign_review.to_review' | 'campaign_review.rejected' | 'to_campaign' | 'in_campaign' | 'campaign.failed' | 'campaign.cancelled' | 'to_funding_review' | 'in_funding_review' | 'in_funding_review.to_change' | 'in_funding_review.to_review' | 'funding_review.rejected' | 'to_funding' | 'in_funding' | 'funding.paid';
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoney = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoneyCsv = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoneyJsonld = HydraItemBaseSchema & {
+    amount?: number;
+    currency?: string;
+    length?: number;
 };
 
 /**
@@ -4875,6 +4934,8 @@ export type ApiAccountingsGetCollectionData = {
          * The number of items per page
          */
         itemsPerPage?: number;
+        id?: number;
+        'id[]'?: Array<number>;
     };
     url: '/v4/accountings';
 };
@@ -6635,6 +6696,66 @@ export type ApiProjectsPostResponses = {
 };
 
 export type ApiProjectsPostResponse = ApiProjectsPostResponses[keyof ApiProjectsPostResponses];
+
+export type ApiProjectsmoneyTotalGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        slug?: string;
+        'slug[]'?: Array<string>;
+        accounting?: string;
+        'accounting[]'?: Array<string>;
+        owner?: string;
+        'owner[]'?: Array<string>;
+        title?: string;
+        subtitle?: string;
+        categories?: string;
+        'categories[]'?: Array<string>;
+        themes?: string;
+        'themes[]'?: Array<string>;
+        'territory.country'?: string;
+        'territory.country[]'?: Array<string>;
+        'territory.subLvl1'?: string;
+        'territory.subLvl1[]'?: Array<string>;
+        'territory.subLvl2'?: string;
+        'territory.subLvl2[]'?: Array<string>;
+        descBrief?: string;
+        status?: string;
+        'status[]'?: Array<string>;
+        'calendar.release[before]'?: string;
+        'calendar.release[strictly_before]'?: string;
+        'calendar.release[after]'?: string;
+        'calendar.release[strictly_after]'?: string;
+        'calendar.minimum[before]'?: string;
+        'calendar.minimum[strictly_before]'?: string;
+        'calendar.minimum[after]'?: string;
+        'calendar.minimum[strictly_after]'?: string;
+        'calendar.optimum[before]'?: string;
+        'calendar.optimum[strictly_before]'?: string;
+        'calendar.optimum[after]'?: string;
+        'calendar.optimum[strictly_after]'?: string;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/projects/money_total';
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponses = {
+    /**
+     * Totalized money
+     */
+    200: ProjectTotalizedMoney;
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponse = ApiProjectsmoneyTotalGetCollectionResponses[keyof ApiProjectsmoneyTotalGetCollectionResponses];
 
 export type ApiProjectsIdOrSlugGetData = {
     body?: never;
@@ -8719,13 +8840,16 @@ export type ApiUsersGetCollectionData = {
          */
         itemsPerPage?: number;
         /**
-         * Searches on `email`, `person.firstName`, `person.lastName`, `organization.legalName`, `organization.businessName`
+         * Searches on `email` (secured by `is_granted("ROLE_ADMIN")`), `person.firstName`, `person.lastName`, `organization.legalName`, `organization.businessName`
          */
         q?: string;
         handle?: string;
         'order[handle]'?: 'asc' | 'desc';
         'order[dateCreated]'?: 'asc' | 'desc';
         'order[dateUpdated]'?: 'asc' | 'desc';
+        /**
+         * User email
+         */
         email?: string;
         type?: string;
         'type[]'?: Array<string>;

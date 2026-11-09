@@ -89,4 +89,5 @@
     {labels}
     search={searchUsers}
     onSave={saveUsers}
+    draftId="admin-featured-users"
 />

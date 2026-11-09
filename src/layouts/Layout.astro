@@ -9,6 +9,15 @@ import type { FontPreloadFilter } from "astro:assets";
 const { title, description, keywords } = Astro.props;
 
 /**
+ * Language the page is rendered in.
+ *
+ * The middleware resolves it for every request, so it is also the one source that tells the
+ * client which language the page is in before any island hydrates — `formDraftsStore` needs
+ * it to tell a language switch apart from an ordinary reload.
+ */
+const { lang } = Astro.locals;
+
+/**
  * Only the upright latin face is worth preloading — it is the one every page needs before
  * first paint. Italic and latin-ext are declared all the same, and the browser fetches them
  * when a glyph on the page actually calls for them.
@@ -17,7 +26,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
 ---
 
 <!doctype html>
-<html>
+<html lang={lang}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />

@@ -9,6 +9,7 @@
     } from "flowbite-svelte";
 
     import { t } from "../../../i18n/store";
+    import { useFormDraft } from "../../../utils/forms/useFormDraft.svelte";
     import PlusIcon from "../../icons/actions/PlusIcon.svelte";
     import FiltersIcon from "../../icons/filters/Filters.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -87,6 +88,38 @@
     let filterProfile = $state("");
 
     let isSubmitting = $state(false);
+
+    /**
+     * The newsletter holds no sensitive data, so the whole form can be kept.
+     */
+    const { restored } = useFormDraft("admin-newsletter", () => ({
+        selectedTemplate,
+        recipientBlocks,
+        selectedRecipients,
+        isTest,
+        onlySpanish,
+    }));
+    if (restored) {
+        if (restored.selectedTemplate !== undefined) {
+            selectedTemplate = restored.selectedTemplate;
+        }
+
+        if (restored.recipientBlocks) {
+            recipientBlocks = restored.recipientBlocks;
+        }
+
+        if (restored.selectedRecipients) {
+            selectedRecipients = restored.selectedRecipients;
+        }
+
+        if (restored.isTest !== undefined) {
+            isTest = restored.isTest;
+        }
+
+        if (restored.onlySpanish !== undefined) {
+            onlySpanish = restored.onlySpanish;
+        }
+    }
 
     const recipientOptions = $derived([
         { value: "all", label: $t("pages.admin.newsletter.send.recipients.all") },

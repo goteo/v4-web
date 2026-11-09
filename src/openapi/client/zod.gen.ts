@@ -14,7 +14,8 @@ export const zAddress = z.object({
     line2: z.string().nullish(),
     city: z.string().optional(),
     postCode: z.string().optional(),
-    country: z.string().optional()
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
 });
 
 /**
@@ -28,7 +29,8 @@ export const zAddressAddressCreationDto = z.object({
     line2: z.string().min(1).nullish(),
     city: z.string().min(1),
     postCode: z.string().min(3),
-    country: z.string()
+    country: z.string(),
+    isDefault: z.boolean().nullish()
 });
 
 /**
@@ -41,7 +43,8 @@ export const zAddressAddressUpdationDtoJsonMergePatch = z.object({
     line2: z.string().min(1).nullish(),
     city: z.string().min(1).nullish(),
     postCode: z.string().min(3).nullish(),
-    country: z.string().nullish()
+    country: z.string().nullish(),
+    isDefault: z.boolean().nullish()
 });
 
 /**
@@ -56,7 +59,8 @@ export const zAddressCsv = z.object({
     line2: z.string().nullish(),
     city: z.string().optional(),
     postCode: z.string().optional(),
-    country: z.string().optional()
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
 });
 
 /**
@@ -274,7 +278,8 @@ export const zAddressJsonld = zHydraItemBaseSchema.and(z.object({
     line2: z.string().nullish(),
     city: z.string().optional(),
     postCode: z.string().optional(),
-    country: z.string().optional()
+    country: z.string().optional(),
+    isDefault: z.boolean().optional()
 }));
 
 /**
@@ -871,6 +876,33 @@ export const zPingCsv = z.object({
 export const zPingJsonld = zHydraItemBaseSchema.and(z.object({
     time: z.int().optional(),
     message: z.string().optional()
+}));
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoney = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoneyCsv = z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
+});
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export const zProjectTotalizedMoneyJsonld = zHydraItemBaseSchema.and(z.object({
+    amount: z.int().optional(),
+    currency: z.string().optional(),
+    length: z.int().optional()
 }));
 
 /**
@@ -3178,6 +3210,57 @@ export const zApiUsersIdpersonPatchResponse = zPerson;
  */
 export const zApiPingGetResponse = zPing;
 
+export const zApiProjectsmoneyTotalGetCollectionQuery = z.object({
+    slug: z.string().optional(),
+    'slug[]': z.array(z.string()).optional(),
+    accounting: z.string().optional(),
+    'accounting[]': z.array(z.string()).optional(),
+    owner: z.string().optional(),
+    'owner[]': z.array(z.string()).optional(),
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    categories: z.string().optional(),
+    'categories[]': z.array(z.string()).optional(),
+    themes: z.string().optional(),
+    'themes[]': z.array(z.string()).optional(),
+    'territory.country': z.string().optional(),
+    'territory.country[]': z.array(z.string()).optional(),
+    'territory.subLvl1': z.string().optional(),
+    'territory.subLvl1[]': z.array(z.string()).optional(),
+    'territory.subLvl2': z.string().optional(),
+    'territory.subLvl2[]': z.array(z.string()).optional(),
+    descBrief: z.string().optional(),
+    status: z.string().optional(),
+    'status[]': z.array(z.string()).optional(),
+    'calendar.release[before]': z.string().optional(),
+    'calendar.release[strictly_before]': z.string().optional(),
+    'calendar.release[after]': z.string().optional(),
+    'calendar.release[strictly_after]': z.string().optional(),
+    'calendar.minimum[before]': z.string().optional(),
+    'calendar.minimum[strictly_before]': z.string().optional(),
+    'calendar.minimum[after]': z.string().optional(),
+    'calendar.minimum[strictly_after]': z.string().optional(),
+    'calendar.optimum[before]': z.string().optional(),
+    'calendar.optimum[strictly_before]': z.string().optional(),
+    'calendar.optimum[after]': z.string().optional(),
+    'calendar.optimum[strictly_after]': z.string().optional(),
+    'dateCreated[before]': z.string().optional(),
+    'dateCreated[strictly_before]': z.string().optional(),
+    'dateCreated[after]': z.string().optional(),
+    'dateCreated[strictly_after]': z.string().optional(),
+    'dateUpdated[before]': z.string().optional(),
+    'dateUpdated[strictly_before]': z.string().optional(),
+    'dateUpdated[after]': z.string().optional(),
+    'dateUpdated[strictly_after]': z.string().optional(),
+    'order[dateCreated]': z.enum(['asc', 'desc']).optional().default('asc'),
+    'order[dateUpdated]': z.enum(['asc', 'desc']).optional().default('asc')
+});
+
+/**
+ * Totalized money
+ */
+export const zApiProjectsmoneyTotalGetCollectionResponse = zProjectTotalizedMoney;
+
 export const zApiProjectsIdDeletePath = z.object({
     id: z.string()
 });
@@ -3986,7 +4069,9 @@ export const zApiVersionsIdGetResponse = zVersion;
 
 export const zApiAccountingsGetCollectionQuery = z.object({
     page: z.int().optional().default(1),
-    itemsPerPage: z.int().gte(0).lte(100).optional().default(30)
+    itemsPerPage: z.int().gte(0).lte(100).optional().default(30),
+    id: z.int().optional(),
+    'id[]': z.array(z.int()).optional()
 });
 
 /**

@@ -6,6 +6,7 @@
     import { locale, t } from "../../../../i18n/store";
     import { getDefaultLanguage } from "../../../../utils/consts";
     import { formatDate, startOfDay } from "../../../../utils/dates";
+    import { useFormDraft, restoreFields } from "../../../../utils/forms/useFormDraft.svelte";
     import {
         getLanguageDisplayName,
         primaryLanguage as pickPrimaryLanguage,
@@ -144,6 +145,37 @@
     let previewHero = $state<HomeHeroRecord | null>(null);
 
     const isVideo = $derived(media?.type.startsWith("video/") ?? false);
+
+    /**
+     * Nothing in this form is sensitive, so all of it can be kept.
+     */
+    const { restored } = useFormDraft("admin-home-hero", () => ({
+        fieldValues,
+        languages,
+        selectedLanguage,
+        startsAt: startsAt.toISOString(),
+        media,
+    }));
+
+    if (restored) {
+        restoreFields(fieldValues, restored.fieldValues);
+
+        if (restored.languages) {
+            languages = restored.languages;
+        }
+
+        if (restored.selectedLanguage) {
+            selectedLanguage = restored.selectedLanguage;
+        }
+
+        if (restored.startsAt) {
+            startsAt = new Date(restored.startsAt);
+        }
+
+        if (restored.media) {
+            media = restored.media;
+        }
+    }
 
     function storedMedia(record: HomeHeroRecord | null): HeroMedia | undefined {
         if (!record?.mediaUrl || !record.mediaType) {
