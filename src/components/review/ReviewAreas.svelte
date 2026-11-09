@@ -170,7 +170,7 @@
     <header class="space-y-6">
         <BackButton class="self-start" />
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div class="flex max-w-5xl flex-col gap-4">
+            <div class="flex max-w-5xl min-w-0 flex-col gap-4">
                 <Title level={1} variant="headline" weight="bold">
                     {title}
                 </Title>
@@ -178,8 +178,10 @@
                     <p class="text-content text-base">{subtitle}</p>
                 {/if}
             </div>
-            <div class="flex flex-wrap items-center gap-3 self-start">
-                <ReviewStateTag status={shownStatus} />
+            <div class="flex shrink-0 flex-nowrap items-center gap-3 self-start whitespace-nowrap">
+                <div class="flex shrink-0 items-center">
+                    <ReviewStateTag status={shownStatus} />
+                </div>
                 {#if promoterCanAct}
                     <Button
                         kind="primary"
