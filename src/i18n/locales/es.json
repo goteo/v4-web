@@ -954,6 +954,8 @@
           "modal": {
             "title": "Añade recompensas",
             "description": "Describe la recompensa que ofreces",
+            "loadError": "No se han podido cargar las traducciones de esta recompensa. Cierra y vuelve a intentarlo.",
+            "saveError": "No se ha podido guardar la recompensa. Inténtalo de nuevo.",
             "unitsExisting": "Número de unidades existentes",
             "form": {
               "titleLabel": "Título de la recompensa",

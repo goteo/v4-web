@@ -143,7 +143,10 @@ export class ProjectDraftRepository {
             actual: plainProject,
             patch: {},
             lang: language,
-            languages: siblings[0]?.languages ?? actual.locales ?? [language],
+            // A language just added may not have reached its siblings yet
+            languages: [
+                ...new Set([...(siblings[0]?.languages ?? actual.locales ?? []), language]),
+            ],
             dateCreated: new Date().toISOString(),
             dateUpdated: new Date().toISOString(),
         });
