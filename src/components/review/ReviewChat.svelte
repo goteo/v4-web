@@ -8,6 +8,7 @@
     // Aliased: the component already takes a `locale` prop, so the store needs another name.
     import { locale as currentLocale, t } from "../../i18n/store";
     import { formatDate } from "../../utils/dates";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import {
         isSameAuthor,
         dayOf,
@@ -70,6 +71,20 @@
 
     let draft = $state("");
     let sending = $state(false);
+
+    /**
+     * The message that was written but not sent yet. It is not sensitive, so it can be kept.
+     */
+    const { restored } = useFormDraft(chatDraftId(area), () => ({ draft }));
+
+    /** Identifies the draft of this conversation, so two of them do not write over each other. */
+    function chatDraftId(area: ReviewArea): string {
+        return `review-chat-${area.id}`;
+    }
+
+    if (restored?.draft !== undefined) {
+        draft = restored.draft;
+    }
 
     let savingRisk = $state(false);
     let isRiskModalOpen = $state(false);

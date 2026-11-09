@@ -6,6 +6,7 @@
     import { locale, t } from "../../i18n/store";
     import { apiUsersIdPatch } from "../../openapi/client";
     import { getCookie, setCookie } from "../../utils/cookies";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
@@ -32,9 +33,36 @@
 
     const CATEGORIES_COOKIE = "preferred-categories";
 
+    /**
+     * The preferences are kept while they are not saved yet: the categories picked and the
+     * language chosen, which is itself one of the ways of switching the language.
+     */
+    const { restored } = useFormDraft("manage-preferences", () => ({
+        language,
+        categoryIds: motivatingProjects.map((category) => String(category.id)),
+    }));
+
+    const restoredCategoryIds = restored?.categoryIds;
+
+    if (restored?.language) {
+        language = restored.language;
+    }
+
+    if (restoredCategoryIds) {
+        motivatingProjects = categories.filter((category) =>
+            restoredCategoryIds.includes(String(category.id)),
+        );
+    }
+
     $effect(() => {
         const stored = getCookie(CATEGORIES_COOKIE);
         if (!stored || motivatingProjects.length > 0 || categories.length === 0) {
+            return;
+        }
+
+        // A draft recovered after a language switch holds the newer choice, even when it is
+        // an empty one.
+        if (restoredCategoryIds) {
             return;
         }
 
