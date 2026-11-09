@@ -164,7 +164,7 @@
     bodyClass="flex p-0"
 >
     <form
-        class="flex min-h-0 flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
+        class="flex min-h-0 w-full flex-col gap-8 overflow-y-auto rounded-3xl bg-white p-6 shadow-lg"
         onsubmit={handleSubmit}
     >
         <Title level={2} variant="subsection">
