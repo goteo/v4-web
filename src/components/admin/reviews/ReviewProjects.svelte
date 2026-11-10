@@ -533,9 +533,6 @@
      */
     async function handleAssignReviewer(iri: string, name: string): Promise<void> {
         const state = assignState;
-        assignModalOpen = false;
-        assignState = null;
-
         if (!state) return;
 
         const { data, error } = await actions.assignReviewAdvisor({
@@ -568,8 +565,10 @@
             );
         }
 
+        assignState = null;
         invalidateProject(apiProjectsIdOrSlugGetUrl.replace("{idOrSlug}", String(state.projectId)));
-        loadReviews();
+        // Keep the assigning spinner until the refreshed row is on screen.
+        await loadReviews();
     }
 
     /**
