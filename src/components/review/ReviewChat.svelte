@@ -1,5 +1,6 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ChatMessage from "./ChatMessage.svelte";
     import ChatTextarea from "./ChatTextarea.svelte";
@@ -36,7 +37,6 @@
         authors = [],
         currentUserIri,
         reviewerIri = "",
-        projectTitle = "",
         canEditRisk = false,
         locale = "es",
     }: {
@@ -53,8 +53,6 @@
          * ones allowed to carry links and images.
          */
         reviewerIri?: string;
-        /** Already translated on the server, since `$t` always resolves to Spanish. */
-        projectTitle?: string;
         /** Only the consultant admin assesses risks; a promoter only reads them. */
         canEditRisk?: boolean;
         locale?: string;
@@ -75,7 +73,10 @@
     /**
      * The message that was written but not sent yet. It is not sensitive, so it can be kept.
      */
-    const { restored } = useFormDraft(chatDraftId(area), () => ({ draft }));
+    const { restored } = useFormDraft(
+        untrack(() => chatDraftId(area)),
+        () => ({ draft }),
+    );
 
     /** Identifies the draft of this conversation, so two of them do not write over each other. */
     function chatDraftId(area: ReviewArea): string {
@@ -226,7 +227,7 @@
     });
 </script>
 
-<div class="wrapper flex max-h-[calc(100dvh_-_var(--sticky-top))] flex-col gap-6">
+<div class="wrapper flex max-h-[calc(100dvh-var(--sticky-top))] flex-col gap-6">
     <Toast variant="error" bind:showToast={showError}>{errorMessage}</Toast>
     <div class="flex shrink-0 flex-col gap-4">
         <BackButton href={`/${locale}/reviews/${reviewId}`}>

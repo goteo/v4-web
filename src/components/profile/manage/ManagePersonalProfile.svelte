@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import FormNotice from "./FormNotice.svelte";
     import ProfileHeader from "./ProfileHeader.svelte";
@@ -59,38 +60,46 @@
 
     let { user, person, organization }: Props = $props();
 
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initial = untrack(() => ({ user, person, organization }));
+
     const country =
-        user.territory?.country === UNKNOWN_COUNTRY_CODE ? "" : (user.territory?.country ?? "");
+        initial.user.territory?.country === UNKNOWN_COUNTRY_CODE
+            ? ""
+            : (initial.user.territory?.country ?? "");
 
     // Changing the profile kind belongs to the public section, here it only routes the tax id
-    const isOrganization = user.type === "organization";
+    const isOrganization = initial.user.type === "organization";
 
     // Only the fields edited since the last save travel in the payload
     const { form, changed, commit } = trackChanges<PersonalProfileForm>({
-        handle: user.handle,
-        firstName: person?.firstName ?? "",
-        lastName: person?.lastName ?? "",
-        taxId: (isOrganization ? organization?.taxId : person?.taxId) ?? "",
+        handle: initial.user.handle,
+        firstName: initial.person?.firstName ?? "",
+        lastName: initial.person?.lastName ?? "",
+        taxId: (isOrganization ? initial.organization?.taxId : initial.person?.taxId) ?? "",
         type: isOrganization ? "organization" : "individual",
-        legalName: organization?.legalName ?? "",
-        businessName: organization?.businessName ?? "",
+        legalName: initial.organization?.legalName ?? "",
+        businessName: initial.organization?.businessName ?? "",
         country,
-        subLvl1: user.territory?.subLvl1 ?? "",
-        subLvl2: user.territory?.subLvl2 ?? "",
-        shareLocation: user.shareLocation ?? false,
-        referralSource: user.referralSource ?? "",
-        taxIdType: (isOrganization ? organization?.taxIdType : person?.taxIdType) ?? "",
-        birthYear: person?.birthYear ? String(person.birthYear) : "",
-        gender: person?.gender ?? "",
-        legalForm: organization?.legalForm ?? "",
-        publicEntity: organization?.publicEntity ?? false,
+        subLvl1: initial.user.territory?.subLvl1 ?? "",
+        subLvl2: initial.user.territory?.subLvl2 ?? "",
+        shareLocation: initial.user.shareLocation ?? false,
+        referralSource: initial.user.referralSource ?? "",
+        taxIdType:
+            (isOrganization ? initial.organization?.taxIdType : initial.person?.taxIdType) ?? "",
+        birthYear: initial.person?.birthYear ? String(initial.person.birthYear) : "",
+        gender: initial.person?.gender ?? "",
+        legalForm: initial.organization?.legalForm ?? "",
+        publicEntity: initial.organization?.publicEntity ?? false,
     });
 
     const currentYear = new Date().getFullYear();
     const birthYears = Array.from({ length: currentYear - 1899 }, (_, i) => currentYear - i);
 
     // Subdivisions are ISO codes, show them as "Subdivision, Country" in the search box
-    const initialLocality = country ? getTerritoryDisplayName(user.territory!, $locale) : "";
+    const initialLocality = country
+        ? getTerritoryDisplayName(initial.user.territory!, $locale)
+        : "";
     let locality = $state(initialLocality);
 
     const countryOptions: DropdownOption[] = $derived(
@@ -129,8 +138,8 @@
     let formError = $state("");
 
     /**
-     * Everything the form holds but the tax id, which is fiscal data and is left out on
-     * purpose: the visitor types it again.
+     * Everything the form holds but the tax id and its type, which are fiscal data and are
+     * left out on purpose: the visitor types them again.
      */
     const { restored } = useFormDraft("manage-personal-profile", () => ({
         handle: form.handle,
@@ -143,24 +152,18 @@
         subLvl1: form.subLvl1,
         subLvl2: form.subLvl2,
         shareLocation: form.shareLocation,
+        referralSource: form.referralSource,
+        birthYear: form.birthYear,
+        gender: form.gender,
+        legalForm: form.legalForm,
+        publicEntity: form.publicEntity,
         locality,
     }));
 
     if (restored) {
-        restoreFields(form, restored, [
-            "handle",
-            "firstName",
-            "lastName",
-            "type",
-            "legalName",
-            "businessName",
-            "country",
-            "subLvl1",
-            "subLvl2",
-            "shareLocation",
-        ]);
-
-        locality = restored.locality ?? initialLocality;
+        const { locality: restoredLocality, ...fields } = restored;
+        restoreFields(form, fields);
+        locality = restoredLocality ?? initialLocality;
     }
 
     let newPassword = $state("");

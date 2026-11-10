@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ProfileHeader from "./ProfileHeader.svelte";
     import ProfileIdentityRow from "./ProfileIdentityRow.svelte";
@@ -35,13 +36,16 @@
 
     let { user }: Props = $props();
 
-    const initialDisplayName = user.displayName ?? user.handle;
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initialUser = untrack(() => user);
+
+    const initialDisplayName = initialUser.displayName ?? initialUser.handle;
 
     // Only the fields edited since the last save travel in the payload
     const { form, changed, commit } = trackChanges<ProfileForm>({
-        avatar: user.avatar || undefined,
-        description: user.description ?? "",
-        links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
+        avatar: initialUser.avatar || undefined,
+        description: initialUser.description ?? "",
+        links: toSocialLinks((initialUser.links ?? []).flatMap((link) => link.url ?? [])),
     });
 
     let displayName = $state(initialDisplayName);

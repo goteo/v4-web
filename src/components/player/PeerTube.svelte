@@ -3,15 +3,13 @@
 
     import { t } from "../../i18n/store";
 
-    let {
-        src,
-        title = $t("pages.project.view.video.title"),
-        onReady = () => {},
-    } = $props<{
+    interface Props {
         src: string;
         title?: string;
         onReady?: () => void;
-    }>();
+    }
+
+    let { src, title = $t("pages.project.view.video.title"), onReady = () => {} }: Props = $props();
 
     let iframe: HTMLIFrameElement;
     let player: any = $state(null);

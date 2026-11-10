@@ -2,16 +2,17 @@
 import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import Newsletter from "../../../../components/admin/comm/Newsletter.svelte";
-import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/comm/newsletter";
+const navItems = getSubSections("/admin/comm");
 ---
 
 <Layout title={t("pages.admin.newsletter.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <Newsletter client:load />
         </WithSidebar>
     </App>

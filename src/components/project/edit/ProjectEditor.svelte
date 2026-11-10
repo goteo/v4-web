@@ -39,14 +39,12 @@
         draft,
         step,
         children,
-        onSave,
         onStepChange,
         onLangChange,
     }: {
         draft: ProjectDraftStore;
         step: string;
         children: Snippet;
-        onSave?: () => void;
         onStepChange?: (step: string) => void;
         onLangChange?: (lang: string) => void;
     } = $props();

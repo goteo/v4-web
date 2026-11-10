@@ -1,13 +1,14 @@
 <script lang="ts">
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
-    let {
-        class: classes = "",
-        children,
-    }: {
+    import type { Snippet } from "svelte";
+
+    interface Props {
         class?: ClassNameValue;
-        children: any;
-    } = $props();
+        children: Snippet;
+    }
+
+    let { class: classes = "", children }: Props = $props();
 </script>
 
 <div class={twMerge("grid grid-cols-2 gap-6 lg:grid-cols-3", classes)}>

@@ -1,5 +1,6 @@
 <script lang="ts">
     import { actions } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ReviewOptionsModal from "./ReviewOptionsModal.svelte";
     import RisksCard from "./RisksCard.svelte";
@@ -48,7 +49,7 @@
      * so the tag updates as soon as the action resolves, and a plain object received as
      * a prop carries no reactivity to mutate.
      */
-    let reviewedAreas = $state<ReviewArea[]>(areas.map((area) => ({ ...area })));
+    let reviewedAreas = $state<ReviewArea[]>(untrack(() => areas.map((area) => ({ ...area }))));
 
     let errorMessage = $state("");
     let showError = $state(false);
