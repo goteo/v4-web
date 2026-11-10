@@ -1,9 +1,8 @@
 <script lang="ts" module>
-    import type { Project, ProjectReview } from "../../../openapi/client/index.ts";
+    import type { ProjectReview } from "../../../openapi/client/index.ts";
     import type { ProjectReviewRisk } from "../../../types/projectReview";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
     import type { DataTableHeader } from "../../library/tables/DataTable.svelte";
-
-    export type ProjectStatus = NonNullable<Project["status"]>;
 
     export type ReviewProjectRow = {
         id: number;

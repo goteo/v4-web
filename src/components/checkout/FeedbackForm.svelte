@@ -4,6 +4,7 @@
     import { type Project, type ProjectSupport } from "../../openapi/client";
     import { client } from "../../openapi/client/client.gen";
     import { apiProjectsIdOrSlugGetUrl } from "../../openapi/client/operation-paths.gen";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import RadioButton from "../library/inputs/RadioButton.svelte";
     import Title from "../library/typography/Title.svelte";
 
@@ -17,6 +18,12 @@
 
     let type = $state<"organization" | "individual">("organization");
 
+    const { restored } = useFormDraft("checkout-feedback", () => ({ type }));
+
+    if (restored) {
+        type = restored.type === "individual" ? "individual" : "organization";
+    }
+
     let feedbackItems = $derived(() =>
         projects.map((project) => {
             const iri = client.buildUrl({
@@ -24,7 +31,7 @@
                 path: { idOrSlug: project.id },
             });
 
-            const support = projectSupports.find((ps) => ps.project === iri)!;
+            const support = projectSupports.find((ps) => iri.endsWith(ps.project!))!;
 
             return { project, support };
         }),

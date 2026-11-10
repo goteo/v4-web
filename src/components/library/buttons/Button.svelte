@@ -35,8 +35,8 @@
         ...rest
     }: Props = $props();
 
-    const anchorProps = rest as HTMLAnchorAttributes;
-    const buttonProps = rest as HTMLButtonAttributes;
+    const anchorProps = $derived(rest as HTMLAnchorAttributes);
+    const buttonProps = $derived(rest as HTMLButtonAttributes);
 
     const buttonClass = $derived(
         twMerge(

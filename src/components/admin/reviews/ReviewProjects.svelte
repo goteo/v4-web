@@ -4,10 +4,7 @@
 
     import AssignAdvisorModal from "./AssignAdvisorModal.svelte";
     import ReviewDecisionModal from "./ReviewDecisionModal.svelte";
-    import ReviewProjectsTable, {
-        type ProjectStatus,
-        type ReviewProjectRow,
-    } from "./ReviewProjectsTable.svelte";
+    import ReviewProjectsTable, { type ReviewProjectRow } from "./ReviewProjectsTable.svelte";
     import { t } from "../../../i18n/store";
     import {
         apiProjectReviewAreasGetCollection,
@@ -42,6 +39,7 @@
 
     import type { ApiProjectReviewsGetCollectionData } from "../../../openapi/client/types.gen";
     import type { ProjectReviewRisk } from "../../../types/projectReview";
+    import type { ProjectStatus } from "../../../utils/projectStatus";
 
     type ReviewsQuery = Partial<ApiProjectReviewsGetCollectionData["query"]>;
 

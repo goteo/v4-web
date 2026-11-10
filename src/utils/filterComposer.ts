@@ -2,6 +2,7 @@ import { get } from "svelte/store";
 
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
+import { PROJECT_STATUSES, projectStatusLabelKey } from "./projectStatus";
 import { CAMPAIGN_REVIEW_STATES, CAMPAIGN_REVIEW_STATE_LABELS } from "./review";
 import {
     searchAccountings,
@@ -96,39 +97,6 @@ const reviewStates: FilterOption[] = CAMPAIGN_REVIEW_STATES.map((state) => ({
     label: CAMPAIGN_REVIEW_STATE_LABELS[state],
 }));
 
-const projectStatuses: FilterOption[] = [
-    { value: "in_draft", label: "domain.project.status.in_draft" },
-    { value: "to_campaign_review", label: "domain.project.status.to_campaign_review" },
-    { value: "in_campaign_review", label: "domain.project.status.in_campaign_review" },
-    {
-        value: "in_campaign_review.to_review",
-        label: "domain.project.status.in_campaign_review_to_review",
-    },
-    {
-        value: "in_campaign_review.to_change",
-        label: "domain.project.status.in_campaign_review_to_change",
-    },
-    { value: "campaign_review.rejected", label: "domain.project.status.campaign_review_rejected" },
-    { value: "to_campaign", label: "domain.project.status.to_campaign" },
-    { value: "in_campaign", label: "domain.project.status.in_campaign" },
-    { value: "campaign.failed", label: "domain.project.status.campaign_failed" },
-    { value: "campaign.cancelled", label: "domain.project.status.campaign_cancelled" },
-    { value: "to_funding_review", label: "domain.project.status.to_funding_review" },
-    { value: "in_funding_review", label: "domain.project.status.in_funding_review" },
-    {
-        value: "in_funding_review.to_review",
-        label: "domain.project.status.in_funding_review_to_review",
-    },
-    {
-        value: "in_funding_review.to_change",
-        label: "domain.project.status.in_funding_review_to_change",
-    },
-    { value: "funding_review.rejected", label: "domain.project.status.funding_review_rejected" },
-    { value: "to_funding", label: "domain.project.status.to_funding" },
-    { value: "in_funding", label: "domain.project.status.in_funding" },
-    { value: "funding.paid", label: "domain.project.status.funding_paid" },
-];
-
 const currentLocale = get(locale) || getDefaultLanguage();
 const currencyName = new Intl.DisplayNames([currentLocale], { type: "currency" });
 
@@ -168,7 +136,7 @@ const filterSubjects: Record<string, FilterSubject> = {
         type: "string",
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["projects"],
-        options: projectStatuses,
+        options: PROJECT_STATUSES.map((value) => ({ value, label: projectStatusLabelKey(value) })),
         allowsMultipleEquals: true,
     },
     chargeStatus: {

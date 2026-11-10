@@ -64,7 +64,7 @@ export const ME_SECTIONS: MeSection[] = [
 /**
  * Sidebar entries for the profile tab, in the shape `WithSidebar` expects. Read out of
  * `ME_SECTIONS` so a new profile section only has to be declared once, see
- * `admin/home/subsections.ts` for the same trick on the admin side.
+ * `adminSections.ts` for the same trick on the admin side.
  */
 export const PROFILE_NAV_ITEMS: AdminSidebarItem[] = (
     ME_SECTIONS.find((section) => section.href === PROFILE_PATHS.root)?.subSections ?? []

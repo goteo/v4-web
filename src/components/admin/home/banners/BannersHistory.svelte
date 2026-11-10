@@ -1,6 +1,7 @@
 <script lang="ts">
     import { actions } from "astro:actions";
     import { Modal, TableBodyCell } from "flowbite-svelte";
+    import { untrack } from "svelte";
 
     import BannersForm from "./BannersForm.svelte";
     import { locale, t } from "../../../../i18n/store";
@@ -25,7 +26,7 @@
 
     let { rows, onError, onSaved }: Props = $props();
 
-    let list = $state(rows);
+    let list = $state(untrack(() => rows));
 
     const headers: DataTableHeader[] = [
         { key: "pages.admin.comm.banners.history.headers.title", sortable: false },

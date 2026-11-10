@@ -7,10 +7,9 @@
         apiUsersGetCollectionUrl,
         type User,
     } from "../../../openapi/client/index.ts";
-    import { debounce } from "../../../utils/debounce.ts";
     import { toCollectionItems } from "../../../utils/hydra";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import UserResultRow from "../../library/dropdown/UserResultRow.svelte";
     import Loader from "../../library/feedback/Loader.svelte";
     import Title from "../../library/typography/Title.svelte";
@@ -35,13 +34,9 @@
         onAssign: (iri: string, name: string) => Promise<void> | void;
     } = $props();
 
-    let candidates = $state<DropdownOption[]>([]);
     let searchValue = $state("");
     let selected = $state<DropdownOption[]>([]);
-    let searching = $state(false);
     let assigning = $state(false);
-    /** Discards the response of a search that a newer one has already replaced. */
-    let searchSeq = 0;
 
     function toOption(user: User): DropdownOption {
         return {
@@ -52,61 +47,18 @@
         };
     }
 
-    async function fetchCandidates(term: string): Promise<void> {
-        const seq = ++searchSeq;
-        searching = true;
+    async function searchUsers(term: string, signal: AbortSignal): Promise<DropdownOption[]> {
+        const { data, error } = await apiUsersGetCollection({
+            baseUrl: "/api/relay",
+            // Only admins can carry a review out, so the search never offers
+            // users who could not be assigned (see `isConsultant`).
+            query: { q: term, roles: "ROLE_ADMIN", itemsPerPage: 30 },
+            signal,
+        });
 
-        try {
-            const { data, error } = await apiUsersGetCollection({
-                baseUrl: "/api/relay",
-                // Only admins can carry a review out, so the search never offers
-                // users who could not be assigned (see `isConsultant`).
-                query: { q: term, roles: "ROLE_ADMIN", itemsPerPage: 30 },
-            });
+        if (error || !data) return [];
 
-            if (seq !== searchSeq) return;
-
-            candidates = error ? [] : toCollectionItems<User>(data).map(toOption);
-        } catch (searchError) {
-            if (seq === searchSeq) candidates = [];
-            console.error(searchError);
-        } finally {
-            if (seq === searchSeq) searching = false;
-        }
-    }
-
-    const searchUsers = debounce((term: string) => {
-        void fetchCandidates(term);
-    }, 250);
-
-    function clearSearch(): void {
-        searchUsers.cancel();
-        searchSeq++;
-        searching = false;
-        candidates = [];
-    }
-
-    function handleSearch(value: string): void {
-        const trimmed = value.trim();
-        if (trimmed.length < 2) {
-            clearSearch();
-            return;
-        }
-
-        searchUsers(trimmed);
-    }
-
-    /** Runs the search immediately, when the advisor presses the magnifier or Enter. */
-    function submitSearch(): void {
-        const trimmed = searchValue.trim();
-        searchUsers.cancel();
-
-        if (trimmed.length < 2) {
-            clearSearch();
-            return;
-        }
-
-        void fetchCandidates(trimmed);
+        return toCollectionItems<User>(data).map(toOption);
     }
 
     let wasOpen = false;
@@ -117,7 +69,6 @@
         if (open && !wasOpen) {
             searchValue = "";
             assigning = false;
-            clearSearch();
             selected = currentReviewer
                 ? [
                       {
@@ -175,19 +126,18 @@
             {$t("pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.description")}
         </p>
 
-        <DropdownMenu
-            options={candidates}
+        <DropdownSearch
+            search={searchUsers}
+            minChars={2}
+            debounceMs={250}
+            searchButton
             bind:selected
-            bind:searchValue
+            bind:value={searchValue}
             variant="basic"
             singleSelect
-            hasSearch
-            searchPlaceholder={$t(
+            placeholder={$t(
                 "pages.admin.reviews.projects.table.rows.details.modals.assignAdvisor.searchPlaceholder",
             )}
-            onSearch={handleSearch}
-            onSearchSubmit={submitSearch}
-            searchLoading={searching}
             label={title}
             selectedFirst
         >
@@ -196,7 +146,7 @@
                     <UserResultRow user={option.raw as User} />
                 {/if}
             {/snippet}
-        </DropdownMenu>
+        </DropdownSearch>
     </div>
 
     {#snippet footer()}

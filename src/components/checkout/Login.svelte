@@ -2,6 +2,7 @@
     import { navigate } from "astro:transitions/client";
 
     import { t } from "../../i18n/store";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
     import PasswordInput from "../library/inputs/PasswordInput.svelte";
@@ -15,6 +16,20 @@
     let isSubmitting = $state(false);
     let errorMessage = $state("");
     let showErrorToast = $state(false);
+
+    /**
+     * The identifier and the terms are worth keeping across a language switch; the password
+     * is not, so it is never handed over to the storage.
+     */
+    const { restored } = useFormDraft("checkout-login", () => ({
+        identifier,
+        acceptTerms,
+    }));
+
+    if (restored) {
+        identifier = restored.identifier ?? "";
+        acceptTerms = restored.acceptTerms ?? false;
+    }
 
     const handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault();

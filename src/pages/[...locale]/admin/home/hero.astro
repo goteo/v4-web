@@ -3,11 +3,12 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Hero from "../../../../components/admin/home/hero/Hero.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import { homeHeroRepository } from "../../../../repositories/homeHero";
-import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/hero";
+const navItems = getSubSections("/admin/home");
 
 // The list backs the history tab; the editor itself always starts blank (new).
 const heroes = await homeHeroRepository.getAll();
@@ -15,7 +16,7 @@ const heroes = await homeHeroRepository.getAll();
 
 <Layout title={t("pages.admin.home.hero.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <Hero client:load {heroes} />
         </WithSidebar>
     </App>
