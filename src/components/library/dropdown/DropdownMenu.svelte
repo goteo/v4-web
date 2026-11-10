@@ -7,6 +7,7 @@
     import SearchIcon from "../../icons/actions/Search.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Close from "../../icons/navigation/Close.svelte";
+    import Spinner from "../../icons/status/Spinner.svelte";
     import Tag from "../tags/Tag.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
@@ -25,6 +26,13 @@
         searchPlaceholder?: string;
         searchValue?: string;
         onSearch?: (value: string) => void;
+        /** Shows a spinner in place of the search icon while a search is in flight. */
+        searchLoading?: boolean;
+        /**
+         * Turns the search icon into a button that runs this action, and makes
+         * the field submit it on Enter.
+         */
+        onSearchSubmit?: () => void;
         clearable?: boolean;
         onClear?: () => void;
         singleSelect?: boolean;
@@ -61,6 +69,8 @@
         searchPlaceholder = $t("domain.search.bar.placeholder"),
         searchValue = $bindable(""),
         onSearch = undefined,
+        searchLoading = false,
+        onSearchSubmit = undefined,
         clearable = false,
         onClear = undefined,
         singleSelect = false,
@@ -185,6 +195,12 @@
                 aria-controls={listId}
                 bind:value={searchValue}
                 oninput={(e) => onSearch?.(e.currentTarget.value)}
+                onkeydown={(e) => {
+                    if (e.key === "Enter" && onSearchSubmit) {
+                        e.preventDefault();
+                        onSearchSubmit();
+                    }
+                }}
                 onblur={onInputBlur}
                 onclick={() => {
                     if (!isOpen) isOpen = true;
@@ -200,7 +216,24 @@
                         <Close width="20" height="20" />
                     </button>
                 {/if}
-                <SearchIcon width="32" height="32" />
+                {#if onSearchSubmit}
+                    <button
+                        type="button"
+                        class="shrink-0 hover:cursor-pointer hover:opacity-75 disabled:cursor-default"
+                        aria-label={$t("common.search")}
+                        aria-busy={searchLoading}
+                        disabled={searchLoading}
+                        onclick={onSearchSubmit}
+                    >
+                        {#if searchLoading}
+                            <Spinner width="32px" height="32px" />
+                        {:else}
+                            <SearchIcon width="32" height="32" />
+                        {/if}
+                    </button>
+                {:else}
+                    <SearchIcon width="32" height="32" />
+                {/if}
             </div>
         </div>
     {:else}
@@ -243,7 +276,7 @@
                     />
                 {/each}
             </div>
-        {:else if !hasSearch || searchValue.trim()}
+        {:else if !searchLoading && (!hasSearch || searchValue.trim())}
             <p
                 class="text-content absolute top-full left-0 z-100 mt-2 w-full rounded-lg bg-white p-4 text-base shadow-2xl"
             >
