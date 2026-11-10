@@ -2,6 +2,7 @@
 import { Font } from "astro:assets";
 
 import "../styles/global.css";
+import Footer from "./Footer.astro";
 import Metatags from "./Metatags.astro";
 
 import type { FontPreloadFilter } from "astro:assets";
@@ -37,6 +38,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
     </head>
     <body class="bg-white">
         <slot />
+        <Footer />
         <script is:inline>
             /**
              * Seeds --header-height from the server-rendered header before first paint.
