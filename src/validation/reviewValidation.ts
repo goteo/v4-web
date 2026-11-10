@@ -62,6 +62,12 @@ export const zUpdateReviewProjectStatusInput = z.object({
     status: zReviewStatus,
 });
 
+/** The reviewer is the IRI of the User the review is handed to. */
+export const zAssignReviewAdvisorInput = z.object({
+    reviewId: zReviewId,
+    reviewer: z.string().trim().min(1),
+});
+
 export const zSendReviewAreaCommentInput = z.object({
     reviewId: zReviewId,
     areaId: zReviewAreaId,

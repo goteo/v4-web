@@ -7,6 +7,9 @@ import {
     apiProjectReviewCommentsPost,
     apiProjectReviewsGetCollectionUrl,
     apiProjectReviewsIdGet,
+    apiProjectReviewsIdPatch,
+    apiProjectsIdOrSlugGet,
+    apiProjectsIdPatch,
     apiUsersIdOrHandleGet,
 } from "../openapi/client";
 import { extractId } from "../utils/extractId";
@@ -119,6 +122,89 @@ export async function getReview(
             areas: [],
         },
     };
+}
+
+/**
+ * Outcome of handing a review to an advisor.
+ */
+export interface AdvisorAssignment {
+    /** IRI of the User the review was assigned to. */
+    reviewer: string;
+    /** True when the review had to open but moving the project failed. */
+    openFailed: boolean;
+}
+
+/**
+ * Assigns the consultant admin that will carry a review out.
+ *
+ * A review is created before it has an advisor, and the API moves the project
+ * forward when it enters the review, not when a reviewer is set. Assigning the
+ * first advisor is therefore what opens it; a reassignment leaves the project
+ * alone.
+ *
+ * The project is resolved from the review instead of being taken from the
+ * caller, so the status is read from the resource that really belongs to the
+ * review and a caller cannot point the opening at another project.
+ * @param reviewId The review identifier, as in `/reviews/{id}`
+ * @param reviewer IRI of the User the review is handed to
+ * @param session The current session, carrying the token the API authenticates
+ * @param lang Active locale, sent so the API answers with translated content
+ * @returns The assignment, or the failure the API answered with
+ */
+export async function setReviewAdvisor(
+    reviewId: number | string,
+    reviewer: string,
+    session: Session,
+    lang: Locale,
+): Promise<ReviewResult<AdvisorAssignment>> {
+    const headers = apiHeaders(session, lang);
+
+    const { data: review, error: readError } = await getReview(reviewId, session, lang);
+
+    if (!review) return { error: readError ?? NOT_FOUND };
+
+    const { error } = await apiProjectReviewsIdPatch({
+        path: { id: String(reviewId) },
+        body: { reviewer },
+        headers,
+    });
+
+    if (error) return { error: toReviewError(error) };
+
+    const projectId = extractId(review.project);
+
+    if (!projectId) return { data: { reviewer, openFailed: false } };
+
+    const { data: project, error: projectError } = await apiProjectsIdOrSlugGet({
+        path: { idOrSlug: projectId },
+        headers,
+    });
+
+    if (!project) {
+        if (projectError && toReviewError(projectError).status !== 404) {
+            console.error({ review: reviewId, project: projectId, error: projectError });
+        }
+
+        return { data: { reviewer, openFailed: false } };
+    }
+
+    if (project.status !== "to_campaign_review") {
+        return { data: { reviewer, openFailed: false } };
+    }
+
+    const { error: statusError } = await apiProjectsIdPatch({
+        path: { id: projectId },
+        body: { status: "in_campaign_review" },
+        headers,
+    });
+
+    if (statusError) {
+        console.error({ review: reviewId, project: projectId, error: statusError });
+
+        return { data: { reviewer, openFailed: true } };
+    }
+
+    return { data: { reviewer, openFailed: false } };
 }
 
 /**

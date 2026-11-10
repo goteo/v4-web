@@ -6,6 +6,7 @@ import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updatePersonalProfile } from "./personalProfile";
 import {
+    assignReviewAdvisor,
     sendReviewAreaComment,
     updateReviewAreaRisk,
     updateReviewProjectStatus,
@@ -32,6 +33,7 @@ export const server = {
     updatePersonalProfile,
     updateReviewAreaRisk,
     updateReviewProjectStatus,
+    assignReviewAdvisor,
     sendReviewAreaComment,
     saveProposedCampaigns,
 };

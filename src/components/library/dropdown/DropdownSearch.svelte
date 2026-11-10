@@ -13,6 +13,7 @@
     import { debounce } from "../../../utils/debounce";
     import SearchIcon from "../../icons/actions/Search.svelte";
     import Close from "../../icons/navigation/Close.svelte";
+    import Spinner from "../../icons/status/Spinner.svelte";
 
     import type { DropdownOption, DropdownVariant } from "./dropdown.types";
     import type { Snippet } from "svelte";
@@ -39,6 +40,11 @@
         /** Shorter queries don't search and empty the list. */
         minChars?: number;
         debounceMs?: number;
+        /**
+         * Turns the magnifier into a button that searches on click or Enter, and
+         * spins it while the search runs instead of showing the list spinner.
+         */
+        searchButton?: boolean;
         chips?: boolean;
         itemClass?: ClassNameValue;
         /** Replaces the label of every list item, see `DropdownMenu`. */
@@ -60,6 +66,7 @@
         selectedFirst = false,
         minChars = 0,
         debounceMs = 300,
+        searchButton = false,
         chips = false,
         itemClass = undefined,
         row = undefined,
@@ -72,6 +79,8 @@
     let controller: AbortController | undefined;
 
     const canSearch = $derived(value.trim().length >= minChars);
+    /** In button mode the magnifier carries the loading feedback, not the list box. */
+    const listLoading = $derived(isLoading && !searchButton);
 
     // The delay is fixed per instance; reading it untracked keeps the debounced
     // function stable instead of rebuilding it on every prop read.
@@ -122,6 +131,21 @@
         runSearch(value);
     }
 
+    /** Runs the search right away, from the magnifier button or the Enter key. */
+    function submitSearch() {
+        runSearch.cancel();
+
+        // Opening searches right away, see the effect below.
+        if (!isOpen) {
+            isOpen = true;
+            return;
+        }
+
+        if (!canSearch) return reset();
+
+        void fetchOptions(value);
+    }
+
     // Opened from the input or from the chips: refresh with the current query.
     $effect(() => {
         if (!isOpen) return;
@@ -159,8 +183,8 @@
     {singleSelect}
     {label}
     {selectedFirst}
-    loading={isLoading}
-    showEmpty={canSearch && !!value.trim()}
+    loading={listLoading}
+    showEmpty={canSearch && !!value.trim() && !listLoading}
     {chips}
     {itemClass}
     {row}
@@ -181,6 +205,12 @@
                 aria-controls={listId}
                 bind:value
                 oninput={handleInput}
+                onkeydown={(e) => {
+                    if (e.key === "Enter" && searchButton) {
+                        e.preventDefault();
+                        submitSearch();
+                    }
+                }}
                 onclick={() => (isOpen = true)}
             />
             <div class="absolute right-4 flex flex-row gap-1 bg-white">
@@ -194,7 +224,24 @@
                         <Close width="20" height="20" />
                     </button>
                 {/if}
-                <SearchIcon width="32" height="32" />
+                {#if searchButton}
+                    <button
+                        type="button"
+                        class="shrink-0 hover:cursor-pointer hover:opacity-75 disabled:cursor-default"
+                        aria-label={$t("common.search")}
+                        aria-busy={isLoading}
+                        disabled={isLoading}
+                        onclick={submitSearch}
+                    >
+                        {#if isLoading}
+                            <Spinner width="32px" height="32px" />
+                        {:else}
+                            <SearchIcon width="32" height="32" />
+                        {/if}
+                    </button>
+                {:else}
+                    <SearchIcon width="32" height="32" />
+                {/if}
             </div>
         </div>
     {/snippet}

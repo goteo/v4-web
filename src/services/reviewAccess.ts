@@ -35,6 +35,22 @@ export function isAssignedReviewer(session: Session | undefined, review: Project
 }
 
 /**
+ * Whether the signed in user is the promoter of the reviewed project.
+ *
+ * A promoter may only report that their requested changes are done; everything
+ * else about the review belongs to its consultant.
+ * @param session The current session
+ * @param review The review being accessed
+ * @returns True when the user owns the project the review belongs to
+ */
+export async function isProjectOwner(
+    session: Session | undefined,
+    review: ProjectReview,
+): Promise<boolean> {
+    return ownsReviewProject(session, review);
+}
+
+/**
  * Whether the signed in user may read a review.
  *
  * A review is visible to the consultant admin carrying it out and to the promoter
@@ -49,6 +65,19 @@ export async function canAccessReview(
 ): Promise<boolean> {
     if (!session) return false;
     if (isConsultant(session)) return true;
+
+    return ownsReviewProject(session, review);
+}
+
+/**
+ * Resolves whether the session belongs to the owner of the reviewed project.
+ * @returns True when the session user owns the project
+ */
+async function ownsReviewProject(
+    session: Session | undefined,
+    review: ProjectReview,
+): Promise<boolean> {
+    if (!session) return false;
 
     const projectId = extractId(review.project);
     if (!projectId) return false;
