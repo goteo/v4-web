@@ -1604,7 +1604,8 @@
         "categorization": "Categorització",
         "comm": "Comunicació",
         "home": "Inici",
-        "reviews": "Revisions"
+        "reviews": "Revisions",
+        "customize": "Personalització"
       },
       "sidebar": {
         "aria": {
@@ -1773,6 +1774,14 @@
             "description": "Cerca i afegeix l'usuari que vulguis destacar a la portada",
             "search": "Cerca un usuari"
           }
+        }
+      },
+      "customize": {
+        "description": "Tria quines parts del lloc es poden editar des d'aquí.",
+        "tabs": {
+          "footer": "Peu de pàgina",
+          "colours": "Colors",
+          "logo": "Logotip"
         }
       },
       "slotCard": {
