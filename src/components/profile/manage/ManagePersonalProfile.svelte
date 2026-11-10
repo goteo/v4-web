@@ -121,8 +121,7 @@
         country: form.country,
         subLvl1: form.subLvl1,
         subLvl2: form.subLvl2,
-        address: form.address,
-        shareLocation,
+        shareLocation: form.shareLocation,
         locality,
     }));
 
@@ -137,10 +136,9 @@
             "country",
             "subLvl1",
             "subLvl2",
-            "address",
+            "shareLocation",
         ]);
 
-        shareLocation = restored.shareLocation ?? false;
         locality = restored.locality ?? initialLocality;
     }
 

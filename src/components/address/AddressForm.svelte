@@ -49,15 +49,18 @@
     /**
      * Addresses hold nothing sensitive, so all of it can be kept.
      */
-    const { restored } = useFormDraft(draftId, () => ({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        line1: form.line1,
-        line2: form.line2,
-        city: form.city,
-        postCode: form.postCode,
-        country: form.country,
-    }));
+    const { restored } = useFormDraft(
+        untrack(() => draftId),
+        () => ({
+            firstName: form.firstName,
+            lastName: form.lastName,
+            line1: form.line1,
+            line2: form.line2,
+            city: form.city,
+            postCode: form.postCode,
+            country: form.country,
+        }),
+    );
 
     if (restored) {
         restoreFields(form, restored);

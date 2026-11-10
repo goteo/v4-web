@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { untrack } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
@@ -25,8 +26,10 @@
     let { user, categories = [], class: classes = "" }: Props = $props();
 
     let language: string = $state($locale ?? "es");
-    let isAnonymous = $state(user.isAnonymous ?? false);
-    let savedIsAnonymous = user.isAnonymous ?? false;
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initialIsAnonymous = untrack(() => user.isAnonymous ?? false);
+    let isAnonymous = $state(initialIsAnonymous);
+    let savedIsAnonymous = initialIsAnonymous;
     let toast = $state(false);
     let errorToast = $state(false);
     let motivatingProjects: Category[] = $state([]);
@@ -49,7 +52,7 @@
     }
 
     if (restoredCategoryIds) {
-        motivatingProjects = categories.filter((category) =>
+        motivatingProjects = untrack(() => categories).filter((category) =>
             restoredCategoryIds.includes(String(category.id)),
         );
     }

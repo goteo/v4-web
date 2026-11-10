@@ -1,5 +1,6 @@
 <script lang="ts">
     import { actions } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ProjectPickerModal, { type PickedProject } from "./ProjectPickerModal.svelte";
     import ProjectSlotCard from "./ProjectSlotCard.svelte";
@@ -35,13 +36,16 @@
     let showError = $state(false);
     let errorMessage = $state("");
 
+    // Seeded once: later prop changes must not overwrite what the admin is editing
+    const initialSlots = untrack(() => config.slots);
+
     // Slots are grouped per tab; the array order within a tab is the display
     // order (top to bottom, left to right) and becomes the saved position.
     let slotsByTab = $state<Record<ProposedCampaignTab, SlotAssignment[]>>({
-        "ending-soon": config.slots
+        "ending-soon": initialSlots
             .filter((s) => s.tab === "ending-soon")
             .sort((a, b) => a.position - b.position),
-        "most-successful": config.slots
+        "most-successful": initialSlots
             .filter((s) => s.tab === "most-successful")
             .sort((a, b) => a.position - b.position),
     });

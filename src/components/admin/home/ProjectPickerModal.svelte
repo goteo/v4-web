@@ -10,10 +10,9 @@
 
     import { t } from "../../../i18n/store";
     import { apiProjectsGetCollection } from "../../../openapi/client/sdk.gen";
-    import { debounce } from "../../../utils/debounce";
     import { toCollectionItems } from "../../../utils/hydra";
     import Button from "../../library/buttons/Button.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Title from "../../library/typography/Title.svelte";
 
     import type { Project } from "../../../openapi/client/types.gen";
@@ -44,7 +43,6 @@
     }: Props = $props();
 
     let projectQuery = $state("");
-    let searchOptions = $state<DropdownOption[]>([]);
     let selectedOption = $state<DropdownOption[]>([]);
     let searchResults: Project[] = [];
 
@@ -53,39 +51,30 @@
     $effect(() => {
         if (open) {
             projectQuery = "";
-            searchOptions = [];
             selectedOption = [];
             searchResults = [];
         }
     });
 
-    const searchProjects = debounce(async (title: string) => {
+    async function searchProjects(title: string, signal: AbortSignal): Promise<DropdownOption[]> {
         const { data, error } = await apiProjectsGetCollection({
             baseUrl: "/api/relay",
             headers: { Accept: "application/ld+json" },
             query: { title, itemsPerPage: 10 },
+            signal,
         });
 
         if (error) console.error("Project search failed:", error);
 
-        searchResults = toCollectionItems<Project>(data);
-        searchOptions = searchResults.map((p) => ({
+        const results = toCollectionItems<Project>(data);
+        // A superseded search must not replace the results `handleConfirm` looks into.
+        if (!signal.aborted) searchResults = results;
+
+        return results.map((p) => ({
             id: String(p.id),
             label: p.title ?? p.slug ?? "",
             selected: false,
         }));
-    });
-
-    function handleSearch(query: string) {
-        const trimmed = query.trim();
-
-        if (trimmed.length < 2) {
-            searchProjects.cancel();
-            searchOptions = [];
-            return;
-        }
-
-        searchProjects(trimmed);
     }
 
     function handleConfirm() {
@@ -124,17 +113,16 @@
                     {searchLabel}
                 </span>
             {/if}
-            <DropdownMenu
+            <DropdownSearch
                 variant="basic"
-                hasSearch
                 singleSelect
                 clearable
-                options={searchOptions}
+                search={searchProjects}
+                minChars={2}
                 bind:selected={selectedOption}
-                bind:searchValue={projectQuery}
-                onSearch={handleSearch}
+                bind:value={projectQuery}
                 searchClasses="rounded-3xl border-secondary shadow-none"
-                searchPlaceholder={searchLabel ?? $t("common.search")}
+                placeholder={searchLabel ?? $t("common.search")}
             />
         </div>
     </div>
