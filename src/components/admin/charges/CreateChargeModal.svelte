@@ -16,8 +16,10 @@
         initialFormState,
         initialFiscal,
         type CreateChargeForm,
+        type CreateChargeFormFiscal,
         type DonorType,
     } from "../../../types/admin-charge";
+    import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Title from "../../library/typography/Title.svelte";
 
@@ -49,6 +51,98 @@
 
     let submitState = $state<"idle" | "submitting" | "error">("idle");
     let submitError = $state<string | null>(null);
+
+    /**
+     * The fiscal data of the donor, without the tax ids.
+     *
+     * They are fiscal data and are left out on purpose: whoever fills the form in types them
+     * again.
+     */
+    type FiscalDraft =
+        | { kind: "organization"; legalName: string; repFirstName: string; repLastName: string }
+        | { kind: "individual"; firstName: string; lastName: string };
+
+    function fiscalDraft(fiscal: CreateChargeFormFiscal): FiscalDraft {
+        if (fiscal.kind === "organization") {
+            return {
+                kind: "organization",
+                legalName: fiscal.legalName,
+                repFirstName: fiscal.repFirstName,
+                repLastName: fiscal.repLastName,
+            };
+        }
+
+        return {
+            kind: "individual",
+            firstName: fiscal.firstName,
+            lastName: fiscal.lastName,
+        };
+    }
+
+    /**
+     * Rebuilds the fiscal data of the donor, with the tax ids empty because they are not
+     * kept. The kind comes with it, so the effect that keeps both in step leaves it alone.
+     */
+    function fiscalFromDraft(draft: FiscalDraft): CreateChargeFormFiscal {
+        if (draft.kind === "organization") {
+            return {
+                kind: "organization",
+                legalName: draft.legalName,
+                taxId: "",
+                repFirstName: draft.repFirstName,
+                repLastName: draft.repLastName,
+                repTaxId: "",
+            };
+        }
+
+        return {
+            kind: "individual",
+            firstName: draft.firstName,
+            lastName: draft.lastName,
+            taxId: "",
+        };
+    }
+
+    /**
+     * The password of the donor is left out on purpose, it is a credential.
+     */
+    type ChargeDraft = {
+        currentStep: StepKey;
+        existingUser: CreateChargeForm["existingUser"];
+        user: Pick<CreateChargeForm["user"], "type" | "email">;
+        fiscal: FiscalDraft;
+        charge: CreateChargeForm["charge"];
+    };
+
+    const { restored } = useFormDraft<ChargeDraft>("admin-create-charge", () => ({
+        currentStep,
+        existingUser: form.existingUser,
+        user: { type: form.user.type, email: form.user.email },
+        fiscal: fiscalDraft(form.fiscal),
+        charge: form.charge,
+    }));
+
+    /**
+     * Puts back what was kept before the language switch.
+     */
+    function restoreCharge(draft: Partial<ChargeDraft>) {
+        currentStep = draft.currentStep ?? "user";
+        form.existingUser = draft.existingUser ?? null;
+
+        restoreFields(form.user, draft.user, ["type", "email"]);
+
+        if (draft.charge) {
+            form.charge = draft.charge;
+        }
+
+        if (draft.fiscal) {
+            form.fiscal = fiscalFromDraft(draft.fiscal);
+        }
+    }
+
+    if (restored) {
+        restoreCharge(restored);
+    }
 
     $effect(() => {
         submitting = submitState === "submitting";

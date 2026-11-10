@@ -5,6 +5,7 @@
     import { locale, t } from "../../../../i18n/store";
     import { BLOG_SECTIONS } from "../../../../utils/blog";
     import { getDefaultLanguage } from "../../../../utils/consts";
+    import { useFormDraft, restoreFields } from "../../../../utils/forms/useFormDraft.svelte";
     import {
         getLanguageDisplayName,
         primaryLanguage as pickPrimaryLanguage,
@@ -50,6 +51,8 @@
     const contentId = $props.id();
     let publishedAt = $state(initial?.publishedAt ?? new Date());
     let section = $state<BlogSection>(initial?.section ?? "news");
+    let author = $state(initial?.author ?? "");
+    let videoUrl = $state(initial?.videoUrl ?? "");
 
     // Only URL and type are stored, so rebuild what FileUpload needs to list the current header.
     let header = $state<UploadedObject[]>(
@@ -71,25 +74,24 @@
     const defaultLanguage = getDefaultLanguage();
 
     // Every language's texts live here, the base one included, and are saved together.
-    let texts = $state<Record<string, Texts>>(
-        initial
-            ? Object.fromEntries(
-                  initial.languages.map((code) => {
-                      const stored =
-                          code === initial.language ? initial : initial.translations[code];
+    const initialTexts: Record<string, Texts> = initial
+        ? Object.fromEntries(
+              initial.languages.map((code) => {
+                  const stored = code === initial.language ? initial : initial.translations[code];
 
-                      return [
-                          code,
-                          {
-                              title: stored?.title ?? "",
-                              subtitle: stored?.subtitle ?? "",
-                              content: stored?.content ?? "",
-                          },
-                      ];
-                  }),
-              )
-            : { [defaultLanguage]: emptyTexts() },
-    );
+                  return [
+                      code,
+                      {
+                          title: stored?.title ?? "",
+                          subtitle: stored?.subtitle ?? "",
+                          content: stored?.content ?? "",
+                      },
+                  ];
+              }),
+          )
+        : { [defaultLanguage]: emptyTexts() };
+
+    let texts = $state<Record<string, Texts>>(initialTexts);
     let languages = $state<string[]>(initial?.languages ?? [defaultLanguage]);
     let selectedLanguage = $state(untrack(() => languages[0]));
     const active = $derived(texts[selectedLanguage]);
@@ -101,6 +103,59 @@
     function selectLanguage(code: string) {
         selectedLanguage = code;
         fieldErrors = {};
+    }
+
+    /**
+     * Nothing in this form is sensitive, so all of it can be kept. The header is kept by URL
+     * and type, the way it is sent to the API.
+     */
+    const { restored } = useFormDraft("admin-comm-blog", () => ({
+        texts,
+        languages,
+        selectedLanguage,
+        publishedAt: publishedAt.toISOString(),
+        section,
+        author,
+        videoUrl,
+        header: header.map(({ url, type }) => ({ url, type })),
+    }));
+
+    if (restored) {
+        restoreFields(texts, restored.texts);
+
+        if (restored.languages) {
+            languages = restored.languages;
+        }
+
+        if (restored.selectedLanguage) {
+            selectedLanguage = restored.selectedLanguage;
+        }
+
+        if (restored.publishedAt) {
+            publishedAt = new Date(restored.publishedAt);
+        }
+
+        if (restored.section) {
+            section = restored.section;
+        }
+
+        if (restored.author !== undefined) {
+            author = restored.author;
+        }
+
+        if (restored.videoUrl !== undefined) {
+            videoUrl = restored.videoUrl;
+        }
+
+        if (restored.header) {
+            header = restored.header.map(({ url, type }) => ({
+                id: url,
+                url,
+                type,
+                size: 0,
+                name: url.split("/").pop() ?? "",
+            }));
+        }
     }
 
     async function submit(publish: boolean) {
@@ -242,7 +297,7 @@
         <div class="grid gap-4 sm:grid-cols-2">
             <TextInput
                 name="author"
-                value={post?.author ?? ""}
+                bind:value={author}
                 placeholder={$t("pages.admin.comm.blog.form.authorPlaceholder")}
             />
             <DateInput
@@ -294,7 +349,7 @@
         </Title>
         <TextInput
             name="videoUrl"
-            value={post?.videoUrl ?? ""}
+            bind:value={videoUrl}
             placeholder={$t("pages.admin.comm.blog.form.videoPlaceholder")}
             error={fieldErrors.videoUrl && $t(fieldErrors.videoUrl)}
         />

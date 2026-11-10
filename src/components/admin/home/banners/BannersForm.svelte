@@ -5,6 +5,7 @@
     import { locale, t } from "../../../../i18n/store";
     import { getDefaultLanguage } from "../../../../utils/consts";
     import { endOfDay, formatDate, startOfDay } from "../../../../utils/dates";
+    import { useFormDraft, restoreFields } from "../../../../utils/forms/useFormDraft.svelte";
     import { getLanguageDisplayName, primaryLanguage } from "../../../../utils/lang";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
@@ -42,19 +43,19 @@
     const defaultLanguage = getDefaultLanguage();
 
     // Every language's texts live here, the base one included, and are saved together.
-    let texts = $state<Record<string, BannerTexts>>(
-        initial
-            ? Object.fromEntries(
-                  initial.languages.map((code) => [
-                      code,
-                      {
-                          ...emptyTexts(),
-                          ...(code === initial.language ? initial : initial.translations[code]),
-                      },
-                  ]),
-              )
-            : { [defaultLanguage]: emptyTexts() },
-    );
+    const initialTexts: Record<string, BannerTexts> = initial
+        ? Object.fromEntries(
+              initial.languages.map((code) => [
+                  code,
+                  {
+                      ...emptyTexts(),
+                      ...(code === initial.language ? initial : initial.translations[code]),
+                  },
+              ]),
+          )
+        : { [defaultLanguage]: emptyTexts() };
+
+    let texts = $state<Record<string, BannerTexts>>(initialTexts);
     let languages = $state<string[]>(initial?.languages ?? [defaultLanguage]);
     let selectedLanguage = $state(untrack(() => languages[0]));
     const active = $derived(texts[selectedLanguage]);
@@ -91,6 +92,37 @@
             ctaText: ctaText.trim(),
             ctaLink: ctaLink.trim(),
         };
+    }
+
+    /**
+     * Nothing in this form is sensitive, so all of it can be kept.
+     */
+    const { restored } = useFormDraft("admin-home-banner", () => ({
+        texts,
+        languages,
+        selectedLanguage,
+        startsAt: startsAt.toISOString(),
+        endsAt: endsAt.toISOString(),
+    }));
+
+    if (restored) {
+        restoreFields(texts, restored.texts);
+
+        if (restored.languages) {
+            languages = restored.languages;
+        }
+
+        if (restored.selectedLanguage) {
+            selectedLanguage = restored.selectedLanguage;
+        }
+
+        if (restored.startsAt) {
+            startsAt = new Date(restored.startsAt);
+        }
+
+        if (restored.endsAt) {
+            endsAt = new Date(restored.endsAt);
+        }
     }
 
     async function submit() {

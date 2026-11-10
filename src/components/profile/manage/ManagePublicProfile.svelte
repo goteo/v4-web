@@ -15,6 +15,7 @@
     import ProfileIdentityRow from "./ProfileIdentityRow.svelte";
     import ProfileSocialsCard from "./ProfileSocialsCard.svelte";
     import { t } from "../../../i18n/store";
+    import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
     import { toSocialLinks, type SocialNetwork } from "../../../utils/socialLinks";
     import { trackChanges } from "../../../utils/trackChanges.svelte";
     import { zProfileForm, type ProfileForm } from "../../../validation/publicProfileValidation";
@@ -34,6 +35,8 @@
 
     let { user }: Props = $props();
 
+    const initialDisplayName = user.displayName ?? user.handle;
+
     // Only the fields edited since the last save travel in the payload
     const { form, changed, commit } = trackChanges<ProfileForm>({
         avatar: user.avatar || undefined,
@@ -41,7 +44,7 @@
         links: toSocialLinks((user.links ?? []).flatMap((link) => link.url ?? [])),
     });
 
-    let displayName = $state(user.displayName ?? user.handle);
+    let displayName = $state(initialDisplayName);
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);
@@ -49,6 +52,26 @@
     let showError = $state(false);
     let showNoChanges = $state(false);
     let formError = $state("");
+
+    /**
+     * Nothing in this form is sensitive, so all of it can be kept.
+     */
+    const { restored } = useFormDraft("manage-public-profile", () => ({
+        avatar: form.avatar,
+        description: form.description,
+        links: form.links,
+        displayName,
+    }));
+
+    if (restored) {
+        restoreFields(form, restored, ["avatar", "description"]);
+
+        displayName = restored.displayName ?? initialDisplayName;
+
+        if (restored.links) {
+            Object.assign(form.links, restored.links);
+        }
+    }
 
     function validate(field: FieldName) {
         // taxId and organization fields depend on other values, so they go through the refinement
