@@ -23,6 +23,7 @@
     } from "../../../openapi/client";
     import { getCountries } from "../../../utils/countries";
     import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
+    import { normalizeForMatch } from "../../../utils/highlights";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import { trackChanges } from "../../../utils/trackChanges.svelte";
@@ -37,6 +38,7 @@
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Card from "../../library/cards/Card.svelte";
+    import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
     import PasswordInput from "../../library/inputs/PasswordInput.svelte";
@@ -45,6 +47,7 @@
     import TextInput from "../../library/inputs/TextInput.svelte";
     import Title from "../../library/typography/Title.svelte";
 
+    import type { DropdownOption } from "../../library/dropdown/dropdown.types";
     import type z from "zod";
 
     type FieldName = keyof PersonalProfileForm;
@@ -98,7 +101,34 @@
         ? getTerritoryDisplayName(initial.user.territory!, $locale)
         : "";
     let locality = $state(initialLocality);
-    let countries = $derived(getCountries($locale));
+
+    const countryOptions: DropdownOption[] = $derived(
+        getCountries($locale).map(({ code, name }) => ({ id: code, label: name, selected: false })),
+    );
+    const currentCountry = $derived(countryOptions.find((option) => option.id === form.country));
+
+    let countrySearch = $state("");
+
+    // The locality input can also set the country, so the shown text follows `form.country`.
+    $effect(() => {
+        countrySearch = currentCountry?.label ?? "";
+    });
+
+    // Opening the dropdown searches the shown label: list every country instead of only that one.
+    // Matching ignores accents (`normalizeForMatch`), like the resource search does.
+    function searchCountries(query: string): DropdownOption[] {
+        const needle = normalizeForMatch(query);
+
+        if (needle === normalizeForMatch(currentCountry?.label ?? "")) return countryOptions;
+
+        return countryOptions.filter((option) => normalizeForMatch(option.label).includes(needle));
+    }
+
+    // Picking and clearing both write `selected`; the tax id rules depend on the country.
+    function setCountry(picked: DropdownOption[]) {
+        form.country = picked[0]?.id ?? "";
+        validate("taxId");
+    }
 
     let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
     let isSubmitting = $state(false);
@@ -327,17 +357,27 @@
                 </div>
             {/if}
 
-            <Select
-                bind:value={form.country}
-                labelText={$t("pages.me.manage.info.country")}
-                onChange={() => validate("taxId")}
-                disabled={isSubmitting}
-            >
-                <option value="">{$t("common.select")}</option>
-                {#each countries as { code, name } (code)}
-                    <option value={code}>{name}</option>
-                {/each}
-            </Select>
+            <!-- `DropdownSearch` has no `disabled` prop, and a plain fieldset keeps the field inert
+                 while saving, like every other input in the form. -->
+            <fieldset class="relative m-0 min-w-0 border-0 p-0" disabled={isSubmitting}>
+                <span
+                    class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 bg-white px-1 text-sm font-medium"
+                    class:opacity-50={isSubmitting}
+                >
+                    {$t("pages.me.manage.info.country")}
+                </span>
+                <DropdownSearch
+                    variant="basic"
+                    singleSelect
+                    clearable
+                    debounceMs={0}
+                    search={searchCountries}
+                    placeholder={$t("common.select")}
+                    bind:value={countrySearch}
+                    bind:selected={() => (currentCountry ? [currentCountry] : []), setCountry}
+                    searchClasses="border-secondary h-14 shadow-none"
+                />
+            </fieldset>
             <div class="relative">
                 <span
                     class="text-secondary absolute top-0 left-4 z-10 -translate-y-1/2 bg-white px-1 text-sm font-medium"
