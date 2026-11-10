@@ -108,8 +108,8 @@
     let formError = $state("");
 
     /**
-     * Everything the form holds but the tax id, which is fiscal data and is left out on
-     * purpose: the visitor types it again.
+     * Everything the form holds but the tax id and its type, which are fiscal data and are
+     * left out on purpose: the visitor types them again.
      */
     const { restored } = useFormDraft("manage-personal-profile", () => ({
         handle: form.handle,
@@ -122,24 +122,18 @@
         subLvl1: form.subLvl1,
         subLvl2: form.subLvl2,
         shareLocation: form.shareLocation,
+        referralSource: form.referralSource,
+        birthYear: form.birthYear,
+        gender: form.gender,
+        legalForm: form.legalForm,
+        publicEntity: form.publicEntity,
         locality,
     }));
 
     if (restored) {
-        restoreFields(form, restored, [
-            "handle",
-            "firstName",
-            "lastName",
-            "type",
-            "legalName",
-            "businessName",
-            "country",
-            "subLvl1",
-            "subLvl2",
-            "shareLocation",
-        ]);
-
-        locality = restored.locality ?? initialLocality;
+        const { locality: restoredLocality, ...fields } = restored;
+        restoreFields(form, fields);
+        locality = restoredLocality ?? initialLocality;
     }
 
     let newPassword = $state("");
