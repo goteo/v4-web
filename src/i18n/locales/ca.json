@@ -349,6 +349,19 @@
   },
   "common": {
     "_": "Traduccions de la interfície global (botons, etiquetes, etc.)",
+    "password": {
+      "new": "Contrasenya nova",
+      "confirm": "Confirma la contrasenya nova",
+      "change": "Canviar la contrasenya",
+      "save": "Desar la contrasenya",
+      "success": "La contrasenya s'ha actualitzat correctament",
+      "error": {
+        "required": "La contrasenya és obligatòria",
+        "minLength": "La contrasenya ha de tenir almenys 8 caràcters",
+        "mismatch": "Les contrasenyes no coincideixen",
+        "generic": "No s'ha pogut actualitzar la contrasenya. Torna-ho a provar més tard."
+      }
+    },
     "greeting": "Hola",
     "farewell": "Adéu",
     "donate": "Dona",
@@ -826,11 +839,22 @@
         },
         "header": {
           "titlePlaceholder": "Títol del projecte",
-          "unsentChanges": "Hi ha canvis no enviats"
+          "unsentChanges": "Hi ha canvis no enviats",
+          "publish": {
+            "review": {
+              "title": "Envia a revisió",
+              "description": "El teu projecte s’enviarà a revisió. Aquesta acció no es pot desfer."
+            },
+            "campaign": {
+              "title": "Llança la campanya",
+              "description": "El teu projecte passarà a campanya i serà públic. Aquesta acció no es pot desfer."
+            },
+            "error": "No s’ha pogut publicar el projecte. Torna-ho a intentar."
+          }
         },
         "tabs": {
           "configuration": "Configuració",
-          "campaign": "Informació de campanya",
+          "campaign": "Informació del projecte",
           "rewards": "Recompenses",
           "collaborations": "Col·laboracions",
           "budget": "Pressupost",
@@ -838,10 +862,10 @@
         },
         "configuration": {
           "title": "Configuració",
-          "subtitle": "Configura les dades bàsiques de la teva campanya",
+          "subtitle": "Configura les dades bàsiques del teu projecte",
           "languages": {
-            "title": "Idiomes de la campanya",
-            "description": "Quins són els idiomes en què publicaràs el contingut de la campanya",
+            "title": "Idiomes del projecte",
+            "description": "Quins són els idiomes en què publicaràs el contingut del projecte",
             "primaryLabel": "Idioma principal del contingut",
             "secondaryLabel": "Idioma secundari del contingut",
             "removeCurrent": "No pots suprimir l’idioma que estàs editant. Canvia d’idioma a la barra superior."
@@ -857,7 +881,7 @@
             "option1": "1 ronda",
             "option2": "2 Rondes"
           },
-          "continue": "Continuar amb informació de campanya",
+          "continue": "Continuar amb la informació del projecte",
           "geography": {
             "scopeLabel": "Àmbit d'actuació",
             "scopePlaceholder": "Selecciona l'àmbit",
@@ -872,11 +896,11 @@
           }
         },
         "campaignInfo": {
-          "title": "Informació de campanya",
-          "subtitle": "Completa la informació necessària per a la teva campanya",
+          "title": "Informació del projecte",
+          "subtitle": "Completa la informació necessària per al teu projecte",
           "media": {
             "title": "Imatge i vídeo de presentació",
-            "description": "Afegeix una imatge o vídeo que representi el teu projecte. Serà el primer que veuran els futurs donants de la teva campanya",
+            "description": "Afegeix una imatge o vídeo que representi el teu projecte. Serà el primer que veuran els futurs donants del teu projecte",
             "addImage": "Afegir imatge",
             "addVideo": "Afegir vídeo",
             "uploading": "Pujant…",
@@ -891,7 +915,7 @@
             }
           },
           "goals": {
-            "title": "Objectius i propòsit de la teva campanya",
+            "title": "Objectius i propòsit del teu projecte",
             "description": "Indica els objectius i el propòsit del teu projecte. Respon al què, com i per què"
           },
           "legacy": {
@@ -908,12 +932,13 @@
           },
           "communicationStrategy": {
             "title": "Explica'ns el teu pla de difusió",
-            "description": "En cas que la teva campanya sigui aprovada, quin serà el teu pla de difusió?"
+            "description": "En cas que el teu projecte sigui aprovat, quin serà el teu pla de difusió?"
           },
           "continue": "Continuar amb recompenses",
           "video": {
             "validation": {
-              "invalid_url": "L'URL del vídeo no és vàlid"
+              "invalid_url": "L'URL del vídeo no és vàlid",
+              "unsupported_provider": "L'enllaç ha de ser un vídeo de YouTube, Vimeo o PeerTube"
             }
           }
         },
@@ -958,10 +983,10 @@
         },
         "collaborations": {
           "title": "Col·laboracions",
-          "subtitle": "Afegeix col·laboracions que consideris oportunes per ajudar la teva campanya",
+          "subtitle": "Afegeix col·laboracions que consideris oportunes per ajudar el teu projecte",
           "continue": "Continuar amb presupost",
           "add": {
-            "title": "Amplia la teva campanya! Busca col·laboradors, no només diners",
+            "title": "Amplia el teu projecte! Busca col·laboradors, no només diners",
             "description": "Les donacions augmenten un 30%* en campanyes amb múltiples i atractives recompenses. És simple: més opcions signifiquen més possibilitats de connectar amb els interessos de potencials donants. Productes exclusius? Experiències úniques? Reconeixements especials? La teva creativitat és el límit! Com més variat sigui el teu menú de recompenses, major serà el teu èxit.",
             "button": "Afegir col·laboració"
           },
@@ -1040,17 +1065,17 @@
         },
         "aboutYou": {
           "title": "Més sobre tu",
-          "subtitle": "Descriu-te a l'impulsor de la campanya.",
+          "subtitle": "Descriu l'impulsor del projecte.",
           "prefill": "Selecciona dades desades",
           "legalEntity": "Forma jurídica",
-          "legalEntityHelper": "Indica la forma jurídica de qui impulsa aquesta campanya.",
+          "legalEntityHelper": "Indica la forma jurídica de qui impulsa aquest projecte.",
           "individual": "Persona física",
           "organization": "Persona jurídica",
           "name": "Indica el nom de l'impulsor",
-          "nameHelper": "Digues-nos com denominarem l'impulsor. Aquesta denominació apareixerà a la part pública de la campanya.",
+          "nameHelper": "Digues-nos com denominarem l'impulsor. Aquesta denominació apareixerà a la part pública del projecte.",
           "namePlaceholder": "Nom de l'impulsor",
           "taxId": "Indica el NIF de l'impulsor",
-          "taxIdHelper": "Només ho veurà l'impulsor. Aquesta informació no serà pública, només s'utilitzarà per formalitzar els acords i les condicions de la campanya.",
+          "taxIdHelper": "Només ho veurà l'impulsor. Aquesta informació no serà pública, només s'utilitzarà per formalitzar els acords i les condicions del projecte.",
           "taxIdPlaceholder": "Indica el CIF",
           "location": "Lloc d'activitat",
           "locationHelper": "Indica quin és l'àmbit geogràfic d'actuació de l'impulsor o grup impulsor.",
@@ -1060,13 +1085,13 @@
           "teamDescriptionHelper": "Explica'ns a què es dedica l'entitat impulsora, quin tipus d'activitats duu a terme en el dia a dia i quins són els seus objectius.",
           "teamDescriptionPlaceholder": "Descriu breument l'activitat de l'impulsor",
           "privateContacts": "Dades de contacte privades",
-          "privateContactsHelper": "Completa almenys una dada de contacte. La informació no serà pública, només la podrà usar Goteo per comunicar-se sobre usos relacionats amb la campanya que estàs preparant.",
+          "privateContactsHelper": "Completa almenys una dada de contacte. La informació no serà pública, només la podrà fer servir Goteo per comunicar-se sobre usos relacionats amb el projecte que estàs preparant.",
           "email": "Correu",
           "phone": "Telèfon",
           "addContact": "Afegir contacte",
           "preferred": "Preferit",
           "publicContacts": "Dades de contacte públiques",
-          "publicContactsHelper": "Indicarem quines dades de contacte/públiques vols que apareguin a la teva campanya i al teu perfil impulsor.",
+          "publicContactsHelper": "Indicarem quines dades de contacte/públiques vols que apareguin al teu projecte i al teu perfil d'impulsor.",
           "placeholders": {
             "website": "Insereix la teva web",
             "email": "Insereix el teu compte de correu",
@@ -1077,7 +1102,7 @@
           },
           "paymentData": {
             "title": "Dades de pagament",
-            "subtitle": "Indica les dades bancàries necessàries per gestionar els pagaments de la campanya.",
+            "subtitle": "Indica les dades bancàries necessàries per gestionar els pagaments del projecte.",
             "iban": "IBAN",
             "ibanHelper": "Introdueix l'IBAN del compte bancari on rebràs els fons recaptats.",
             "ibanPlaceholder": "ES00 0000 0000 0000 0000 0000",
@@ -1127,6 +1152,7 @@
         "submitSuccess": "Projecte creat",
         "validation": {
           "titleBadFormat": "El títol ha de contenir almenys una lletra.",
+          "titleTooShort": "El títol ha de tenir almenys {{ min }} caràcters.",
           "categoriesNotEnough": "Has de seleccionar almenys {{ min }} categoria/es.",
           "territoryMissing": "Has d'especificar un lloc.",
           "releaseMissing": "Has d'especificar una data de llançament aproximada",
@@ -1135,10 +1161,10 @@
         }
       },
       "view": {
-        "owner": "Campanya de crowdfunding impulsada per {{ owner }}",
+        "owner": "Projecte de crowdfunding impulsat per {{ owner }}",
         "tabs": {
           "project": {
-            "title": "Informació de campanya",
+            "title": "Informació del projecte",
             "descAbout": "Descripció del projecte. Característiques, fortaleses i diferències.",
             "descGoal": "Motivació i a qui va dirigit el projecte.",
             "descTeam": "Experiència prèvia i equip."
@@ -1146,13 +1172,13 @@
           "rewards": "Recompenses",
           "budget": {
             "title": "Pressupost",
-            "headline": "Coneix les necessitats clau d'aquesta campanya i descobreix com el teu suport pot fer realitat aquest projecte.",
+            "headline": "Coneix les necessitats clau d'aquest projecte i descobreix com el teu suport pot fer-lo realitat.",
             "minimum": "Mínim",
             "optimal": "Òptim",
             "raised": "Obtingut",
             "total": "Total",
-            "empty": "Aquesta campanya no té partides de pressupost.",
-            "chartTitle": "Aquest és el pressupost per a aquesta campanya. Descobreix com el teu suport ens pot portar a l'èxit.",
+            "empty": "Aquest projecte no té partides de pressupost.",
+            "chartTitle": "Aquest és el pressupost del projecte. Descobreix com el teu suport ens pot portar a l'èxit.",
             "chart": {
               "secondRound": "2a ronda",
               "start": "Inici"
@@ -1163,7 +1189,7 @@
             "modalTitle": "Nova actualització",
             "by": "Per:",
             "content": {
-              "title": "No perdis detall dels avenços d'aquesta campanya",
+              "title": "No perdis detall dels avenços d'aquest projecte",
               "empty": "No hi ha més actualitzacions previstes.",
               "btn": {
                 "readMore": "Continuar llegint",
@@ -1220,24 +1246,25 @@
           }
         },
         "langNotAvailable": "L'idioma seleccionat \"{{lang}}\" no està disponible per a aquest projecte. Es mostra contingut en l'idioma disponible.",
+        "notInCampaignYet": "Aquest projecte encara no està en campanya i encara no admet pagaments.",
         "outOfCampaign": "Aquest projecte està fora de campanya i ja no admet pagaments.",
         "share": {
           "modal": {
             "title": "Difon aquest projecte pel món",
-            "description": "Pots copiar l'enllaç per enviar-lo i també compartir-lo a Facebook o X. Fins i tot copiar un fragment de codi per inserir en una altra web un bàner de la campanya. Fes que arribi més lluny!"
+            "description": "Pots copiar l'enllaç per enviar-lo i també compartir-lo a Facebook o X. Fins i tot copiar un fragment de codi, per inserir en una altra web un banner del projecte. Fes que arribi més lluny!"
           },
           "iframe-modal": {
             "title": "Així és com es veurà a la teva plataforma",
-            "description": "Copia aquest fragment de codi i enganxa'l al codi de la teva pàgina. Així aconseguiràs que la campanya arribi a més gent",
+            "description": "Copia aquest fragment de codi i enganxa'l al codi de la teva pàgina. Així aconseguiràs que el projecte arribi a més gent",
             "btnCopy": "Copiar codi",
             "btnCopied": "Codi copiat!"
           }
         },
         "video": {
-          "title": "Vídeo de la campanya",
+          "title": "Vídeo del projecte",
           "poster": "Imatge del vídeo",
-          "not-found": "Disculpa, aquesta campanya no té vídeo de presentació",
-          "not-supported": "No ha estat possible carregar el vídeo. Si us plau, revisa l'enllaç o contacta amb l'administrador de la campanya."
+          "not-found": "Disculpa, aquest projecte no té vídeo de presentació",
+          "not-supported": "No ha estat possible carregar el vídeo. Si us plau, revisa l'enllaç o contacta amb l'administrador del projecte."
         }
       },
       "manage": {
@@ -1358,7 +1385,7 @@
           },
           "transparency": {
             "title": "Transparència i confiança",
-            "description": "Les campanyes passen per un procés de validació i assessorament. La comunitat sap que els projectes publicats compleixen uns mínims de qualitat i coherència, cosa que n'augmenta la credibilitat."
+            "description": "Els projectes passen per un procés de validació i assessorament abans de sortir a campanya. La comunitat sap que els projectes publicats compleixen uns mínims de qualitat i coherència, cosa que n'augmenta la credibilitat."
           },
           "provenMethodology": {
             "title": "Metodologia provada",
@@ -1574,9 +1601,11 @@
         "charges": "Cobraments",
         "projects": "Projectes",
         "users": "Usuaris",
+        "categorization": "Categorització",
         "comm": "Comunicació",
         "home": "Inici",
-        "reviews": "Revisions"
+        "reviews": "Revisions",
+        "customize": "Personalització"
       },
       "sidebar": {
         "aria": {
@@ -1588,11 +1617,53 @@
         "title": "Administració",
         "subtitle": "Accedeix ràpidament a les diferents seccions de gestió de la plataforma."
       },
+      "categorization": {
+        "title": "Categorització",
+        "description": "Gestiona les categories i els temes que classifiquen els projectes.",
+        "table": {
+          "headers": {
+            "name": "Nom",
+            "slug": "Identificador URL",
+            "locales": "Traduccions",
+            "type": "Tipus"
+          },
+          "types": {
+            "category": "Categoria",
+            "theme": "Tema"
+          }
+        },
+        "actions": {
+          "createCategory": "Crea una categoria",
+          "createTheme": "Crea un tema"
+        },
+        "modal": {
+          "createCategory": "Crea una categoria",
+          "editCategory": "Edita la categoria",
+          "createTheme": "Crea un tema",
+          "editTheme": "Edita el tema",
+          "name": "Nom",
+          "slug": "Identificador URL",
+          "locales": "Idiomes disponibles",
+          "save": "Desa",
+          "cancel": "Cancel·la"
+        },
+        "delete": {
+          "title": "Elimina {{ type }}",
+          "description": "Se suprimirà «{{ name }}». Aquesta acció no es pot desfer."
+        },
+        "errors": {
+          "loadFailed": "No s'han pogut carregar les traduccions de l'element.",
+          "saveFailed": "No s'ha pogut desar l'element.",
+          "incompleteLanguages": "Falten noms a: {{ languages }}"
+        },
+        "empty": "No hi ha elements per mostrar."
+      },
       "home": {
         "description": "Tria què es mostra a la portada.",
         "tabs": {
           "hero": "Heroi",
           "highlights": "P. destacats",
+          "proposed": "Campanyes proposades",
           "featuredUsers": "Impulsors",
           "banners": "Anuncis"
         },
@@ -1666,19 +1737,27 @@
           "projects": {
             "title": "Selecciona els projectes",
             "description": "Recorda que els projectes s'aniran col·locant de dalt a baix i d'esquerra a dreta.",
-            "slot": "Projecte {{ number }}",
-            "empty": "Cerca un projecte i destaca'l a la portada",
-            "add": "Afegeix un projecte",
-            "replace": "Canvia el projecte",
-            "remove": "Treu",
-            "change": "Canvia a un altre projecte",
-            "position": "Aquest projecte a la posició {{ number }}",
             "modal": {
               "title": "Afegeix un projecte",
               "description": "Cerca i afegeix el projecte que vols destacar",
               "search": "Cerca un projecte",
               "submit": "Afegir"
             }
+          }
+        },
+        "proposed": {
+          "title": "Campanyes proposades",
+          "description": "Afegeix les campanyes que es destacaran a la portada com a propostes",
+          "save": "Desa la nova proposta",
+          "modal": {
+            "title": "Afegeix projecte",
+            "description": "Cerca i afegeix el projecte que vols proposar",
+            "search": "Cerca un projecte",
+            "submit": "Afegir"
+          },
+          "projects": {
+            "title": "Selecciona els projectes",
+            "description": "Recorda que els projectes s'aniran pujant de dalt a baix i d'esquerra a dreta."
           }
         },
         "featuredUsers": {
@@ -1696,6 +1775,25 @@
             "search": "Cerca un usuari"
           }
         }
+      },
+      "customize": {
+        "description": "Tria quines parts del lloc es poden editar des d'aquí.",
+        "tabs": {
+          "footer": "Peu de pàgina",
+          "colours": "Colors",
+          "logo": "Logotip"
+        }
+      },
+      "slotCard": {
+        "slot": "Projecte {{ number }}",
+        "position": "Posició {{ number }}",
+        "empty": "Cerca un projecte i destaca'l a la portada",
+        "add": "Afegeix projecte",
+        "replace": "Canviar projecte",
+        "remove": "Treure",
+        "addTitle": "Afegeix més projectes",
+        "addSubtitle": "Afegeix més projectes al carrusel",
+        "addMore": "Afegeix-ne més"
       },
       "charges": {
         "title": "Cobraments",
@@ -1926,9 +2024,9 @@
       "projects": {
         "title": "Projectes",
         "description": "Busca projectes i gestiona'ls de la manera més ràpida possible gràcies al cercador",
-        "lastProjects": "Llistat de campanyes:",
+        "lastProjects": "Llistat de projectes:",
         "totalizers": {
-          "selected": "projectes seleccionats:",
+          "selected": "Projectes seleccionats:",
           "totalEarned": "Total aconseguit:"
         },
         "filters": {
@@ -1979,6 +2077,8 @@
               "email": "Correu electrònic",
               "phone": "Telèfon",
               "remaining": "Falta per pagar",
+              "status": "Estat",
+              "statusChangeError": "No s'ha pogut canviar l'estat del projecte",
               "btns": {
                 "contributions": "Aportacions",
                 "annotations": "Anotacions",
@@ -2364,14 +2464,51 @@
           "country": "País",
           "locality": "Localitat",
           "localityPlaceholder": "Busca la teva localitat",
-          "address": "Adreça (indica si és carrer, plaça, avinguda, etc.)",
-          "type": "Forma jurídica",
           "taxId": "Número de document",
-          "representative": "Dades del representant"
+          "representative": "Dades del representant",
+          "userType": "Tipus de perfil",
+          "taxIdType": "Tipus de document",
+          "birthYear": "Any de naixement",
+          "gender": "Sexe",
+          "legalForm": "Forma legal",
+          "publicEntity": "Entitat pública",
+          "taxIdTypeOptions": {
+            "national_id": "NIF / NIE",
+            "passport": "Passaport",
+            "other": "Altre"
+          },
+          "genderOptions": {
+            "female": "Dona",
+            "male": "Home",
+            "non_binary": "No binari",
+            "other": "Altre / Prefereixo no dir-ho"
+          },
+          "legalFormOptions": {
+            "association": "Associació",
+            "foundation": "Fundació",
+            "cooperative": "Cooperativa",
+            "company": "Empresa",
+            "self_employed": "Autònom",
+            "public_administration": "Administració pública",
+            "other": "Una altra"
+          }
         },
         "location": {
           "share": "*Compartir la meva ubicació",
           "disclaimer": "*Compartir la teva ubicació amb el nostre equip servirà per generar informació (anònima, sense revelar mai a tercers les teves dades personals), així com indicadors d'impacte que facin més eficaç la nostra feina i el suport a projectes."
+        },
+        "referral": {
+          "title": "Com ens vas conèixer?",
+          "subtitle": "Ens ajuda a entendre com arriba la gent a la plataforma",
+          "label": "Selecciona una opció",
+          "options": {
+            "search_engine": "Cercador",
+            "social_media": "Xarxes socials",
+            "friend": "Amics o coneguts",
+            "press": "Premsa o mitjans",
+            "event": "Esdeveniment, xerrada o taller",
+            "other": "Altre"
+          }
         },
         "social": {
           "title": "Xarxes socials",
@@ -2412,6 +2549,10 @@
           "taxIdInvalid": "El número no té un format vàlid per al país seleccionat",
           "linkInvalid": "Introdueix el teu usuari o un enllaç al teu perfil d'aquesta xarxa social"
         },
+        "password": {
+          "title": "Canviar la contrasenya",
+          "subtitle": "Actualitza la contrasenya del teu compte"
+        },
         "preferences": {
           "title": "Preferències",
           "subtitle": "Gestiona les teves preferències de perfil perquè tot flueixi al teu gust",
@@ -2423,11 +2564,17 @@
             "label": "Selecciona un idioma",
             "helper": "L'aplicació utilitzarà aquest idioma per a la interfície i intentarà oferir-te el contingut primer en aquest idioma"
           },
+          "privacy": {
+            "title": "Privacitat",
+            "anonymous": "En fer una donació, mantenir el perfil anònim"
+          },
           "save": "Desa les preferències",
           "toast": {
-            "saved": "Preferències desades correctament"
+            "saved": "Preferències desades correctament",
+            "error": "No s'han pogut desar les preferències"
           }
-        }
+        },
+        "noChanges": "No has fet cap canvi"
       },
       "period": {
         "label": "Període",
