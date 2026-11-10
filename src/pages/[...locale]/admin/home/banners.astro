@@ -3,18 +3,19 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Banners from "../../../../components/admin/home/banners/Banners.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import { bannerRepository } from "../../../../repositories/banners";
-import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/banners";
+const navItems = getSubSections("/admin/home");
 
 const banners = await bannerRepository.getAll();
 ---
 
 <Layout title={t("pages.admin.comm.banners.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <Banners client:load {banners} />
         </WithSidebar>
     </App>

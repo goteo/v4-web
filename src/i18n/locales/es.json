@@ -1604,7 +1604,8 @@
         "categorization": "Categorización",
         "comm": "Comunicación",
         "home": "Portada",
-        "reviews": "Revisiones"
+        "reviews": "Revisiones",
+        "customize": "Personalización"
       },
       "sidebar": {
         "aria": {
@@ -1773,6 +1774,14 @@
             "description": "Busca y añade al usuario que quieras destacar en portada",
             "search": "Busca un usuario"
           }
+        }
+      },
+      "customize": {
+        "description": "Elige qué partes del sitio se pueden editar desde aquí.",
+        "tabs": {
+          "footer": "Pie de página",
+          "colours": "Colores",
+          "logo": "Logotipo"
         }
       },
       "slotCard": {

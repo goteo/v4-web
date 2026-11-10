@@ -3,12 +3,13 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import Highlights from "../../../../components/admin/home/Highlights.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import { apiProjectsIdOrSlugGet } from "../../../../openapi/client/sdk.gen";
 import { highlightRepository } from "../../../../repositories/highlights";
-import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/highlights";
+const navItems = getSubSections("/admin/home");
 
 const data = await highlightRepository.get();
 
@@ -42,7 +43,7 @@ const config = {
     description={t("pages.metadata.description")}
 >
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <Highlights client:load {config} />
         </WithSidebar>
     </App>

@@ -3,13 +3,14 @@ import Layout from "../../../../layouts/Layout.astro";
 import App from "../../../../layouts/App.svelte";
 import WithSidebar from "../../../../layouts/WithSidebar.svelte";
 import FeaturedUsersForm from "../../../../components/admin/home/FeaturedUsersForm.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
 import { apiUsersIdOrHandleGet } from "../../../../openapi/client/sdk.gen";
 import { featuredUserRepository } from "../../../../repositories/featuredUsers";
 import { getBaseUrl } from "../../../../utils/consts";
-import { SUBSECTIONS } from "./subsections";
 
 const { t, lang, session } = Astro.locals;
 const activePath = "/admin/home/featured-users";
+const navItems = getSubSections("/admin/home");
 
 const records = await featuredUserRepository.getAll();
 
@@ -39,7 +40,7 @@ const config = {
     description={t("pages.metadata.description")}
 >
     <App client:load locale={lang} session={session} admin>
-        <WithSidebar client:idle navItems={SUBSECTIONS} {activePath}>
+        <WithSidebar client:idle {navItems} {activePath}>
             <FeaturedUsersForm client:load {config} />
         </WithSidebar>
     </App>
