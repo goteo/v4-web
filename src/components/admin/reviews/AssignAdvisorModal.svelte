@@ -50,7 +50,9 @@
     const searchUsers = debounce(async (term: string) => {
         const { data } = await apiUsersGetCollection({
             baseUrl: "/api/relay",
-            query: { q: term.trim(), itemsPerPage: 30 },
+            // Only admins can carry a review out, so the search never offers
+            // users who could not be assigned (see `isConsultant`).
+            query: { q: term.trim(), roles: "ROLE_ADMIN", itemsPerPage: 30 },
         });
 
         candidates = toCollectionItems<User>(data).map(toOption);
