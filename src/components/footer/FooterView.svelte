@@ -35,14 +35,16 @@
             .map((group, index) => ({ group, index }))
             .filter(({ group }) => group.partners.length > 0),
     );
+
+    const showPartners = $derived(!config.hidden.partners && partnerGroups.length > 0);
 </script>
 
 <footer class="text-variant1" aria-labelledby="{idPrefix}-heading">
     <h2 id="{idPrefix}-heading" class="sr-only">{t("common.footer.a11y.footerHeading")}</h2>
 
-    {#if !config.hidden.partners && partnerGroups.length > 0}
+    {#if showPartners}
         <section
-            class="bg-purple-soft text-tertiary border-variant1 border-t-2 py-6 sm:py-8 md:py-10"
+            class="bg-purple-soft text-tertiary border-variant1 rounded-t-3xl border-x-2 border-t-2 pt-6 pb-12 sm:pt-8 sm:pb-14 md:pt-10 md:pb-16"
             aria-label={t("common.footer.a11y.partnerOrganizations")}
         >
             <div class="wrapper">
@@ -81,7 +83,11 @@
     {/if}
 
     <div
-        class="bg-secondary relative rounded-t-3xl bg-size-[116%_114%] bg-position-[-127%_42%] bg-no-repeat min-[700px]:bg-size-[64%_108%] min-[700px]:bg-position-[114%]"
+        class={[
+            "bg-secondary relative rounded-t-3xl bg-size-[116%_114%] bg-position-[-127%_42%] bg-no-repeat min-[700px]:bg-size-[64%_108%] min-[700px]:bg-position-[114%]",
+            // Overlaps the logos band so its side borders run on behind the rounded corners.
+            showPartners && "-mt-6",
+        ]}
         style="background-image: url('{brand.backgroundImage}');"
     >
         <section

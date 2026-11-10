@@ -309,7 +309,7 @@
     <!-- Mouse shortcut only: every field is reachable from the form below. -->
     <div
         role="presentation"
-        class="border-grey [&_[data-edit]:hover]:outline-primary overflow-hidden rounded-2xl border [&_[data-edit]]:cursor-pointer [&_[data-edit]]:rounded-sm [&_[data-edit]:hover]:outline-2 [&_[data-edit]:hover]:outline-offset-2"
+        class="[&_[data-edit]:hover]:outline-primary overflow-hidden [&_[data-edit]]:cursor-pointer [&_[data-edit]]:rounded-sm [&_[data-edit]:hover]:outline-2 [&_[data-edit]:hover]:outline-offset-2"
         onclick={focusField}
         bind:clientWidth={previewWidth}
     >
