@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { untrack } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import MotivatingProjectsSection from "./manage/MotivatingProjectsSection.svelte";
@@ -6,6 +7,7 @@
     import { locale, t } from "../../i18n/store";
     import { apiUsersIdPatch } from "../../openapi/client";
     import { getCookie, setCookie } from "../../utils/cookies";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../library/buttons/ActionableButton.svelte";
     import Toast from "../library/feedback/Toast.svelte";
     import Checkbox from "../library/inputs/Checkbox.svelte";
@@ -24,17 +26,46 @@
     let { user, categories = [], class: classes = "" }: Props = $props();
 
     let language: string = $state($locale ?? "es");
-    let isAnonymous = $state(user.isAnonymous ?? false);
-    let savedIsAnonymous = user.isAnonymous ?? false;
+    // Seeded once: later prop changes must not overwrite what the user is editing
+    const initialIsAnonymous = untrack(() => user.isAnonymous ?? false);
+    let isAnonymous = $state(initialIsAnonymous);
+    let savedIsAnonymous = initialIsAnonymous;
     let toast = $state(false);
     let errorToast = $state(false);
     let motivatingProjects: Category[] = $state([]);
 
     const CATEGORIES_COOKIE = "preferred-categories";
 
+    /**
+     * The preferences are kept while they are not saved yet: the categories picked and the
+     * language chosen, which is itself one of the ways of switching the language.
+     */
+    const { restored } = useFormDraft("manage-preferences", () => ({
+        language,
+        categoryIds: motivatingProjects.map((category) => String(category.id)),
+    }));
+
+    const restoredCategoryIds = restored?.categoryIds;
+
+    if (restored?.language) {
+        language = restored.language;
+    }
+
+    if (restoredCategoryIds) {
+        motivatingProjects = untrack(() => categories).filter((category) =>
+            restoredCategoryIds.includes(String(category.id)),
+        );
+    }
+
     $effect(() => {
         const stored = getCookie(CATEGORIES_COOKIE);
         if (!stored || motivatingProjects.length > 0 || categories.length === 0) {
+            return;
+        }
+
+        // A draft recovered after a language switch holds the newer choice, even when it is
+        // an empty one.
+        if (restoredCategoryIds) {
             return;
         }
 

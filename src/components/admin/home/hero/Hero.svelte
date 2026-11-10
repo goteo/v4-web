@@ -1,5 +1,6 @@
 <script lang="ts">
     import { actions } from "astro:actions";
+    import { untrack } from "svelte";
 
     import HeroForm from "./HeroForm.svelte";
     import HeroHistory from "./HeroHistory.svelte";
@@ -19,7 +20,7 @@
     let currentSubtab = $state("fields");
     let showError = $state(false);
     let errorMessage = $state("");
-    let heroesList = $state(heroes);
+    let heroesList = $state(untrack(() => heroes));
 
     function handleTabChange(tabId: string) {
         currentSubtab = tabId;

@@ -1,10 +1,12 @@
 <script lang="ts">
     import { actions, isInputError } from "astro:actions";
+    import { untrack } from "svelte";
 
     import HeroPreviewModal from "./HeroPreviewModal.svelte";
     import { locale, t } from "../../../../i18n/store";
     import { getDefaultLanguage } from "../../../../utils/consts";
     import { formatDate, startOfDay } from "../../../../utils/dates";
+    import { useFormDraft, restoreFields } from "../../../../utils/forms/useFormDraft.svelte";
     import {
         getLanguageDisplayName,
         primaryLanguage as pickPrimaryLanguage,
@@ -98,12 +100,14 @@
     // translations, and the default can be removed like any other language
     // once a second one exists.
     const defaultLanguage = getDefaultLanguage();
-    const baseLanguage = hero?.language || defaultLanguage;
-    const languagesSeed = hero
+    // Seeded once: later prop changes must not overwrite what the admin is editing
+    const initialHero = untrack(() => hero);
+    const baseLanguage = initialHero?.language || defaultLanguage;
+    const languagesSeed = initialHero
         ? [
               ...new Set([
                   baseLanguage,
-                  ...(hero.languages ?? []).filter((code) => code !== baseLanguage),
+                  ...(initialHero.languages ?? []).filter((code) => code !== baseLanguage),
               ]),
           ]
         : [defaultLanguage];
@@ -111,9 +115,9 @@
     const initialFieldValues: Record<string, HeroFields> = {};
     for (const lang of languagesSeed) {
         initialFieldValues[lang] =
-            lang === baseLanguage && hero
-                ? fieldsFromRecord(hero)
-                : fieldsFromTranslations(hero?.translations?.[lang]);
+            lang === baseLanguage && initialHero
+                ? fieldsFromRecord(initialHero)
+                : fieldsFromTranslations(initialHero?.translations?.[lang]);
     }
 
     let languages = $state<string[]>(languagesSeed);
@@ -134,13 +138,44 @@
 
     let startsAt = $state(new Date());
 
-    let media = $state<HeroMedia | undefined>(storedMedia(hero));
+    let media = $state<HeroMedia | undefined>(storedMedia(initialHero));
     let isUploadOpen = $state(false);
 
     let isPreviewOpen = $state(false);
     let previewHero = $state<HomeHeroRecord | null>(null);
 
     const isVideo = $derived(media?.type.startsWith("video/") ?? false);
+
+    /**
+     * Nothing in this form is sensitive, so all of it can be kept.
+     */
+    const { restored } = useFormDraft("admin-home-hero", () => ({
+        fieldValues,
+        languages,
+        selectedLanguage,
+        startsAt: startsAt.toISOString(),
+        media,
+    }));
+
+    if (restored) {
+        restoreFields(fieldValues, restored.fieldValues);
+
+        if (restored.languages) {
+            languages = restored.languages;
+        }
+
+        if (restored.selectedLanguage) {
+            selectedLanguage = restored.selectedLanguage;
+        }
+
+        if (restored.startsAt) {
+            startsAt = new Date(restored.startsAt);
+        }
+
+        if (restored.media) {
+            media = restored.media;
+        }
+    }
 
     function storedMedia(record: HomeHeroRecord | null): HeroMedia | undefined {
         if (!record?.mediaUrl || !record.mediaType) {

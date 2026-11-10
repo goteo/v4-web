@@ -10,6 +10,7 @@
     import { Modal } from "flowbite-svelte";
     import { untrack } from "svelte";
 
+    import { refreshSession } from "../../../auth/store";
     import { t } from "../../../i18n/store";
     import {
         apiAccountingBalancePointsGetCollection,
@@ -44,7 +45,7 @@
 
     let preview = $state<PreviewData | null>(null);
     let loading = $state(false);
-    let failed = $state(false);
+    let failure = $state<"unknown" | "unauthorized" | null>(null);
 
     // Re-fetch every time the modal is opened: `project` changes on every keystroke,
     // so it is read untracked to keep the effect subscribed to `open` only.
@@ -56,10 +57,10 @@
         void loadPreview(untrack(() => project));
     });
 
-    async function loadPreview(snapshot: Project) {
+    async function loadPreview(snapshot: Project, canRetry = true) {
         loading = true;
         preview = null;
-        failed = false;
+        failure = null;
 
         try {
             const ownerId = extractId(snapshot.owner);
@@ -70,11 +71,27 @@
                 accountingId ? apiAccountingsIdGet({ path: { id: accountingId } }) : undefined,
             ]);
 
+            const unauthorized =
+                ownerResult?.response?.status === 401 || accountingResult?.response?.status === 401;
+
+            if (unauthorized) {
+                // The token is cached in the browser when the page loads. A tab left open
+                // across the expiry still holds it, so re-read the session (the server
+                // refreshes it) and try once more before giving up.
+                if (canRetry && (await refreshSession())) {
+                    await loadPreview(snapshot, false);
+                    return;
+                }
+
+                failure = "unauthorized";
+                return;
+            }
+
             const owner = ownerResult?.data;
             const accounting = accountingResult?.data;
 
             if (!owner || !accounting) {
-                failed = true;
+                failure = "unknown";
                 return;
             }
 
@@ -95,7 +112,7 @@
             preview = { owner, accounting, totalSupports, balancePoints: balancePoints ?? [] };
         } catch (error) {
             console.error(error);
-            failed = true;
+            failure = "unknown";
         } finally {
             loading = false;
         }
@@ -132,8 +149,7 @@
     bind:open
     dismissable={true}
     closeBtnClass="top-7 end-7 cursor-pointer bg-transparent text-secondary hover:bg-transparent hover:text-secondary hover:scale-110 transition-transform duration-200 transform focus:ring-0 shadow-none dark:text-secondary dark:hover:text-secondary dark:hover:bg-transparent z-[110]"
-    class="backdrop:bg-overlay fixed top-1/2 left-1/2 z-[105] mx-2 flex w-full max-w-6xl -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-auto"
-    backdropClass="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm"
+    class="backdrop:bg-overlay fixed top-1/2 left-1/2 z-105 mx-2 flex w-full max-w-6xl -translate-x-1/2 -translate-y-1/2 divide-y-0 rounded-3xl bg-white shadow-lg backdrop:backdrop-blur-[5px] sm:mx-4 lg:mx-auto"
     bodyClass="p-0"
 >
     {#if open}
@@ -155,9 +171,13 @@
                         totalSupports={preview.totalSupports}
                         balancePoints={preview.balancePoints}
                     />
-                {:else if failed}
+                {:else if failure}
                     <div class="text-content p-20 text-center">
-                        {$t("system.error.unknown")}
+                        {$t(
+                            failure === "unauthorized"
+                                ? "system.error.unauthorized"
+                                : "system.error.unknown",
+                        )}
                     </div>
                 {/if}
             </div>

@@ -1,8 +1,10 @@
 <script lang="ts" generics="T">
     import { Modal } from "flowbite-svelte";
+    import { untrack } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
+    import { useFormDraft } from "../../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
@@ -31,6 +33,9 @@
 
         /** Persists the assigned values in slot order. */
         onSave: (slots: SlotContent<T>[]) => Promise<{ error?: { message: string } } | void>;
+
+        /** Identifies the draft of this editor, so two of them do not write over each other. */
+        draftId?: string;
     }
 
     let {
@@ -41,6 +46,7 @@
         labels,
         search,
         onSave,
+        draftId = "slot-editor",
     }: Props = $props();
 
     /**
@@ -48,7 +54,7 @@
      * user put them instead of compacting them upwards. Gaps are only collapsed
      * at save time, which is what the persistence layer expects.
      */
-    let assignments = $state<(SlotContent<T> | undefined)[]>([...contents]);
+    let assignments = $state<(SlotContent<T> | undefined)[]>(untrack(() => [...contents]));
     let pickerOpen = $state(false);
     let editingIndex = $state<number | null>(null);
     let query = $state("");
@@ -57,6 +63,18 @@
     let candidates = $state<SlotContent<T>[]>([]);
     let showError = $state(false);
     let errorMessage = $state("");
+
+    /**
+     * The assigned slots are what the editor holds, so they are what can be kept.
+     */
+    const { restored } = useFormDraft(
+        untrack(() => draftId),
+        () => ({ assignments }),
+    );
+
+    if (restored?.assignments) {
+        assignments = restored.assignments;
+    }
 
     async function searchOptions(term: string, signal: AbortSignal): Promise<DropdownOption[]> {
         const results = await search(term);

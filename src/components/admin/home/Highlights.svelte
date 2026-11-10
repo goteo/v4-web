@@ -1,5 +1,6 @@
 <script lang="ts">
     import { actions } from "astro:actions";
+    import { untrack } from "svelte";
 
     import ProjectPickerModal, { type PickedProject } from "./ProjectPickerModal.svelte";
     import ProjectSlotCard from "./ProjectSlotCard.svelte";
@@ -60,14 +61,14 @@
         },
     ];
 
-    let type = $state(config.highlight?.type ?? "recent");
-    let layout = $state(config.highlight?.layout ?? "2x3");
+    let type = $state(untrack(() => config.highlight?.type ?? "recent"));
+    let layout = $state(untrack(() => config.highlight?.layout ?? "2x3"));
     let addOpen = $state(false);
     let editingSlotIndex = $state<number | null>(null);
     let showError = $state(false);
     let errorMessage = $state("");
 
-    let slotAssignments = $state<SlotAssignment[]>(config.slots);
+    let slotAssignments = $state<SlotAssignment[]>(untrack(() => config.slots));
 
     let slotCount = $derived(LAYOUTS.find((l) => l.id === layout)?.rows.flat().length ?? 0);
 

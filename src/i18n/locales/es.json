@@ -937,7 +937,8 @@
           "continue": "Continuar con recompensas",
           "video": {
             "validation": {
-              "invalid_url": "La URL del vídeo no es válida"
+              "invalid_url": "La URL del vídeo no es válida",
+              "unsupported_provider": "El enlace debe ser un vídeo de YouTube, Vimeo o PeerTube"
             }
           }
         },
@@ -1245,6 +1246,7 @@
           }
         },
         "langNotAvailable": "El idioma seleccionado \"{{lang}}\" no está disponible para este proyecto. Mostrando contenido en el idioma disponible.",
+        "notInCampaignYet": "Este proyecto todavía no está en campaña y aún no admite pagos.",
         "outOfCampaign": "Este proyecto está fuera de campaña y ya no admite pagos.",
         "share": {
           "modal": {
@@ -1602,7 +1604,8 @@
         "categorization": "Categorización",
         "comm": "Comunicación",
         "home": "Portada",
-        "reviews": "Revisiones"
+        "reviews": "Revisiones",
+        "customize": "Personalización"
       },
       "sidebar": {
         "aria": {
@@ -1771,6 +1774,14 @@
             "description": "Busca y añade al usuario que quieras destacar en portada",
             "search": "Busca un usuario"
           }
+        }
+      },
+      "customize": {
+        "description": "Elige qué partes del sitio se pueden editar desde aquí.",
+        "tabs": {
+          "footer": "Pie de página",
+          "colours": "Colores",
+          "logo": "Logotipo"
         }
       },
       "slotCard": {
