@@ -38,34 +38,48 @@
 
     function navItemClass(item: AdminSidebarItem): string {
         return twMerge(
-            "hover:bg-variant1 flex content-center items-center w-fit gap-2 rounded-lg px-4 py-2 text-base font-bold whitespace-nowrap transition-colors duration-300 text-secondary",
+            "hover:bg-variant1 flex h-10 items-center gap-3 rounded-lg px-3 text-base font-bold whitespace-nowrap transition-colors duration-300 text-secondary",
             isActive(item) && "bg-variant2 hover:bg-variant3",
         );
     }
 </script>
 
-<!-- Desktop sidebar -->
-<aside
-    class={twMerge(
-        "bg-purple-soft z-30 hidden min-w-58 shrink-0 flex-col rounded-2xl py-10 pr-10 pl-5 shadow-sm lg:sticky lg:top-(--sticky-top) lg:flex lg:max-h-[calc(100vh-var(--sticky-top)-1rem)]",
-        classes,
-    )}
->
-    <nav class="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
-        {#each navItems as item (item.href)}
-            <a
-                href={`/${$locale}${item.href}`}
-                class={navItemClass(item)}
-                aria-current={isActive(item) ? "page" : undefined}
-            >
-                {#if item.icon}
-                    <item.icon class="size-5 shrink-0" />
-                {/if}
-                <span>{$t(item.label)}</span>
-            </a>
-        {/each}
-    </nav>
-</aside>
+<!--
+    Desktop sidebar: collapsed to one letter (or icon) per item, it opens over the content
+    on hover or keyboard focus. The outer box keeps the collapsed width in the layout so
+    opening it never moves the page.
+-->
+<div class="relative z-30 hidden w-18 shrink-0 self-start lg:sticky lg:top-(--sticky-top) lg:block">
+    <aside
+        class={twMerge(
+            "group bg-purple-soft absolute top-0 left-0 flex max-h-[calc(100vh-var(--sticky-top)-1rem)] w-18 flex-col overflow-hidden rounded-2xl p-3 py-6 shadow-sm transition-[width] duration-200 focus-within:w-58 hover:w-58 hover:shadow-lg",
+            classes,
+        )}
+    >
+        <nav class="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto">
+            {#each navItems as item (item.href)}
+                <a
+                    href={`/${$locale}${item.href}`}
+                    class={navItemClass(item)}
+                    aria-current={isActive(item) ? "page" : undefined}
+                >
+                    {#if item.icon}
+                        <item.icon class="size-6 shrink-0" />
+                    {:else}
+                        <span aria-hidden="true" class="w-6 shrink-0 text-center">
+                            {$t(item.label).charAt(0)}
+                        </span>
+                    {/if}
+                    <span
+                        class="opacity-0 transition-opacity duration-200 group-focus-within:opacity-100 group-hover:opacity-100"
+                    >
+                        {$t(item.label)}
+                    </span>
+                </a>
+            {/each}
+        </nav>
+    </aside>
+</div>
 
 <svelte:window onkeydown={(event) => event.key === "Escape" && closeMobile()} />
 

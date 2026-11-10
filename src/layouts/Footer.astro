@@ -1,0 +1,14 @@
+---
+import FooterView from "../components/footer/FooterView.svelte";
+import { footerRepository } from "../repositories/footer";
+
+/**
+ * Rendered once per page from `Layout.astro`, outside the `App` island: it has no
+ * interactivity, so it ships no JS and is rendered in the page's language by the server.
+ */
+const { t, lang } = Astro.locals;
+
+const config = await footerRepository.get();
+---
+
+<FooterView {config} {lang} {t} />

@@ -1,0 +1,25 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import FooterEditor from "../../../../components/admin/customize/footer/FooterEditor.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
+import { footerRepository } from "../../../../repositories/footer";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/customize/footer";
+const navItems = getSubSections("/admin/customize");
+
+const config = await footerRepository.get();
+---
+
+<Layout
+    title={t("pages.admin.customize.footer.title")}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <FooterEditor client:load {config} />
+        </WithSidebar>
+    </App>
+</Layout>
