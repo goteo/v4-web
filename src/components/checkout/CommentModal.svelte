@@ -1,5 +1,6 @@
 <script lang="ts">
     import { Modal } from "flowbite-svelte";
+    import { untrack } from "svelte";
 
     import { t } from "../../i18n/store";
     import { apiProjectSupportsIdPatch, type ProjectSupport } from "../../openapi/client";
@@ -34,7 +35,10 @@
      * The comment written before the language was switched. It is not sensitive, so it can
      * be kept.
      */
-    const { restored } = useFormDraft(commentDraftId(support), () => ({ message }));
+    const { restored } = useFormDraft(
+        untrack(() => commentDraftId(support)),
+        () => ({ message }),
+    );
 
     /** Kept out of the state on purpose: it must only be applied once. */
     let pendingMessage: string | undefined = restored?.message;

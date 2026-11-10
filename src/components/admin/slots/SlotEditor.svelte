@@ -1,9 +1,9 @@
 <script lang="ts" generics="T">
     import { Modal } from "flowbite-svelte";
+    import { untrack } from "svelte";
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
-    import { debounce } from "../../../utils/debounce";
     import { useFormDraft } from "../../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -54,7 +54,7 @@
      * user put them instead of compacting them upwards. Gaps are only collapsed
      * at save time, which is what the persistence layer expects.
      */
-    let assignments = $state<(SlotContent<T> | undefined)[]>([...contents]);
+    let assignments = $state<(SlotContent<T> | undefined)[]>(untrack(() => [...contents]));
     let pickerOpen = $state(false);
     let editingIndex = $state<number | null>(null);
     let query = $state("");
@@ -67,32 +67,13 @@
     /**
      * The assigned slots are what the editor holds, so they are what can be kept.
      */
-    const { restored } = useFormDraft(draftId, () => ({ assignments }));
+    const { restored } = useFormDraft(
+        untrack(() => draftId),
+        () => ({ assignments }),
+    );
 
     if (restored?.assignments) {
         assignments = restored.assignments;
-    }
-
-    const runSearch = debounce(async (term: string) => {
-        candidates = await search(term);
-        options = candidates.map((c, i) => ({
-            id: String(i),
-            label: c.label,
-            selected: false,
-        }));
-    });
-
-    function handleSearch(term: string) {
-        const trimmed = term.trim();
-
-        if (trimmed.length < 2) {
-            runSearch.cancel();
-            options = [];
-            candidates = [];
-            return;
-        }
-
-        runSearch(trimmed);
     }
 
     async function searchOptions(term: string, signal: AbortSignal): Promise<DropdownOption[]> {

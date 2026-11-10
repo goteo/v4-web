@@ -4,12 +4,7 @@
     import { detectVideo } from "../../utils/video";
     import Spinner from "../icons/status/Spinner.svelte";
 
-    let {
-        src,
-        title = $t("pages.project.view.video.title"),
-        thumbnail = "",
-        poster = { src: "", alt: $t("pages.project.view.video.poster") },
-    }: {
+    interface Props {
         src: string;
         title?: string;
         thumbnail?: string;
@@ -17,7 +12,14 @@
             src: string;
             alt: string;
         };
-    } = $props();
+    }
+
+    let {
+        src,
+        title = $t("pages.project.view.video.title"),
+        thumbnail = "",
+        poster = { src: "", alt: $t("pages.project.view.video.poster") },
+    }: Props = $props();
 
     let showIframe = $state(false);
     let isLoading = $state(false);

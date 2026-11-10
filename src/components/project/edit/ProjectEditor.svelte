@@ -39,14 +39,12 @@
         draft,
         step,
         children,
-        onSave,
         onStepChange,
         onLangChange,
     }: {
         draft: ProjectDraftStore;
         step: string;
         children: Snippet;
-        onSave?: () => void;
         onStepChange?: (step: string) => void;
         onLangChange?: (lang: string) => void;
     } = $props();
@@ -101,7 +99,7 @@
     function validatePatch(
         patch: ProjectDraft["patch"],
     ): { field: string; error: ValidationError } | undefined {
-        const fields = zProjectProjectUpdationDto.shape;
+        const fields = zProjectProjectUpdationDtoJsonMergePatch.shape;
 
         for (const [name, value] of Object.entries(patch)) {
             const schema = fields[name as keyof typeof fields];

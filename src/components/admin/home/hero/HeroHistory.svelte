@@ -1,7 +1,7 @@
 <script lang="ts">
     import { actions } from "astro:actions";
     import { Modal, TableBodyCell } from "flowbite-svelte";
-    import { tick } from "svelte";
+    import { tick, untrack } from "svelte";
 
     import HeroForm from "./HeroForm.svelte";
     import HeroPreviewModal from "./HeroPreviewModal.svelte";
@@ -28,7 +28,7 @@
 
     let { rows, onError, onSaved }: Props = $props();
 
-    let list = $state(rows);
+    let list = $state(untrack(() => rows));
 
     // rows is refreshed after a save; keep the local list in sync, while the
     // local deletions below continue to apply on top of the incoming list.
