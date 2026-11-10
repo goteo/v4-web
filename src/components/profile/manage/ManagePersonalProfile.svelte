@@ -21,8 +21,8 @@
         type User,
     } from "../../../openapi/client";
     import { getCountries } from "../../../utils/countries";
-    import { normalizeForMatch } from "../../../utils/highlights";
     import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
+    import { normalizeForMatch } from "../../../utils/highlights";
     import { type SocialNetwork } from "../../../utils/socialLinks";
     import { getTerritoryDisplayName, UNKNOWN_COUNTRY_CODE } from "../../../utils/territory";
     import { trackChanges } from "../../../utils/trackChanges.svelte";
@@ -157,7 +157,7 @@
             "country",
             "subLvl1",
             "subLvl2",
-            "shareLocation"
+            "shareLocation",
         ]);
 
         locality = restored.locality ?? initialLocality;

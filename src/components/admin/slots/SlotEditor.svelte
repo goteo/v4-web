@@ -3,7 +3,6 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import { t } from "../../../i18n/store";
-    import { debounce } from "../../../utils/debounce";
     import { useFormDraft } from "../../../utils/forms/useFormDraft.svelte";
     import ActionableButton from "../../library/buttons/ActionableButton.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -71,28 +70,6 @@
 
     if (restored?.assignments) {
         assignments = restored.assignments;
-    }
-
-    const runSearch = debounce(async (term: string) => {
-        candidates = await search(term);
-        options = candidates.map((c, i) => ({
-            id: String(i),
-            label: c.label,
-            selected: false,
-        }));
-    });
-
-    function handleSearch(term: string) {
-        const trimmed = term.trim();
-
-        if (trimmed.length < 2) {
-            runSearch.cancel();
-            options = [];
-            candidates = [];
-            return;
-        }
-
-        runSearch(trimmed);
     }
 
     async function searchOptions(term: string, signal: AbortSignal): Promise<DropdownOption[]> {

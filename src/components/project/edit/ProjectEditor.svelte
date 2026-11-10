@@ -101,7 +101,7 @@
     function validatePatch(
         patch: ProjectDraft["patch"],
     ): { field: string; error: ValidationError } | undefined {
-        const fields = zProjectProjectUpdationDto.shape;
+        const fields = zProjectProjectUpdationDtoJsonMergePatch.shape;
 
         for (const [name, value] of Object.entries(patch)) {
             const schema = fields[name as keyof typeof fields];
