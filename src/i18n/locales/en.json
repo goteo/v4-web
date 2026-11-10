@@ -1604,7 +1604,8 @@
         "categorization": "Categorization",
         "comm": "Communication",
         "home": "Homepage",
-        "reviews": "Reviews"
+        "reviews": "Reviews",
+        "customize": "Customization"
       },
       "sidebar": {
         "aria": {
@@ -1773,6 +1774,14 @@
             "description": "Search for and add the user you want to feature on the homepage",
             "search": "Search for a user"
           }
+        }
+      },
+      "customize": {
+        "description": "Choose which parts of the site can be edited from here.",
+        "tabs": {
+          "footer": "Footer",
+          "colours": "Colors",
+          "logo": "Logo"
         }
       },
       "slotCard": {
