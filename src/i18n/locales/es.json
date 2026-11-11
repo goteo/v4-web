@@ -1780,8 +1780,61 @@
         "description": "Elige qué partes del sitio se pueden editar desde aquí.",
         "tabs": {
           "footer": "Pie de página",
-          "colours": "Colores",
+          "colors": "Colores",
           "logo": "Logotipo"
+        },
+        "colors": {
+          "title": "Colores",
+          "description": "Personaliza la paleta de colores de la plataforma. Puedes escribir un valor hexadecimal o usar el selector de color.",
+          "save": "Guardar colores",
+          "picker": "Seleccionar {{ color }}",
+          "themes": {
+            "generic": "Genéricos",
+            "light": "Tema claro",
+            "dark": "Tema oscuro",
+            "genericDescription": "Estos colores se comparten entre el tema claro y el tema oscuro.",
+            "lightDescription": "Estos colores sólo se utilizan cuando el tema claro está activo.",
+            "darkDescription": "Estos colores sólo se utilizan cuando el tema oscuro está activo. El resto se configuran en la pestaña Genéricos."
+          },
+          "contrast": {
+            "title": "Accesibilidad y contraste",
+            "description": "Comprobamos el contraste WCAG AA entre los colores de texto y los fondos habituales. El mínimo recomendado es {{ minimum }}:1. Los avisos no impiden guardar: puedes aplicar cualquier combinación bajo tu responsabilidad.",
+            "warning": "Contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1).",
+            "warningWithTheme": "{{ theme }}: contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1)."
+          },
+          "reset": {
+            "button": "Restaurar valores",
+            "confirm": "¿Restaurar la paleta original? Se eliminarán todas las personalizaciones de color de ambos temas."
+          },
+          "feedback": {
+            "saved": "Colores guardados correctamente.",
+            "reset": "Paleta original restaurada correctamente."
+          },
+          "errors": {
+            "forbidden": "No tienes permisos para personalizar los colores.",
+            "invalid": "Revisa los colores marcados antes de guardar.",
+            "hex": "Usa el formato #RRGGBB o #RRGGBBAA."
+          },
+          "tokens": {
+            "primary": "Primario",
+            "secondary": "Secundario",
+            "tertiary": "Acento",
+            "content": "Texto de contenido",
+            "white": "Fondo principal",
+            "black": "Titulares",
+            "grey": "Gris de fondo",
+            "purple-soft": "Morado suave",
+            "purple-med": "Morado medio",
+            "overlay": "Superposición",
+            "variant1": "Variante 1",
+            "variant2": "Variante 2",
+            "variant3": "Variante 3",
+            "variant4": "Variante 4",
+            "semantic-error": "Fondo de error",
+            "semantic-success": "Fondo de éxito",
+            "semantic-notification": "Fondo de notificación",
+            "semantic-warning": "Fondo de advertencia"
+          }
         }
       },
       "slotCard": {
