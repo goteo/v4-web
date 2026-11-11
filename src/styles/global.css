@@ -14,31 +14,31 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    /* Light Theme (default) */
-    --color-primary: #59e9d3;
-    --color-secondary: #462949;
-    --color-tertiary: #e94668;
-    --color-content: #575757;
+    /* Light Theme (default). The custom properties are set inline by Layout.astro after an admin override. */
+    --color-primary: var(--custom-color-primary, #59e9d3);
+    --color-secondary: var(--custom-color-secondary, #462949);
+    --color-tertiary: var(--custom-color-tertiary, #e94668);
+    --color-content: var(--custom-color-content, #575757);
 
     /* Extended color tokens for components */
-    --color-white: #fbfbfb;
-    --color-black: #3d3d3d;
-    --color-grey: #f3f3ef;
-    --color-purple-soft: #faf9ff;
-    --color-purple-med: #f6f5ff;
+    --color-white: var(--custom-color-white, #fbfbfb);
+    --color-black: var(--custom-color-black, #3d3d3d);
+    --color-grey: var(--custom-color-grey, #f3f3ef);
+    --color-purple-soft: var(--custom-color-purple-soft, #faf9ff);
+    --color-purple-med: var(--custom-color-purple-med, #f6f5ff);
 
     /* Scrim tras diálogos y modales: gris cálido al 70% */
-    --color-overlay: #878282b2;
+    --color-overlay: var(--custom-color-overlay, #878282b2);
 
-    --color-variant1: #e6e5f7;
-    --color-variant2: #99ffcc;
-    --color-variant3: #72d8ff;
-    --color-variant4: #ffff99;
+    --color-variant1: var(--custom-color-variant1, #e6e5f7);
+    --color-variant2: var(--custom-color-variant2, #99ffcc);
+    --color-variant3: var(--custom-color-variant3, #72d8ff);
+    --color-variant4: var(--custom-color-variant4, #ffff99);
 
-    --color-semantic-error: #e9b1bd;
-    --color-semantic-success: #b1e9e1;
-    --color-semantic-notification: #c2eeff;
-    --color-semantic-warning: #ffffc2;
+    --color-semantic-error: var(--custom-color-semantic-error, #e9b1bd);
+    --color-semantic-success: var(--custom-color-semantic-success, #b1e9e1);
+    --color-semantic-notification: var(--custom-color-semantic-notification, #c2eeff);
+    --color-semantic-warning: var(--custom-color-semantic-warning, #ffffc2);
 
     /* Declared by the `<Font>` component in Layout.astro; already carries its own fallbacks. */
     --font-body: var(--font-karla);
@@ -48,15 +48,15 @@
 
 @layer base {
     [data-theme="dark"] {
-        --color-primary: #3d3d3d;
-        --color-secondary: #94a3b8;
+        --color-primary: var(--custom-dark-color-primary, #3d3d3d);
+        --color-secondary: var(--custom-dark-color-secondary, #94a3b8);
 
         /* Dark theme variants for extended tokens */
-        --color-grey: #2a2a2a;
-        --color-variant1: #3a3551;
-        --color-white: #f8f9fa;
-        --color-purple-soft: #1a1730;
-        --color-purple-med: #22203a;
+        --color-grey: var(--custom-dark-color-grey, #2a2a2a);
+        --color-variant1: var(--custom-dark-color-variant1, #3a3551);
+        --color-white: var(--custom-dark-color-white, #f8f9fa);
+        --color-purple-soft: var(--custom-dark-color-purple-soft, #1a1730);
+        --color-purple-med: var(--custom-dark-color-purple-med, #22203a);
     }
 
     /* flowbite-svelte's Modal caps height with `max-h-[90hv]` (typo, no effect),
