@@ -2,11 +2,18 @@
 import { Font } from "astro:assets";
 
 import "../styles/global.css";
+import { themeColorsRepository } from "../repositories/themeColors";
+import { buildThemeColorStyleAttribute } from "../utils/themeColors";
 import Metatags from "./Metatags.astro";
 
 import type { FontPreloadFilter } from "astro:assets";
 
 const { title, description, keywords } = Astro.props;
+
+const savedThemeColors = await themeColorsRepository.get();
+const themeColorStyleAttribute = savedThemeColors
+    ? buildThemeColorStyleAttribute(savedThemeColors.lightColors, savedThemeColors.darkColors)
+    : "";
 
 /**
  * Language the page is rendered in.
@@ -26,7 +33,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
 ---
 
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} style={themeColorStyleAttribute || undefined}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
