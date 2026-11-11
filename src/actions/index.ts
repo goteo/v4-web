@@ -13,6 +13,7 @@ import {
 import { saveProposedCampaigns } from "./proposedCampaigns";
 import { updatePublicProfile } from "./publicProfile";
 import { register } from "./register";
+import { resetThemeColors, saveThemeColors } from "./themeColors";
 
 export const server = {
     register,
@@ -34,4 +35,6 @@ export const server = {
     updateReviewProjectStatus,
     sendReviewAreaComment,
     saveProposedCampaigns,
+    saveThemeColors,
+    resetThemeColors,
 };
