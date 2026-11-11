@@ -3,7 +3,11 @@
 
     import { session } from "../../auth/store.ts";
     import { t } from "../../i18n/store";
-    import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
+    import {
+        apiProjectReviewsGetCollection,
+        apiProjectsGetCollection,
+    } from "../../openapi/client/sdk.gen.ts";
+    import { extractId } from "../../utils/extractId";
     import { toCollectionItems } from "../../utils/hydra.ts";
     import {
         projectActionHref,
@@ -19,7 +23,7 @@
     import Tabs from "../library/layout/Tabs.svelte";
     import Title from "../library/typography/Title.svelte";
 
-    import type { Project, User } from "../../openapi/client/types.gen.ts";
+    import type { Project, ProjectReview, User } from "../../openapi/client/types.gen.ts";
     import type { Campaign } from "../../types/campaign";
 
     interface Props {
@@ -31,6 +35,31 @@
 
     let ownedProjects = $state<Campaign[]>([]);
     let loading = $state(true);
+    // Latest review id per project id, for the advisory and review links
+    let reviewIdByProject = $state<Map<string, number>>(new Map());
+
+    async function fetchReviews(projectIds: number[], headers: Record<string, unknown>) {
+        const { data, error } = await apiProjectReviewsGetCollection({
+            query: {
+                "project[]": projectIds.map((id) => `/v4/projects/${id}`),
+                itemsPerPage: 100,
+            },
+            headers,
+        });
+
+        if (error) {
+            console.error("Failed to fetch owned project reviews:", error);
+            return;
+        }
+
+        const latest = new Map<string, number>();
+        for (const review of toCollectionItems<ProjectReview>(data)) {
+            const projectId = extractId(review.project);
+            if (!projectId || !review.id) continue;
+            latest.set(projectId, Math.max(review.id, latest.get(projectId) ?? 0));
+        }
+        reviewIdByProject = latest;
+    }
 
     async function fetchOwnedProjects() {
         loading = true;
@@ -79,6 +108,10 @@
                 )) as Campaign[];
 
                 ownedProjects = campaigns;
+                await fetchReviews(
+                    projectItems.map((project) => project.id!),
+                    headers,
+                );
             } else {
                 ownedProjects = [];
             }
@@ -125,12 +158,18 @@
                     {@const ownedConfig: OwnedCardConfig | undefined = config && {
                         tagLabel: config.tagKey ? $t(`pages.me.ownedProjects.card.${config.tagKey}`) : undefined,
                         showMoney: config.showMoney,
-                        actions: config.actions.map<OwnedCardActionView>((action) => ({
-                            key: action.key,
-                            label: $t(`pages.me.ownedProjects.card.${action.key}`),
-                            kind: action.kind,
-                            href: projectActionHref(action.key, campaign),
-                        })),
+                        actions: config.actions
+                            .map<OwnedCardActionView>((action) => ({
+                                key: action.key,
+                                label: $t(`pages.me.ownedProjects.card.${action.key}`),
+                                kind: action.kind,
+                                href: projectActionHref(
+                                    action.key,
+                                    campaign,
+                                    reviewIdByProject.get(String(campaign.id)),
+                                ),
+                            }))
+                            .filter((action) => action.href),
                     }}
                     <CampaignCard size={index === 0 ? "large" : "small"} {campaign} {ownedConfig} />
                 {/each}
