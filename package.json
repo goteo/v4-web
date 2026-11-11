@@ -55,6 +55,7 @@
     "media-icons": "^1.1.5",
     "murmurhash-js": "^1.0.0",
     "observable-slim": "^0.2.2",
+    "polished": "^4.3.1",
     "stdnum": "^1.12.6",
     "svelte": "^5.56.6",
     "tailwind-merge": "^3.6.0",
