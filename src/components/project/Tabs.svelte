@@ -3,6 +3,7 @@
 
     import ProjectBudget from "./ProjectBudget.svelte";
     import ProjectCommunity from "./ProjectCommunity.svelte";
+    import ProjectImpact from "./ProjectImpact.svelte";
     import ProjectRewards from "./ProjectRewards.svelte";
     import ProjectUpdate from "./ProjectUpdate.svelte";
     import { t } from "../../i18n/store";
@@ -129,30 +130,36 @@
                     id="tab-project"
                     role="tabpanel"
                     aria-labelledby="tab-button-project"
-                    class="marked-content flex w-full max-w-4xl flex-col gap-6 overflow-hidden"
-                    style="overflow-wrap: break-word; word-wrap: break-word; word-break: break-word;"
+                    class="flex w-full max-w-4xl flex-col gap-10"
                 >
-                    {#await renderMarkdown(project.descBrief!) then content}
-                        {@html content}
-                    {/await}
-                    <Title level={2} variant="section" class="color-secondary font-bold">
-                        {$t("pages.project.view.tabs.project.descAbout")}
-                    </Title>
-                    {#await renderMarkdown(project.descAbout!) then content}
-                        {@html content}
-                    {/await}
-                    <Title level={2} variant="section" class="color-secondary font-bold">
-                        {$t("pages.project.view.tabs.project.descGoal")}
-                    </Title>
-                    {#await renderMarkdown(project.descGoal!) then content}
-                        {@html content}
-                    {/await}
-                    <Title level={2} variant="section" class="color-secondary font-bold">
-                        {$t("pages.project.view.tabs.project.descTeam")}
-                    </Title>
-                    {#await renderMarkdown(project.descTeam!) then content}
-                        {@html content}
-                    {/await}
+                    <div
+                        class="marked-content flex flex-col gap-6 overflow-hidden"
+                        style="overflow-wrap: break-word; word-wrap: break-word; word-break: break-word;"
+                    >
+                        {#await renderMarkdown(project.descBrief!) then content}
+                            {@html content}
+                        {/await}
+                        <Title level={2} variant="section" class="color-secondary font-bold">
+                            {$t("pages.project.view.tabs.project.descAbout")}
+                        </Title>
+                        {#await renderMarkdown(project.descAbout!) then content}
+                            {@html content}
+                        {/await}
+                        <Title level={2} variant="section" class="color-secondary font-bold">
+                            {$t("pages.project.view.tabs.project.descGoal")}
+                        </Title>
+                        {#await renderMarkdown(project.descGoal!) then content}
+                            {@html content}
+                        {/await}
+                        <Title level={2} variant="section" class="color-secondary font-bold">
+                            {$t("pages.project.view.tabs.project.descTeam")}
+                        </Title>
+                        {#await renderMarkdown(project.descTeam!) then content}
+                            {@html content}
+                        {/await}
+                    </div>
+                    <!-- Kept outside .marked-content: its unlayered img/h3 rules override Tailwind. -->
+                    <ProjectImpact {project} />
                 </div>
             {:else if activeTab === "budget"}
                 <div
