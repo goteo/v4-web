@@ -4,6 +4,7 @@
     import Banner from "./Banner.svelte";
     import Card from "./Card.svelte";
     import Countdown from "./Countdown.svelte";
+    import ProjectNewsModal from "./ProjectNewsModal.svelte";
     import ProjectTags from "./ProjectTags.svelte";
     import Tabs from "./Tabs.svelte";
     import TopRewards from "./TopRewards.svelte";
@@ -245,3 +246,4 @@
     <Banner ownerName={owner.displayName || ""} />
 </section>
 <Tabs bind:this={tabsComponent} bind:lang={projectLanguage} bind:project {accounting} />
+<ProjectNewsModal {project} lang={projectLanguage} />
