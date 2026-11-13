@@ -13,9 +13,8 @@ Converted from CampaignCard.astro to maintain exact functionality
     import { formatCurrency } from "../../utils/currencies";
     import { extractId } from "../../utils/extractId";
     import { gte } from "../../utils/money";
-    import { PUBLIC_STATUSES_TO_STATUSES } from "../../utils/projectStatus";
+    import { getCampaignPhase } from "../../utils/projectStatus";
     import Flames from "../icons/status/Flames.svelte";
-    import Ok from "../icons/status/Ok.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -78,12 +77,24 @@ Converted from CampaignCard.astro to maintain exact functionality
         obtained != null && campaign.minimum != null ? gte(obtained, campaign.minimum) : false,
     );
 
-    const isFinished = $derived(
-        [...PUBLIC_STATUSES_TO_STATUSES.funded, ...PUBLIC_STATUSES_TO_STATUSES.archived].includes(
-            campaign.status ?? "",
-        ),
+    // Days left only make sense while the campaign runs
+    const daysRemaining = $derived(
+        !campaign.status || campaign.status === "in_campaign"
+            ? getDaysRemaining(campaign.calendar)
+            : undefined,
     );
-    const daysRemaining = $derived(getDaysRemaining(campaign.calendar));
+
+    // Lifecycle label (key under `pages.home.campaigns.status`). In campaign it waits for the
+    // balance so it doesn't flip from "minimum" to "optimum" once it loads.
+    const statusLabel = $derived.by(() => {
+        const status = campaign.status;
+        if (!status) return undefined;
+        if (status === "to_campaign") return "upcoming";
+        if (status === "in_campaign")
+            return obtained && (hasReachedMinimum ? "toOptimum" : "toMinimum");
+        if (status === "campaign.failed" || status === "campaign.cancelled") return "archived";
+        return getCampaignPhase(status) === "after" ? "funded" : undefined;
+    });
     const hasMatchfunding = $derived(
         campaign.hasMatchfunding ?? !!campaign.matchCallSubmissions?.length,
     );
@@ -118,23 +129,20 @@ Converted from CampaignCard.astro to maintain exact functionality
 >
     <a href="/project/{campaign.slug}">
         <div class="flex flex-col gap-6">
-            <div class="relative">
-                <img
-                    src={campaign.image}
-                    alt={campaign.title}
-                    class="h-80 w-full rounded-3xl object-cover md:h-97.25"
-                />
+            <div class="bg-grey relative h-80 rounded-3xl md:h-97.25">
+                {#if campaign.image}
+                    <img
+                        src={campaign.image}
+                        alt={campaign.title}
+                        class="size-full rounded-3xl object-cover"
+                    />
+                {/if}
 
-                <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+                <div class="absolute top-4 right-4 left-4 flex flex-wrap gap-2">
                     {#if ownedConfig?.tagLabel}
                         <Tag variant="bold">{ownedConfig.tagLabel}</Tag>
                     {/if}
-                    {#if isFinished}
-                        <Tag variant="bold">
-                            <Ok width={16} height={16} />
-                            <span>{$t("pages.home.campaigns.finished")}</span>
-                        </Tag>
-                    {:else if daysRemaining !== undefined}
+                    {#if daysRemaining !== undefined}
                         <Tag variant="bold">
                             <Clock width={16} height={16} />
                             <span>
@@ -153,11 +161,11 @@ Converted from CampaignCard.astro to maintain exact functionality
                     {/each}
                 </div>
 
-                {#if hasReachedMinimum}
+                {#if statusLabel}
                     <span
                         class="border-secondary text-secondary absolute bottom-4 left-4 rounded-lg border bg-white px-2 py-1 text-xs font-medium"
                     >
-                        {$t("pages.home.campaigns.minimumExceeded")}
+                        {$t(`pages.home.campaigns.status.${statusLabel}`)}
                     </span>
                 {/if}
             </div>
@@ -167,7 +175,7 @@ Converted from CampaignCard.astro to maintain exact functionality
                     level={3}
                     variant="subsection"
                     color="secondary"
-                    class="line-clamp-2 h-16 leading-8"
+                    class="line-clamp-2 h-16 leading-8 wrap-break-word"
                 >
                     {campaign.title}
                 </Title>

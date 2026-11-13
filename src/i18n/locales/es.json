@@ -734,9 +734,14 @@
         "minimum": "Mínimo",
         "optimum": "Óptimo",
         "daysRemaining": "Faltan {{days}} días",
-        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "¡Mínimo superado!",
+        "status": {
+          "toMinimum": "¡A por el mínimo!",
+          "toOptimum": "¡A por el óptimo!",
+          "funded": "Financiado",
+          "archived": "Archivado",
+          "upcoming": "Próximamente"
+        },
         "userDonations": "Tus donaciones:"
       },
       "blog": {
