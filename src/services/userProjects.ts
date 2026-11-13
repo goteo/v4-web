@@ -1,6 +1,7 @@
-import { apiAccountingsIdGet, apiProjectsGetCollection } from "../openapi/client";
+import { apiProjectsGetCollection } from "../openapi/client";
 import { client } from "../openapi/client/client.gen";
 import { apiUsersIdOrHandleGetUrl } from "../openapi/client/operation-paths.gen";
+import { fetchAccountingsByIds } from "../utils/accountings";
 import { getBaseUrl, getDefaultCurrency } from "../utils/consts";
 import { extractId } from "../utils/extractId";
 import { toCollectionItems } from "../utils/hydra";
@@ -80,21 +81,14 @@ export async function summarizeOwnerProjects(
         return { totalProjects, capitalRaised: { amount: 0, currency: getDefaultCurrency() } };
     }
 
-    const balances = await Promise.all(
-        raisedAccountingIds.map(async (id) => {
-            const { data } = await apiAccountingsIdGet({
-                baseUrl: getBaseUrl(),
-                path: { id },
-                headers: { "Accept-Language": acceptLanguage },
-            });
+    const accountings = await fetchAccountingsByIds(raisedAccountingIds, {
+        baseUrl: getBaseUrl(),
+        headers: { "Accept-Language": acceptLanguage },
+    });
 
-            return data?.balance ?? null;
-        }),
-    );
-
-    const valid = balances.filter(
-        (balance): balance is MoneyOutput => typeof balance?.amount === "number",
-    );
+    const valid = raisedAccountingIds
+        .map((id) => accountings.get(id)?.balance)
+        .filter((balance): balance is MoneyOutput => typeof balance?.amount === "number");
 
     const total = sumMoney(valid);
 

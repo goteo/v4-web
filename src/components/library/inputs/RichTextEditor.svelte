@@ -8,7 +8,7 @@
     internally, so any format other than "json" is a lossy projection of the document.
 
     Content flows one way — there is no two-way binding. `minLength`/`maxLength` only colour the
-    character counter; enforcement lives in src/validation/.
+    character counter; enforcement lives in validation/projectValidation.ts.
 -->
 <script lang="ts" generics="F extends RichTextFormat = 'json'">
     import { Editor } from "@tiptap/core";

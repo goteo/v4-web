@@ -3,7 +3,8 @@
     import { locale, t } from "../../i18n/store";
     import { client } from "../../openapi/client/client.gen.ts";
     import { apiUsersIdOrHandleGetUrl } from "../../openapi/client/operation-paths.gen.ts";
-    import { apiAccountingsIdGet, apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
+    import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
+    import { fetchAccountingsByIds } from "../../utils/accountings";
     import { getDefaultCurrency } from "../../utils/consts";
     import { formatAmountWithSymbol } from "../../utils/currencies";
     import { extractId } from "../../utils/extractId";
@@ -85,36 +86,13 @@
         let projectsTotalCurrency: string | null = null;
 
         if (accountingIds.length > 0) {
-            const accountingResults = await Promise.all(
-                accountingIds.map(async (accountingId) => {
-                    try {
-                        const { data, error } = await apiAccountingsIdGet({
-                            baseUrl: "/api/relay",
-                            path: { id: accountingId },
-                            headers,
-                        });
+            const accountings = await fetchAccountingsByIds(accountingIds, {
+                baseUrl: "/api/relay",
+                headers,
+            });
 
-                        if (error) {
-                            console.warn("Failed to fetch accounting", {
-                                accountingId,
-                                error,
-                            });
-                            return null;
-                        }
-
-                        return data ?? null;
-                    } catch (accountingError) {
-                        console.warn("Error fetching accounting", {
-                            accountingId,
-                            accountingError,
-                        });
-                        return null;
-                    }
-                }),
-            );
-
-            const projectBalances = accountingResults
-                .map((a) => a?.balance)
+            const projectBalances = accountingIds
+                .map((accountingId) => accountings.get(accountingId)?.balance)
                 .filter((b): b is MoneyOutput => b != null && typeof b.amount === "number");
 
             if (projectBalances.length > 0) {
