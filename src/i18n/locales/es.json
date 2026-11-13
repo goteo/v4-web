@@ -1782,6 +1782,45 @@
           "footer": "Pie de página",
           "colours": "Colores",
           "logo": "Logotipo"
+        },
+        "logo": {
+          "title": "Logotipo de la cabecera",
+          "description": "Sube el logo que se muestra en la cabecera de todas las páginas. Si no hay ninguno activo se usa el logo por defecto.",
+          "errors": {
+            "forbidden": "No tienes permisos para gestionar el logo de la cabecera",
+            "mediaRequired": "Sube una imagen para el logo"
+          },
+          "tabs": {
+            "new": "Nuevo",
+            "history": "Histórico"
+          },
+          "fields": {
+            "mediaTitle": "Logo",
+            "mediaLabel": "Imagen del logo",
+            "mediaHint": "Sube una imagen PNG, JPG o WebP, mejor con fondo transparente.",
+            "mediaAdd": "Añade el logo",
+            "altTextLabel": "Texto alternativo",
+            "altTextPlaceholder": "Describe el logo, por ejemplo «Goteo»"
+          },
+          "history": {
+            "title": "Histórico de logos",
+            "description": "Aquí puedes ver los logos subidos y eliminar los que ya no quieras usar. Al borrar el logo activo, la cabecera vuelve al anterior.",
+            "noData": "Todavía no has subido ningún logo. La cabecera usa el logo por defecto.",
+            "headers": {
+              "id": "ID",
+              "image": "Logo",
+              "altText": "Texto alternativo",
+              "status": "Estado"
+            },
+            "status": {
+              "active": "Actual",
+              "past": "Pasado"
+            },
+            "deleteModal": {
+              "title": "¿Borrar este logo?",
+              "description": "El logo se eliminará de forma permanente y dejará de mostrarse en la cabecera. Esta acción no se puede deshacer."
+            }
+          }
         }
       },
       "slotCard": {
