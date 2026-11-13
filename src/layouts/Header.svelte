@@ -1,5 +1,6 @@
 <script lang="ts">
     import { clickOutside } from "flowbite-svelte";
+    import { onMount } from "svelte";
 
     import { session } from "../auth/store";
     import CartButton from "../components/checkout/CartButton.svelte";
@@ -14,6 +15,28 @@
     import type { Snippet } from "svelte";
 
     let { children, nav }: { children?: Snippet; nav?: Snippet } = $props();
+
+    interface HeaderLogo {
+        src: string;
+        alt: string;
+    }
+
+    // The logo is managed from /admin/customize/logo. Fetching it here keeps the
+    // pages that mount the header from passing it down as a prop, and falls back
+    // to the built-in logo while nothing is scheduled.
+    let logo = $state<HeaderLogo | null>(null);
+
+    onMount(async () => {
+        try {
+            const response = await fetch("/api/header-logo");
+
+            if (!response.ok) return;
+
+            logo = (await response.json()) as HeaderLogo | null;
+        } catch (e) {
+            console.error("Header logo fetch failed:", e);
+        }
+    });
 
     let menuOpen = $state(false);
 
@@ -57,7 +80,17 @@
                     id="header-main"
                 >
                     <div class="flex items-center gap-2 md:gap-4">
-                        <a href="/" class="shrink-0"><Logo /></a>
+                        <a href="/" class="shrink-0">
+                            {#if logo}
+                                <img
+                                    src={logo.src}
+                                    alt={logo.alt}
+                                    class="h-6 w-auto max-w-50 object-contain"
+                                />
+                            {:else}
+                                <Logo />
+                            {/if}
+                        </a>
                         <div class="hidden lg:block">
                             <HeaderButtons />
                         </div>
