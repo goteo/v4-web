@@ -1,43 +1,52 @@
-import type { Component } from "svelte";
-import type { ClassNameValue } from "tailwind-merge";
+import type { Locale } from "../i18n/locales";
+
+/** A text written once per UI locale. Missing locales fall back to the default one. */
+export type LocalizedText = Partial<Record<Locale, string>>;
 
 export interface FooterLinkItem {
-    /** i18n key, resolved via t() at render time */
-    labelKey: string;
+    label: LocalizedText;
     /** path without locale prefix (e.g. "/faqs") or absolute URL */
     href: string;
 }
 
-export interface FooterLinkSocial extends FooterLinkItem {
-    icon: Component<{ width?: string | number; height?: string | number }>;
+export const FOOTER_SOCIAL_NETWORKS = ["email", "instagram", "facebook", "x", "linkedin"] as const;
+
+export type FooterSocialNetwork = (typeof FOOTER_SOCIAL_NETWORKS)[number];
+
+export interface FooterSocialLink {
+    /** picks the icon and the accessible name, both resolved in code */
+    network: FooterSocialNetwork;
+    href: string;
 }
 
 export interface FooterNavColumn {
-    /** i18n key for the column heading */
-    titleKey: string;
+    title: LocalizedText;
     links: FooterLinkItem[];
 }
 
 export interface FooterPartner {
     src: string;
-    /** organization name — plain text, deliberately not an i18n key */
+    /** organization name — plain text, deliberately not localized */
     alt: string;
     href?: string;
-    size?: "small" | "medium";
-    class?: ClassNameValue;
 }
 
+/** A titled row of logos ("Financia:", "Somos parte de:"…); hidden while it has none. */
+export interface FooterPartnerGroup {
+    title: LocalizedText;
+    partners: FooterPartner[];
+}
+
+export const FOOTER_SECTIONS = ["partners", "navigation", "legal", "social"] as const;
+
+export type FooterSection = (typeof FOOTER_SECTIONS)[number];
+
+/** The part of the footer stored in D1 and edited from /admin/customize/footer. */
 export interface FooterConfig {
-    /** first band — non-linked funding logos */
-    funding: FooterPartner[];
-    /** second band — linked "somos parte de" logos */
-    partOf: FooterPartner[];
+    /** Sections left out of the footer, whatever they contain. */
+    hidden: Record<FooterSection, boolean>;
+    partnerGroups: FooterPartnerGroup[];
     navColumns: FooterNavColumn[];
     legalLinks: FooterLinkItem[];
-    social: FooterLinkSocial[];
-    brand: {
-        backgroundImage: string;
-        logo: { src: string; alt: string };
-        platoniq: { src: string; alt: string };
-    };
+    social: FooterSocialLink[];
 }

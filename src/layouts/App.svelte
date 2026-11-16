@@ -4,7 +4,6 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import AdminHeader from "./AdminHeader.svelte";
-    import Footer from "./Footer.svelte";
     import Header from "./Header.svelte";
     import HeaderSubmenu from "./HeaderSubmenu.svelte";
     import MeHeader from "./MeHeader.svelte";
@@ -155,4 +154,3 @@
 >
     {@render children?.()}
 </main>
-<Footer />
