@@ -2,6 +2,7 @@ import { deleteBanner, saveBanner } from "./banners";
 import { saveBlogPost, setBlogPostPublished } from "./blog";
 import { saveFeaturedUsers } from "./featuredUsers";
 import { saveFooter } from "./footer";
+import { createHeaderLogo, deleteHeaderLogo, getHeaderLogoData } from "./headerLogo";
 import { createHomeHero, deleteHomeHero, getHomeHeroData, updateHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
@@ -23,7 +24,10 @@ export const server = {
     saveBlogPost,
     setBlogPostPublished,
     createHomeHero,
+    createHeaderLogo,
+    deleteHeaderLogo,
     deleteHomeHero,
+    getHeaderLogoData,
     getHomeHeroData,
     updateHomeHero,
     saveHighlights,
