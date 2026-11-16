@@ -1780,8 +1780,142 @@
         "description": "Choose which parts of the site can be edited from here.",
         "tabs": {
           "footer": "Footer",
-          "colours": "Colors",
+          "colors": "Colors",
           "logo": "Logo"
+        },
+        "colors": {
+          "title": "Colors",
+          "description": "Customize the platform's color palette. You can enter a hexadecimal value or use the color picker.",
+          "save": "Save colors",
+          "picker": "Select {{ color }}",
+          "themes": {
+            "generic": "Generic",
+            "light": "Light theme",
+            "dark": "Dark theme",
+            "genericDescription": "These colors are shared between the light theme and the dark theme.",
+            "lightDescription": "These colors are only used when the light theme is active.",
+            "darkDescription": "These colors are only used when the dark theme is active. The rest are configured in the Generic tab."
+          },
+          "contrast": {
+            "title": "Accessibility and contrast",
+            "description": "We check WCAG AA contrast between text colors and common backgrounds. The recommended minimum is {{ minimum }}:1. Warnings do not prevent saving: you can apply any combination at your own risk.",
+            "warning": "Low contrast between {{ text }} and {{ background }}: {{ ratio }}:1 (minimum {{ minimum }}:1).",
+            "warningWithTheme": "{{ theme }}: low contrast between {{ text }} and {{ background }}: {{ ratio }}:1 (minimum {{ minimum }}:1)."
+          },
+          "reset": {
+            "button": "Restore values",
+            "confirm": "Restore the original palette? All color customizations for both themes will be removed."
+          },
+          "feedback": {
+            "saved": "Colors saved successfully.",
+            "reset": "Original palette restored successfully."
+          },
+          "errors": {
+            "forbidden": "You do not have permission to customize colors.",
+            "invalid": "Review the marked colors before saving.",
+            "hex": "Use the #RRGGBB or #RRGGBBAA format."
+          },
+          "tokens": {
+            "primary": "Primary",
+            "secondary": "Secondary",
+            "tertiary": "Accent",
+            "content": "Content text",
+            "white": "Main background",
+            "black": "Headings",
+            "grey": "Background gray",
+            "purple-soft": "Soft purple",
+            "purple-med": "Medium purple",
+            "overlay": "Overlay",
+            "variant1": "Variant 1",
+            "variant2": "Variant 2",
+            "variant3": "Variant 3",
+            "variant4": "Variant 4",
+            "semantic-error": "Error background",
+            "semantic-success": "Success background",
+            "semantic-notification": "Notification background",
+            "semantic-warning": "Warning background"
+          }
+        },
+        "logo": {
+          "title": "Header logo",
+          "description": "Upload the logo displayed in the header of all pages. If no logo is active, the default logo is used.",
+          "errors": {
+            "forbidden": "You do not have permission to manage the header logo",
+            "mediaRequired": "Upload an image for the logo"
+          },
+          "tabs": {
+            "new": "New",
+            "history": "History"
+          },
+          "fields": {
+            "mediaTitle": "Logo image",
+            "mediaLabel": "Logo image",
+            "mediaHint": "Upload a PNG, JPG, or WebP image, preferably with a transparent background.",
+            "mediaAdd": "Add the logo",
+            "altTextLabel": "Alt text",
+            "altTextPlaceholder": "Describe the logo, for example \"Goteo\""
+          },
+          "history": {
+            "title": "Logo history",
+            "description": "Here you can view the uploaded logos and delete the ones you no longer want to use. When you delete the active logo, the header reverts to the previous one.",
+            "noData": "You have not uploaded any logos yet. The header uses the default logo.",
+            "headers": {
+              "id": "Identifier",
+              "image": "Logo image",
+              "altText": "Alt text",
+              "status": "Status"
+            },
+            "status": {
+              "active": "Current",
+              "past": "Past"
+            },
+            "deleteModal": {
+              "title": "Delete this logo?",
+              "description": "The logo will be permanently deleted and will no longer be displayed in the header. This action cannot be undone."
+            }
+          }
+        },
+        "footer": {
+          "title": "Footer",
+          "languageHelp": "Texts in {{ language }} are required; if a language is left blank, the text in {{ language }} is displayed.",
+          "saved": "Footer saved",
+          "sections": {
+            "preview": "Preview",
+            "partners": "Partner logos",
+            "navigation": "Navigation columns",
+            "legal": "Legal links",
+            "social": "Social media"
+          },
+          "fields": {
+            "labelPlaceholder": "Link text",
+            "hrefPlaceholder": "/path or https://...",
+            "socialPlaceholder": "https://... or mailto:...",
+            "altPlaceholder": "Organization name",
+            "partnerHrefPlaceholder": "https://... (optional)",
+            "titlePlaceholder": "Title"
+          },
+          "actions": {
+            "addColumn": "Add column",
+            "addLink": "Add link",
+            "addSocial": "Add social media",
+            "addPartner": "Add logo",
+            "changeImage": "Change image",
+            "moveUp": "Move up",
+            "moveDown": "Move down",
+            "addGroup": "Add logo group"
+          },
+          "errors": {
+            "forbidden": "You do not have permission to edit the footer.",
+            "invalidUrl": "There is an invalid link: use a path (/...), https://, or mailto:.",
+            "missingText": "Some text is missing in the primary language.",
+            "missingImage": "A logo image is missing."
+          },
+          "previewHelp": "This is how the footer will appear in the selected language. Click any element to edit it.",
+          "editColumn": "Edit column",
+          "linkCount": "Links: {{ count }}",
+          "editGroup": "Edit logo group",
+          "logoCount": "Logo count: {{ count }}",
+          "hideSection": "Hide in footer"
         }
       },
       "slotCard": {
