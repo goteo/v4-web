@@ -4474,9 +4474,10 @@ export type User = {
      */
     type?: 'individual' | 'organization';
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
+     * A list of the roles assigned to this User. Admin scoped property.\
+     * Only the listed role names are accepted.
      */
-    roles?: Array<string>;
+    roles?: Array<'ROLE_USER' | 'ROLE_ADMIN'>;
     readonly displayName?: string;
     /**
      * For `individual` User types: personal data about the User themselves.\
@@ -4586,9 +4587,10 @@ export type UserUserUpdationDtoJsonMergePatch = {
      */
     type?: 'individual' | 'organization';
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
+     * A list of the roles assigned to this User. Admin scoped property.\
+     * Only the listed role names are accepted.
      */
-    roles?: Array<string>;
+    roles?: Array<'ROLE_USER' | 'ROLE_ADMIN'>;
     /**
      * A list of absolute URLs.\
      * e.g: social profiles, personal website.
@@ -4651,9 +4653,10 @@ export type UserCsv = {
      */
     type?: 'individual' | 'organization';
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
+     * A list of the roles assigned to this User. Admin scoped property.\
+     * Only the listed role names are accepted.
      */
-    roles?: Array<string>;
+    roles?: Array<'ROLE_USER' | 'ROLE_ADMIN'>;
     readonly displayName?: string;
     /**
      * For `individual` User types: personal data about the User themselves.\
@@ -4744,9 +4747,10 @@ export type UserJsonld = HydraItemBaseSchema & {
      */
     type?: 'individual' | 'organization';
     /**
-     * A list of the roles assigned to this User. Admin scoped property.
+     * A list of the roles assigned to this User. Admin scoped property.\
+     * Only the listed role names are accepted.
      */
-    roles?: Array<string>;
+    roles?: Array<'ROLE_USER' | 'ROLE_ADMIN'>;
     readonly displayName?: string;
     /**
      * For `individual` User types: personal data about the User themselves.\

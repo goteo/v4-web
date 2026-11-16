@@ -16,6 +16,7 @@ import {
 } from "./searchers";
 import TerritoryReferentInput from "../components/library/filters/TerritoryReferentInput.svelte";
 import { locale } from "../i18n/store";
+import { USER_ROLES } from "../types/userRole";
 
 import type { ResourceSearcher } from "./resourceSearch";
 import type { Component } from "svelte";
@@ -79,11 +80,10 @@ const chargeTypes: FilterOption[] = [
 
 // Roles are a closed set with no listing endpoint, so the composer offers them as options.
 // The labels reuse the already translated admin users table keys to avoid duplicating them.
-const userRoleOptions: FilterOption[] = [
-    { value: "ROLE_USER", label: "pages.admin.users.table.rows.roles.ROLE_USER" },
-    { value: "ROLE_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_ADMIN" },
-    { value: "ROLE_SUPER_ADMIN", label: "pages.admin.users.table.rows.roles.ROLE_SUPER_ADMIN" },
-];
+const userRoleOptions: FilterOption[] = USER_ROLES.map((role) => ({
+    value: role,
+    label: `pages.admin.users.table.rows.roles.${role}`,
+}));
 
 const reviewTypes: FilterOption[] = [
     { value: "campaign", label: "domain.filterComposer.subjectOption.reviewType.campaign" },

@@ -1,6 +1,8 @@
+import type { UserRole } from "../types/userRole";
+
 export type ControlItem = {
     path: string;
-    roles: string[];
+    roles: UserRole[];
 };
 
 export const ACL: ControlItem[] = [

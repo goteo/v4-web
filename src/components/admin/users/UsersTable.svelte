@@ -1,4 +1,5 @@
 <script lang="ts" module>
+    import type { UserRole } from "../../../types/userRole";
     import type { DataTableHeader, SortOption } from "../../library/tables/DataTable.svelte";
 
     export type UserRow = {
@@ -8,7 +9,7 @@
         displayName: string;
         type: string;
         active: boolean;
-        roles: string[];
+        roles: UserRole[];
         territory: string;
         accounting?: string;
         dateCreated?: string;
@@ -62,6 +63,7 @@
 
     import UsersDetailsRow from "./UsersDetailsRow.svelte";
     import { t } from "../../../i18n/store";
+    import { roleStyles } from "../../../types/userRole";
     import {
         ADMIN_ITEMS_PER_PAGE_OPTIONS,
         type AdminItemsPerPage,
@@ -90,17 +92,10 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: AdminItemsPerPage) => void;
         onSortChange?: (sort: UserSortKey) => void;
-        onRolesUpdated?: (id: number, roles: string[]) => void;
+        onRolesUpdated?: (id: number, roles: UserRole[]) => void;
     } = $props();
 
     let openRow = $state<number | null>(null);
-
-    const roleStyles: Record<string, string> = {
-        ROLE_USER: "bg-blue-100 text-blue-800",
-        ROLE_ADMIN: "bg-purple-100 text-purple-800",
-        ROLE_SUPER_ADMIN: "bg-red-100 text-red-800",
-        default: "bg-gray-200 text-gray-700",
-    };
 
     function toggleRow(_row: UserRow, index: number): void {
         openRow = openRow === index ? null : index;
@@ -127,7 +122,7 @@
     onRowClick={toggleRow}
     bind:expandedRowIndex={openRow}
 >
-    {#snippet children(user, i)}
+    {#snippet children(user: UserRow, i)}
         <TableBodyCell class="border-variant1 max-w-60 rounded-l-md border-t border-b border-l p-4">
             <p class="truncate font-medium text-black">{user.handle}</p>
         </TableBodyCell>
@@ -166,10 +161,7 @@
         <TableBodyCell class="border-variant1 border-t border-b p-4 text-sm">
             <div class="flex flex-wrap gap-1">
                 {#each user.roles as role}
-                    <span
-                        class="rounded-full px-2 py-0.5 text-xs font-medium {roleStyles[role] ??
-                            roleStyles.default}"
-                    >
+                    <span class="rounded-full px-2 py-0.5 text-xs font-medium {roleStyles[role]}">
                         {role}
                     </span>
                 {/each}
