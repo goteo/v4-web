@@ -1782,6 +1782,48 @@
           "footer": "Pie de página",
           "colours": "Colores",
           "logo": "Logotipo"
+        },
+        "footer": {
+          "title": "Pie de página",
+          "languageHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}.",
+          "saved": "Pie de página guardado",
+          "sections": {
+            "preview": "Vista previa",
+            "partners": "Logos",
+            "navigation": "Columnas de navegación",
+            "legal": "Enlaces legales",
+            "social": "Redes sociales"
+          },
+          "fields": {
+            "labelPlaceholder": "Texto del enlace",
+            "hrefPlaceholder": "/ruta o https://...",
+            "socialPlaceholder": "https://... o mailto:...",
+            "altPlaceholder": "Nombre de la organización",
+            "partnerHrefPlaceholder": "https://... (opcional)",
+            "titlePlaceholder": "Título"
+          },
+          "actions": {
+            "addColumn": "Añadir columna",
+            "addLink": "Añadir enlace",
+            "addSocial": "Añadir red social",
+            "addPartner": "Añadir logo",
+            "changeImage": "Cambiar imagen",
+            "moveUp": "Subir",
+            "moveDown": "Bajar",
+            "addGroup": "Añadir grupo de logos"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar el pie de página.",
+            "invalidUrl": "Hay un enlace no válido: usa una ruta (/...), https:// o mailto:.",
+            "missingText": "Falta algún texto en el idioma principal.",
+            "missingImage": "Falta la imagen de algún logo."
+          },
+          "previewHelp": "Así se verá el pie de página en el idioma seleccionado. Pulsa cualquier elemento para editarlo.",
+          "editColumn": "Editar columna",
+          "linkCount": "Enlaces: {{ count }}",
+          "editGroup": "Editar grupo de logos",
+          "logoCount": "Logos: {{ count }}",
+          "hideSection": "Ocultar en el pie de página"
         }
       },
       "slotCard": {
