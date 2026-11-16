@@ -1780,8 +1780,142 @@
         "description": "Tria quines parts del lloc es poden editar des d'aquí.",
         "tabs": {
           "footer": "Peu de pàgina",
-          "colours": "Colors",
+          "colors": "Colors",
           "logo": "Logotip"
+        },
+        "colors": {
+          "title": "Colors",
+          "description": "Personalitza la paleta de colors de la plataforma. Pots escriure un valor hexadecimal o utilitzar el selector de color.",
+          "save": "Desa els colors",
+          "picker": "Selecciona {{ color }}",
+          "themes": {
+            "generic": "Genèrics",
+            "light": "Tema clar",
+            "dark": "Tema fosc",
+            "genericDescription": "Aquests colors es comparteixen entre el tema clar i el tema fosc.",
+            "lightDescription": "Aquests colors només s'utilitzen quan el tema clar està actiu.",
+            "darkDescription": "Aquests colors només s'utilitzen quan el tema fosc està actiu. La resta es configuren a la pestanya Genèrics."
+          },
+          "contrast": {
+            "title": "Accessibilitat i contrast",
+            "description": "Comprovem el contrast WCAG AA entre els colors de text i els fons habituals. El mínim recomanat és {{ minimum }}:1. Els avisos no impedeixen desar: pots aplicar qualsevol combinació sota la teva responsabilitat.",
+            "warning": "Contrast baix entre {{ text }} i {{ background }}: {{ ratio }}:1 (mínim {{ minimum }}:1).",
+            "warningWithTheme": "{{ theme }}: contrast baix entre {{ text }} i {{ background }}: {{ ratio }}:1 (mínim {{ minimum }}:1)."
+          },
+          "reset": {
+            "button": "Restaura els valors",
+            "confirm": "Vols restaurar la paleta original? S'eliminaran totes les personalitzacions de color de tots dos temes."
+          },
+          "feedback": {
+            "saved": "Colors desats correctament.",
+            "reset": "Paleta original restaurada correctament."
+          },
+          "errors": {
+            "forbidden": "No tens permisos per personalitzar els colors.",
+            "invalid": "Revisa els colors marcats abans de desar.",
+            "hex": "Utilitza el format #RRGGBB o #RRGGBBAA."
+          },
+          "tokens": {
+            "primary": "Primari",
+            "secondary": "Secundari",
+            "tertiary": "Accent",
+            "content": "Text del contingut",
+            "white": "Fons principal",
+            "black": "Titulars",
+            "grey": "Gris de fons",
+            "purple-soft": "Morat suau",
+            "purple-med": "Morat mitjà",
+            "overlay": "Superposició",
+            "variant1": "Variant 1",
+            "variant2": "Variant 2",
+            "variant3": "Variant 3",
+            "variant4": "Variant 4",
+            "semantic-error": "Fons d'error",
+            "semantic-success": "Fons d'èxit",
+            "semantic-notification": "Fons de notificació",
+            "semantic-warning": "Fons d'advertiment"
+          }
+        },
+        "logo": {
+          "title": "Logotip de la capçalera",
+          "description": "Puja el logotip que es mostra a la capçalera de totes les pàgines. Si no n'hi ha cap d'actiu, es fa servir el logotip per defecte.",
+          "errors": {
+            "forbidden": "No tens permisos per gestionar el logotip de la capçalera",
+            "mediaRequired": "Puja una imatge per al logotip"
+          },
+          "tabs": {
+            "new": "Nou",
+            "history": "Historial"
+          },
+          "fields": {
+            "mediaTitle": "Logotip",
+            "mediaLabel": "Imatge del logotip",
+            "mediaHint": "Puja una imatge PNG, JPG o WebP, preferiblement amb fons transparent.",
+            "mediaAdd": "Afegeix el logotip",
+            "altTextLabel": "Text alternatiu",
+            "altTextPlaceholder": "Descriu el logotip, per exemple «Goteo»"
+          },
+          "history": {
+            "title": "Historial de logotips",
+            "description": "Aquí pots veure els logotips pujats i eliminar els que ja no vulguis fer servir. En suprimir el logotip actiu, la capçalera torna a l'anterior.",
+            "noData": "Encara no has pujat cap logotip. La capçalera fa servir el logotip per defecte.",
+            "headers": {
+              "id": "ID",
+              "image": "Logotip",
+              "altText": "Text alternatiu",
+              "status": "Estat"
+            },
+            "status": {
+              "active": "Actiu",
+              "past": "Anterior"
+            },
+            "deleteModal": {
+              "title": "Vols suprimir aquest logotip?",
+              "description": "El logotip s'eliminarà de manera permanent i deixarà de mostrar-se a la capçalera. Aquesta acció no es pot desfer."
+            }
+          }
+        },
+        "footer": {
+          "title": "Peu de pàgina",
+          "languageHelp": "Els textos en {{ language }} són obligatoris; si un idioma queda buit es mostra el text en {{ language }}.",
+          "saved": "Peu de pàgina desat",
+          "sections": {
+            "preview": "Vista prèvia",
+            "partners": "Logotips",
+            "navigation": "Columnes de navegació",
+            "legal": "Enllaços legals",
+            "social": "Xarxes socials"
+          },
+          "fields": {
+            "labelPlaceholder": "Text de l'enllaç",
+            "hrefPlaceholder": "/camí o https://...",
+            "socialPlaceholder": "https://... o bé mailto:...",
+            "altPlaceholder": "Nom de l'organització",
+            "partnerHrefPlaceholder": "https://... (opcional)",
+            "titlePlaceholder": "Títol"
+          },
+          "actions": {
+            "addColumn": "Afegir columna",
+            "addLink": "Afegir enllaç",
+            "addSocial": "Afegir xarxa social",
+            "addPartner": "Afegir logo",
+            "changeImage": "Canviar imatge",
+            "moveUp": "Pujar",
+            "moveDown": "Baixar",
+            "addGroup": "Afegir grup de logos"
+          },
+          "errors": {
+            "forbidden": "No tens permís per editar el peu de pàgina.",
+            "invalidUrl": "Hi ha un enllaç no vàlid: utilitza una ruta (/...), https:// o mailto:.",
+            "missingText": "Falta algun text en l'idioma principal.",
+            "missingImage": "Falta la imatge d'algun logo."
+          },
+          "previewHelp": "Així es veurà el peu de pàgina en l'idioma seleccionat. Prem qualsevol element per editar-lo.",
+          "editColumn": "Editar la columna",
+          "linkCount": "Enllaços: {{ count }}",
+          "editGroup": "Editar grup de logos",
+          "logoCount": "Logotips: {{ count }}",
+          "hideSection": "Amagar al peu de pàgina"
         }
       },
       "slotCard": {
