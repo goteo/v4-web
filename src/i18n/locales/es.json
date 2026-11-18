@@ -492,6 +492,7 @@
     "500": {
       "title": "Algo ha salido terriblemente mal",
       "subtitle": "Por favor, espera unos segundos antes de volver a intentarlo.",
+      "apiDown": "No hemos podido conectar con la API de Goteo. Por favor, espera unos segundos antes de volver a intentarlo.",
       "meta": {
         "title": "Condición inesperada para la solicitud",
         "description": "Error interno del servidor."
