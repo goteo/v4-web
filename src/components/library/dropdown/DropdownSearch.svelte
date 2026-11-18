@@ -158,9 +158,25 @@
         });
     });
 
+    $effect(() => {
+        if (isOpen) return;
+        untrack(() => clearUnselectedInput());
+    });
+
     function handleChange(option: DropdownOption) {
         if (singleSelect && !chips) value = option.label;
         onChange?.(option);
+    }
+
+    function clearUnselectedInput() {
+        if (singleSelect && !chips && value && selected.length === 0) {
+            handleClear();
+            return;
+        }
+
+        if (singleSelect && !chips && value && selected[0]?.label !== value) {
+            value = selected[0]?.label ?? "";
+        }
     }
 
     function handleClear() {
@@ -212,6 +228,9 @@
                     }
                 }}
                 onclick={() => (isOpen = true)}
+                onblur={() => {
+                    if (!isOpen) clearUnselectedInput();
+                }}
             />
             <div class="absolute right-4 flex flex-row gap-1 bg-white">
                 {#if clearable && value}
