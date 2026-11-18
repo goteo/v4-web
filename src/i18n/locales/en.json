@@ -492,6 +492,7 @@
     "500": {
       "title": "Something has gone terribly wrong",
       "subtitle": "Please wait a few seconds before trying again.",
+      "apiDown": "We couldn't connect to the Goteo API. Please wait a few seconds before trying again.",
       "meta": {
         "title": "Unexpected condition for the request",
         "description": "Internal server error."
