@@ -121,6 +121,7 @@
         "reviewType": "Tipus de revisió",
         "project": "Projecte",
         "reviewer": "Assessor",
+        "reviewState": "Estat de revisió",
         "userTerritoryCountry": "Ubicació"
       },
       "operator": {
@@ -269,6 +270,13 @@
         "low": "Risc baix",
         "mid": "Risc mitjà",
         "high": "Risc alt"
+      },
+      "state": {
+        "pending": "Pendent de revisió",
+        "changesRequested": "Necessita canvis",
+        "changesDone": "Canvis realitzats",
+        "rejected": "Rebutjat",
+        "approved": "Aprovat per a la campanya"
       }
     },
     "tipping": {
@@ -1406,7 +1414,8 @@
         "label": "Projecte"
       },
       "status": {
-        "label": "Estat de la revisió"
+        "label": "Estat de la revisió",
+        "updated": "L'estat de la revisió s'ha actualitzat."
       },
       "areas": {
         "title": "Àrees de risc",
@@ -1416,6 +1425,8 @@
         "seeChat": "Veure conversa",
         "changeRisk": "Canviar risc",
         "changeStatus": "Canviar l'estat",
+        "decide": "Decidir la revisió",
+        "changesDone": "He realitzat els canvis",
         "back": "Tornar a la revisió"
       },
       "card": {
@@ -2456,6 +2467,22 @@
           "list": "Llistat de projectes:",
           "totalizers": {
             "selected": "Projectes seleccionats:"
+          },
+          "decisions": {
+            "title": "Confirmar la decisió",
+            "description": "«{{ project }}» passarà a «{{ state }}». Vols aplicar-ho?",
+            "confirm": "Aplica"
+          },
+          "toasts": {
+            "statusUpdated": "L'estat de «{{ project }}» s'ha actualitzat.",
+            "statusNotUpdated": "No s'ha pogut actualitzar l'estat de «{{ project }}».",
+            "advisorAssigned": "«{{ advisor }}» ara és assessor de «{{ project }}».",
+            "advisorNotAssigned": "No s'ha pogut assignar l'assessor de «{{ project }}»."
+          },
+          "filter": {
+            "tooMany": "Hi ha massa projectes en aquest estat per filtrar la taula. Delimita el filtre amb dates.",
+            "tooManyProjects": "Hi ha {{ count }} projectes en aquest estat i el filtre n'admet fins a {{ max }}. Delimita el filtre amb dates o fes servir el llistat de projectes.",
+            "failed": "No s'ha pogut aplicar el filtre d'estat. Torna-ho a intentar."
           },
           "table": {
             "headers": {
