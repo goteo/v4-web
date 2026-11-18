@@ -8,10 +8,10 @@ Converted from CampaignCard.astro to maintain exact functionality
 
     import Clock from "../../components/icons/Clock.svelte";
     import { t } from "../../i18n/store";
-    import { apiAccountingsIdGet, type Money } from "../../openapi/client";
+    import { type Money } from "../../openapi/client";
+    import { fetchAccounting } from "../../utils/accountings";
     import { getDaysRemaining } from "../../utils/campaign";
     import { formatCurrency } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import { gte } from "../../utils/money";
     import { PUBLIC_STATUSES_TO_STATUSES } from "../../utils/projectStatus";
     import Flames from "../icons/status/Flames.svelte";
@@ -63,9 +63,9 @@ Converted from CampaignCard.astro to maintain exact functionality
 
     $effect(() => {
         if (fetched === undefined && !campaign.obtained && campaign.accounting) {
-            apiAccountingsIdGet({ path: { id: extractId(campaign.accounting)! } })
-                .then(({ data }) => {
-                    if (data?.balance) fetched = data.balance as Money;
+            fetchAccounting(campaign.accounting)
+                .then((accounting) => {
+                    if (accounting?.balance) fetched = accounting.balance as Money;
                 })
                 .catch((error) => console.error("Error fetching campaign balance:", error));
         }
