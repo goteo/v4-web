@@ -36,26 +36,31 @@ export interface OwnedCardAction {
     kind: "primary" | "secondary" | "ghost";
 }
 
+/**
+ * Destination of an owned-project card action. `undefined` hides the action: the advisory and
+ * review links need the project's latest review, which a project never sent to review lacks.
+ */
 export function projectActionHref(
     actionKey: string,
     project: Pick<Project, "id" | "slug">,
-): string {
+    reviewId?: number,
+): string | undefined {
     const idOrSlug = project.slug ?? project.id;
 
-    if (idOrSlug === undefined || idOrSlug === null || idOrSlug === "") {
-        return "#";
-    }
+    if (!idOrSlug) return undefined;
 
     switch (actionKey) {
+        // Publishing and sending to review are done from the editor's publish button
+        // (see PUBLISH_TRANSITIONS)
         case "actions.edit":
+        case "actions.publish":
+        case "actions.sendToReview":
             return `/project/${idOrSlug}/edit`;
         case "actions.manage":
             return `/project/${idOrSlug}/manage`;
-        case "actions.publish":
-            return `/project/${idOrSlug}/manage`;
-        case "actions.view":
+        case "actions.advisory":
         case "actions.viewReview":
-            return `/project/${idOrSlug}`;
+            return reviewId ? `/reviews/${reviewId}` : undefined;
         default:
             return `/project/${idOrSlug}`;
     }

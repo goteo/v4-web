@@ -40,7 +40,6 @@ Converted from CampaignCard.astro to maintain exact functionality
         size: CampaignSize;
         campaign: Campaign;
         showUserDonations?: boolean;
-        showOwnerActions?: boolean;
         ownedConfig?: OwnedCardConfig;
         class?: string;
     }
@@ -49,7 +48,6 @@ Converted from CampaignCard.astro to maintain exact functionality
         size,
         campaign,
         showUserDonations = false,
-        showOwnerActions = false,
         ownedConfig,
         class: className = "",
     }: Props = $props();
@@ -224,31 +222,18 @@ Converted from CampaignCard.astro to maintain exact functionality
                         </span>
                     </div>
                 {/if}
-
-                <!-- Owned project actions (status-based) -->
-                {#if ownedConfig?.actions}
-                    <div class="flex w-full flex-col gap-4 md:flex-row">
-                        {#each ownedConfig.actions as action}
-                            <Button kind={action.kind} href={action.href} class="flex-1">
-                                {action.label}
-                            </Button>
-                        {/each}
-                    </div>
-                {:else if showOwnerActions}
-                    <div class="flex w-full gap-4">
-                        <button
-                            class="border-secondary text-secondary hover:bg-secondary flex-1 rounded-3xl border px-4 py-4 text-base font-bold transition-colors hover:text-white"
-                        >
-                            {$t("pages.me.ownedProjects.messageToDonatorsButton")}
-                        </button>
-                        <button
-                            class="bg-variant1 text-secondary hover:bg-purple-soft flex-1 rounded-3xl px-4 py-4 text-base font-bold transition-colors"
-                        >
-                            {$t("pages.me.ownedProjects.uploadNewsButton")}
-                        </button>
-                    </div>
-                {/if}
             </div>
         </div>
     </a>
+
+    <!-- Owned project actions (status-based), outside the card link: anchors can't nest -->
+    {#if ownedConfig?.actions?.length}
+        <div class="mt-4 flex w-full flex-col gap-4 md:flex-row">
+            {#each ownedConfig.actions as action (action.key)}
+                <Button kind={action.kind} href={action.href} class="flex-1">
+                    {action.label}
+                </Button>
+            {/each}
+        </div>
+    {/if}
 </div>
