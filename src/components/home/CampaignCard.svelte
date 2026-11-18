@@ -83,7 +83,7 @@ Converted from CampaignCard.astro to maintain exact functionality
             campaign.status ?? "",
         ),
     );
-    const daysRemaining = $derived(getDaysRemaining(campaign.calendar));
+    const daysRemaining = $derived(getDaysRemaining(campaign));
     const hasMatchfunding = $derived(
         campaign.hasMatchfunding ?? !!campaign.matchCallSubmissions?.length,
     );
