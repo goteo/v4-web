@@ -44,13 +44,23 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
-    import { SvelteSet } from "svelte/reactivity";
 
+    import ReviewStatusDropdown from "./ReviewStatusDropdown.svelte";
     import { t, locale } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
     import { formatDate } from "../../../utils/dates";
-    import { projectStatusLabelKey, REVIEW_STATUSES_BY_TYPE } from "../../../utils/projectStatus";
-    import { RISK_SQUARE_CLASSES } from "../../../utils/review";
+    import {
+        CAMPAIGN_REVIEW_STATUSES,
+        REVIEW_STATUSES_BY_TYPE,
+    } from "../../../utils/projectStatus";
+    import {
+        CAMPAIGN_REVIEW_DECISIONS,
+        CAMPAIGN_REVIEW_DECISION_STATUSES,
+        CAMPAIGN_REVIEW_STATE_LABELS,
+        RISK_SQUARE_CLASSES,
+        campaignReviewDecision,
+        campaignReviewState,
+    } from "../../../utils/review";
     import Comments from "../../icons/Comments.svelte";
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import Button from "../../library/buttons/Button.svelte";
@@ -62,6 +72,7 @@
         type ProjectSortKey,
     } from "../projects/ProjectsTable.svelte";
 
+    import type { DropdownOption } from "../../library/dropdown/dropdown.types";
     import type { Snippet } from "svelte";
 
     interface Props {
@@ -74,8 +85,10 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: ProjectStatus) => Promise<void>;
+        onStatusChange?: (project: ReviewProjectRow, status: ProjectStatus) => void;
         onAssignAdvisor?: (project: ReviewProjectRow) => void;
+        /** Message shown when there are no rows, as an i18n key. */
+        emptyMessage?: string;
     }
 
     let {
@@ -90,20 +103,13 @@
         onSortChange,
         onStatusChange,
         onAssignAdvisor,
+        emptyMessage = "pages.admin.projects.table.rows.noData",
     }: Props = $props();
 
     let openRow = $state<number | null>(null);
 
-    const updatingStatus = new SvelteSet<number>();
-
-    async function handleStatusChange(projectId: number, status: ProjectStatus) {
-        updatingStatus.add(projectId);
-        try {
-            await onStatusChange?.(projectId, status);
-        } finally {
-            updatingStatus.delete(projectId);
-        }
-    }
+    const statusLabel = (status: string) =>
+        $t(`domain.project.status.${status.replaceAll(".", "_")}`);
 
     /**
      * Statuses a project can move to for the kind of review it is going through.
@@ -113,6 +119,59 @@
     function statusOptions(project: ReviewProjectRow): ProjectStatus[] {
         const base = REVIEW_STATUSES_BY_TYPE[project.reviewType ?? "campaign"];
         return project.status && !base.includes(project.status) ? [project.status, ...base] : base;
+    }
+
+    /** The three outcomes a consultant decides a campaign review with. */
+    let decisionOptions = $derived(
+        CAMPAIGN_REVIEW_DECISIONS.map((decision) => ({
+            value: CAMPAIGN_REVIEW_DECISION_STATUSES[decision],
+            label: $t(CAMPAIGN_REVIEW_STATE_LABELS[decision]),
+        })),
+    );
+
+    function canDecide(project: ReviewProjectRow): boolean {
+        return !!project.status && CAMPAIGN_REVIEW_STATUSES.includes(project.status);
+    }
+
+    function currentStateLabel(status?: string): string {
+        const state = campaignReviewState(status);
+        return state ? $t(CAMPAIGN_REVIEW_STATE_LABELS[state]) : status ? statusLabel(status) : "—";
+    }
+
+    /**
+     * Options of the status dropdown: the status the project holds plus, for a
+     * campaign review, the decisions that move it forward.
+     */
+    function statusDropdownOptions(project: ReviewProjectRow): DropdownOption[] {
+        if (project.reviewType === "financial") {
+            return statusOptions(project).map((status) => ({
+                id: status,
+                label: statusLabel(status),
+                selected: status === project.status,
+            }));
+        }
+
+        const options: DropdownOption[] = decisionOptions.map((option) => ({
+            id: option.value,
+            label: option.label,
+            selected: option.value === project.status,
+        }));
+
+        // Pending and "changes done" are not decisions yet, so the real state is
+        // added as the selected entry the trigger shows.
+        if (!campaignReviewDecision(project.status)) {
+            options.unshift({
+                id: project.status ?? "",
+                label: currentStateLabel(project.status),
+                selected: true,
+            });
+        }
+
+        return options;
+    }
+
+    function statusDropdownDisabled(project: ReviewProjectRow): boolean {
+        return project.reviewType === "financial" ? !project.status : !canDecide(project);
     }
 
     const date = (value: string) => (value ? formatDate(new Date(value), $locale) : "—");
@@ -142,7 +201,7 @@
     {headers}
     rows={projects}
     {isLoading}
-    emptyMessage="pages.admin.projects.table.rows.noData"
+    {emptyMessage}
     {currentPage}
     {totalItems}
     {itemsPerPage}
@@ -173,22 +232,18 @@
             {date(project.dateUpdated)}
         </TableBodyCell>
         <TableBodyCell class="border-variant1 border-t border-b p-4">
-            <div onclick={(e) => e.stopPropagation()} role="presentation">
-                <select
-                    class="border-secondary text-secondary bg-purple-soft w-full rounded-sm border py-1 text-sm disabled:opacity-50"
-                    value={project.status ?? ""}
-                    disabled={!project.status || updatingStatus.has(project.id)}
-                    aria-label={$t("pages.admin.reviews.projects.table.headers.status")}
-                    onchange={(e) =>
-                        handleStatusChange(project.id, e.currentTarget.value as ProjectStatus)}
-                >
-                    {#if !project.status}
-                        <option value="">—</option>
-                    {/if}
-                    {#each statusOptions(project) as status (status)}
-                        <option value={status}>{$t(projectStatusLabelKey(status))}</option>
-                    {/each}
-                </select>
+            <div
+                class="flex flex-col gap-2"
+                onclick={(e) => e.stopPropagation()}
+                role="presentation"
+            >
+                <ReviewStatusDropdown
+                    options={statusDropdownOptions(project)}
+                    value={project.status}
+                    label={currentStateLabel(project.status)}
+                    disabled={statusDropdownDisabled(project)}
+                    onChange={(status) => onStatusChange?.(project, status as ProjectStatus)}
+                />
             </div>
         </TableBodyCell>
         <TableBodyCell class="border-variant1 text-content border-t border-b p-4">
