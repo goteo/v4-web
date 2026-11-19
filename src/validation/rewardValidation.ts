@@ -3,8 +3,10 @@ import {
     zApiProjectRewardsPostBody,
 } from "../openapi/client/zod.gen";
 
-export const zCreateRewardForm = zApiProjectRewardsPostBody.superRefine((data, ctx) => {
-    if (data.title.length < 1) {
+import type { z } from "zod";
+
+function requireTexts(data: { title: string; description?: string | null }, ctx: z.RefinementCtx) {
+    if (!data.title.trim()) {
         ctx.addIssue({
             code: "custom",
             path: ["title"],
@@ -12,16 +14,17 @@ export const zCreateRewardForm = zApiProjectRewardsPostBody.superRefine((data, c
         });
     }
 
-    if (!data.description || data.description?.length < 1) {
+    if (!data.description?.trim()) {
         ctx.addIssue({
             code: "custom",
             path: ["description"],
             message: "system.validation.requiredField",
         });
     }
-});
+}
 
-export const zUpdateRewardForm = zApiProjectRewardsIdPatchBody.omit({
-    dateCreated: true,
-    dateUpdated: true,
-});
+export const zCreateRewardForm = zApiProjectRewardsPostBody.superRefine(requireTexts);
+
+export const zUpdateRewardForm = zApiProjectRewardsIdPatchBody
+    .omit({ dateCreated: true, dateUpdated: true })
+    .superRefine(requireTexts);
