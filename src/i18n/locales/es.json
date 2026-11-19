@@ -2335,6 +2335,10 @@
               "individual": "Individual",
               "organization": "Organización"
             },
+            "roles": {
+              "ROLE_USER": "Usuario",
+              "ROLE_ADMIN": "Administrador"
+            },
             "details": {
               "id": "ID",
               "handle": "Usuario",
@@ -2352,7 +2356,7 @@
               },
               "roles": {
                 "title": "Roles",
-                "placeholder": "Busca o escribe un rol",
+                "placeholder": "Busca un rol",
                 "save": "Guardar roles"
               }
             }

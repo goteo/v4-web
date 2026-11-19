@@ -150,7 +150,7 @@
         table.currentPage = 1;
     }
 
-    function handleRolesUpdated(id: number, roles: string[]): void {
+    function handleRolesUpdated(id: number, roles: UserRow["roles"]): void {
         const row = userRows.find((r) => r.id === id);
         if (row) row.roles = roles;
     }
