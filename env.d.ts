@@ -24,6 +24,11 @@ declare namespace App {
          * The detected session.
          */
         session: import("./src/auth/types").Session | undefined;
+
+        /**
+         * Set when the API did not answer its health check and the request was sent to `/500`.
+         */
+        apiDown?: boolean;
     }
 }
 

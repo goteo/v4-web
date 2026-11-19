@@ -1,0 +1,23 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import Logo from "../../../../components/admin/customize/logo/Logo.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
+import { headerLogoRepository } from "../../../../repositories/headerLogo";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/customize/logo";
+const navItems = getSubSections("/admin/customize");
+
+// The list backs the history tab; the editor itself always starts blank (new).
+const logos = await headerLogoRepository.getAll();
+---
+
+<Layout title={t("pages.admin.customize.logo.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <Logo client:load {logos} />
+        </WithSidebar>
+    </App>
+</Layout>

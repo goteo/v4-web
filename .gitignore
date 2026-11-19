@@ -27,12 +27,15 @@ openapi-ts*.log
 # vscode setting folder
 .vscode/
 
-# Claude Code
+# AI skills files
 CLAUDE.md
+AGENTS.md
 
 #Other
 yarn.lock
 .wrangler/
+
+./graphify-out
 
 .pnpm-store
 *storybook.log

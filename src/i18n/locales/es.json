@@ -121,6 +121,7 @@
         "reviewType": "Tipo de revisión",
         "project": "Proyecto",
         "reviewer": "Asesor",
+        "reviewState": "Estado de revisión",
         "userTerritoryCountry": "Ubicación"
       },
       "operator": {
@@ -269,6 +270,13 @@
         "low": "Riesgo bajo",
         "mid": "Riesgo medio",
         "high": "Riesgo alto"
+      },
+      "state": {
+        "pending": "Pendiente de revisión",
+        "changesRequested": "Necesita cambios",
+        "changesDone": "Cambios realizados",
+        "rejected": "Rechazado",
+        "approved": "Aprobado para campaña"
       }
     },
     "tipping": {
@@ -484,6 +492,7 @@
     "500": {
       "title": "Algo ha salido terriblemente mal",
       "subtitle": "Por favor, espera unos segundos antes de volver a intentarlo.",
+      "apiDown": "No hemos podido conectar con la API de Goteo. Por favor, espera unos segundos antes de volver a intentarlo.",
       "meta": {
         "title": "Condición inesperada para la solicitud",
         "description": "Error interno del servidor."
@@ -1411,7 +1420,8 @@
         "label": "Proyecto"
       },
       "status": {
-        "label": "Estado de la revisión"
+        "label": "Estado de la revisión",
+        "updated": "El estado de la revisión se ha actualizado."
       },
       "areas": {
         "title": "Áreas de riesgo",
@@ -1421,6 +1431,8 @@
         "seeChat": "Ver detalle",
         "changeRisk": "Cambiar riesgo",
         "changeStatus": "Cambiar estado",
+        "decide": "Decidir la revisión",
+        "changesDone": "He realizado los cambios",
         "back": "Volver a la revisión"
       },
       "card": {
@@ -1785,8 +1797,142 @@
         "description": "Elige qué partes del sitio se pueden editar desde aquí.",
         "tabs": {
           "footer": "Pie de página",
-          "colours": "Colores",
+          "colors": "Colores",
           "logo": "Logotipo"
+        },
+        "colors": {
+          "title": "Colores",
+          "description": "Personaliza la paleta de colores de la plataforma. Puedes escribir un valor hexadecimal o usar el selector de color.",
+          "save": "Guardar colores",
+          "picker": "Seleccionar {{ color }}",
+          "themes": {
+            "generic": "Genéricos",
+            "light": "Tema claro",
+            "dark": "Tema oscuro",
+            "genericDescription": "Estos colores se comparten entre el tema claro y el tema oscuro.",
+            "lightDescription": "Estos colores sólo se utilizan cuando el tema claro está activo.",
+            "darkDescription": "Estos colores sólo se utilizan cuando el tema oscuro está activo. El resto se configuran en la pestaña Genéricos."
+          },
+          "contrast": {
+            "title": "Accesibilidad y contraste",
+            "description": "Comprobamos el contraste WCAG AA entre los colores de texto y los fondos habituales. El mínimo recomendado es {{ minimum }}:1. Los avisos no impiden guardar: puedes aplicar cualquier combinación bajo tu responsabilidad.",
+            "warning": "Contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1).",
+            "warningWithTheme": "{{ theme }}: contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1)."
+          },
+          "reset": {
+            "button": "Restaurar valores",
+            "confirm": "¿Restaurar la paleta original? Se eliminarán todas las personalizaciones de color de ambos temas."
+          },
+          "feedback": {
+            "saved": "Colores guardados correctamente.",
+            "reset": "Paleta original restaurada correctamente."
+          },
+          "errors": {
+            "forbidden": "No tienes permisos para personalizar los colores.",
+            "invalid": "Revisa los colores marcados antes de guardar.",
+            "hex": "Usa el formato #RRGGBB o #RRGGBBAA."
+          },
+          "tokens": {
+            "primary": "Primario",
+            "secondary": "Secundario",
+            "tertiary": "Acento",
+            "content": "Texto de contenido",
+            "white": "Fondo principal",
+            "black": "Titulares",
+            "grey": "Gris de fondo",
+            "purple-soft": "Morado suave",
+            "purple-med": "Morado medio",
+            "overlay": "Superposición",
+            "variant1": "Variante 1",
+            "variant2": "Variante 2",
+            "variant3": "Variante 3",
+            "variant4": "Variante 4",
+            "semantic-error": "Fondo de error",
+            "semantic-success": "Fondo de éxito",
+            "semantic-notification": "Fondo de notificación",
+            "semantic-warning": "Fondo de advertencia"
+          }
+        },
+        "logo": {
+          "title": "Logotipo de la cabecera",
+          "description": "Sube el logo que se muestra en la cabecera de todas las páginas. Si no hay ninguno activo se usa el logo por defecto.",
+          "errors": {
+            "forbidden": "No tienes permisos para gestionar el logo de la cabecera",
+            "mediaRequired": "Sube una imagen para el logo"
+          },
+          "tabs": {
+            "new": "Nuevo",
+            "history": "Histórico"
+          },
+          "fields": {
+            "mediaTitle": "Logo",
+            "mediaLabel": "Imagen del logo",
+            "mediaHint": "Sube una imagen PNG, JPG o WebP, mejor con fondo transparente.",
+            "mediaAdd": "Añade el logo",
+            "altTextLabel": "Texto alternativo",
+            "altTextPlaceholder": "Describe el logo, por ejemplo «Goteo»"
+          },
+          "history": {
+            "title": "Histórico de logos",
+            "description": "Aquí puedes ver los logos subidos y eliminar los que ya no quieras usar. Al borrar el logo activo, la cabecera vuelve al anterior.",
+            "noData": "Todavía no has subido ningún logo. La cabecera usa el logo por defecto.",
+            "headers": {
+              "id": "ID",
+              "image": "Logo",
+              "altText": "Texto alternativo",
+              "status": "Estado"
+            },
+            "status": {
+              "active": "Actual",
+              "past": "Pasado"
+            },
+            "deleteModal": {
+              "title": "¿Borrar este logo?",
+              "description": "El logo se eliminará de forma permanente y dejará de mostrarse en la cabecera. Esta acción no se puede deshacer."
+            }
+          }
+        },
+        "footer": {
+          "title": "Pie de página",
+          "languageHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}.",
+          "saved": "Pie de página guardado",
+          "sections": {
+            "preview": "Vista previa",
+            "partners": "Logos",
+            "navigation": "Columnas de navegación",
+            "legal": "Enlaces legales",
+            "social": "Redes sociales"
+          },
+          "fields": {
+            "labelPlaceholder": "Texto del enlace",
+            "hrefPlaceholder": "/ruta o https://...",
+            "socialPlaceholder": "https://... o mailto:...",
+            "altPlaceholder": "Nombre de la organización",
+            "partnerHrefPlaceholder": "https://... (opcional)",
+            "titlePlaceholder": "Título"
+          },
+          "actions": {
+            "addColumn": "Añadir columna",
+            "addLink": "Añadir enlace",
+            "addSocial": "Añadir red social",
+            "addPartner": "Añadir logo",
+            "changeImage": "Cambiar imagen",
+            "moveUp": "Subir",
+            "moveDown": "Bajar",
+            "addGroup": "Añadir grupo de logos"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar el pie de página.",
+            "invalidUrl": "Hay un enlace no válido: usa una ruta (/...), https:// o mailto:.",
+            "missingText": "Falta algún texto en el idioma principal.",
+            "missingImage": "Falta la imagen de algún logo."
+          },
+          "previewHelp": "Así se verá el pie de página en el idioma seleccionado. Pulsa cualquier elemento para editarlo.",
+          "editColumn": "Editar columna",
+          "linkCount": "Enlaces: {{ count }}",
+          "editGroup": "Editar grupo de logos",
+          "logoCount": "Logos: {{ count }}",
+          "hideSection": "Ocultar en el pie de página"
         }
       },
       "slotCard": {
@@ -2327,6 +2473,22 @@
           "list": "Listado de proyectos:",
           "totalizers": {
             "selected": "Proyectos seleccionados:"
+          },
+          "decisions": {
+            "title": "Confirmar decisión",
+            "description": "«{{ project }}» pasará a «{{ state }}». ¿Quieres aplicarlo?",
+            "confirm": "Aplicar"
+          },
+          "toasts": {
+            "statusUpdated": "El estado de «{{ project }}» se ha actualizado.",
+            "statusNotUpdated": "No se ha podido actualizar el estado de «{{ project }}».",
+            "advisorAssigned": "«{{ advisor }}» es ahora asesor de «{{ project }}».",
+            "advisorNotAssigned": "No se ha podido asignar el asesor de «{{ project }}»."
+          },
+          "filter": {
+            "tooMany": "Demasiados proyectos en este estado para filtrar la tabla. Acota el filtro con fechas.",
+            "tooManyProjects": "Hay {{ count }} proyectos en este estado y el filtro admite hasta {{ max }}. Acota el filtro con fechas o usa el listado de proyectos.",
+            "failed": "No se ha podido aplicar el filtro de estado. Vuelve a intentarlo."
           },
           "table": {
             "headers": {

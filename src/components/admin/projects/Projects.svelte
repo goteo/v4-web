@@ -7,7 +7,6 @@
     import {
         apiProjectsGetCollection,
         apiProjectsIdPatch,
-        apiAccountingsIdGet,
         apiUsersIdOrHandleGet,
         apiProjectsGetCollectionUrl,
         apiProjectsmoneyTotalGetCollection,
@@ -15,6 +14,7 @@
         type Accounting,
         type User,
     } from "../../../openapi/client/index.ts";
+    import { fetchAccountingsByIds } from "../../../utils/accountings";
     import { useAdminTableState } from "../../../utils/adminTableState.svelte";
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
@@ -189,16 +189,16 @@
             const missingOwnerIris = uniqueOwnerIris.filter((iri) => !ownersCache.has(iri));
 
             const [accountingResults, ownerResults] = await Promise.all([
-                Promise.all(
-                    missingAccountingIris.map(async (iri) => {
-                        const accId = extractId(iri);
-                        if (!accId) return null;
-                        const { data } = await apiAccountingsIdGet({
-                            baseUrl: "/api/relay",
-                            path: { id: accId },
-                        });
-                        return data ? ([iri, data] as const) : null;
-                    }),
+                fetchAccountingsByIds(
+                    missingAccountingIris.map((iri) => extractId(iri)),
+                    { baseUrl: "/api/relay" },
+                ).then((accountings) =>
+                    missingAccountingIris
+                        .map((iri) => {
+                            const accounting = accountings.get(extractId(iri) ?? "");
+                            return accounting ? ([iri, accounting] as const) : null;
+                        })
+                        .filter((entry): entry is readonly [string, Accounting] => entry !== null),
                 ),
                 Promise.all(
                     missingOwnerIris.map(async (iri) => {
@@ -213,10 +213,7 @@
                 ),
             ]);
 
-            for (const [iri, accounting] of accountingResults.filter(Boolean) as [
-                string,
-                Accounting,
-            ][]) {
+            for (const [iri, accounting] of accountingResults) {
                 accountingsCache.set(iri, accounting);
             }
             for (const [iri, owner] of ownerResults.filter(Boolean) as [string, User][]) {
