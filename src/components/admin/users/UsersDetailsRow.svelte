@@ -15,9 +15,9 @@
     import Button from "../../library/buttons/Button.svelte";
     import DropdownSearch from "../../library/dropdown/DropdownSearch.svelte";
     import Toast from "../../library/feedback/Toast.svelte";
+    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
     import { chargeStatusStyles } from "../charges/ChargesTable.svelte";
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
-    import PasswordInput from "../../library/inputs/PasswordInput.svelte";
 
     import type { UserRow } from "./UsersTable.svelte";
     import type { DropdownOption } from "../../library/dropdown/dropdown.types";
@@ -267,7 +267,7 @@
     bind:open={rolesModal}
     title={$t("pages.admin.users.table.rows.details.roles.title")}
     dismissable={false}
-    class="relative max-w-lg overflow-visible"
+    class="backdrop:bg-overlay relative max-w-lg overflow-visible backdrop:backdrop-blur-[5px]"
     bodyClass="overflow-visible"
 >
     <button
@@ -334,7 +334,7 @@
     bind:open={chargesModal}
     title={$t("pages.admin.users.table.rows.details.recentCharges")}
     dismissable={false}
-    class="relative max-w-200"
+    class="backdrop:bg-overlay relative max-w-200 backdrop:backdrop-blur-[5px]"
 >
     <button
         type="button"

@@ -1,19 +1,21 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
 
+    interface Props {
+        children: Snippet;
+        text?: string;
+        duration?: number;
+        tooltipClass?: string;
+        className?: string;
+    }
+
     const {
         children,
         text = "¡Tooltip!",
         duration = 1000,
         tooltipClass,
         className = "",
-    } = $props<{
-        children: Snippet;
-        text?: string;
-        duration?: number;
-        tooltipClass?: string;
-        className?: string;
-    }>();
+    }: Props = $props();
 
     const baseClasses =
         "text-white text-sm px-2 rounded z-[9999] backdrop-blur-sm whitespace-nowrap";

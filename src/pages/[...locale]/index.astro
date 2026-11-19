@@ -47,10 +47,10 @@ const featuredUsers = await getFeaturedUsers(lang);
         <Campaigns />
         {latestPost && <Blog post={latestPost} />}
         <Stats />
-        <CampaignsTabs />
         <Matchfunding />
         <!-- Uncomment the matching import at the top when enabling either of these. -->
         <!-- <Stories client:load /> -->
+        <CampaignsTabs />
         {featuredUsers.length > 0 && <FeaturedUsers users={featuredUsers} client:visible />}
         <!-- <Resources /> -->
     </App>

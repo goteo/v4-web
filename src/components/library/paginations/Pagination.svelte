@@ -3,19 +3,21 @@
     import Chevron from "../../icons/navigation/Chevron.svelte";
     import PaginationNavButton from "../buttons/PaginationNavButton.svelte";
 
+    interface Props {
+        currentPage?: number;
+        totalItems?: number;
+        itemsPerPage?: number;
+        isLoading?: boolean;
+        onPageChange?: (page: number) => void;
+    }
+
     let {
         currentPage: currentPageProp = 1,
         totalItems: totalItemsProp = 0,
         itemsPerPage: itemsPerPageProp = 10,
         isLoading = false,
         onPageChange,
-    } = $props<{
-        currentPage?: number;
-        totalItems?: number;
-        itemsPerPage?: number;
-        isLoading?: boolean;
-        onPageChange?: (page: number) => void;
-    }>();
+    }: Props = $props();
 
     const totalPages = $derived(Math.max(1, Math.ceil(totalItemsProp / itemsPerPageProp)));
     const page = $derived(Math.min(Math.max(1, currentPageProp), totalPages));

@@ -4,7 +4,6 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import AdminHeader from "./AdminHeader.svelte";
-    import Footer from "./Footer.svelte";
     import Header from "./Header.svelte";
     import HeaderSubmenu from "./HeaderSubmenu.svelte";
     import MeHeader from "./MeHeader.svelte";
@@ -13,6 +12,7 @@
     import { CACHE_NAME } from "../openapi/cacheFetch";
     import { initCacheInterceptor } from "../openapi/cacheInterceptor";
     import { client } from "../openapi/client/client.gen";
+    import { recoverFormDrafts } from "../stores/formDraftsStore";
 
     import type { Session } from "../auth/types";
     import type { Locale } from "../i18n/locales";
@@ -130,6 +130,10 @@
 
     $effect(() => {
         locale.set(localeProp);
+
+        // The page has settled on its language: what was kept before a language switch comes
+        // back, and the copy in the storage is dropped.
+        recoverFormDrafts();
     });
 </script>
 
@@ -150,4 +154,3 @@
 >
     {@render children?.()}
 </main>
-<Footer />

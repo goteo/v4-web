@@ -4,9 +4,11 @@
 
     import type { Gateway } from "../../openapi/client";
 
-    const { gateways } = $props<{
+    interface Props {
         gateways: Gateway[];
-    }>();
+    }
+
+    const { gateways }: Props = $props();
 </script>
 
 <div class="flex flex-wrap gap-2">

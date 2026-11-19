@@ -45,6 +45,7 @@
         placeholder?: string;
         helperText?: string;
         error?: string;
+        disabled?: boolean;
         minChars?: number;
         debounceMs?: number;
         /** Wrap query matches in <mark> in the default row. */
@@ -80,6 +81,7 @@
         placeholder = undefined,
         helperText = undefined,
         error = undefined,
+        disabled = false,
         minChars = DEFAULT_MIN_CHARS,
         debounceMs = 300,
         highlight = true,
@@ -142,6 +144,11 @@
     function handleInput(event: Event) {
         value = (event.target as HTMLInputElement).value;
 
+        if (!multiple && selected.length > 0) {
+            selected = [];
+            onChange?.(selected);
+        }
+
         if (value.trim().length < minChars) {
             runSearch.cancel();
             controller?.abort();
@@ -154,6 +161,22 @@
 
         isOpen = true;
         runSearch(value);
+    }
+
+    function handleBlur(e: FocusEvent) {
+        // A result click moves focus into the dropdown; keep the typed query while open.
+        if (isOpen) {
+            onBlur?.(e);
+            return;
+        }
+
+        if (!multiple && value && selected.length === 0) {
+            handleClear();
+        } else if (multiple && value && results.length === 0 && !isLoading) {
+            value = "";
+        }
+
+        onBlur?.(e);
     }
 
     function handleSelect(picked: SearchResultItem) {
@@ -205,8 +228,18 @@
 </script>
 
 <div
-    class={twMerge("relative flex w-full flex-col gap-2", classes)}
-    use:clickOutside={() => (isOpen = false)}
+    class={twMerge("relative flex w-full flex-col gap-2", disabled && "opacity-50", classes)}
+    inert={disabled}
+    use:clickOutside={() => {
+        isOpen = false;
+        if (!multiple && value && selected.length === 0) {
+            handleClear();
+        } else if (multiple && value) {
+            value = "";
+            results = [];
+            hasSearched = false;
+        }
+    }}
 >
     {#if multiple && selected.length > 0}
         <div class="flex flex-wrap gap-2">
@@ -242,7 +275,7 @@
         onfocus={() => {
             if (results.length > 0) isOpen = true;
         }}
-        onblur={onBlur}
+        onblur={handleBlur}
         onclear={handleClear}
     />
 

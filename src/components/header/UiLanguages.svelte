@@ -3,6 +3,7 @@
 
     import { languagesList } from "../../i18n/locales";
     import { locale } from "../../i18n/store";
+    import { persistFormDrafts } from "../../stores/formDraftsStore";
     import { setCookie } from "../../utils/cookies";
     import { getLanguageDisplayName } from "../../utils/lang";
     import Chevron from "../icons/navigation/Chevron.svelte";
@@ -18,6 +19,10 @@
             console.error(`Language "${lang}" not supported.`);
             return;
         }
+
+        // The page is about to be replaced by one in another language, so what the forms
+        // hold is written down first.
+        persistFormDrafts();
 
         setCookie("preferred-lang", lang);
 

@@ -72,6 +72,8 @@ export const apiUsersIdpersonPatchUrl = '/v4/users/{id}/person';
 
 export const apiPingGetUrl = '/v4/ping';
 
+export const apiProjectsmoneyTotalGetCollectionUrl = '/v4/projects/money_total';
+
 export const apiProjectsIdDeleteUrl = '/v4/projects/{id}';
 
 export const apiProjectBudgetItemsGetCollectionUrl = '/v4/project_budget_items';

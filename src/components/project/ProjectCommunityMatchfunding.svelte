@@ -6,14 +6,18 @@
 </script>
 
 <button
-    class="border-grey flex w-full cursor-pointer overflow-hidden rounded-4xl border bg-white shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg"
+    class="flex w-full cursor-pointer overflow-hidden rounded-4xl bg-white text-left shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-lg"
     onclick={() => {
         selectedProjectSupport = item;
         openModal = true;
     }}
 >
-    <div class="bg-tertiary flex w-1/3 shrink-0 items-center justify-center p-6"></div>
-    <div class="flex w-2/3 flex-col gap-4 p-6">
+    <div class="bg-tertiary flex w-2/5 shrink-0 items-center justify-center p-6">
+        {#if item.displayImage}
+            <img src={item.displayImage} alt={item.displayName} class="max-h-full object-contain" />
+        {/if}
+    </div>
+    <div class="border-grey flex w-3/5 flex-col gap-4 rounded-r-4xl border border-l-0 p-6">
         <div class="flex flex-col items-end gap-1">
             <div class="text-sm font-bold text-black">
                 {$t("pages.project.view.tabs.community.contribution")}

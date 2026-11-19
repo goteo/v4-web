@@ -8,10 +8,10 @@ Converted from CampaignCard.astro to maintain exact functionality
 
     import Clock from "../../components/icons/Clock.svelte";
     import { t } from "../../i18n/store";
-    import { apiAccountingsIdGet, type Money } from "../../openapi/client";
+    import { type Money } from "../../openapi/client";
+    import { fetchAccounting } from "../../utils/accountings";
     import { getDaysRemaining } from "../../utils/campaign";
     import { formatCurrency } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import { gte } from "../../utils/money";
     import { PUBLIC_STATUSES_TO_STATUSES } from "../../utils/projectStatus";
     import Flames from "../icons/status/Flames.svelte";
@@ -40,7 +40,6 @@ Converted from CampaignCard.astro to maintain exact functionality
         size: CampaignSize;
         campaign: Campaign;
         showUserDonations?: boolean;
-        showOwnerActions?: boolean;
         ownedConfig?: OwnedCardConfig;
         class?: string;
     }
@@ -49,7 +48,6 @@ Converted from CampaignCard.astro to maintain exact functionality
         size,
         campaign,
         showUserDonations = false,
-        showOwnerActions = false,
         ownedConfig,
         class: className = "",
     }: Props = $props();
@@ -63,9 +61,9 @@ Converted from CampaignCard.astro to maintain exact functionality
 
     $effect(() => {
         if (fetched === undefined && !campaign.obtained && campaign.accounting) {
-            apiAccountingsIdGet({ path: { id: extractId(campaign.accounting)! } })
-                .then(({ data }) => {
-                    if (data?.balance) fetched = data.balance as Money;
+            fetchAccounting(campaign.accounting)
+                .then((accounting) => {
+                    if (accounting?.balance) fetched = accounting.balance as Money;
                 })
                 .catch((error) => console.error("Error fetching campaign balance:", error));
         }
@@ -83,7 +81,7 @@ Converted from CampaignCard.astro to maintain exact functionality
             campaign.status ?? "",
         ),
     );
-    const daysRemaining = $derived(getDaysRemaining(campaign.calendar));
+    const daysRemaining = $derived(getDaysRemaining(campaign));
     const hasMatchfunding = $derived(
         campaign.hasMatchfunding ?? !!campaign.matchCallSubmissions?.length,
     );
@@ -224,31 +222,18 @@ Converted from CampaignCard.astro to maintain exact functionality
                         </span>
                     </div>
                 {/if}
-
-                <!-- Owned project actions (status-based) -->
-                {#if ownedConfig?.actions}
-                    <div class="flex w-full flex-col gap-4 md:flex-row">
-                        {#each ownedConfig.actions as action}
-                            <Button kind={action.kind} href={action.href} class="flex-1">
-                                {action.label}
-                            </Button>
-                        {/each}
-                    </div>
-                {:else if showOwnerActions}
-                    <div class="flex w-full gap-4">
-                        <button
-                            class="border-secondary text-secondary hover:bg-secondary flex-1 rounded-3xl border px-4 py-4 text-base font-bold transition-colors hover:text-white"
-                        >
-                            {$t("pages.me.ownedProjects.messageToDonatorsButton")}
-                        </button>
-                        <button
-                            class="bg-variant1 text-secondary hover:bg-purple-soft flex-1 rounded-3xl px-4 py-4 text-base font-bold transition-colors"
-                        >
-                            {$t("pages.me.ownedProjects.uploadNewsButton")}
-                        </button>
-                    </div>
-                {/if}
             </div>
         </div>
     </a>
+
+    <!-- Owned project actions (status-based), outside the card link: anchors can't nest -->
+    {#if ownedConfig?.actions?.length}
+        <div class="mt-4 flex w-full flex-col gap-4 md:flex-row">
+            {#each ownedConfig.actions as action (action.key)}
+                <Button kind={action.kind} href={action.href} class="flex-1">
+                    {action.label}
+                </Button>
+            {/each}
+        </div>
+    {/if}
 </div>

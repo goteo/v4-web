@@ -8,6 +8,15 @@
     import Spinner from "../icons/status/Spinner.svelte";
     import Button from "../library/buttons/Button.svelte";
 
+    interface Props {
+        endpoint?: string;
+        queryParams?: Record<string, unknown>;
+        filenamePrefix?: string;
+        totalItems?: number;
+        size?: "sm" | "md";
+        disabled?: boolean;
+    }
+
     let {
         endpoint = "/v4/gateway_charges",
         queryParams = {},
@@ -15,14 +24,7 @@
         totalItems = undefined,
         size = "sm",
         disabled = false,
-    } = $props<{
-        endpoint?: string;
-        queryParams?: Record<string, unknown>;
-        filenamePrefix?: string;
-        totalItems?: number;
-        size?: "sm" | "md";
-        disabled?: boolean;
-    }>();
+    }: Props = $props();
 
     const iconSize = $derived(size === "md" ? "24" : "16");
 

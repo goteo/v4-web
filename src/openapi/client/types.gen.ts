@@ -13,6 +13,9 @@ export type ClientOptions = {
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
 export type Accounting = {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     id?: number;
     /**
      * IRI of the resource owning this Accounting.
@@ -35,14 +38,36 @@ export type Accounting = {
  * \
  * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
  */
-export type AccountingJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type AccountingCsv = {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
+    id?: number;
+    /**
+     * IRI of the resource owning this Accounting.
+     */
+    owner?: string;
+    ownerObject?: string;
+    /**
+     * The preferred currency for monetary operations.\
+     * 3-letter ISO 4217 currency code.
+     */
+    currency?: string;
+    balance?: MoneyOutputCsv;
+};
+
+/**
+ * v4 features an advanced economy model under the hood.
+ * Accountings are implemented as a common interface for issuing and receiving Transactions,
+ * which allows different resources to have money-capabalities.
+ * \
+ * \
+ * Many different actions can trigger changes in Accountings, such as GatewayCheckouts being successfully charged.
+ */
+export type AccountingJsonld = HydraItemBaseSchema & {
+    /**
+     * Collections can be filtered by one or many known IDs, e.g: `?id[]=1&id[]=2`.
+     */
     id?: number;
     /**
      * IRI of the resource owning this Accounting.
@@ -88,9 +113,32 @@ export type AccountingBalancePoint = {
  * Each point is the sum of money at incoming and outgoing transactions in an Accounting for a period of time,
  * you can query multiple balance points to obtain the evolution of the Accounting's balance over time.
  */
-export type AccountingBalancePointJsonld = {
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type AccountingBalancePointCsv = {
+    /**
+     * The start date for items aggregated in this point.
+     */
+    start?: string;
+    /**
+     * The end date for items aggregated in this point. Not inclusive.
+     */
+    end?: string;
+    /**
+     * Resulting balance for items in this point.
+     */
+    balance?: MoneyOutputCsv;
+    /**
+     * The number of items aggregated in this point.
+     */
+    length?: number;
+};
+
+/**
+ * AccountingBalancePoints represent a dated aggregate Accounting balance.\
+ * \
+ * Each point is the sum of money at incoming and outgoing transactions in an Accounting for a period of time,
+ * you can query multiple balance points to obtain the evolution of the Accounting's balance over time.
+ */
+export type AccountingBalancePointJsonld = HydraItemBaseSchema & {
     /**
      * The start date for items aggregated in this point.
      */
@@ -143,14 +191,32 @@ export type AccountingTransaction = {
  * \
  * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
  */
-export type AccountingTransactionJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type AccountingTransactionCsv = {
+    readonly id?: number;
+    /**
+     * The monetary value received at target and issued at origin.
+     */
+    money?: MoneyOutputCsv;
+    /**
+     * The Accounting from which the Transaction comes from.
+     */
+    origin?: string;
+    /**
+     * The Accounting where the Transaction goes to.
+     */
+    target?: string;
+};
+
+/**
+ * AccountingTransactions represent a movement of money from one Accounting (origin) into another (target).\
+ * \
+ * When a transaction targets an Accounting it means that the Accounting receives it, this will add to that Accounting.
+ * When a transaction originates from an Accounting the Accounting issues the transaction and it will deduct from it if,
+ * specially when the transaction comes from a GatewayCharge processed by the `wallet` Gateway.\
+ * \
+ * AccountingTransactions are generated for each GatewayCharge in a GatewayCheckout once it becomes successful.
+ */
+export type AccountingTransactionJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The monetary value received at target and issued at origin.
@@ -201,6 +267,11 @@ export type Address = {
      * e.g: ES (Spain).
      */
     country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
 };
 
 /**
@@ -237,48 +308,16 @@ export type AddressAddressCreationDto = {
      * e.g: ES (Spain).
      */
     country: string;
+    /**
+     * Whether this is the User's default Address.
+     */
+    isDefault?: boolean | null;
 };
 
 /**
  * Addresses represent named locations that postal services can reach.
  */
-export type AddressAddressCreationDtoJsonld = {
-    user: string;
-    /**
-     * First name(s) of the person receiving the shipment.
-     */
-    firstName: string;
-    /**
-     * Last name(s) of the person receiving the shipment.
-     */
-    lastName: string;
-    /**
-     * Line 1: usually street name and number.
-     */
-    line1: string;
-    /**
-     * Line 2: additional data like apartment number, door, etc.
-     */
-    line2?: string | null;
-    /**
-     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
-     */
-    city: string;
-    /**
-     * Postal/PIN/ZIP code to which the address lines belong.
-     */
-    postCode: string;
-    /**
-     * ISO 3166-1 alpha-2 two-letter country code.\
-     * e.g: ES (Spain).
-     */
-    country: string;
-};
-
-/**
- * Addresses represent named locations that postal services can reach.
- */
-export type AddressAddressUpdationDto = {
+export type AddressAddressUpdationDtoJsonMergePatch = {
     /**
      * First name(s) of the person receiving the shipment.
      */
@@ -308,19 +347,16 @@ export type AddressAddressUpdationDto = {
      * e.g: ES (Spain).
      */
     country?: string | null;
+    /**
+     * Whether this is the User's default Address.
+     */
+    isDefault?: boolean | null;
 };
 
 /**
  * Addresses represent named locations that postal services can reach.
  */
-export type AddressJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type AddressCsv = {
     readonly id?: number;
     user?: string;
     /**
@@ -352,6 +388,53 @@ export type AddressJsonld = {
      * e.g: ES (Spain).
      */
     country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
+};
+
+/**
+ * Addresses represent named locations that postal services can reach.
+ */
+export type AddressJsonld = HydraItemBaseSchema & {
+    readonly id?: number;
+    user?: string;
+    /**
+     * First name(s) of the person receiving the shipment.
+     */
+    firstName?: string;
+    /**
+     * Last name(s) of the person receiving the shipment.
+     */
+    lastName?: string;
+    /**
+     * Line 1: usually street name and number.
+     */
+    line1?: string;
+    /**
+     * Line 2: additional data like apartment number, door, etc.
+     */
+    line2?: string | null;
+    /**
+     * Name of the city, or the lowest-available type of settlement to which the address lines belong.
+     */
+    city?: string;
+    /**
+     * Postal/PIN/ZIP code to which the address lines belong.
+     */
+    postCode?: string;
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country?: string;
+    /**
+     * Whether this is the User's default Address. Each User has at most one default Address,
+     * setting it to `true` on one Address unsets it on the rest of the User's Addresses.
+     */
+    isDefault?: boolean;
 };
 
 export type Budget = {
@@ -365,14 +448,18 @@ export type Budget = {
     readonly optimum?: BudgetSummary;
 };
 
+export type BudgetCsv = {
+    /**
+     * A summary of the minimum budget. As described by items with specified minimum money.
+     */
+    readonly minimum?: BudgetSummaryCsv;
+    /**
+     * A summary of the optimum, minimum included, budget. As described by items with specified optimum money plus minimum money.
+     */
+    readonly optimum?: BudgetSummaryCsv;
+};
+
 export type BudgetJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * A summary of the minimum budget. As described by items with specified minimum money.
      */
@@ -402,14 +489,26 @@ export type BudgetSummary = {
     infra?: MoneyOutput;
 };
 
+export type BudgetSummaryCsv = {
+    /**
+     * The total money by the included items.
+     */
+    money?: MoneyOutputCsv;
+    /**
+     * The total money of type 'task'.
+     */
+    task?: MoneyOutputCsv;
+    /**
+     * The total money of type 'material'.
+     */
+    material?: MoneyOutputCsv;
+    /**
+     * The total money of type 'infrastructure'.
+     */
+    infra?: MoneyOutputCsv;
+};
+
 export type BudgetSummaryJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * The total money by the included items.
      */
@@ -461,14 +560,59 @@ export type Category = {
  * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
  */
-export type CategoryJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type CategoryCsv = {
+    /**
+     * This value will identify this Category in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Category.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Category is about.
+     */
+    name: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
+ * \
+ * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type CategoryJsonMergePatch = {
+    /**
+     * This value will identify this Category in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Category.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Category is about.
+     */
+    name?: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Category, like in books, is a way of grouping resources by type, genre, audience, or subject, for example:
+ * science-fiction, biography, fantasy, etc.\
+ * \
+ * Categories can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type CategoryJsonld = HydraItemBaseSchema & {
     /**
      * This value will identify this Category in relationships with other resources.
      */
@@ -515,48 +659,34 @@ export type ChargeCreationDto = {
     money: MoneyInput;
 };
 
-export type ChargeCreationDtoJsonld = {
-    /**
-     * How this item should be processed by the Gateway.\
-     * \
-     * `single` is for one time payments.\
-     * `recurring` is for payments repeated over time.
-     */
-    type: 'single' | 'recurring';
-    /**
-     * A short, descriptive string for this charge item.\
-     * May be displayed to the payer.
-     */
-    title: string;
-    /**
-     * Detailed information about the charge item.\
-     * May be displayed to the payer.
-     */
-    description?: string | null;
-    /**
-     * The Accounting receiving the money after a successful payment.
-     */
-    target: string;
-    /**
-     * The money to-be-paid for this item at the Gateway.
-     */
-    money: MoneyInputJsonld;
-};
-
 /**
  * Unprocessable entity
  */
-export type ConstraintViolationJson = {
+export type ConstraintViolation = {
     status?: number;
     violations?: Array<{
         /**
          * The property path of the violation
          */
-        propertyPath?: string;
+        propertyPath: string;
         /**
          * The message associated with the violation
          */
-        message?: string;
+        message: string;
+        /**
+         * The code of the violation
+         */
+        code?: string;
+        /**
+         * An extra hint to understand the violation
+         */
+        hint?: string;
+        /**
+         * The serialized payload of the violation
+         */
+        payload?: {
+            [key: string]: unknown;
+        };
     }>;
     readonly detail?: string;
     readonly type?: string;
@@ -567,24 +697,31 @@ export type ConstraintViolationJson = {
 /**
  * Unprocessable entity
  */
-export type ConstraintViolationJsonldJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ConstraintViolationJsonld = HydraItemBaseSchema & {
     status?: number;
     violations?: Array<{
         /**
          * The property path of the violation
          */
-        propertyPath?: string;
+        propertyPath: string;
         /**
          * The message associated with the violation
          */
-        message?: string;
+        message: string;
+        /**
+         * The code of the violation
+         */
+        code?: string;
+        /**
+         * An extra hint to understand the violation
+         */
+        hint?: string;
+        /**
+         * The serialized payload of the violation
+         */
+        payload?: {
+            [key: string]: unknown;
+        };
     }>;
     readonly detail?: string;
     readonly description?: string;
@@ -602,14 +739,16 @@ export type Conversion = {
     provider?: string;
 };
 
+export type ConversionCsv = {
+    rounding?: string;
+    from?: MoneyCsv;
+    to?: MoneyCsv;
+    rate?: number;
+    date?: string;
+    provider?: string;
+};
+
 export type ConversionJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     rounding?: string;
     from?: MoneyJsonld;
     to?: MoneyJsonld;
@@ -630,7 +769,7 @@ export type Error = {
      * A human-readable explanation specific to this occurrence of the problem.
      */
     readonly detail?: string | null;
-    status?: number;
+    status?: number | null;
     /**
      * A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.
      */
@@ -644,14 +783,7 @@ export type Error = {
 /**
  * A representation of common errors.
  */
-export type ErrorJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ErrorJsonld = HydraItemBaseSchema & {
     /**
      * A short, human-readable summary of the problem.
      */
@@ -660,7 +792,7 @@ export type ErrorJsonld = {
      * A human-readable explanation specific to this occurrence of the problem.
      */
     readonly detail?: string | null;
-    status?: number;
+    status?: number | null;
     /**
      * A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.
      */
@@ -698,14 +830,26 @@ export type Gateway = {
  * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
  * perform corroboration of funds and store the Transactions into the system.
  */
-export type GatewayJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type GatewayCsv = {
+    id?: string;
+    /**
+     * The publicly known name of this payment method.
+     */
+    name?: string;
+    /**
+     * The types of GatewayCheckout this Gateway can process.
+     */
+    supports?: Array<'single' | 'recurring'>;
+};
+
+/**
+ * Gateways represent payment services used to perform the necessary payments for Transactions between Accounts.\
+ * \
+ * For each Gateway there is an internal implementation that handles the creation and validation of Transactions between Accounts.
+ * These implementations make use of external or internal services to gather the funds that are inside a Transaction,
+ * perform corroboration of funds and store the Transactions into the system.
+ */
+export type GatewayJsonld = HydraItemBaseSchema & {
     id?: string;
     /**
      * The publicly known name of this payment method.
@@ -762,7 +906,7 @@ export type GatewayCharge = {
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export type GatewayChargeChargeUpdationDto = {
+export type GatewayChargeChargeUpdationDtoJsonMergePatch = {
     /**
      * The unique identifier for the GatewayCharge.
      */
@@ -790,9 +934,21 @@ export type GatewayChargeChargesTotalsDto = {
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export type GatewayChargeChargesTotalsDtoJsonld = {
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type GatewayChargeChargesTotalsDtoCsv = {
+    /**
+     * The number of distinct Projects targeted by the charges matching the filter set.
+     */
+    projects?: number;
+    /**
+     * The aggregated monetary value in the charges.
+     */
+    money?: TotalizedMoneyCsv;
+};
+
+/**
+ * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
+ */
+export type GatewayChargeChargesTotalsDtoJsonld = HydraItemBaseSchema & {
     /**
      * The number of distinct Projects targeted by the charges matching the filter set.
      */
@@ -806,14 +962,49 @@ export type GatewayChargeChargesTotalsDtoJsonld = {
 /**
  * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
  */
-export type GatewayChargeJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type GatewayChargeCsv = {
+    readonly id?: number | null;
+    /**
+     * The Checkout to which this Charge item belongs to.
+     */
+    checkout?: string;
+    /**
+     * How this item should be processed by the Gateway.\
+     * \
+     * `single` is for one time payments.\
+     * `recurring` is for payments repeated over time.
+     */
+    type: 'single' | 'recurring';
+    /**
+     * A short, descriptive string for this charge item.\
+     * May be displayed to the payer.
+     */
+    title: string;
+    /**
+     * Detailed information about the charge item.\
+     * May be displayed to the payer.
+     */
+    description?: string | null;
+    /**
+     * The Accounting receiving the money after a successful payment.
+     */
+    target: string;
+    /**
+     * The money to-be-paid for this item at the Gateway.
+     */
+    money: MoneyOutputCsv;
+    /**
+     * The status of the charge item with the Gateway.
+     */
+    readonly status?: 'to_charge' | 'in_charge' | 'to_refund' | 'refunded' | 'to_wallet' | 'walleted';
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A Charge represents a payment item to be included in a Checkout for payment at a Gateway.
+ */
+export type GatewayChargeJsonld = HydraItemBaseSchema & {
     readonly id?: number | null;
     /**
      * The Checkout to which this Charge item belongs to.
@@ -932,7 +1123,20 @@ export type GatewayCheckoutCheckoutCreationDto = {
 /**
  * A GatewayCheckout represents a payment session with a Gateway.
  */
-export type GatewayCheckoutCheckoutCreationDtoJsonld = {
+export type GatewayCheckoutCheckoutUpdationDtoJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The strategy chosen by the User to decide where the money will go to
+     * in the event that one Charge needs to be returned.
+     */
+    refund?: 'to_wallet' | 'to_gateway';
+};
+
+/**
+ * A GatewayCheckout represents a payment session with a Gateway.
+ */
+export type GatewayCheckoutCsv = {
+    readonly id?: number;
     /**
      * The desired Gateway to checkout with.
      */
@@ -944,7 +1148,7 @@ export type GatewayCheckoutCheckoutCreationDtoJsonld = {
     /**
      * A list of the payment items to be charged to the origin.
      */
-    charges: Array<ChargeCreationDtoJsonld>;
+    charges: Array<GatewayChargeCsv>;
     /**
      * Gateways will redirect the user back to the v4 API,
      * which will then redirect the user to this address.\
@@ -958,31 +1162,26 @@ export type GatewayCheckoutCheckoutCreationDtoJsonld = {
      * in the event that one Charge needs to be returned.
      */
     refund?: 'to_wallet' | 'to_gateway';
-};
-
-/**
- * A GatewayCheckout represents a payment session with a Gateway.
- */
-export type GatewayCheckoutCheckoutUpdationDto = {
-    readonly id?: number;
     /**
-     * The strategy chosen by the User to decide where the money will go to
-     * in the event that one Charge needs to be returned.
+     * The status of this Checkout, as confirmed by the Gateway.
      */
-    refund?: 'to_wallet' | 'to_gateway';
+    readonly status?: 'to_charge' | 'charged';
+    /**
+     * A list of related hyperlinks, as provided by the Gateway.
+     */
+    readonly links?: Array<GatewayLinkCsv>;
+    /**
+     * A list of related tracking codes and numbers, as provided by the Gateway.
+     */
+    readonly trackings?: Array<TrackingCsv>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
 };
 
 /**
  * A GatewayCheckout represents a payment session with a Gateway.
  */
-export type GatewayCheckoutJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type GatewayCheckoutJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The desired Gateway to checkout with.
@@ -1050,14 +1249,7 @@ export type GatewayLink = {
     readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
-export type GatewayLinkJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type GatewayLinkCsv = {
     /**
      * The HTTP method required to make the related call.
      */
@@ -1082,6 +1274,67 @@ export type GatewayLinkJsonld = {
     readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
+export type GatewayLinkJsonld = {
+    /**
+     * The HTTP method required to make the related call.
+     */
+    method?: string;
+    /**
+     * The type of the link indicates who is the intended user of a link.\
+     * `debug` links are for developers and platform maintainers to get useful information about the checkout.\
+     * `payment` links are for end-users who must visit this link to complete the checkout.
+     */
+    type?: 'debug' | 'payment';
+    /**
+     * The complete target URL.
+     */
+    url?: string;
+    /**
+     * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
+     */
+    rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
+};
+
+export type HydraCollectionBaseSchema = HydraCollectionBaseSchemaNoPagination & {
+    view?: {
+        '@id'?: string;
+        '@type'?: string;
+        first?: string | null;
+        last?: string | null;
+        previous?: string | null;
+        next?: string | null;
+    };
+};
+
+export type HydraCollectionBaseSchemaNoPagination = {
+    totalItems?: number;
+    search?: {
+        '@type'?: string;
+        template?: string;
+        variableRepresentation?: string;
+        mapping?: Array<{
+            '@type'?: string;
+            variable?: string;
+            property?: string | null;
+            required?: boolean;
+        }>;
+    };
+};
+
+export type HydraItemBaseSchema = {
+    '@context'?: string | {
+        '@vocab': string;
+        hydra: 'http://www.w3.org/ns/hydra/core#';
+        [key: string]: unknown;
+    };
+    '@id': string;
+    '@type': string;
+};
+
 export type Link = {
     /**
      * The complete target URL.
@@ -1097,14 +1350,22 @@ export type Link = {
     readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
 };
 
+export type LinkCsv = {
+    /**
+     * The complete target URL.
+     */
+    url?: string;
+    /**
+     * The link relation type, which serves as an ID for a link that unambiguously describes the semantics of the link.
+     */
+    rel?: string | null;
+    /**
+     * The known organization behind this link.
+     */
+    readonly org?: 'instagram' | 'facebook' | 'github' | 'linkedin' | 'identica' | 'unknown';
+};
+
 export type LinkJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * The complete target URL.
      */
@@ -1185,14 +1446,109 @@ export type MatchCall = {
  * which is a predefined implementation for common mathematical operations used to match money.
  * The formula is fine-tuned in the strategy by defining the variables in the formula.
  */
-export type MatchCallJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type MatchCallCsv = {
+    readonly id?: number;
+    /**
+     * The Accounting which holds and spends the funds for this MatchCall.
+     */
+    readonly accounting?: string;
+    /**
+     * The MatchStrategies define the matching behaviour for this MatchCall.
+     */
+    readonly strategies?: Array<string>;
+    /**
+     * A list of the MatchCallSubmissions received by this MatchCall.
+     */
+    readonly submissions?: Array<string>;
+    /**
+     * A list of Users who can modify this MatchCall.
+     */
+    managers?: Array<string>;
+    /**
+     * Main display title.
+     */
+    title: string;
+    /**
+     * Long-form secondary display text.
+     */
+    description?: string;
+    /**
+     * Codes for the territory of interest in this MatchCall.
+     */
+    territory: TerritoryCsv;
+    /**
+     * The current status of the MatchCall.
+     */
+    status?: 'in_editing' | 'in_calling' | 'in_matchmaking' | 'to_closed' | 'closed';
+};
+
+/**
+ * A MatchCall is a managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
+ * This means money going to a Project in a MatchCall can be matched with funds from the MatchCall accounting.
+ * \
+ * \
+ * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
+ * \
+ * \
+ * How and when does a MatchCall match funds is determined by the MatchStrategy.
+ * Everytime there is a Charge item going to a Project accepted in a MatchCall the strategy is evaluated for matching.
+ * The strategy defines a series of rules that determine if the Charge is eligible for triggering the matching of funds.
+ * When a Charge is to be matched the strategy uses a MatchFormula,
+ * which is a predefined implementation for common mathematical operations used to match money.
+ * The formula is fine-tuned in the strategy by defining the variables in the formula.
+ */
+export type MatchCallJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The Accounting which holds and spends the funds for this MatchCall.
+     */
+    readonly accounting?: string;
+    /**
+     * The MatchStrategies define the matching behaviour for this MatchCall.
+     */
+    readonly strategies?: Array<string>;
+    /**
+     * A list of the MatchCallSubmissions received by this MatchCall.
+     */
+    readonly submissions?: Array<string>;
+    /**
+     * A list of Users who can modify this MatchCall.
+     */
+    managers?: Array<string>;
+    /**
+     * Main display title.
+     */
+    title?: string;
+    /**
+     * Long-form secondary display text.
+     */
+    description?: string;
+    /**
+     * Codes for the territory of interest in this MatchCall.
+     */
+    territory?: Territory;
+    /**
+     * The current status of the MatchCall.
+     */
+    status?: 'in_editing' | 'in_calling' | 'in_matchmaking' | 'to_closed' | 'closed';
+};
+
+/**
+ * A MatchCall is a managed event which accepts MatchCallSubmissions from Projects to receive *matchfunding* financement.
+ * This means money going to a Project in a MatchCall can be matched with funds from the MatchCall accounting.
+ * \
+ * \
+ * MatchCallSubmissions from Projects can be accepted or rejected by the managers.
+ * \
+ * \
+ * How and when does a MatchCall match funds is determined by the MatchStrategy.
+ * Everytime there is a Charge item going to a Project accepted in a MatchCall the strategy is evaluated for matching.
+ * The strategy defines a series of rules that determine if the Charge is eligible for triggering the matching of funds.
+ * When a Charge is to be matched the strategy uses a MatchFormula,
+ * which is a predefined implementation for common mathematical operations used to match money.
+ * The formula is fine-tuned in the strategy by defining the variables in the formula.
+ */
+export type MatchCallJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The Accounting which holds and spends the funds for this MatchCall.
@@ -1265,28 +1621,47 @@ export type MatchCallSubmissionMatchCallSubmissionCreationDto = {
 /**
  * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
  */
-export type MatchCallSubmissionMatchCallSubmissionCreationDtoJsonld = {
+export type MatchCallSubmissionCsv = {
+    readonly id?: number;
     /**
      * The MatchCall to which this MatchCallSubmission belongs to.
      */
-    call: string;
+    readonly call?: string;
     /**
      * The Project that applied for the MatchCall.
      */
-    project: string;
+    readonly project?: string;
+    /**
+     * The status of the Project's application for the MatchCall.\
+     * Only MatchCallSubmissions with an status `accepted` will receive matchfunding.
+     */
+    status?: 'to_review' | 'in_review' | 'accepted' | 'rejected';
 };
 
 /**
  * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
  */
-export type MatchCallSubmissionJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type MatchCallSubmissionJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The MatchCall to which this MatchCallSubmission belongs to.
+     */
+    readonly call?: string;
+    /**
+     * The Project that applied for the MatchCall.
+     */
+    readonly project?: string;
+    /**
+     * The status of the Project's application for the MatchCall.\
+     * Only MatchCallSubmissions with an status `accepted` will receive matchfunding.
+     */
+    status?: 'to_review' | 'in_review' | 'accepted' | 'rejected';
+};
+
+/**
+ * MatchCallSubmissions represent the will of a Project to be held under a MatchCall and receive matchfunding financement.
+ */
+export type MatchCallSubmissionJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The MatchCall to which this MatchCallSubmission belongs to.
@@ -1319,14 +1694,19 @@ export type MatchFormula = {
  * A MatchFormula is a predefined code implementation for matching funds in Transactions under a MatchCall.
  * MatchFormulas can be chosen by the managers in a MatchCall and their behaviour fine-tuned.
  */
-export type MatchFormulaJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type MatchFormulaCsv = {
+    readonly name?: string;
+    /**
+     * The underlying math expressed as a common-notation formula.
+     */
+    readonly expression?: string;
+};
+
+/**
+ * A MatchFormula is a predefined code implementation for matching funds in Transactions under a MatchCall.
+ * MatchFormulas can be chosen by the managers in a MatchCall and their behaviour fine-tuned.
+ */
+export type MatchFormulaJsonld = HydraItemBaseSchema & {
     readonly name?: string;
     /**
      * The underlying math expressed as a common-notation formula.
@@ -1350,14 +1730,19 @@ export type MatchRule = {
  * A MatchRule is a predefined code implementation for validating
  * that a match making condition is met when there is a Charge to be matched.
  */
-export type MatchRuleJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type MatchRuleCsv = {
+    readonly name?: string;
+    /**
+     * A plain-text description about what the rules validates for.
+     */
+    readonly description?: string;
+};
+
+/**
+ * A MatchRule is a predefined code implementation for validating
+ * that a match making condition is met when there is a Charge to be matched.
+ */
+export type MatchRuleJsonld = HydraItemBaseSchema & {
     readonly name?: string;
     /**
      * A plain-text description about what the rules validates for.
@@ -1422,14 +1807,101 @@ export type MatchStrategy = {
  * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
  * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
  */
-export type MatchStrategyJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type MatchStrategyCsv = {
+    readonly id?: number;
+    /**
+     * The MatchCall to which this strategy belongs to.
+     */
+    call: string;
+    /**
+     * The ranking is the index order of this strategy among the others of the MatchCall
+     * when this is up for match making. The ranking value of items will be sorted
+     * after each change in the number of strategies or the ranking values.
+     */
+    ranking?: number;
+    /**
+     * The MatchRules used to decide if the match making strategy should be executed or not.
+     */
+    rules?: Array<string>;
+    /**
+     * The MatchFormula used to calculate matched funds.
+     */
+    formula: string;
+    /**
+     * The assigned maximum amount of funding that will be given by the MatchFormula per operation.
+     */
+    limit: MoneyInputCsv;
+    /**
+     * The `x` factor used to calculate the resulting match of funds with the MatchFormula.
+     */
+    factor: number;
+    /**
+     * The money to be matched by the formula is
+     * - `charge` the money in the Charge item
+     * - `budget_min` the minimum in the Project's budget
+     * - `budget_opt` the optimum in the Project's budget.
+     */
+    against?: 'charge' | 'budget_min' | 'budget_opt';
+};
+
+/**
+ * A MatchStrategy defines how will a MatchCall perform the match-making process.
+ * \
+ * The match-making flow is:
+ * 1. A Project accepted in a MatchCall receives a successful Charge.
+ * 2. The match-making loads the MatchCall's MatchStrategies.
+ * 3. For each MatchStrategy the rules are executed, if one rule fails the match-making is cancelled for the strategy.
+ * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
+ */
+export type MatchStrategyJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The MatchCall to which this strategy belongs to.
+     */
+    call?: string;
+    /**
+     * The ranking is the index order of this strategy among the others of the MatchCall
+     * when this is up for match making. The ranking value of items will be sorted
+     * after each change in the number of strategies or the ranking values.
+     */
+    ranking?: number;
+    /**
+     * The MatchRules used to decide if the match making strategy should be executed or not.
+     */
+    rules?: Array<string>;
+    /**
+     * The MatchFormula used to calculate matched funds.
+     */
+    formula?: string;
+    /**
+     * The assigned maximum amount of funding that will be given by the MatchFormula per operation.
+     */
+    limit?: MoneyInput;
+    /**
+     * The `x` factor used to calculate the resulting match of funds with the MatchFormula.
+     */
+    factor?: number;
+    /**
+     * The money to be matched by the formula is
+     * - `charge` the money in the Charge item
+     * - `budget_min` the minimum in the Project's budget
+     * - `budget_opt` the optimum in the Project's budget.
+     */
+    against?: 'charge' | 'budget_min' | 'budget_opt';
+};
+
+/**
+ * A MatchStrategy defines how will a MatchCall perform the match-making process.
+ * \
+ * The match-making flow is:
+ * 1. A Project accepted in a MatchCall receives a successful Charge.
+ * 2. The match-making loads the MatchCall's MatchStrategies.
+ * 3. For each MatchStrategy the rules are executed, if one rule fails the match-making is cancelled for the strategy.
+ * 3. The first valid MatchStrategy's formula function is passed the respective limit, factor and money of the MatchAgainst.
+ * 4. The result of the MatchStrategy formula function execution is put in a Transaction from the MatchCall to the Project.
+ */
+export type MatchStrategyJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The MatchCall to which this strategy belongs to.
@@ -1472,14 +1944,13 @@ export type Money = {
     conversion?: Conversion | null;
 };
 
+export type MoneyCsv = {
+    amount?: number;
+    currency?: string;
+    conversion?: ConversionCsv | null;
+};
+
 export type MoneyJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     amount?: number;
     currency?: string;
     conversion?: ConversionJsonld | null;
@@ -1497,14 +1968,19 @@ export type MoneyInput = {
     currency: string;
 };
 
+export type MoneyInputCsv = {
+    /**
+     * An amount of currency.\
+     * Expressed as the minor unit, e.g: cents, pennies, etc.
+     */
+    amount: number;
+    /**
+     * 3-letter ISO 4217 currency code.
+     */
+    currency: string;
+};
+
 export type MoneyInputJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * An amount of currency.\
      * Expressed as the minor unit, e.g: cents, pennies, etc.
@@ -1532,14 +2008,23 @@ export type MoneyOutput = {
     conversion?: Conversion | null;
 };
 
+export type MoneyOutputCsv = {
+    /**
+     * An amount of currency.\
+     * Expressed as the minor unit, e.g: cents, pennies, etc.
+     */
+    amount: number;
+    /**
+     * 3-letter ISO 4217 currency code.
+     */
+    currency: string;
+    /**
+     * Conversion metadata.
+     */
+    conversion?: ConversionCsv | null;
+};
+
 export type MoneyOutputJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * An amount of currency.\
      * Expressed as the minor unit, e.g: cents, pennies, etc.
@@ -1581,6 +2066,18 @@ export type Organization = {
      * Will be used as display name for the User when present.
      */
     businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
 };
 
 /**
@@ -1591,14 +2088,7 @@ export type Organization = {
  * All Organization records are only visible to their respective owners and platform admins.
  * Sensitive data is encrypted before being stored in the database.
  */
-export type OrganizationJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type OrganizationCsv = {
     readonly user?: string;
     /**
      * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
@@ -1616,6 +2106,98 @@ export type OrganizationJsonld = {
      * Will be used as display name for the User when present.
      */
     businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
+};
+
+/**
+ * Sometimes an Organization is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an individual, to exist all at the same level.\
+ * \
+ * All Organization records are only visible to their respective owners and platform admins.
+ * Sensitive data is encrypted before being stored in the database.
+ */
+export type OrganizationJsonMergePatch = {
+    readonly user?: string;
+    /**
+     * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
+     */
+    taxId?: string;
+    /**
+     * Organization legal name before government,
+     * as it appears on legal documents issued by or for this organization.\
+     * Will be used as last option for the display name of the User.
+     */
+    legalName?: string;
+    /**
+     * The name under which the organization presents itself.\
+     * Might be similar to the legal name or completely different.\
+     * Will be used as display name for the User when present.
+     */
+    businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
+};
+
+/**
+ * Sometimes an Organization is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an individual, to exist all at the same level.\
+ * \
+ * All Organization records are only visible to their respective owners and platform admins.
+ * Sensitive data is encrypted before being stored in the database.
+ */
+export type OrganizationJsonld = HydraItemBaseSchema & {
+    readonly user?: string;
+    /**
+     * Organization ID for tax purposes. e.g: NIF (formerly CIF), Umsatzsteuer-Id, EID, etc.
+     */
+    taxId: string;
+    /**
+     * Organization legal name before government,
+     * as it appears on legal documents issued by or for this organization.\
+     * Will be used as last option for the display name of the User.
+     */
+    legalName: string;
+    /**
+     * The name under which the organization presents itself.\
+     * Might be similar to the legal name or completely different.\
+     * Will be used as display name for the User when present.
+     */
+    businessName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Legal form under which the organization is constituted.
+     */
+    legalForm?: 'association' | 'foundation' | 'cooperative' | 'company' | 'self_employed' | 'public_administration' | 'other' | null;
+    /**
+     * Is the organization a public entity? e.g: city councils, public universities, etc.
+     */
+    publicEntity?: boolean;
 };
 
 /**
@@ -1642,6 +2224,18 @@ export type Person = {
      * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
 };
 
 /**
@@ -1652,14 +2246,7 @@ export type Person = {
  * All Person records are only visible to their respective owners and platform admins.
  * Sensitive personal data is encrypted before being stored in the database.
  */
-export type PersonJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type PersonCsv = {
     readonly user?: string;
     /**
      * Personal ID for tax purposes. e.g: NIF, Steuer-ID, SSN, ITIN, etc.
@@ -1675,6 +2262,94 @@ export type PersonJsonld = {
      * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
      */
     lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
+};
+
+/**
+ * Most times a real person is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an organization, to exist all at the same level.\
+ * \
+ * All Person records are only visible to their respective owners and platform admins.
+ * Sensitive personal data is encrypted before being stored in the database.
+ */
+export type PersonJsonMergePatch = {
+    readonly user?: string;
+    /**
+     * Personal ID for tax purposes. e.g: NIF, Steuer-ID, SSN, ITIN, etc.
+     */
+    taxId?: string;
+    /**
+     * First-part of the name of the person,
+     * in most western conventions this is the given name(s). e.g: John, Juan, etc.
+     */
+    firstName?: string;
+    /**
+     * Last-part of the name of the person,
+     * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
+     */
+    lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
+};
+
+/**
+ * Most times a real person is behind a User account,
+ * we keep their data separated from the User record to allow for other User types,
+ * like the ones owned by an organization, to exist all at the same level.\
+ * \
+ * All Person records are only visible to their respective owners and platform admins.
+ * Sensitive personal data is encrypted before being stored in the database.
+ */
+export type PersonJsonld = HydraItemBaseSchema & {
+    readonly user?: string;
+    /**
+     * Personal ID for tax purposes. e.g: NIF, Steuer-ID, SSN, ITIN, etc.
+     */
+    taxId?: string;
+    /**
+     * First-part of the name of the person,
+     * in most western conventions this is the given name(s). e.g: John, Juan, etc.
+     */
+    firstName?: string;
+    /**
+     * Last-part of the name of the person,
+     * in most western conventions this is the family name(s). e.g: Smith, Herrera, etc.
+     */
+    lastName?: string;
+    /**
+     * The kind of document the tax ID belongs to.
+     */
+    taxIdType?: 'national_id' | 'passport' | 'other' | null;
+    /**
+     * Year of birth of the person. e.g: 1990.
+     */
+    birthYear?: number | null;
+    /**
+     * Gender of the person.
+     */
+    gender?: 'female' | 'male' | 'non_binary' | 'other' | null;
 };
 
 export type Ping = {
@@ -1685,14 +2360,15 @@ export type Ping = {
     message?: string;
 };
 
-export type PingJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type PingCsv = {
+    /**
+     * The req-res time difference in milliseconds.
+     */
+    time?: number;
+    message?: string;
+};
+
+export type PingJsonld = HydraItemBaseSchema & {
     /**
      * The req-res time difference in milliseconds.
      */
@@ -1843,38 +2519,7 @@ export type ProjectProjectCreationDto = {
 /**
  * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
  */
-export type ProjectProjectCreationDtoJsonld = {
-    /**
-     * Main headline for the Project. Must include at least one character between a-Z.
-     */
-    title: string;
-    /**
-     * Secondary headline for the Project.
-     */
-    subtitle: string;
-    /**
-     * List of Categories.
-     */
-    categories: Array<string>;
-    /**
-     * List of Themes.
-     */
-    themes?: Array<string>;
-    /**
-     * ISO 3166 data about the Project's territory of interest.
-     */
-    territory: TerritoryJsonld;
-    /**
-     * Deadlines and important Project dates.
-     */
-    calendar: ProjectCalendarJsonld;
-    readonly status?: 'in_draft' | 'to_campaign_review' | 'in_campaign_review' | 'in_campaign_review.to_change' | 'in_campaign_review.to_review' | 'campaign_review.rejected' | 'to_campaign' | 'in_campaign' | 'campaign.failed' | 'campaign.cancelled' | 'to_funding_review' | 'in_funding_review' | 'in_funding_review.to_change' | 'in_funding_review.to_review' | 'funding_review.rejected' | 'to_funding' | 'in_funding' | 'funding.paid';
-};
-
-/**
- * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
- */
-export type ProjectProjectUpdationDto = {
+export type ProjectProjectUpdationDtoJsonMergePatch = {
     readonly id?: number;
     /**
      * Main headline for the Project.
@@ -1939,14 +2584,143 @@ export type ProjectProjectUpdationDto = {
 /**
  * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
  */
-export type ProjectJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectTotalizedMoney = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoneyCsv = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectTotalizedMoneyJsonld = HydraItemBaseSchema & {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectCsv = {
+    readonly id?: number;
+    /**
+     * A unique, non white space, string identifier for this Project.
+     */
+    readonly slug?: string;
+    /**
+     * The Accounting holding the funds raised by this Project.
+     */
+    readonly accounting?: string;
+    /**
+     * The User who owns this Project.
+     */
+    readonly owner?: string;
+    /**
+     * Main headline for the Project.
+     */
+    title: string;
+    /**
+     * Secondary headline for the Project.
+     */
+    subtitle: string;
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    cover?: string;
+    /**
+     * On `minimum`, Project will campaign until the minimum deadline.\
+     * On `optimum`, Project will campaing until the minimum deadline,
+     * and then until the optimum deadline if it did raise the minimum.
+     */
+    readonly deadline?: 'minimum' | 'optimum';
+    /**
+     * Deadlines and important Project dates.
+     */
+    readonly calendar?: ProjectCalendarCsv;
+    /**
+     * A list of the available Categories of this Project.
+     */
+    categories: Array<string>;
+    /**
+     * A list of the available Themes of this Project.
+     */
+    themes: Array<string>;
+    /**
+     * ISO 3166 data about the Project's territory of interest.
+     */
+    territory: TerritoryCsv;
+    /**
+     * Rich-text (markdown) introduction to the project.
+     */
+    descBrief?: string;
+    /**
+     * Rich-text (markdown) description on the main features of the project.
+     */
+    descAbout?: string;
+    /**
+     * Rich-text (markdown) about why this project is important.
+     */
+    descGoal?: string;
+    /**
+     * Rich-text (markdown) about team and previous experience.
+     */
+    descTeam?: string;
+    /**
+     * Extracted embedding data from the Project's video.
+     */
+    readonly video?: ProjectVideoCsv;
+    /**
+     * The status of a Project represents how far it is in it's life-cycle.
+     */
+    status?: 'in_draft' | 'to_campaign_review' | 'in_campaign_review' | 'in_campaign_review.to_change' | 'in_campaign_review.to_review' | 'campaign_review.rejected' | 'to_campaign' | 'in_campaign' | 'campaign.failed' | 'campaign.cancelled' | 'to_funding_review' | 'in_funding_review' | 'in_funding_review.to_change' | 'in_funding_review.to_review' | 'funding_review.rejected' | 'to_funding' | 'in_funding' | 'funding.paid';
+    /**
+     * List of the ProjectRewards this Project offers.
+     */
+    readonly rewards?: Array<string>;
+    /**
+     * A detailed breakdown of the budget for this Project, as described by the associated BudgetItems.
+     */
+    readonly budget?: BudgetCsv;
+    /**
+     * A list of the BudgetItems composing the budget of this Project.
+     */
+    readonly budgetItems?: Array<string>;
+    /**
+     * A list of the ProjectCollaborations this Project has.
+     */
+    readonly collaborations?: Array<string>;
+    /**
+     * A list of the ProjectUpdates this Project has.
+     */
+    readonly updates?: Array<string>;
+    readonly matchCallSubmissions?: Array<string>;
+    /**
+     * A list of URLs related to the Project.\
+     * e.g: social profiles, project website.
+     */
+    readonly links?: Array<LinkCsv>;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * Projects describe a User-owned, community-led event that is to be discovered, developed and funded by the community.
+ */
+export type ProjectJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * A unique, non white space, string identifier for this Project.
@@ -2091,14 +2865,75 @@ export type ProjectBudgetItem = {
  * \
  * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
  */
-export type ProjectBudgetItemJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectBudgetItemCsv = {
+    readonly id?: number;
+    project: string;
+    /**
+     * The type of need this item solves.
+     */
+    type: 'infrastructure' | 'material' | 'task';
+    /**
+     * A short, descriptive string for the item.
+     */
+    title: string;
+    /**
+     * Detailed information about the item.
+     */
+    description: string;
+    /**
+     * The amount of money required for this item.
+     */
+    money: MoneyInputCsv;
+    /**
+     * Defines the budget category for this item within the project.
+     */
+    deadline: 'minimum' | 'optimum';
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Project's budget is composed via BudgetItem records.\
+ * \
+ * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
+ */
+export type ProjectBudgetItemJsonMergePatch = {
+    readonly id?: number;
+    project?: string;
+    /**
+     * The type of need this item solves.
+     */
+    type?: 'infrastructure' | 'material' | 'task';
+    /**
+     * A short, descriptive string for the item.
+     */
+    title?: string;
+    /**
+     * Detailed information about the item.
+     */
+    description?: string;
+    /**
+     * The amount of money required for this item.
+     */
+    money?: MoneyInput;
+    /**
+     * Defines the budget category for this item within the project.
+     */
+    deadline?: 'minimum' | 'optimum';
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Project's budget is composed via BudgetItem records.\
+ * \
+ * Each BudgetItem describes one specific monetary necessity. The total budget of a Project is then calculated from the related BudgetItems.
+ */
+export type ProjectBudgetItemJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     project: string;
     /**
@@ -2144,14 +2979,24 @@ export type ProjectCalendar = {
     optimum?: string | null;
 };
 
+export type ProjectCalendarCsv = {
+    /**
+     * Public campaign start date.
+     */
+    release: string | null;
+    /**
+     * The minimum budget must be raised by the end of this date,
+     * failure to do so will move the Project out of status `in_campaign` into status `unfunded`.
+     */
+    minimum?: string | null;
+    /**
+     * If the Project achieved their minimum budget by the minimum deadline,
+     * and this deadline is defined, it may still remain `in_campaign` to raise the optimum.
+     */
+    optimum?: string | null;
+};
+
 export type ProjectCalendarJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * Public campaign start date.
      */
@@ -2200,14 +3045,65 @@ export type ProjectCollaboration = {
 /**
  * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
  */
-export type ProjectCollaborationJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectCollaborationCsv = {
+    readonly id?: number;
+    /**
+     * The Project which requests this collaboration.
+     */
+    project: string;
+    /**
+     * A short, descriptive title for this collaboration.
+     */
+    title: string;
+    /**
+     * Information about this collaboration. More detailed than the title.
+     */
+    description: string;
+    /**
+     * Wether or not the collaboration's problem has been solved.
+     */
+    isFulfilled: boolean;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
+ */
+export type ProjectCollaborationJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The Project which requests this collaboration.
+     */
+    project?: string;
+    /**
+     * A short, descriptive title for this collaboration.
+     */
+    title?: string;
+    /**
+     * Information about this collaboration. More detailed than the title.
+     */
+    description?: string;
+    /**
+     * Wether or not the collaboration's problem has been solved.
+     */
+    isFulfilled?: boolean;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectCollaborations are used as requests for help on specific problems that the Project might face and cannot be budgeted-in.
+ */
+export type ProjectCollaborationJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The Project which requests this collaboration.
@@ -2261,14 +3157,57 @@ export type ProjectCollaborationCandidacy = {
 /**
  * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
  */
-export type ProjectCollaborationCandidacyJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectCollaborationCandidacyCsv = {
+    readonly id?: number;
+    /**
+     * The ProjectCollaboration to which this candidacy is applying to.
+     */
+    collaboration: string;
+    /**
+     * The User applying to fill for the ProjectCollaboration.
+     */
+    user: string;
+    /**
+     * Information about this candidacy.
+     */
+    description: string;
+    /**
+     * Life-cycle status of the candidacy.
+     */
+    status: 'to_review' | 'in_review' | 'rejected' | 'approved';
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export type ProjectCollaborationCandidacyJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The ProjectCollaboration to which this candidacy is applying to.
+     */
+    collaboration?: string;
+    /**
+     * The User applying to fill for the ProjectCollaboration.
+     */
+    user?: string;
+    /**
+     * Information about this candidacy.
+     */
+    description?: string;
+    /**
+     * Life-cycle status of the candidacy.
+     */
+    status?: 'to_review' | 'in_review' | 'rejected' | 'approved';
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectCollaborationsCandidacies represent one User's willingness to fill in for a ProjectCollaboration.
+ */
+export type ProjectCollaborationCandidacyJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The ProjectCollaboration to which this candidacy is applying to.
@@ -2320,14 +3259,47 @@ export type ProjectReview = {
  * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
  * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
  */
-export type ProjectReviewJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectReviewCsv = {
+    readonly id?: number;
+    project?: string;
+    reviewer?: string;
+    type?: 'campaign' | 'financial';
+    areas?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export type ProjectReviewJsonMergePatch = {
+    readonly id?: number;
+    project?: string;
+    reviewer?: string;
+    type?: 'campaign' | 'financial';
+    areas?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviews are launched as health-checks for Projects.\
+ * \
+ * The reviews are focused on certain aspects of a Project's lifecycle. The types `campaign` and `financial` reviews
+ * are to evaluate the fitness of a Project before being greenlit for campaigning or the legitimacy of their raised funds, respectively.\
+ * \
+ * ProjectReview resources cannot be manually created, they are created automatically when a Project moves into a "to review" status:
+ * - `to_campaign_review`: will launch a related ProjectReview of `campaign` type
+ * - `to_financial_review`: will launch a related ProjectReview of `financial` type.
+ */
+export type ProjectReviewJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     project?: string;
     reviewer?: string;
@@ -2362,14 +3334,43 @@ export type ProjectReviewArea = {
  * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
  * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
  */
-export type ProjectReviewAreaJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectReviewAreaCsv = {
+    readonly id?: number;
+    review?: string;
+    title?: string;
+    summary?: string;
+    risk?: 'low' | 'mid' | 'high';
+    comments?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export type ProjectReviewAreaJsonMergePatch = {
+    readonly id?: number;
+    review?: string;
+    title?: string;
+    summary?: string;
+    risk?: 'low' | 'mid' | 'high';
+    comments?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReviewArea represents one specific topic of evaluation for ProjectReviews.\
+ * \
+ * Conversations, feedback and evolution of the ProjectReview must happen around specific areas of review.\
+ * Each area holds an associated risk, which represents the trust the reviewer has for the reviewed Project's health in that area,
+ * areas can only be updated by the assigned reviewer or an user with `ROLE_ADMIN`.
+ */
+export type ProjectReviewAreaJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     review?: string;
     title?: string;
@@ -2395,14 +3396,19 @@ export type ProjectReviewComment = {
 /**
  * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
  */
-export type ProjectReviewCommentJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectReviewCommentCsv = {
+    readonly id?: number;
+    area: string;
+    author: string;
+    body: string;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * ProjectReviewComments hold the conversation between the reviewer and the reviewed Project owner.
+ */
+export type ProjectReviewCommentJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     area: string;
     author: string;
@@ -2468,14 +3474,115 @@ export type ProjectReward = {
 /**
  * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
  */
-export type ProjectRewardJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectRewardCsv = {
+    readonly id?: number;
+    /**
+     * The project which gives this reward.
+     */
+    project: string;
+    /**
+     * A short, descriptive title for this reward.
+     */
+    title: string;
+    /**
+     * Information about this reward. More detailed than the title.
+     */
+    description: string | null;
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    cover?: string;
+    /**
+     * The minimal monetary sum to be able to claim this reward.
+     */
+    money: MoneyInputCsv;
+    /**
+     * Rewards might include something that needs to be delivered to the User claiming the Reward.
+     */
+    hasShipping: boolean;
+    /**
+     * Rewards might be finite, i.e: has a limited amount of existing `unitsTotal`.
+     */
+    isFinite: boolean;
+    /**
+     * For finite rewards, the total amount of existing units.\
+     * Required if `isFinite`.
+     */
+    unitsTotal?: number | null;
+    /**
+     * The total amount of claims on this Reward.
+     */
+    readonly unitsClaimed?: number;
+    /**
+     * For finite rewards, the currently available amount of units that can be claimed.
+     */
+    readonly unitsAvailable?: number;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
+ */
+export type ProjectRewardJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The project which gives this reward.
+     */
+    project?: string;
+    /**
+     * A short, descriptive title for this reward.
+     */
+    title?: string;
+    /**
+     * Information about this reward. More detailed than the title.
+     */
+    description?: string | null;
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    cover?: string;
+    /**
+     * The minimal monetary sum to be able to claim this reward.
+     */
+    money?: MoneyInput;
+    /**
+     * Rewards might include something that needs to be delivered to the User claiming the Reward.
+     */
+    hasShipping?: boolean;
+    /**
+     * Rewards might be finite, i.e: has a limited amount of existing `unitsTotal`.
+     */
+    isFinite?: boolean;
+    /**
+     * For finite rewards, the total amount of existing units.\
+     * Required if `isFinite`.
+     */
+    unitsTotal?: number | null;
+    /**
+     * The total amount of claims on this Reward.
+     */
+    readonly unitsClaimed?: number;
+    /**
+     * For finite rewards, the currently available amount of units that can be claimed.
+     */
+    readonly unitsAvailable?: number;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectReward is something the Project owner wishes to give in exchange for contributions to their Project.
+ */
+export type ProjectRewardJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The project which gives this reward.
@@ -2583,28 +3690,7 @@ export type ProjectRewardClaimRewardClaimCreationDto = {
  * Once created ProjectRewardClaims can only be deleted by the User who owns it,
  * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
-export type ProjectRewardClaimRewardClaimCreationDtoJsonld = {
-    /**
-     * The GatewayCharge granting access to the ProjectReward.
-     */
-    charge: string;
-    /**
-     * The ProjectReward being claimed.
-     */
-    reward: string;
-    /**
-     * If the reward is a physical object that needs to be delivered to an specific place.
-     */
-    address?: string | null;
-};
-
-/**
- * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
- * \
- * Once created ProjectRewardClaims can only be deleted by the User who owns it,
- * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
- */
-export type ProjectRewardClaimRewardClaimUpdationDto = {
+export type ProjectRewardClaimRewardClaimUpdationDtoJsonMergePatch = {
     /**
      * The point at which the claim over the reward is.\
      * May only be updated by admins or the User who owns the Project of the ProjectReward.
@@ -2622,14 +3708,37 @@ export type ProjectRewardClaimRewardClaimUpdationDto = {
  * Once created ProjectRewardClaims can only be deleted by the User who owns it,
  * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
  */
-export type ProjectRewardClaimJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectRewardClaimCsv = {
+    readonly id?: number;
+    /**
+     * The User claiming the ProjectReward. Derived from the GatewayCharge.
+     */
+    owner?: string;
+    /**
+     * The GatewayCharge granting access to the ProjectReward.
+     */
+    charge?: string;
+    /**
+     * The ProjectReward being claimed.
+     */
+    reward?: string;
+    /**
+     * The point at which the claim is in its life-cylce.
+     */
+    status?: 'in_pending' | 'fulfilled';
+    /**
+     * Only used when the reward is a physical object that needs to be shipped.
+     */
+    address?: AddressCsv | null;
+};
+
+/**
+ * A ProjectRewardClaim represents the will of an User who wishes to obtain one ProjectReward.\
+ * \
+ * Once created ProjectRewardClaims can only be deleted by the User who owns it,
+ * while their status can only be updated by the User who owns the Project of the claimed ProjectReward.
+ */
+export type ProjectRewardClaimJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The User claiming the ProjectReward. Derived from the GatewayCharge.
@@ -2713,9 +3822,7 @@ export type ProjectSupportTotalizedMoney = {
  * MatchCalls specially might make several different Transactions to the same Project,
  * but their ProjectSupport remains the same just with updated money.
  */
-export type ProjectSupportTotalizedMoneyJsonld = {
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectSupportTotalizedMoneyCsv = {
     amount?: number;
     currency?: string;
     length?: number;
@@ -2727,14 +3834,103 @@ export type ProjectSupportTotalizedMoneyJsonld = {
  * MatchCalls specially might make several different Transactions to the same Project,
  * but their ProjectSupport remains the same just with updated money.
  */
-export type ProjectSupportJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectSupportTotalizedMoneyJsonld = HydraItemBaseSchema & {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export type ProjectSupportCsv = {
+    readonly id?: number;
+    /**
+     * The Project being supported.
+     */
+    readonly project?: string;
+    /**
+     * The Accounting of origin for the Transactions under this ProjectSupport record.\
+     * \
+     * When `anonymous` is *true* the origin will only be public to admins and the User.
+     */
+    readonly origin?: string | null;
+    readonly displayName?: string | null;
+    readonly displayImage?: string | null;
+    /**
+     * The Transactions that were issued to the Project by the origin.
+     */
+    readonly transactions?: Array<string>;
+    /**
+     * The total monetary value of the Transactions going to the Project.
+     */
+    readonly money?: MoneyOutputCsv;
+    /**
+     * If the origin wishes to remain anonymous behind this ProjectSupport.
+     */
+    anonymous: boolean;
+    /**
+     * If this ProjectSupport comes from a MatchCall this flag will be true.
+     */
+    readonly matchfunding?: boolean;
+    /**
+     * A message of support from the User to the Project.
+     */
+    message?: string | null;
+};
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export type ProjectSupportJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The Project being supported.
+     */
+    readonly project?: string;
+    /**
+     * The Accounting of origin for the Transactions under this ProjectSupport record.\
+     * \
+     * When `anonymous` is *true* the origin will only be public to admins and the User.
+     */
+    readonly origin?: string | null;
+    readonly displayName?: string | null;
+    readonly displayImage?: string | null;
+    /**
+     * The Transactions that were issued to the Project by the origin.
+     */
+    readonly transactions?: Array<string>;
+    /**
+     * The total monetary value of the Transactions going to the Project.
+     */
+    readonly money?: MoneyOutput;
+    /**
+     * If the origin wishes to remain anonymous behind this ProjectSupport.
+     */
+    anonymous?: boolean;
+    /**
+     * If this ProjectSupport comes from a MatchCall this flag will be true.
+     */
+    readonly matchfunding?: boolean;
+    /**
+     * A message of support from the User to the Project.
+     */
+    message?: string | null;
+};
+
+/**
+ * ProjectSupports gather Transactions going from one same origin to one same Project.\
+ * \
+ * MatchCalls specially might make several different Transactions to the same Project,
+ * but their ProjectSupport remains the same just with updated money.
+ */
+export type ProjectSupportJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The Project being supported.
@@ -2822,14 +4018,99 @@ export type ProjectUpdate = {
  * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
  * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
  */
-export type ProjectUpdateJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ProjectUpdateCsv = {
+    readonly id?: number;
+    /**
+     * The Project to which this update belongs to.
+     */
+    project: string;
+    /**
+     * Main headline for this update.
+     */
+    title: string;
+    /**
+     * Secondary headline for this update.
+     */
+    subtitle: string;
+    /**
+     * Main text body of the Project's update.
+     */
+    body: string;
+    /**
+     * Public display date for this update,
+     * not necessarily related to the actual dates of resource creation or update.
+     */
+    date?: string;
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    cover?: string;
+    /**
+     * Author is automatically detected from the request's User.\
+     * Non-authored updates are system-generated.
+     */
+    readonly author?: string | null;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectUpdate offers records of significant news during a Project's life.\
+ * \
+ * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
+ * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
+ */
+export type ProjectUpdateJsonMergePatch = {
+    readonly id?: number;
+    /**
+     * The Project to which this update belongs to.
+     */
+    project?: string;
+    /**
+     * Main headline for this update.
+     */
+    title?: string;
+    /**
+     * Secondary headline for this update.
+     */
+    subtitle?: string;
+    /**
+     * Main text body of the Project's update.
+     */
+    body?: string;
+    /**
+     * Public display date for this update,
+     * not necessarily related to the actual dates of resource creation or update.
+     */
+    date?: string;
+    /**
+     * URL to an image resource to be displayed as header.
+     */
+    cover?: string;
+    /**
+     * Author is automatically detected from the request's User.\
+     * Non-authored updates are system-generated.
+     */
+    readonly author?: string | null;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * A ProjectUpdate offers records of significant news during a Project's life.\
+ * \
+ * Updates can be for outstanding donation amounts, achievement of goals or thresholds,
+ * or any other body of information that the Project owner(s) may wish to make public to the Project's audience.
+ */
+export type ProjectUpdateJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * The Project to which this update belongs to.
@@ -2875,14 +4156,13 @@ export type ProjectVideo = {
     thumbnail?: string | null;
 };
 
+export type ProjectVideoCsv = {
+    src?: string | null;
+    cover?: string | null;
+    thumbnail?: string | null;
+};
+
 export type ProjectVideoJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     src?: string | null;
     cover?: string | null;
     thumbnail?: string | null;
@@ -2911,14 +4191,30 @@ export type Territory = {
     address?: string | null;
 };
 
+export type TerritoryCsv = {
+    /**
+     * ISO 3166-1 alpha-2 two-letter country code.\
+     * e.g: ES (Spain).
+     */
+    country: string | null;
+    /**
+     * ISO 3166-2 first level subdivision code.\
+     * e.g: ES-AN (Andalucía, Spain).
+     */
+    subLvl1?: string | null;
+    /**
+     * ISO 3166-2 second level subdivision code.\
+     * e.g: ES-GR (Granada, Andalucía, Spain).
+     */
+    subLvl2?: string | null;
+    /**
+     * Plain-text address.\
+     * e.g: Forn de l’Olivera 22B, 07012 Palma, Illes Balears.
+     */
+    address?: string | null;
+};
+
 export type TerritoryJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * ISO 3166-1 alpha-2 two-letter country code.\
      * e.g: ES (Spain).
@@ -2974,14 +4270,59 @@ export type Theme = {
  * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
  * be referenced by non-admin users in their own resources, such as Project owners.
  */
-export type ThemeJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type ThemeCsv = {
+    /**
+     * This value will identify this Theme in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Theme.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Theme is about.
+     */
+    name: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type ThemeJsonMergePatch = {
+    /**
+     * This value will identify this Theme in relationships with other resources.
+     */
+    id?: string;
+    /**
+     * A unique, non white space, string identifier for this Theme.
+     */
+    readonly slug?: string;
+    /**
+     * A human-readable self-descriptive string of what this Theme is about.
+     */
+    name?: string;
+    /**
+     * List of the available content locales.
+     */
+    readonly locales?: Array<string>;
+};
+
+/**
+ * A Theme, like in books, works as a "topic intent" grouping, for example:
+ * friendship, good vs. evil, power and corruption, etc.\
+ * \
+ * Themes can only be modified by users with the role "ROLE_ADMIN", but can usually
+ * be referenced by non-admin users in their own resources, such as Project owners.
+ */
+export type ThemeJsonld = HydraItemBaseSchema & {
     /**
      * This value will identify this Theme in relationships with other resources.
      */
@@ -3019,14 +4360,35 @@ export type Tipjar = {
  * \
  * Tips to the platform owners and other no-purpose money can target a Tipjar.
  */
-export type TipjarJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type TipjarCsv = {
+    readonly id?: number;
+    readonly accounting?: string;
+    /**
+     * Human readable, non white space, unique string.
+     */
+    name: string;
+};
+
+/**
+ * Unlike other Money recipients a Tipjar receives money with no further goal.\
+ * \
+ * Tips to the platform owners and other no-purpose money can target a Tipjar.
+ */
+export type TipjarJsonMergePatch = {
+    readonly id?: number;
+    readonly accounting?: string;
+    /**
+     * Human readable, non white space, unique string.
+     */
+    name?: string;
+};
+
+/**
+ * Unlike other Money recipients a Tipjar receives money with no further goal.\
+ * \
+ * Tips to the platform owners and other no-purpose money can target a Tipjar.
+ */
+export type TipjarJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     readonly accounting?: string;
     /**
@@ -3041,14 +4403,13 @@ export type TotalizedMoney = {
     length?: number;
 };
 
+export type TotalizedMoneyCsv = {
+    amount?: number;
+    currency?: string;
+    length?: number;
+};
+
 export type TotalizedMoneyJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     amount?: number;
     currency?: string;
     length?: number;
@@ -3065,14 +4426,18 @@ export type Tracking = {
     value?: string;
 };
 
+export type TrackingCsv = {
+    /**
+     * A descriptive title for the tracking number.
+     */
+    title?: string;
+    /**
+     * The tracking number given by the Gateway.
+     */
+    value?: string;
+};
+
 export type TrackingJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
     /**
      * A descriptive title for the tracking number.
      */
@@ -3148,6 +4513,30 @@ export type User = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    shareLocation?: boolean;
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?\
+     * Only available to themselves and platform administrators.
+     */
+    isAnonymous?: boolean;
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories the User is interested in.
+     */
+    preferredCategories?: Array<string>;
+    /**
+     * The Themes the User is interested in.
+     */
+    preferredThemes?: Array<string>;
     readonly dateCreated?: string;
     readonly dateUpdated?: string;
 };
@@ -3174,26 +4563,7 @@ export type UserUserSignupDto = {
 /**
  * Users represent people who interact with the platform.
  */
-export type UserUserSignupDtoJsonld = {
-    /**
-     * A valid e-mail address for the new User.
-     */
-    email: string;
-    /**
-     * The authentication password for the new User. Plaintext string,
-     * will be hashed by the API.
-     */
-    password: string;
-    /**
-     * Is this User for an individual acting on their own or a group of individuals?
-     */
-    type: 'individual' | 'organization';
-};
-
-/**
- * Users represent people who interact with the platform.
- */
-export type UserUserUpdationDto = {
+export type UserUserUpdationDtoJsonMergePatch = {
     /**
      * A unique, non white space, byte-safe string identifier for this User.
      */
@@ -3232,19 +4602,126 @@ export type UserUserUpdationDto = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.
+     */
+    shareLocation?: boolean;
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?
+     */
+    isAnonymous?: boolean;
+    /**
+     * How the User got to know about the platform.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories the User is interested in.
+     */
+    preferredCategories?: Array<string>;
+    /**
+     * The Themes the User is interested in.
+     */
+    preferredThemes?: Array<string>;
 };
 
 /**
  * Users represent people who interact with the platform.
  */
-export type UserJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type UserCsv = {
+    readonly id?: number;
+    /**
+     * A unique, non white space, byte-safe string identifier for this User.
+     */
+    handle: string;
+    /**
+     * The User's given email address. Only available to themselves and platform administrators.
+     */
+    email: string;
+    /**
+     * Has this User confirmed their email address?
+     */
+    readonly emailConfirmed?: boolean;
+    /**
+     * URL to the avatar image of this User.
+     */
+    avatar?: string;
+    /**
+     * Is this User for an individual acting on their own or a group of individuals?
+     */
+    type?: 'individual' | 'organization';
+    /**
+     * A list of the roles assigned to this User. Admin scoped property.
+     */
+    roles?: Array<string>;
+    readonly displayName?: string;
+    /**
+     * For `individual` User types: personal data about the User themselves.\
+     * For `organization` User types: data for the organization representative or person managing the User.\
+     * Only available to themselves and platform administrators.
+     */
+    readonly person?: string;
+    /**
+     * For `organization` User types only. Legal entity data.
+     */
+    readonly organization?: string | null;
+    /**
+     * The Accounting for this User monetary movements.
+     */
+    readonly accounting?: string;
+    /**
+     * The Projects that are owned by this User.
+     */
+    readonly projects?: Array<string>;
+    /**
+     * A flag determined by the platform for Users who are known to be active.
+     */
+    readonly active?: boolean;
+    /**
+     * A list of URLs provided by the User.\
+     * e.g: social profiles, personal website.
+     */
+    readonly links?: Array<LinkCsv>;
+    /**
+     * ISO 3166 data about the Users's location territory.
+     */
+    territory?: TerritoryCsv;
+    /**
+     * Free-form rich text description for the User.
+     */
+    description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    shareLocation?: boolean;
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?\
+     * Only available to themselves and platform administrators.
+     */
+    isAnonymous?: boolean;
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories the User is interested in.
+     */
+    preferredCategories?: Array<string>;
+    /**
+     * The Themes the User is interested in.
+     */
+    preferredThemes?: Array<string>;
+    readonly dateCreated?: string;
+    readonly dateUpdated?: string;
+};
+
+/**
+ * Users represent people who interact with the platform.
+ */
+export type UserJsonld = HydraItemBaseSchema & {
     readonly id?: number;
     /**
      * A unique, non white space, byte-safe string identifier for this User.
@@ -3306,6 +4783,30 @@ export type UserJsonld = {
      * Free-form rich text description for the User.
      */
     description?: string;
+    /**
+     * Has the User agreed to share their location with the platform?
+     * Used to generate anonymous statistics and impact indicators, never disclosed to third parties.\
+     * Only available to themselves and platform administrators.
+     */
+    shareLocation?: boolean;
+    /**
+     * Does this User wish to have their personal data to remain undisclosed to 3rd parties?\
+     * Only available to themselves and platform administrators.
+     */
+    isAnonymous?: boolean;
+    /**
+     * How the User got to know about the platform.\
+     * Only available to themselves and platform administrators.
+     */
+    referralSource?: 'search_engine' | 'social_media' | 'friend' | 'press' | 'event' | 'other' | null;
+    /**
+     * The Categories the User is interested in.
+     */
+    preferredCategories?: Array<string>;
+    /**
+     * The Themes the User is interested in.
+     */
+    preferredThemes?: Array<string>;
     readonly dateCreated?: string;
     readonly dateUpdated?: string;
 };
@@ -3353,14 +4854,44 @@ export type Version = {
  * This allows us to keep track of the flow and the evolution of records in the platform.
  * Looking at the changes done between one version and the next one we can reconstruct how a resource was at a certain point in time.
  */
-export type VersionJsonld = {
-    readonly '@context'?: string | {
-        '@vocab': string;
-        hydra: 'http://www.w3.org/ns/hydra/core#';
-        [key: string]: unknown;
-    };
-    readonly '@id'?: string;
-    readonly '@type'?: string;
+export type VersionCsv = {
+    /**
+     * The ID of the version record.
+     */
+    readonly id?: number | null;
+    /**
+     * The type of action that performed the recorded changes.
+     */
+    readonly action?: string | null;
+    /**
+     * The type of the recorded resource.
+     */
+    readonly resource?: string;
+    /**
+     * The ID of the recorded resource.
+     */
+    readonly resourceId?: number;
+    /**
+     * The version number for this specific resource.
+     */
+    readonly resourceVersion?: number | null;
+    /**
+     * The changed resource data, i.e the new values of the changed properties.
+     */
+    readonly resourceChanges?: unknown;
+    /**
+     * The date at which this version was created.
+     */
+    readonly dateCreated?: string | null;
+};
+
+/**
+ * Some resources are versioned. This means v4 keeps track of the changes performed in subsets of specific properties within these resources.\
+ * \
+ * This allows us to keep track of the flow and the evolution of records in the platform.
+ * Looking at the changes done between one version and the next one we can reconstruct how a resource was at a certain point in time.
+ */
+export type VersionJsonld = HydraItemBaseSchema & {
     /**
      * The ID of the version record.
      */
@@ -3403,6 +4934,8 @@ export type ApiAccountingsGetCollectionData = {
          * The number of items per page
          */
         itemsPerPage?: number;
+        id?: number;
+        'id[]'?: Array<number>;
     };
     url: '/v4/accountings';
 };
@@ -3612,7 +5145,7 @@ export type ApiAddressesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiAddressesPostError = ApiAddressesPostErrors[keyof ApiAddressesPostErrors];
@@ -3698,7 +5231,7 @@ export type ApiAddressesIdPatchData = {
     /**
      * The updated Address resource
      */
-    body: AddressAddressUpdationDto;
+    body: AddressAddressUpdationDtoJsonMergePatch;
     path: {
         /**
          * Address identifier
@@ -3725,7 +5258,7 @@ export type ApiAddressesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiAddressesIdPatchError = ApiAddressesIdPatchErrors[keyof ApiAddressesIdPatchErrors];
@@ -3789,7 +5322,7 @@ export type ApiCategoriesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiCategoriesPostError = ApiCategoriesPostErrors[keyof ApiCategoriesPostErrors];
@@ -3871,7 +5404,7 @@ export type ApiCategoriesIdPatchData = {
     /**
      * The updated Category resource
      */
-    body: Category;
+    body: CategoryJsonMergePatch;
     path: {
         /**
          * Category identifier
@@ -3898,7 +5431,7 @@ export type ApiCategoriesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiCategoriesIdPatchError = ApiCategoriesIdPatchErrors[keyof ApiCategoriesIdPatchErrors];
@@ -4109,7 +5642,7 @@ export type ApiGatewayChargesIdPatchData = {
     /**
      * The updated GatewayCharge resource
      */
-    body: GatewayChargeChargeUpdationDto;
+    body: GatewayChargeChargeUpdationDtoJsonMergePatch;
     path: {
         /**
          * GatewayCharge identifier
@@ -4132,7 +5665,7 @@ export type ApiGatewayChargesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiGatewayChargesIdPatchError = ApiGatewayChargesIdPatchErrors[keyof ApiGatewayChargesIdPatchErrors];
@@ -4201,7 +5734,7 @@ export type ApiGatewayCheckoutsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiGatewayCheckoutsPostError = ApiGatewayCheckoutsPostErrors[keyof ApiGatewayCheckoutsPostErrors];
@@ -4249,7 +5782,7 @@ export type ApiGatewayCheckoutsIdPatchData = {
     /**
      * The updated GatewayCheckout resource
      */
-    body: GatewayCheckoutCheckoutUpdationDto;
+    body: GatewayCheckoutCheckoutUpdationDtoJsonMergePatch;
     path: {
         /**
          * GatewayCheckout identifier
@@ -4276,7 +5809,7 @@ export type ApiGatewayCheckoutsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiGatewayCheckoutsIdPatchError = ApiGatewayCheckoutsIdPatchErrors[keyof ApiGatewayCheckoutsIdPatchErrors];
@@ -4345,7 +5878,7 @@ export type ApiMatchCallsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchCallsPostError = ApiMatchCallsPostErrors[keyof ApiMatchCallsPostErrors];
@@ -4423,7 +5956,7 @@ export type ApiMatchCallsIdPatchData = {
     /**
      * The updated MatchCall resource
      */
-    body: MatchCall;
+    body: MatchCallJsonMergePatch;
     path: {
         /**
          * MatchCall identifier
@@ -4446,7 +5979,7 @@ export type ApiMatchCallsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchCallsIdPatchError = ApiMatchCallsIdPatchErrors[keyof ApiMatchCallsIdPatchErrors];
@@ -4509,7 +6042,7 @@ export type ApiMatchCallSubmissionsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchCallSubmissionsPostError = ApiMatchCallSubmissionsPostErrors[keyof ApiMatchCallSubmissionsPostErrors];
@@ -4557,7 +6090,7 @@ export type ApiMatchCallSubmissionsIdPatchData = {
     /**
      * The updated MatchCallSubmission resource
      */
-    body: MatchCallSubmission;
+    body: MatchCallSubmissionJsonMergePatch;
     path: {
         /**
          * MatchCallSubmission identifier
@@ -4584,7 +6117,7 @@ export type ApiMatchCallSubmissionsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchCallSubmissionsIdPatchError = ApiMatchCallSubmissionsIdPatchErrors[keyof ApiMatchCallSubmissionsIdPatchErrors];
@@ -4754,7 +6287,7 @@ export type ApiMatchStrategiesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchStrategiesPostError = ApiMatchStrategiesPostErrors[keyof ApiMatchStrategiesPostErrors];
@@ -4836,7 +6369,7 @@ export type ApiMatchStrategiesIdPatchData = {
     /**
      * The updated MatchStrategy resource
      */
-    body: MatchStrategy;
+    body: MatchStrategyJsonMergePatch;
     path: {
         /**
          * MatchStrategy identifier
@@ -4863,7 +6396,7 @@ export type ApiMatchStrategiesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiMatchStrategiesIdPatchError = ApiMatchStrategiesIdPatchErrors[keyof ApiMatchStrategiesIdPatchErrors];
@@ -4915,7 +6448,7 @@ export type ApiUsersIdorganizationPatchData = {
     /**
      * The updated Organization resource
      */
-    body: Organization;
+    body: OrganizationJsonMergePatch;
     path: {
         /**
          * User identifier
@@ -4942,7 +6475,7 @@ export type ApiUsersIdorganizationPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiUsersIdorganizationPatchError = ApiUsersIdorganizationPatchErrors[keyof ApiUsersIdorganizationPatchErrors];
@@ -4994,7 +6527,7 @@ export type ApiUsersIdpersonPatchData = {
     /**
      * The updated Person resource
      */
-    body: Person;
+    body: PersonJsonMergePatch;
     path: {
         /**
          * User identifier
@@ -5021,7 +6554,7 @@ export type ApiUsersIdpersonPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiUsersIdpersonPatchError = ApiUsersIdpersonPatchErrors[keyof ApiUsersIdpersonPatchErrors];
@@ -5150,7 +6683,7 @@ export type ApiProjectsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectsPostError = ApiProjectsPostErrors[keyof ApiProjectsPostErrors];
@@ -5163,6 +6696,66 @@ export type ApiProjectsPostResponses = {
 };
 
 export type ApiProjectsPostResponse = ApiProjectsPostResponses[keyof ApiProjectsPostResponses];
+
+export type ApiProjectsmoneyTotalGetCollectionData = {
+    body?: never;
+    path?: never;
+    query?: {
+        slug?: string;
+        'slug[]'?: Array<string>;
+        accounting?: string;
+        'accounting[]'?: Array<string>;
+        owner?: string;
+        'owner[]'?: Array<string>;
+        title?: string;
+        subtitle?: string;
+        categories?: string;
+        'categories[]'?: Array<string>;
+        themes?: string;
+        'themes[]'?: Array<string>;
+        'territory.country'?: string;
+        'territory.country[]'?: Array<string>;
+        'territory.subLvl1'?: string;
+        'territory.subLvl1[]'?: Array<string>;
+        'territory.subLvl2'?: string;
+        'territory.subLvl2[]'?: Array<string>;
+        descBrief?: string;
+        status?: string;
+        'status[]'?: Array<string>;
+        'calendar.release[before]'?: string;
+        'calendar.release[strictly_before]'?: string;
+        'calendar.release[after]'?: string;
+        'calendar.release[strictly_after]'?: string;
+        'calendar.minimum[before]'?: string;
+        'calendar.minimum[strictly_before]'?: string;
+        'calendar.minimum[after]'?: string;
+        'calendar.minimum[strictly_after]'?: string;
+        'calendar.optimum[before]'?: string;
+        'calendar.optimum[strictly_before]'?: string;
+        'calendar.optimum[after]'?: string;
+        'calendar.optimum[strictly_after]'?: string;
+        'dateCreated[before]'?: string;
+        'dateCreated[strictly_before]'?: string;
+        'dateCreated[after]'?: string;
+        'dateCreated[strictly_after]'?: string;
+        'dateUpdated[before]'?: string;
+        'dateUpdated[strictly_before]'?: string;
+        'dateUpdated[after]'?: string;
+        'dateUpdated[strictly_after]'?: string;
+        'order[dateCreated]'?: 'asc' | 'desc';
+        'order[dateUpdated]'?: 'asc' | 'desc';
+    };
+    url: '/v4/projects/money_total';
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponses = {
+    /**
+     * Totalized money
+     */
+    200: ProjectTotalizedMoney;
+};
+
+export type ApiProjectsmoneyTotalGetCollectionResponse = ApiProjectsmoneyTotalGetCollectionResponses[keyof ApiProjectsmoneyTotalGetCollectionResponses];
 
 export type ApiProjectsIdOrSlugGetData = {
     body?: never;
@@ -5232,7 +6825,7 @@ export type ApiProjectsIdPatchData = {
     /**
      * The updated Project resource
      */
-    body: ProjectProjectUpdationDto;
+    body: ProjectProjectUpdationDtoJsonMergePatch;
     path: {
         /**
          * Project identifier
@@ -5259,7 +6852,7 @@ export type ApiProjectsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectsIdPatchError = ApiProjectsIdPatchErrors[keyof ApiProjectsIdPatchErrors];
@@ -5322,7 +6915,7 @@ export type ApiProjectBudgetItemsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectBudgetItemsPostError = ApiProjectBudgetItemsPostErrors[keyof ApiProjectBudgetItemsPostErrors];
@@ -5400,7 +6993,7 @@ export type ApiProjectBudgetItemsIdPatchData = {
     /**
      * The updated ProjectBudgetItem resource
      */
-    body: ProjectBudgetItem;
+    body: ProjectBudgetItemJsonMergePatch;
     path: {
         /**
          * ProjectBudgetItem identifier
@@ -5423,7 +7016,7 @@ export type ApiProjectBudgetItemsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectBudgetItemsIdPatchError = ApiProjectBudgetItemsIdPatchErrors[keyof ApiProjectBudgetItemsIdPatchErrors];
@@ -5493,7 +7086,7 @@ export type ApiProjectCollaborationsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectCollaborationsPostError = ApiProjectCollaborationsPostErrors[keyof ApiProjectCollaborationsPostErrors];
@@ -5571,7 +7164,7 @@ export type ApiProjectCollaborationsIdPatchData = {
     /**
      * The updated ProjectCollaboration resource
      */
-    body: ProjectCollaboration;
+    body: ProjectCollaborationJsonMergePatch;
     path: {
         /**
          * ProjectCollaboration identifier
@@ -5594,7 +7187,7 @@ export type ApiProjectCollaborationsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectCollaborationsIdPatchError = ApiProjectCollaborationsIdPatchErrors[keyof ApiProjectCollaborationsIdPatchErrors];
@@ -5668,7 +7261,7 @@ export type ApiProjectCollaborationCandidaciesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectCollaborationCandidaciesPostError = ApiProjectCollaborationCandidaciesPostErrors[keyof ApiProjectCollaborationCandidaciesPostErrors];
@@ -5746,7 +7339,7 @@ export type ApiProjectCollaborationCandidaciesIdPatchData = {
     /**
      * The updated ProjectCollaborationCandidacy resource
      */
-    body: ProjectCollaborationCandidacy;
+    body: ProjectCollaborationCandidacyJsonMergePatch;
     path: {
         /**
          * ProjectCollaborationCandidacy identifier
@@ -5769,7 +7362,7 @@ export type ApiProjectCollaborationCandidaciesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectCollaborationCandidaciesIdPatchError = ApiProjectCollaborationCandidaciesIdPatchErrors[keyof ApiProjectCollaborationCandidaciesIdPatchErrors];
@@ -5888,7 +7481,7 @@ export type ApiProjectReviewsIdPatchData = {
     /**
      * The updated ProjectReview resource
      */
-    body: ProjectReview;
+    body: ProjectReviewJsonMergePatch;
     path: {
         /**
          * ProjectReview identifier
@@ -5911,7 +7504,7 @@ export type ApiProjectReviewsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectReviewsIdPatchError = ApiProjectReviewsIdPatchErrors[keyof ApiProjectReviewsIdPatchErrors];
@@ -5984,7 +7577,7 @@ export type ApiProjectReviewAreasPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectReviewAreasPostError = ApiProjectReviewAreasPostErrors[keyof ApiProjectReviewAreasPostErrors];
@@ -6070,7 +7663,7 @@ export type ApiProjectReviewAreasIdPatchData = {
     /**
      * The updated ProjectReviewArea resource
      */
-    body: ProjectReviewArea;
+    body: ProjectReviewAreaJsonMergePatch;
     path: {
         /**
          * ProjectReviewArea identifier
@@ -6097,7 +7690,7 @@ export type ApiProjectReviewAreasIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectReviewAreasIdPatchError = ApiProjectReviewAreasIdPatchErrors[keyof ApiProjectReviewAreasIdPatchErrors];
@@ -6168,7 +7761,7 @@ export type ApiProjectReviewCommentsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectReviewCommentsPostError = ApiProjectReviewCommentsPostErrors[keyof ApiProjectReviewCommentsPostErrors];
@@ -6310,7 +7903,7 @@ export type ApiProjectRewardsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectRewardsPostError = ApiProjectRewardsPostErrors[keyof ApiProjectRewardsPostErrors];
@@ -6388,7 +7981,7 @@ export type ApiProjectRewardsIdPatchData = {
     /**
      * The updated ProjectReward resource
      */
-    body: ProjectReward;
+    body: ProjectRewardJsonMergePatch;
     path: {
         /**
          * ProjectReward identifier
@@ -6411,7 +8004,7 @@ export type ApiProjectRewardsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectRewardsIdPatchError = ApiProjectRewardsIdPatchErrors[keyof ApiProjectRewardsIdPatchErrors];
@@ -6479,7 +8072,7 @@ export type ApiProjectRewardClaimsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectRewardClaimsPostError = ApiProjectRewardClaimsPostErrors[keyof ApiProjectRewardClaimsPostErrors];
@@ -6561,7 +8154,7 @@ export type ApiProjectRewardClaimsIdPatchData = {
     /**
      * The updated ProjectRewardClaim resource
      */
-    body: ProjectRewardClaimRewardClaimUpdationDto;
+    body: ProjectRewardClaimRewardClaimUpdationDtoJsonMergePatch;
     path: {
         /**
          * ProjectRewardClaim identifier
@@ -6584,7 +8177,7 @@ export type ApiProjectRewardClaimsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectRewardClaimsIdPatchError = ApiProjectRewardClaimsIdPatchErrors[keyof ApiProjectRewardClaimsIdPatchErrors];
@@ -6686,7 +8279,7 @@ export type ApiProjectSupportsIdPatchData = {
     /**
      * The updated ProjectSupport resource
      */
-    body: ProjectSupport;
+    body: ProjectSupportJsonMergePatch;
     path: {
         /**
          * ProjectSupport identifier
@@ -6713,7 +8306,7 @@ export type ApiProjectSupportsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectSupportsIdPatchError = ApiProjectSupportsIdPatchErrors[keyof ApiProjectSupportsIdPatchErrors];
@@ -6785,7 +8378,7 @@ export type ApiProjectUpdatesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectUpdatesPostError = ApiProjectUpdatesPostErrors[keyof ApiProjectUpdatesPostErrors];
@@ -6863,7 +8456,7 @@ export type ApiProjectUpdatesIdPatchData = {
     /**
      * The updated ProjectUpdate resource
      */
-    body: ProjectUpdate;
+    body: ProjectUpdateJsonMergePatch;
     path: {
         /**
          * ProjectUpdate identifier
@@ -6886,7 +8479,7 @@ export type ApiProjectUpdatesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiProjectUpdatesIdPatchError = ApiProjectUpdatesIdPatchErrors[keyof ApiProjectUpdatesIdPatchErrors];
@@ -6950,7 +8543,7 @@ export type ApiThemesPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiThemesPostError = ApiThemesPostErrors[keyof ApiThemesPostErrors];
@@ -7032,7 +8625,7 @@ export type ApiThemesIdPatchData = {
     /**
      * The updated Theme resource
      */
-    body: Theme;
+    body: ThemeJsonMergePatch;
     path: {
         /**
          * Theme identifier
@@ -7059,7 +8652,7 @@ export type ApiThemesIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiThemesIdPatchError = ApiThemesIdPatchErrors[keyof ApiThemesIdPatchErrors];
@@ -7119,7 +8712,7 @@ export type ApiTipjarsPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiTipjarsPostError = ApiTipjarsPostErrors[keyof ApiTipjarsPostErrors];
@@ -7197,7 +8790,7 @@ export type ApiTipjarsIdPatchData = {
     /**
      * The updated Tipjar resource
      */
-    body: Tipjar;
+    body: TipjarJsonMergePatch;
     path: {
         /**
          * Tipjar identifier
@@ -7220,7 +8813,7 @@ export type ApiTipjarsIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiTipjarsIdPatchError = ApiTipjarsIdPatchErrors[keyof ApiTipjarsIdPatchErrors];
@@ -7247,13 +8840,16 @@ export type ApiUsersGetCollectionData = {
          */
         itemsPerPage?: number;
         /**
-         * Searches on `email`, `person.firstName`, `person.lastName`, `organization.legalName`, `organization.businessName`
+         * Searches on `email` (secured by `is_granted("ROLE_ADMIN")`), `person.firstName`, `person.lastName`, `organization.legalName`, `organization.businessName`
          */
         q?: string;
         handle?: string;
         'order[handle]'?: 'asc' | 'desc';
         'order[dateCreated]'?: 'asc' | 'desc';
         'order[dateUpdated]'?: 'asc' | 'desc';
+        /**
+         * User email
+         */
         email?: string;
         type?: string;
         'type[]'?: Array<string>;
@@ -7323,7 +8919,7 @@ export type ApiUsersPostErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiUsersPostError = ApiUsersPostErrors[keyof ApiUsersPostErrors];
@@ -7401,7 +8997,7 @@ export type ApiUsersIdPatchData = {
     /**
      * The updated User resource
      */
-    body: UserUserUpdationDto;
+    body: UserUserUpdationDtoJsonMergePatch;
     path: {
         /**
          * User identifier
@@ -7424,7 +9020,7 @@ export type ApiUsersIdPatchErrors = {
     /**
      * An error occurred
      */
-    422: ConstraintViolationJsonldJsonld;
+    422: ConstraintViolationJsonld;
 };
 
 export type ApiUsersIdPatchError = ApiUsersIdPatchErrors[keyof ApiUsersIdPatchErrors];

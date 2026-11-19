@@ -61,7 +61,6 @@ const isReviewer = isConsultant(session);
             authors={authors ?? []}
             currentUserIri={sessionUserIri(session)}
             reviewerIri={review.reviewer}
-            projectTitle={project?.title ?? ""}
             canEditRisk={isReviewer}
             locale={lang}
         />

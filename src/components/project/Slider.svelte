@@ -10,7 +10,11 @@
     let flickity: Flickity;
     let isLoaded = $state(false);
 
-    let { slides } = $props<{ slides: ProjectUpdate[] }>();
+    interface Props {
+        slides: ProjectUpdate[];
+    }
+
+    let { slides }: Props = $props();
 
     const options: Options = {
         cellAlign: "left",

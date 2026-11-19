@@ -51,7 +51,7 @@
         ),
     );
 
-    let container: HTMLDivElement;
+    let container = $state<HTMLDivElement>();
 
     let totalGroups = $state(0);
     let totalItems = $state(0);
@@ -316,7 +316,7 @@
                 resizeObs = new ResizeObserver(() => {
                     if (mounted && container) updateItemWidths();
                 });
-                resizeObs.observe(container);
+                resizeObs.observe(container!);
 
                 mutationObs = new MutationObserver(() => {
                     if (mounted && container) {
@@ -324,7 +324,7 @@
                         observeVisibility();
                     }
                 });
-                mutationObs.observe(container, { childList: true, subtree: true });
+                mutationObs.observe(container!, { childList: true, subtree: true });
 
                 window.addEventListener("resize", updateItemWidths);
             } catch (error) {

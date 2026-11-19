@@ -2,11 +2,28 @@
 import { Font } from "astro:assets";
 
 import "../styles/global.css";
+import { themeColorsRepository } from "../repositories/themeColors";
+import { buildThemeColorStyleAttribute } from "../utils/themeColors";
+import Footer from "./Footer.astro";
 import Metatags from "./Metatags.astro";
 
 import type { FontPreloadFilter } from "astro:assets";
 
 const { title, description, keywords } = Astro.props;
+
+const savedThemeColors = await themeColorsRepository.get();
+const themeColorStyleAttribute = savedThemeColors
+    ? buildThemeColorStyleAttribute(savedThemeColors.lightColors, savedThemeColors.darkColors)
+    : "";
+
+/**
+ * Language the page is rendered in.
+ *
+ * The middleware resolves it for every request, so it is also the one source that tells the
+ * client which language the page is in before any island hydrates — `formDraftsStore` needs
+ * it to tell a language switch apart from an ordinary reload.
+ */
+const { lang } = Astro.locals;
 
 /**
  * Only the upright latin face is worth preloading — it is the one every page needs before
@@ -17,7 +34,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
 ---
 
 <!doctype html>
-<html>
+<html lang={lang} style={themeColorStyleAttribute || undefined}>
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
@@ -28,6 +45,7 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
     </head>
     <body class="bg-white">
         <slot />
+        <Footer />
         <script is:inline>
             /**
              * Seeds --header-height from the server-rendered header before first paint.

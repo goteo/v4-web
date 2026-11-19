@@ -99,6 +99,13 @@ export default defineConfig({
 
     routeRules,
 
+    /**
+     * Shiki colours code blocks with inline `style` attributes, which the CSP below is not
+     * meant to rely on. No Markdown here has code blocks, so highlighting is off. If that
+     * changes, use `"prism"` (class-based) plus a Prism theme stylesheet.
+     */
+    markdown: { syntaxHighlight: false },
+
     security: {
         /**
          * On a server-rendered page Astro sends this as a `content-security-policy` response

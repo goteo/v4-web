@@ -1,83 +1,42 @@
 <script lang="ts">
     import PeerTube from "./PeerTube.svelte";
     import { t } from "../../i18n/store";
+    import { detectVideo } from "../../utils/video";
     import Spinner from "../icons/status/Spinner.svelte";
-    import Loader from "../library/feedback/Loader.svelte";
 
-    let {
-        src,
-        title = $t("pages.project.view.video.title"),
-        thumbnails = "",
-        poster = { src: "", alt: $t("pages.project.view.video.poster") },
-    } = $props<{
+    interface Props {
         src: string;
         title?: string;
-        thumbnails?: string;
+        thumbnail?: string;
         poster?: {
             src: string;
             alt: string;
         };
-    }>();
+    }
+
+    let {
+        src,
+        title = $t("pages.project.view.video.title"),
+        thumbnail = "",
+        poster = { src: "", alt: $t("pages.project.view.video.poster") },
+    }: Props = $props();
 
     let showIframe = $state(false);
-    let isCheckingProvider = $state(true);
-    let isYouTube = $state(false);
-    let isVimeo = $state(false);
-    let noVideoSrc = $state(false);
-    let isPeerTube = $state(false);
     let isLoading = $state(false);
     let iframeEl: HTMLIFrameElement | null = $state(null);
 
-    let previewImage = $derived(poster.src || thumbnails);
+    let previewImage = $derived(poster.src || thumbnail);
 
-    $effect(() => {
-        noVideoSrc = !src;
-        isYouTube = src.includes("youtube.com") || src.includes("youtu.be");
-        isVimeo = src.includes("vimeo.com");
-        isPeerTube = src.includes("/videos/watch/");
-        isCheckingProvider = false;
-    });
-
-    function normalizeYouTubeUrl(original: string): string {
-        try {
-            const url = new URL(original);
-            let videoId = "";
-
-            if (url.hostname === "youtu.be") {
-                videoId = url.pathname.slice(1);
-            } else if (url.hostname.includes("youtube.com")) {
-                if (url.pathname === "/watch") {
-                    videoId = url.searchParams.get("v") ?? "";
-                } else if (url.pathname.startsWith("/embed/")) {
-                    videoId = url.pathname.split("/embed/")[1];
-                }
-            }
-
-            if (!videoId) return original;
-
-            const params = new URLSearchParams({
-                autoplay: "1",
-                rel: "0",
-                modestbranding: "1",
-            });
-
-            return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
-        } catch {
-            console.warn("Invalid YouTube URL", original);
-            return original;
-        }
-    }
+    // The link the author pasted points to a page, not to a player: the API
+    // stores it as it was given, so the embeddable URL is worked out here.
+    let source = $derived(detectVideo(src));
+    let embedSrc = $derived(showIframe && source ? source.autoplayUrl : "");
 
     function handlePlay() {
+        if (!source) return;
+
         isLoading = true;
         showIframe = true;
-
-        if (isYouTube) {
-            src = normalizeYouTubeUrl(src);
-        } else {
-            const separator = src.includes("?") ? "&" : "?";
-            src = `${src}${separator}autoplay=1`;
-        }
 
         requestAnimationFrame(() => {
             iframeEl?.focus();
@@ -85,40 +44,33 @@
     }
 </script>
 
-{#if isCheckingProvider}
-    <div class="flex h-full items-center justify-center rounded-lg bg-gray-100">
-        <Loader />
-    </div>
-{:else if isPeerTube}
+{#snippet posterButton()}
+    <button class="group relative h-full w-full" onclick={handlePlay} aria-label="Play video">
+        <img
+            src={previewImage}
+            alt={poster.alt}
+            class="h-full w-full object-cover"
+            loading="lazy"
+        />
+        <div
+            class="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors duration-300 group-hover:bg-black/20"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-16 w-16 text-white opacity-90"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path d="M8 5v14l11-7z" />
+            </svg>
+        </div>
+    </button>
+{/snippet}
+
+{#if source?.provider === "peertube"}
     <div class="relative h-full w-full overflow-hidden rounded-lg">
         {#if !showIframe}
-            <button
-                onclick={() => {
-                    showIframe = true;
-                    isLoading = true;
-                }}
-                aria-label="Play video"
-                class="group relative h-full w-full"
-            >
-                <img
-                    src={previewImage}
-                    alt={poster.alt}
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                />
-                <div
-                    class="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors duration-300 group-hover:bg-black/20"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-16 w-16 text-white opacity-90"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path d="M8 5v14l11-7z" />
-                    </svg>
-                </div>
-            </button>
+            {@render posterButton()}
         {:else}
             <div class="absolute inset-0 z-10 h-full w-full bg-black">
                 {#if isLoading}
@@ -128,47 +80,26 @@
                         <Spinner />
                     </div>
                 {/if}
-                <PeerTube {src} {title} onReady={() => (isLoading = false)} />
+                <PeerTube src={source.embedUrl} {title} onReady={() => (isLoading = false)} />
             </div>
         {/if}
     </div>
-{:else if isYouTube || isVimeo}
+{:else if source?.provider === "youtube" || source?.provider === "vimeo"}
     <div class="relative h-full w-full overflow-hidden rounded-lg">
         {#if !showIframe}
-            <button
-                class="group relative h-full w-full"
-                onclick={handlePlay}
-                aria-label="Play video"
-            >
-                <img
-                    src={previewImage}
-                    alt={poster.alt}
-                    class="h-full w-full object-cover"
-                    loading="lazy"
-                />
-                <div
-                    class="absolute inset-0 flex items-center justify-center bg-black/10 transition-colors duration-300 group-hover:bg-black/20"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-16 w-16 text-white opacity-90"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path d="M8 5v14l11-7z" />
-                    </svg>
-                </div>
-            </button>
+            {@render posterButton()}
         {:else}
             <div class="absolute inset-0 z-10 h-full w-full bg-black">
                 {#if isLoading}
-                    <div class="absolute inset-0 z-20 flex items-center justify-center">
+                    <div
+                        class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+                    >
                         <Spinner />
                     </div>
                 {/if}
                 <iframe
                     bind:this={iframeEl}
-                    {src}
+                    src={embedSrc}
                     {title}
                     class={`absolute inset-0 h-full w-full transition-opacity duration-500 ${isLoading ? "opacity-0" : "opacity-100"}`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
@@ -179,9 +110,18 @@
             </div>
         {/if}
     </div>
-{:else if noVideoSrc && previewImage}
+{:else if source?.provider === "file"}
+    <!-- svelte-ignore a11y_media_has_caption -->
+    <video
+        src={source.embedUrl}
+        poster={previewImage || undefined}
+        controls
+        playsinline
+        class="h-full w-full rounded-lg bg-black object-contain"
+    ></video>
+{:else if !src && previewImage}
     <img src={previewImage} alt={poster.alt} class="h-full w-full rounded-lg object-cover" />
-{:else if noVideoSrc}
+{:else if !src}
     <div
         class="flex h-full items-center justify-center rounded-lg bg-gray-100 p-4 text-sm text-gray-600"
     >

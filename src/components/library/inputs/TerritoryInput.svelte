@@ -1,10 +1,15 @@
 <script lang="ts">
     import ResourceSearch from "./ResourceSearch.svelte";
-    import { extractTerritory, type NominatimResult } from "../../../services/nominatim";
-    import { searchTerritories, toTerritories, type Territories } from "../../../utils/searchers";
+    import {
+        searchTerritories,
+        territoryFromSearchItem,
+        toTerritories,
+        type Territories,
+    } from "../../../utils/searchers";
 
     import type { Territory } from "../../../openapi/client";
     import type { SearchResultItem } from "../../../utils/resourceSearch";
+    import type { NominatimResult } from "../../../services/nominatim";
     import type { ClassNameValue } from "tailwind-merge";
 
     interface Props {
@@ -14,6 +19,7 @@
         placeholder?: string;
         helperText?: string;
         error?: string;
+        disabled?: boolean;
         onInput?: (territory: Territory) => void;
         onBlur?: () => void;
         multiple?: boolean;
@@ -28,6 +34,7 @@
         placeholder,
         helperText,
         error = undefined,
+        disabled = false,
         onInput = undefined,
         onBlur = undefined,
         multiple = false,
@@ -70,9 +77,8 @@
     }
 
     function handleSelect(item: SearchResultItem) {
-        const place = (item as SearchResultItem<NominatimResult>).raw;
-        if (multiple || !place) return;
-        onInput?.(extractTerritory(place));
+        if (multiple) return;
+        onInput?.(territoryFromSearchItem(item as SearchResultItem<NominatimResult>));
     }
 
     function handleClear() {
@@ -95,6 +101,7 @@
     {placeholder}
     {helperText}
     {error}
+    {disabled}
     onSelect={handleSelect}
     onChange={handleChange}
     onClear={handleClear}

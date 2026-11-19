@@ -1,0 +1,30 @@
+---
+import ColorsForm from "../../../../components/admin/customize/ColorsForm.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
+import App from "../../../../layouts/App.svelte";
+import Layout from "../../../../layouts/Layout.astro";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import { themeColorsRepository } from "../../../../repositories/themeColors";
+import { DARK_THEME_COLOR_DEFAULTS, THEME_COLOR_DEFAULTS } from "../../../../utils/themeColors";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/customize/colors";
+const navItems = getSubSections("/admin/customize");
+const savedColors = await themeColorsRepository.get();
+
+const config = {
+    lightColors: { ...THEME_COLOR_DEFAULTS, ...savedColors?.lightColors },
+    darkColors: { ...DARK_THEME_COLOR_DEFAULTS, ...savedColors?.darkColors },
+};
+---
+
+<Layout
+    title={t("pages.admin.customize.colors.title")}
+    description={t("pages.metadata.description")}
+>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <ColorsForm client:load {config} />
+        </WithSidebar>
+    </App>
+</Layout>

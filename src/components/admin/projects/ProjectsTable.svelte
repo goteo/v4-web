@@ -1,4 +1,5 @@
 <script lang="ts" module>
+    import type { ProjectStatus } from "../../../utils/projectStatus";
     import type { DataTableHeader, SortOption } from "../../library/tables/DataTable.svelte";
 
     export type ProjectRow = {
@@ -6,10 +7,11 @@
         name: string;
         slug: string;
         promoter: string;
+        promoterHandle: string;
         achieved: string;
         paid: string;
         paidMatchfunding: string;
-        status: string;
+        status: ProjectStatus;
         datePublished: string;
         dateEnd1: string;
         dateEnd2: string;
@@ -46,7 +48,8 @@
         { key: "pages.admin.projects.table.headers.name" },
         { key: "pages.admin.projects.table.headers.promoter" },
         { key: "pages.admin.projects.table.headers.achieved" },
-        { key: "pages.admin.projects.table.headers.paid" },
+        // Hidden until the API provides the paid amount (also the cell below).
+        // { key: "pages.admin.projects.table.headers.paid" },
         { key: "pages.admin.projects.table.headers.process" },
         { key: "", class: "w-12" },
     ];
@@ -54,15 +57,14 @@
 
 <script lang="ts">
     import { TableBodyCell } from "flowbite-svelte";
-    import { SvelteSet } from "svelte/reactivity";
 
     import ProjectsDetailsRow from "./ProjectsDetailsRow.svelte";
     import { t } from "../../../i18n/store";
     import { ADMIN_ITEMS_PER_PAGE_OPTIONS } from "../../../utils/adminTable";
-    import { PROJECT_STATUSES, projectStatusLabelKey } from "../../../utils/projectStatus";
+    import { projectStatusLabelKey } from "../../../utils/projectStatus";
     import Chevron from "../../icons/navigation/Chevron.svelte";
-    import DropdownMenu from "../../library/dropdown/DropdownMenu.svelte";
     import DataTable from "../../library/tables/DataTable.svelte";
+    import Tag from "../../library/tags/Tag.svelte";
 
     let {
         projects = [],
@@ -78,7 +80,6 @@
         onStatusChange,
         onOpenPaidModal,
         onOpenAnnotationsModal,
-        onChangeStatus,
     }: {
         projects: ProjectRow[];
         currentPage: number;
@@ -90,37 +91,15 @@
         onPageChange?: (page: number) => void;
         onItemsPerPageChange?: (perPage: number) => void;
         onSortChange?: (sort: ProjectSortKey) => void;
-        onStatusChange?: (projectId: number, status: string) => Promise<void>;
+        onStatusChange: (projectId: number, status: ProjectStatus) => Promise<boolean>;
         onOpenPaidModal?: (project: ProjectRow, e: MouseEvent) => void;
         onOpenAnnotationsModal?: (project: ProjectRow, e: MouseEvent) => void;
-        onChangeStatus?: (projectId: number) => void;
     } = $props();
 
     let openRow = $state<number | null>(null);
 
-    let openStatus = $state<number | null>(null);
-
-    const statusOptions = $derived(
-        PROJECT_STATUSES.map((status) => ({
-            id: status,
-            label: $t(projectStatusLabelKey(status)),
-            selected: false,
-        })),
-    );
-
     function toggleRow(_row: ProjectRow, index: number): void {
         openRow = openRow === index ? null : index;
-    }
-
-    const updatingStatus = new SvelteSet<number>();
-
-    async function handleStatusChangeInline(project: ProjectRow, newStatus: string) {
-        updatingStatus.add(project.id);
-        try {
-            await onStatusChange?.(project.id, newStatus);
-        } finally {
-            updatingStatus.delete(project.id);
-        }
     }
 </script>
 
@@ -154,6 +133,7 @@
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             {project.achieved}
         </TableBodyCell>
+        <!-- Hidden until the API provides the paid amount: the column shows "—" and the modal saves nothing.
         <TableBodyCell class="border-variant1 border-t border-b p-4">
             <div class="flex items-center gap-2">
                 <span>{project.paid}</span>
@@ -166,38 +146,11 @@
                 </button>
             </div>
         </TableBodyCell>
+        -->
         <TableBodyCell class="border-variant1 border-t border-b p-4">
-            <div onclick={(e) => e.stopPropagation()} role="presentation">
-                <DropdownMenu
-                    variant="basic"
-                    singleSelect
-                    options={statusOptions}
-                    selected={statusOptions.filter((o) => o.id === project.status)}
-                    bind:isOpen={
-                        () => openStatus === project.id,
-                        (open) => (openStatus = open ? project.id : null)
-                    }
-                    onChange={(option) => handleStatusChangeInline(project, option.id)}
-                >
-                    {#snippet trigger(listId)}
-                        <button
-                            type="button"
-                            class="border-secondary text-secondary flex w-full cursor-pointer items-center justify-between gap-1 rounded-sm border px-2 py-1 text-left text-sm disabled:cursor-default disabled:opacity-50"
-                            aria-expanded={openStatus === project.id}
-                            aria-controls={listId}
-                            aria-label={$t("pages.admin.projects.table.headers.process")}
-                            disabled={updatingStatus.has(project.id)}
-                            onclick={() =>
-                                (openStatus = openStatus === project.id ? null : project.id)}
-                        >
-                            <span class="truncate">
-                                {project.status ? $t(projectStatusLabelKey(project.status)) : "—"}
-                            </span>
-                            <Chevron direction="down" width="16" height="16" class="shrink-0" />
-                        </button>
-                    {/snippet}
-                </DropdownMenu>
-            </div>
+            <Tag class="border-secondary max-w-56 rounded-md border">
+                <span class="truncate">{$t(projectStatusLabelKey(project.status))}</span>
+            </Tag>
         </TableBodyCell>
         <TableBodyCell
             class="border-variant1 text-content rounded-r-md border-t border-r border-b p-4 text-sm"
@@ -215,7 +168,7 @@
             {project}
             onOpenAnnotationsModal={() =>
                 onOpenAnnotationsModal?.(project, new MouseEvent("click"))}
-            {onChangeStatus}
+            {onStatusChange}
             userEmail={userEmailById.get(project.id)}
         />
     {/snippet}

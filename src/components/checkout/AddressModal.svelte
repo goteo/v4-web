@@ -3,6 +3,7 @@
 
     import { locale, t } from "../../i18n/store";
     import { formatAddress } from "../../utils/formatAddress";
+    import { useFormDraft } from "../../utils/forms/useFormDraft.svelte";
     import AddressForm from "../address/AddressForm.svelte";
     import Button from "../library/buttons/Button.svelte";
     import RadioButton from "../library/inputs/RadioButton.svelte";
@@ -34,14 +35,33 @@
     let isSubmitting = $state(false);
     let addressForm = $state<AddressForm>();
 
+    /**
+     * The address picked before the language was switched. It decides whether the fields of a
+     * new address are shown at all, so it has to come back with them.
+     */
+    const { restored } = useFormDraft("checkout-address-choice", () => ({ choice }));
+
+    /** Kept out of the state on purpose: it must only be applied once. */
+    let pendingChoice: string | undefined = restored?.choice;
+
+    function takePendingChoice(): string | undefined {
+        const choice = pendingChoice;
+
+        pendingChoice = undefined;
+
+        return choice;
+    }
+
     $effect(() => {
         if (!open) return;
 
-        choice = addresses.some((a) => a.id === selected?.id)
+        const seed = addresses.some((a) => a.id === selected?.id)
             ? String(selected!.id)
             : addresses.length
               ? ""
               : NEW;
+
+        choice = takePendingChoice() ?? seed;
     });
 
     async function save(event: SubmitEvent) {
@@ -95,7 +115,7 @@
         />
 
         {#if choice === NEW}
-            <AddressForm bind:this={addressForm} {userIri} />
+            <AddressForm bind:this={addressForm} {userIri} draftId="checkout-address" />
         {/if}
     </form>
     {#snippet footer()}

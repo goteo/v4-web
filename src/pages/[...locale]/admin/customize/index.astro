@@ -1,0 +1,11 @@
+---
+import { getSubSections } from "../../../../components/admin/adminSections";
+
+const { lang } = Astro.locals;
+
+// The section has no landing of its own: it opens on its first sub-section, the same way
+// `/admin/home` and `/admin/comm` do.
+const [firstSubSection] = getSubSections("/admin/customize");
+
+return Astro.redirect(`/${lang}${firstSubSection?.href ?? "/admin/customize"}`);
+---
