@@ -48,7 +48,7 @@ if (projectFromApi) {
 ---
 
 <Layout title={t("pages.project.edit.title", { project: projectFromApi?.title! })}>
-    <App locale={locale} session={session} client:load>
+    <App headerLogo={Astro.locals.headerLogo} locale={locale} session={session} client:load>
         <ProjectEditorShell
             key={idOrSlug}
             actor={session.user}

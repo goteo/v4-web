@@ -24,6 +24,12 @@ declare namespace App {
          * The detected session.
          */
         session: import("./src/auth/types").Session | undefined;
+
+        /**
+         * The header logo managed from /admin/customize/logo.\
+         * `null` while none has been uploaded: the header shows the built-in one.
+         */
+        headerLogo: import("./src/repositories/headerLogo").HeaderLogo | null;
     }
 }
 

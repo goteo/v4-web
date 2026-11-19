@@ -75,7 +75,7 @@ const subtitle = counterpart?.name
     title={t("pages.review.title", { project: project?.title ?? "" })}
     description={t("pages.metadata.description")}
 >
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <div class="wrapper">
             <ReviewAreas
                 client:load

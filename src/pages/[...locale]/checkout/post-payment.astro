@@ -152,7 +152,7 @@ try {
     title={t("pages.checkout.postPayment.title")}
     description={t("pages.checkout.postPayment.title")}
 >
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <section class="wrapper flex flex-col items-start gap-6 pb-16 md:gap-10 md:pb-20">
             <div class="flex w-full items-start self-stretch">
                 <div class="flex flex-1 flex-col items-start gap-4 self-stretch">
