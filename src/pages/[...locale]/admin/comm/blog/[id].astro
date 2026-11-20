@@ -5,8 +5,9 @@ import WithSidebar from "../../../../../layouts/WithSidebar.svelte";
 import { getSubSections } from "../../../../../components/admin/adminSections";
 import BlogForm from "../../../../../components/admin/comm/blog/BlogForm.svelte";
 import { blogPostRepository } from "../../../../../repositories/blogPosts";
+import { getTaxonomy } from "../../../../../services/taxonomy";
 
-const { t, lang, session } = Astro.locals;
+const { t, lang, langs, session } = Astro.locals;
 const activePath = "/admin/comm/blog";
 const navItems = getSubSections("/admin/comm");
 
@@ -17,12 +18,14 @@ const post = id === "new" ? null : await blogPostRepository.getById(Number(id));
 if (id !== "new" && !post) {
     return Astro.rewrite("/404");
 }
+
+const { categories, themes } = await getTaxonomy(langs);
 ---
 
 <Layout title={t("pages.admin.comm.blog.title")} description={t("pages.metadata.description")}>
     <App client:load locale={lang} session={session} admin>
         <WithSidebar client:idle {navItems} {activePath}>
-            <BlogForm client:load {post} />
+            <BlogForm client:load {post} {categories} {themes} />
         </WithSidebar>
     </App>
 </Layout>
