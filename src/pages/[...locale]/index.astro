@@ -11,12 +11,13 @@ import Matchfunding from "../../components/home/Matchfunding.astro";
 import Banners from "../../components/home/HomeBanners.svelte";
 // Disabled sections, re-enable the import along with the component below:
 // import Stories from "../../components/home/Stories.svelte";
-// import Resources from "../../components/home/Resources.astro";
+import Resources from "../../components/home/Resources.astro";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
 import { blogPostRepository } from "../../repositories/blogPosts";
 import { homeHeroRepository } from "../../repositories/homeHero";
 import { getFeaturedUsers } from "../../services/featuredUsers";
+import { getTaxonomy } from "../../services/taxonomy";
 import { renderMarkdown } from "../../utils/renderMarkdown";
 
 const { locale } = Astro.params;
@@ -25,13 +26,21 @@ if (locale && !isSupportedLocale(locale)) {
     return Astro.rewrite("/404");
 }
 
-const { t, lang } = Astro.locals;
+const { t, lang, langs } = Astro.locals;
 
 const activeBanners = await bannerRepository.getActive(lang);
 const hero = await homeHeroRepository.getActive(lang);
-const {
-    posts: [latestPost],
-} = await blogPostRepository.getPublished(lang, { section: null, page: 1, perPage: 1 });
+const [
+    {
+        posts: [latestPost],
+    },
+    { posts: resources },
+    { categories, themes },
+] = await Promise.all([
+    blogPostRepository.getPublished(lang, { section: null, page: 1, perPage: 1 }),
+    blogPostRepository.getPublished(lang, { section: "resources", page: 1, perPage: 4 }),
+    getTaxonomy(langs),
+]);
 // Authored in the admin as Markdown. Only ROLE_ADMIN can write it.
 const heroContent = hero ? await renderMarkdown(hero.content) : null;
 
@@ -52,6 +61,6 @@ const featuredUsers = await getFeaturedUsers(lang);
         <!-- <Stories client:load /> -->
         <CampaignsTabs />
         {featuredUsers.length > 0 && <FeaturedUsers users={featuredUsers} client:visible />}
-        <!-- <Resources /> -->
+        {resources.length > 0 && <Resources posts={resources} {categories} {themes} />}
     </App>
 </Layout>
