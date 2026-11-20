@@ -13,6 +13,7 @@
     import Back from "../../../icons/navigation/Back.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
+    import CategorySelect from "../../../library/inputs/CategorySelect.svelte";
     import DateInput from "../../../library/inputs/DateInput.svelte";
     import FileUpload from "../../../library/inputs/FileUpload.svelte";
     import RadioButton from "../../../library/inputs/RadioButton.svelte";
@@ -21,15 +22,18 @@
     import Title from "../../../library/typography/Title.svelte";
     import TranslationLanguages from "../../TranslationLanguages.svelte";
 
+    import type { Category, Theme } from "../../../../openapi/client";
     import type { BlogPost } from "../../../../repositories/blogPosts";
     import type { BlogSection } from "../../../../utils/blog";
     import type { UploadedObject } from "../../../../utils/media/objectStorage.types";
 
     interface Props {
         post?: BlogPost | null;
+        categories: Category[];
+        themes: Theme[];
     }
 
-    let { post = null }: Props = $props();
+    let { post = null, categories, themes }: Props = $props();
 
     // The form edits its own copy of the post; showing another one is a page load.
     const initial = untrack(() => post);
@@ -53,6 +57,8 @@
     let section = $state<BlogSection>(initial?.section ?? "news");
     let author = $state(initial?.author ?? "");
     let videoUrl = $state(initial?.videoUrl ?? "");
+    let categoryIds = $state<string[]>(initial?.categoryIds ?? []);
+    let themeIds = $state<string[]>(initial?.themeIds ?? []);
 
     // Only URL and type are stored, so rebuild what FileUpload needs to list the current header.
     let header = $state<UploadedObject[]>(
@@ -117,6 +123,8 @@
         section,
         author,
         videoUrl,
+        categoryIds,
+        themeIds,
         header: header.map(({ url, type }) => ({ url, type })),
     }));
 
@@ -145,6 +153,14 @@
 
         if (restored.videoUrl !== undefined) {
             videoUrl = restored.videoUrl;
+        }
+
+        if (restored.categoryIds) {
+            categoryIds = restored.categoryIds;
+        }
+
+        if (restored.themeIds) {
+            themeIds = restored.themeIds;
         }
 
         if (restored.header) {
@@ -198,6 +214,9 @@
                 ),
             ),
         );
+
+        data.set("categoryIds", JSON.stringify(categoryIds));
+        data.set("themeIds", JSON.stringify(themeIds));
 
         if (publish) {
             data.set("published", "1");
@@ -369,6 +388,20 @@
                 />
             {/each}
         </div>
+    </fieldset>
+
+    <fieldset class="flex min-w-0 flex-col gap-6">
+        <Title level={3} variant="subsection">
+            {$t("pages.admin.comm.blog.form.categoriesSection")}
+        </Title>
+        <CategorySelect options={categories} bind:selectedIds={categoryIds} />
+    </fieldset>
+
+    <fieldset class="flex min-w-0 flex-col gap-6">
+        <Title level={3} variant="subsection">
+            {$t("pages.admin.comm.blog.form.themesSection")}
+        </Title>
+        <CategorySelect options={themes} bind:selectedIds={themeIds} />
     </fieldset>
 
     <div class="flex flex-wrap gap-4">

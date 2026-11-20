@@ -34,6 +34,19 @@ const headerMedia = z
     .transform((value) => JSON.parse(value))
     .pipe(z.array(z.object({ url: mediaUrl, type: z.string() })));
 
+// Identifiers of the API categories or themes linked to the post, sent as a JSON array.
+const taxonomyIds = z.preprocess((value) => {
+    if (typeof value !== "string" || value.length === 0) {
+        return [];
+    }
+
+    try {
+        return JSON.parse(value);
+    } catch {
+        return value;
+    }
+}, z.array(z.string()));
+
 const flag = z.enum(["0", "1"]).transform((value) => value === "1");
 
 // Only links the post page can turn into a player.
@@ -70,6 +83,8 @@ export const saveBlogPost = defineAction({
         headerMedia,
         videoUrl,
         section: z.enum(BLOG_SECTIONS),
+        categoryIds: taxonomyIds,
+        themeIds: taxonomyIds,
         published: flag,
     }),
     handler: async (input, context) => {
@@ -88,6 +103,8 @@ export const saveBlogPost = defineAction({
                 headerMedia: input.headerMedia,
                 videoUrl: input.videoUrl || null,
                 section: input.section,
+                categoryIds: input.categoryIds,
+                themeIds: input.themeIds,
             },
             input.translations,
         );

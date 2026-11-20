@@ -2449,6 +2449,8 @@
             "videoSection": "Añade un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Añade el enlace del vídeo",
             "sectionSection": "Sección",
+            "categoriesSection": "Categorías relacionadas",
+            "themesSection": "Temas relacionados",
             "sections": {
               "news": "Novedades",
               "stories": "Historias",
@@ -2851,6 +2853,12 @@
           "title": "Difunde este blog por el mundo",
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
+      }
+    },
+    "resources": {
+      "filters": {
+        "categories": "Categorías",
+        "themes": "Temas"
       }
     }
   }
