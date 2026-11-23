@@ -130,10 +130,22 @@
                                             class:flex={userDropdownOpen}
                                         >
                                             <a
-                                                href="/me"
+                                                href="/me/activity"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.activity")}
+                                            </a>
+                                            <a
+                                                href="/user/{$session.user.handle}"
                                                 class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
                                             >
                                                 {$t("common.header.goToProfile")}
+                                            </a>
+                                            <a
+                                                href="/me/manage"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.goToSettings")}
                                             </a>
                                             {#if $session.user.roles?.includes("ROLE_ADMIN")}
                                                 <a

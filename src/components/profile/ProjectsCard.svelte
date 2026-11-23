@@ -162,7 +162,7 @@
             recentTitleKey="pages.me.projects.recent"
             illustrationPath="/images/profile/ilustration-project.png"
             primaryActionLabel="pages.me.projects.viewAll"
-            primaryActionHref="/me#owned-projects"
+            primaryActionHref="/me/activity#owned-projects"
             secondaryActionLabel="pages.me.projects.createNew"
             secondaryActionHref="/create/project"
             isEmpty={!summary || summary.count === 0}

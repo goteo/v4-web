@@ -388,7 +388,7 @@
                 <TerritoryInput
                     bind:value={locality}
                     placeholder={$t("pages.me.manage.info.localityPlaceholder")}
-                    searchClasses="border-secondary h-14 shadow-none"
+                    searchClasses="border-secondary h-14 rounded-lg shadow-none"
                     onInput={handleLocality}
                     disabled={isSubmitting}
                 />

@@ -15,6 +15,7 @@
         projectSlug?: string;
         url?: string;
         buttonClass?: ClassNameValue;
+        labelClass?: ClassNameValue;
     }
 
     let {
@@ -23,6 +24,7 @@
         projectSlug = "",
         url = "",
         buttonClass = "",
+        labelClass = "",
     }: Props = $props();
 
     const widgetUrl = $derived(
@@ -57,8 +59,11 @@
         buttonClass,
     )}
 >
-    <ShareIcon {...variant === "blog" && { width: 20, height: 20 }} />
-    {$t("common.share")}
+    <ShareIcon
+        {...variant === "blog" && { width: 20, height: 20 }}
+        {...variant === "profile" && { width: 24, height: 24 }}
+    />
+    <span class={twMerge(labelClass)}>{$t("common.share")}</span>
 </button>
 
 <Modal

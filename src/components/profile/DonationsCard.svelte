@@ -191,7 +191,7 @@
             recentTitleKey="pages.me.donations.recent"
             illustrationPath="/images/profile/ilustration-donations.png"
             primaryActionLabel="pages.me.donations.viewAll"
-            primaryActionHref="/me#donated-projects"
+            primaryActionHref="/me/activity#donated-projects"
             isEmpty={!summary || summary.count === 0}
             emptyMessageKey="pages.me.donations.empty"
             emptyCtaLabel="pages.me.donations.explore"
