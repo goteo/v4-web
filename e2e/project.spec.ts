@@ -54,7 +54,7 @@ test.describe("rewards", () => {
             .click();
         await page.getByRole("button", { name: rewards.addToCart }).click();
 
-        // The header cart icon only shows once the cart has items; it has no accessible name
+        // The header cart icon only shows once the cart has items
         await page.locator('header a[href="/checkout"]').click();
 
         await expect(page.getByText(small.title)).toBeVisible();
@@ -71,7 +71,6 @@ test.describe("rewards", () => {
         await page.getByRole("textbox", { name: t.domain.project.reward.donation }).fill("5");
         await page.getByRole("button", { name: rewards.addToCart }).click();
 
-        // The modal renders the amount field twice (mobile and desktop layouts)
         await expect(
             page.getByText(rewards.error.invalidAmount).filter({ visible: true }),
         ).toBeVisible();

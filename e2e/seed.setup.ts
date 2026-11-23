@@ -69,7 +69,6 @@ setup("seed test projects", async ({ request }) => {
                 ...rewardTexts,
                 money: { amount: reward.amount, currency: "EUR" },
                 hasShipping: false,
-                // Unlimited rewards (`isFinite: false`) fail with a 500 in the API today
                 isFinite: true,
                 unitsTotal: 1000,
             });
