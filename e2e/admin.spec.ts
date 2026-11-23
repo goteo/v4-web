@@ -29,9 +29,9 @@ test.describe("as user", () => {
     test.use({ storageState: "e2e/.auth/user.json" });
 
     test("admin pages are forbidden", async ({ page }) => {
-        // TODO: also expect status 403 once the /403 page sets it (it answers 200 today)
-        await page.goto("/admin/charges");
+        const response = await page.goto("/admin/charges");
 
+        expect(response?.status()).toBe(403);
         await expect(page.getByText(t.pages["403"].title)).toBeVisible();
     });
 });
