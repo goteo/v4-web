@@ -1,5 +1,8 @@
 name: E2E (informational)
 
+# Failing tests turn the job red on the PR. It does not block the merge until it is made a
+# required check in the branch protection of develop and main.
+
 on:
     pull_request:
         branches:
@@ -60,7 +63,6 @@ jobs:
 
             - name: Run E2E tests
               if: steps.config.outputs.ready == 'true'
-              continue-on-error: true
               run: pnpm test:e2e
 
             - name: Upload report
