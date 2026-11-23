@@ -30,6 +30,7 @@ export default [
             ".wrangler/**",
             "coverage/**",
             "public/**",
+            ".storybook/public/**",
             "*.min.js",
             "eslint.config.js",
             ".astro/**",

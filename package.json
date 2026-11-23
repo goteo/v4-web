@@ -90,6 +90,8 @@
     "flowbite-svelte": "1.5.2",
     "flowbite-svelte-icons": "^2.3.0",
     "globals": "^17.7.0",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^3.0.3",
     "playwright": "^1.64.1",
     "prettier": "3.9.5",
     "prettier-plugin-astro": "^0.14.1",

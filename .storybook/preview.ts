@@ -1,3 +1,5 @@
+import { mswLoader } from "msw-storybook-addon/csf3";
+
 import type { Preview } from "@storybook/svelte-vite";
 // @ts-expect-error no CSS type declarations
 import "../src/styles/global.css";
@@ -5,6 +7,8 @@ import "../src/styles/global.css";
 import "svelte-range-slider-pips/dist/range-slider-pips.css";
 
 const preview: Preview = {
+    // Stories mock API calls with `parameters.msw.handlers`; the rest reach the network
+    loaders: [mswLoader()],
     parameters: {
         controls: {
             matchers: {
