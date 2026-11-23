@@ -55,7 +55,8 @@ jobs:
 
             - name: Prepare local D1 database
               if: steps.config.outputs.ready == 'true'
-              run: pnpm db:migrate && pnpm db:seed
+              # db/seed.sql has no statements yet; the migrations create every table the pages read
+              run: pnpm db:migrate
 
             - name: Install Chromium
               if: steps.config.outputs.ready == 'true'
