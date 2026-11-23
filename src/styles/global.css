@@ -5,6 +5,7 @@
 @import "flowbite/src/themes/default";
 
 @import "./marked";
+@import "./prosemirror";
 
 @source "../pages/**/*.{astro,svelte}";
 @source "../layouts/**/*.{astro,svelte}";
