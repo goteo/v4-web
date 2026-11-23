@@ -76,9 +76,9 @@ export default defineConfig({
 
         /**
          * Port the workerd inspector listens on in `astro dev`, and what
-         * `.vscode/launch.json` attaches to.
+         * `.vscode/launch.json` attaches to. Off for the E2E server, so it can run next to `astro dev`.
          */
-        inspectorPort: 9229,
+        inspectorPort: process.env.E2E ? false : 9229,
     }),
 
     cache: {

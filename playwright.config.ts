@@ -7,7 +7,9 @@ try {
     // No .env file: rely on the environment
 }
 
-const baseURL = "http://localhost:4321";
+// Not 4321: a running `pnpm dev` would be reused, and it has no CSP
+const port = 4322;
+const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
     testDir: "e2e",
@@ -32,8 +34,9 @@ export default defineConfig({
     // `preview` and not `dev`: the CSP only applies to built output, and preview runs on workerd.
     // `--ignore-lock` keeps it in the foreground: Astro backgrounds it when run by an AI agent.
     webServer: {
-        command: "pnpm build && pnpm preview --ignore-lock",
+        command: `pnpm build && pnpm preview --ignore-lock --port ${port}`,
         url: baseURL,
+        env: { E2E: "true" },
         reuseExistingServer: !process.env.CI,
         timeout: 300_000,
     },
