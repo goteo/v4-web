@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 /** Test data created in testing01 by `seed.setup.ts`, found again by title on every run. */
 export const seedProjects = {
     withRewards: {
+        owner: "admin",
         title: "E2E proyecto con recompensas",
         rewards: [
             { title: "E2E recompensa de 10 €", amount: 1000 },
@@ -10,10 +11,17 @@ export const seedProjects = {
         ],
     },
     withoutRewards: {
+        owner: "admin",
         title: "E2E proyecto sin recompensas",
         rewards: [],
     },
-};
+    /** Approved project of the test user, for the project management tests */
+    ownedByUser: {
+        owner: "user",
+        title: "E2E proyecto del usuario",
+        rewards: [{ title: "E2E recompensa del usuario", amount: 1500 }],
+    },
+} as const;
 
 export const SEED_FILE = "e2e/.auth/projects.json";
 

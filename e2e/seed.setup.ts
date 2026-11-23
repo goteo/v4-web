@@ -6,19 +6,26 @@ import { SEED_FILE, seedProjects, type SeededProjects } from "./seed";
 
 import type { APIRequestContext } from "@playwright/test";
 
-const ADMIN_STATE = "e2e/.auth/admin.json";
+const STATES = { admin: "e2e/.auth/admin.json", user: "e2e/.auth/user.json" };
 
 /**
- * Leaves the `seedProjects` in testing01 as the tests expect them: created by the test admin,
+ * Leaves the `seedProjects` in testing01 as the tests expect them: created by their owner,
  * in campaign, with their rewards. Idempotent, so it repairs data someone changed by hand.
- * Goes through `/api/relay`, which calls the API with the admin session cookie.
+ * Goes through `/api/relay`, which calls the API with each account's session cookie.
  */
-setup.use({ storageState: existsSync(ADMIN_STATE) ? ADMIN_STATE : undefined });
+setup("seed test projects", async ({ playwright }, testInfo) => {
+    setup.skip(
+        !existsSync(STATES.admin) || !existsSync(STATES.user),
+        "no test sessions: E2E_ADMIN_* / E2E_USER_* not set",
+    );
 
-setup("seed test projects", async ({ request }) => {
-    setup.skip(!existsSync(ADMIN_STATE), "no admin session: E2E_ADMIN_* not set");
-
-    const api = relay(request);
+    const contextOf = (storageState: string) =>
+        playwright.request.newContext({ ...testInfo.project.use, storageState });
+    const owners = {
+        admin: relay(await contextOf(STATES.admin)),
+        user: relay(await contextOf(STATES.user)),
+    };
+    const api = owners.admin;
     const [category] = await api.get("/v4/categories");
     const seededProjects = {} as SeededProjects;
 
@@ -28,7 +35,7 @@ setup("seed test projects", async ({ request }) => {
 
         const texts = { title: wanted.title, subtitle: "Proyecto de prueba para los tests E2E" };
 
-        project ??= await api.send("POST", "/v4/projects", {
+        project ??= await owners[wanted.owner].send("POST", "/v4/projects", {
             ...texts,
             categories: [`/v4/categories/${category.id}`],
             territory: { country: "ES" },
