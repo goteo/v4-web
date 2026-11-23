@@ -38,6 +38,8 @@ export default [
             ".github/**",
             "env.d.ts",
             "storybook-static/**",
+            "playwright-report/**",
+            "test-results/**",
             "graphify-out/**",
             "worker-configuration.d.ts",
         ],

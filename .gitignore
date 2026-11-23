@@ -40,3 +40,8 @@ yarn.lock
 .pnpm-store
 *storybook.log
 storybook-static
+
+# Playwright
+/playwright-report/
+/test-results/
+/e2e/.auth/

@@ -29,3 +29,7 @@ graphify-out/
 
 # Others
 pnpm-lock.yaml
+
+# Playwright
+playwright-report/
+test-results/
