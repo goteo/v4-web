@@ -16,19 +16,24 @@ export default defineConfig({
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
+    // Pages read the real testing01 API, which is slower than the 5 s default under parallel load
+    expect: { timeout: 10_000 },
     reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
     use: {
         baseURL,
-        // Paths without a language prefix follow Accept-Language: es is the default one
+        // Spanish everywhere: pages without a language prefix and API calls (`request`) follow
+        // Accept-Language, and `locale` alone only reaches the browser
         locale: "es-ES",
+        extraHTTPHeaders: { "Accept-Language": "es" },
         trace: "on-first-retry",
     },
     projects: [
-        { name: "setup", testMatch: /.*\.setup\.ts/ },
+        { name: "setup", testMatch: /auth\.setup\.ts/ },
+        { name: "seed", testMatch: /seed\.setup\.ts/, dependencies: ["setup"] },
         {
             name: "chromium",
             use: { ...devices["Desktop Chrome"] },
-            dependencies: ["setup"],
+            dependencies: ["seed"],
         },
     ],
     // `preview` and not `dev`: the CSP only applies to built output, and preview runs on workerd.
