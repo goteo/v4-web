@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import cloudflare from "@astrojs/cloudflare";
 import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import svelte from "@astrojs/svelte";
@@ -6,6 +8,7 @@ import { defineConfig, fontProviders, logHandlers } from "astro/config";
 import { loadEnv } from "vite";
 
 import { labels } from "./src/i18n/locales";
+import { headerHeightScript } from "./src/layouts/headerHeightScript";
 
 const locales = Object.keys(labels);
 
@@ -179,6 +182,14 @@ export default defineConfig({
                  * document when a project video comes from a PeerTube instance.
                  */
                 resources: ["'self'", "https://unpkg.com"],
+                /**
+                 * Astro hashes the scripts it bundles, but not `is:inline` ones. The header
+                 * height script has to run inline, before first paint, so its hash is computed
+                 * here from the same text `Layout.astro` renders.
+                 */
+                hashes: [
+                    `sha256-${createHash("sha256").update(headerHeightScript).digest("base64")}`,
+                ],
             },
         },
     },
