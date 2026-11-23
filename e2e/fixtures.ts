@@ -1,4 +1,4 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 
 /**
  * Fails any test whose page throws an uncaught error or logs a CSP violation.
@@ -23,5 +23,13 @@ export const test = base.extend<{ failOnPageErrors: void }>({
         { auto: true },
     ],
 });
+
+/**
+ * Waits until every `client:load` island has hydrated (Astro removes its `ssr` attribute).
+ * Clicks or typing before that hit the server HTML, which has no event handlers.
+ */
+export async function waitForHydration(page: Page) {
+    await expect(page.locator('astro-island[client="load"][ssr]')).toHaveCount(0);
+}
 
 export { expect };

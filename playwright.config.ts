@@ -17,6 +17,8 @@ export default defineConfig({
     reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
     use: {
         baseURL,
+        // Paths without a language prefix follow Accept-Language: es is the default one
+        locale: "es-ES",
         trace: "on-first-retry",
     },
     projects: [
