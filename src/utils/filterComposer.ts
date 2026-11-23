@@ -3,6 +3,7 @@ import { get } from "svelte/store";
 import { getDefaultLanguage } from "./consts";
 import { currencySymbols } from "./currencyData";
 import { PROJECT_STATUSES, projectStatusLabelKey } from "./projectStatus";
+import { CAMPAIGN_REVIEW_STATES, CAMPAIGN_REVIEW_STATE_LABELS } from "./review";
 import {
     searchAccountings,
     searchCategories,
@@ -89,6 +90,12 @@ const reviewTypes: FilterOption[] = [
     { value: "campaign", label: "domain.filterComposer.subjectOption.reviewType.campaign" },
     { value: "financial", label: "domain.filterComposer.subjectOption.reviewType.financial" },
 ];
+
+/** The five public states a campaign review is shown as, reused from the review screens. */
+const reviewStates: FilterOption[] = CAMPAIGN_REVIEW_STATES.map((state) => ({
+    value: state,
+    label: CAMPAIGN_REVIEW_STATE_LABELS[state],
+}));
 
 const currentLocale = get(locale) || getDefaultLanguage();
 const currencyName = new Intl.DisplayNames([currentLocale], { type: "currency" });
@@ -239,6 +246,17 @@ const filterSubjects: Record<string, FilterSubject> = {
         compatibleOperators: ["equals", "is_any_of"],
         resources: ["project_reviews"],
         suggest: searchUsersByEmail,
+        allowsMultipleEquals: true,
+    },
+    reviewState: {
+        key: "reviewState",
+        // The reviews endpoint cannot filter by project status; the table reads this
+        // param and resolves it against the Project collection before querying.
+        param: "projectStatus",
+        type: "string",
+        compatibleOperators: ["equals", "is_any_of"],
+        resources: ["project_reviews"],
+        options: reviewStates,
         allowsMultipleEquals: true,
     },
     dateCreated: {

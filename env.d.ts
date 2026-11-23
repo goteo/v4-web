@@ -30,6 +30,11 @@ declare namespace App {
          * `null` while none has been uploaded: the header shows the built-in one.
          */
         headerLogo: import("./src/repositories/headerLogo").HeaderLogo | null;
+
+        /**
+         * Set when the API did not answer its health check and the request was sent to `/500`.
+         */
+        apiDown?: boolean;
     }
 }
 

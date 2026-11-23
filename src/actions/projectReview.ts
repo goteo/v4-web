@@ -4,12 +4,20 @@ import { apiProjectsIdPatch } from "../openapi/client";
 import {
     createReviewAreaComment,
     getReview,
+    setReviewAdvisor,
     setReviewAreaRisk,
     type ReviewError,
 } from "../services/projectReview";
-import { canAccessReview, isConsultant, sessionUserIri } from "../services/reviewAccess";
-import { extractId } from "../utils/extractId";
 import {
+    canAccessReview,
+    isConsultant,
+    isProjectOwner,
+    sessionUserIri,
+} from "../services/reviewAccess";
+import { extractId } from "../utils/extractId";
+import { PROMOTER_CHANGES_DONE_STATUS } from "../utils/review";
+import {
+    zAssignReviewAdvisorInput,
     zSendReviewAreaCommentInput,
     zUpdateReviewAreaRiskInput,
     zUpdateReviewProjectStatusInput,
@@ -23,7 +31,11 @@ import {
 /**
  * Turns a failure of the review service into the error the screens display.
  */
-function fail(error: ReviewError | undefined, t: (key: string) => string): ActionError {
+function fail(
+    error: ReviewError | undefined,
+    t: (key: string) => string,
+    notFoundKey = "pages.review.errors.areaNotFound",
+): ActionError {
     if (error?.status === 401 || error?.status === 403) {
         return new ActionError({
             code: "FORBIDDEN",
@@ -34,7 +46,7 @@ function fail(error: ReviewError | undefined, t: (key: string) => string): Actio
     if (error === undefined || error.status === 404) {
         return new ActionError({
             code: "NOT_FOUND",
-            message: t("pages.review.errors.areaNotFound"),
+            message: t(notFoundKey),
         });
     }
 
@@ -90,6 +102,10 @@ export const updateReviewAreaRisk = defineAction({
  * The project is resolved from the review instead of being taken from the input,
  * so the status of a project cannot be changed through a review that is not its
  * own, and the target status is restricted to the review statuses.
+ *
+ * A consultant admin picks any of the three outcomes of the review. A promoter
+ * gets a single move: announcing that the requested changes are done, which is
+ * also the only one the API lets an owner of the project make.
  */
 export const updateReviewProjectStatus = defineAction({
     accept: "json",
@@ -97,20 +113,31 @@ export const updateReviewProjectStatus = defineAction({
     handler: async (input, context) => {
         const { session, t, lang } = context.locals;
 
-        if (!isConsultant(session)) {
+        if (!session) {
             throw new ActionError({
                 code: "FORBIDDEN",
                 message: t("pages.review.errors.forbidden"),
             });
         }
 
-        const { data: review } = await getReview(input.reviewId, session!, lang);
+        const { data: review } = await getReview(input.reviewId, session, lang);
 
         if (!review) {
             throw new ActionError({
                 code: "NOT_FOUND",
                 message: t("pages.review.errors.notFound"),
             });
+        }
+
+        if (!isConsultant(session)) {
+            const isOwner = await isProjectOwner(session, review);
+
+            if (!isOwner || input.status !== PROMOTER_CHANGES_DONE_STATUS) {
+                throw new ActionError({
+                    code: "FORBIDDEN",
+                    message: t("pages.review.errors.forbidden"),
+                });
+            }
         }
 
         const projectId = extractId(review.project);
@@ -125,7 +152,7 @@ export const updateReviewProjectStatus = defineAction({
         const { error } = await apiProjectsIdPatch({
             path: { id: projectId },
             headers: {
-                ...session!.token.asHttpHeaders,
+                ...session.token.asHttpHeaders,
                 "Content-Language": context.locals.lang,
             },
             body: { id: Number(projectId), status: input.status },
@@ -141,6 +168,44 @@ export const updateReviewProjectStatus = defineAction({
         }
 
         return { status: input.status };
+    },
+});
+
+/**
+ * Hands a review to an advisor.
+ *
+ * Only a consultant admin may do it: the action is posted to `/_actions/*`,
+ * which no firewall rule matches, so the permission is checked here instead of
+ * relying on the admin screen that renders the button.
+ *
+ * The review and its project are resolved on the server, so the caller cannot
+ * point the assignment or the opening of the review at another resource.
+ */
+export const assignReviewAdvisor = defineAction({
+    accept: "json",
+    input: zAssignReviewAdvisorInput,
+    handler: async (input, context) => {
+        const { session, t, lang } = context.locals;
+
+        if (!isConsultant(session)) {
+            throw new ActionError({
+                code: "FORBIDDEN",
+                message: t("pages.review.errors.forbidden"),
+            });
+        }
+
+        const { data, error } = await setReviewAdvisor(
+            input.reviewId,
+            input.reviewer,
+            session!,
+            lang,
+        );
+
+        if (error || !data) {
+            throw fail(error, t, "pages.review.errors.notFound");
+        }
+
+        return data;
     },
 });
 

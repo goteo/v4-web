@@ -1,7 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 
 import { checkAuth, resolveSession } from "./firewall";
-import { getLanguage, getUserLangPreferences, persistLanguage } from "./utils";
+import { getLanguage, getUserLangPreferences, isApiUp, persistLanguage } from "./utils";
 import { useTranslations } from "../i18n/utils";
 import { headerLogoRepository } from "../repositories/headerLogo";
 import { goto } from "../utils/navigation";
@@ -33,6 +33,22 @@ async function loadHeaderLogo(pathname: string): Promise<HeaderLogo | null> {
 }
 
 export const onRequest = defineMiddleware(async (context: APIContext, next) => {
+    const { pathname } = context.url;
+
+    /**
+     * Without the API no page can render its content. `/500` is left out because the
+     * rewrite below runs this middleware again; `/api` and `/_actions` answer with their
+     * own errors.
+     */
+    const isPage =
+        pathname !== "/500" && !pathname.startsWith("/api/") && !pathname.startsWith("/_");
+
+    if (isPage && !(await isApiUp())) {
+        context.locals.apiDown = true;
+
+        return context.rewrite("/500");
+    }
+
     const session = await resolveSession(context);
 
     const auth = await checkAuth(context, session);

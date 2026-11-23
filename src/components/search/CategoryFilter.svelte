@@ -53,7 +53,7 @@ Implements active/inactive pill states matching Figma design
 
 <div class="w-full">
     {#if showLabel}
-        <Title level={3} variant="field" class="font-body mb-6">
+        <Title level={3} variant="field" class="font-body mb-3">
             {$t("pages.search.filters.categoryLabel")}
         </Title>
     {/if}

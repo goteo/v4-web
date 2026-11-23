@@ -18,7 +18,7 @@
     bind:open
     title={$t("pages.admin.projects.modals.annotations.title")}
     closeBtnClass="top-4 end-4 bg-transparent text-secondary hover:bg-transparent hover:text-secondary focus:ring-0 shadow-none"
-    class="max-w-lg"
+    class="backdrop:bg-overlay max-w-lg backdrop:backdrop-blur-[5px]"
 >
     <div class="flex flex-col gap-4">
         <TextArea
