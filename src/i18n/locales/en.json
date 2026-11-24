@@ -409,6 +409,8 @@
       "search": "Search",
       "createProject": "Create your project",
       "goToProfile": "Go to Profile",
+      "activity": "Activity",
+      "goToSettings": "Go to Settings",
       "menu": "Menu",
       "admin": "Admin"
     },
@@ -743,9 +745,14 @@
         "minimum": "Minimum",
         "optimum": "Optimum",
         "daysRemaining": "{{days}} days remaining",
-        "finished": "Finished",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "Minimum exceeded!",
+        "status": {
+          "toMinimum": "Go for the minimum!",
+          "toOptimum": "Go for the optimum!",
+          "funded": "Funded",
+          "archived": "Archived",
+          "upcoming": "Coming soon"
+        },
         "userDonations": "Your donations:"
       },
       "blog": {
@@ -963,6 +970,8 @@
           "modal": {
             "title": "Add rewards",
             "description": "Describe the reward you offer",
+            "loadError": "The translations for this reward could not be loaded. Close and try again.",
+            "saveError": "The reward could not be saved. Please try again.",
             "unitsExisting": "Number of existing units",
             "form": {
               "titleLabel": "Reward title",
@@ -2531,6 +2540,7 @@
     },
     "profile": {
       "share": "Share",
+      "edit": "Edit profile",
       "shareModal": {
         "title": "Share this profile"
       },
@@ -2580,14 +2590,14 @@
         "activity": "Activity",
         "wallet": "Wallet",
         "inbox": "Inbox",
-        "profile": "Profile"
+        "profile": "Settings"
       },
       "manage": {
-        "title": "Promoter profile",
-        "subtitle": "Submit projects or fund initiatives. Complete your profile with a good introduction, relevant links, and a photo that identifies you.",
+        "title": "Public profile",
+        "subtitle": "This is how the Goteo community will see you. Add a photo that identifies you, a good introduction, and your links so that anyone who visits your profile knows who you are and what you promote.",
         "sidebar": {
           "publicProfile": "Public profile",
-          "personalProfile": "Personal profile",
+          "personalProfile": "Personal details",
           "addresses": "Addresses"
         },
         "addresses": {
@@ -2606,8 +2616,8 @@
           "uploadImage": "Upload new image",
           "avatarAlt": "Profile image",
           "type": {
-            "individual": "Promoter profile · Individual",
-            "organization": "Promoter profile · Legal entity"
+            "individual": "Natural person",
+            "organization": "Legal entity"
           }
         },
         "bio": {
@@ -2616,8 +2626,8 @@
           "placeholder": "Write a brief introduction"
         },
         "info": {
-          "title": "Promoter information",
-          "subtitle": "Tell us something about yourself",
+          "title": "Basic information",
+          "subtitle": "Your identification, location, and tax details",
           "handle": "Username",
           "firstName": "First name",
           "lastName": "Last name",
@@ -2686,8 +2696,8 @@
           "subtitle": "Indicate the type of projects that may connect with your interests so you can co-finance them and/or contribute other resources, knowledge, or skills. These categories are cross-cutting; you can select more than one."
         },
         "personal": {
-          "title": "Personal profile",
-          "subtitle": "This data is not shown on your public profile. Only you and our team can see it, and we use it to manage your taxes, invoices, and certificates.",
+          "title": "Personal details",
+          "subtitle": "Your username, first name, last name, and region are public. We use the rest only for your taxes, invoices, and certificates.",
           "info": {
             "title": "Personal information",
             "subtitle": "As it appears on your documentation.",
@@ -2717,7 +2727,7 @@
         },
         "preferences": {
           "title": "Preferences",
-          "subtitle": "Manage your profile preferences so everything flows the way you like",
+          "subtitle": "Manage your preferences so everything flows the way you like",
           "nav": {
             "preferences": "Preferences"
           },
