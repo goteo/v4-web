@@ -1,0 +1,22 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import App from "../../../../layouts/App.svelte";
+import WithSidebar from "../../../../layouts/WithSidebar.svelte";
+import FaqEditor from "../../../../components/admin/comm/faqs/FaqEditor.svelte";
+import { getSubSections } from "../../../../components/admin/adminSections";
+import { faqRepository } from "../../../../repositories/faqs";
+
+const { t, lang, session } = Astro.locals;
+const activePath = "/admin/comm/faqs";
+const navItems = getSubSections("/admin/comm");
+
+const faqs = await faqRepository.getAll();
+---
+
+<Layout title={t("pages.admin.comm.faqs.title")} description={t("pages.metadata.description")}>
+    <App client:load locale={lang} session={session} admin>
+        <WithSidebar client:idle {navItems} {activePath}>
+            <FaqEditor client:load {faqs} />
+        </WithSidebar>
+    </App>
+</Layout>

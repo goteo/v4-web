@@ -1,5 +1,6 @@
 import { deleteBanner, saveBanner } from "./banners";
 import { saveBlogPost, setBlogPostPublished } from "./blog";
+import { saveFaqs } from "./faqs";
 import { saveFeaturedUsers } from "./featuredUsers";
 import { saveFooter } from "./footer";
 import { createHeaderLogo, deleteHeaderLogo, getHeaderLogoData } from "./headerLogo";
@@ -25,6 +26,7 @@ export const server = {
     deleteBanner,
     saveBlogPost,
     setBlogPostPublished,
+    saveFaqs,
     createHomeHero,
     createHeaderLogo,
     deleteHeaderLogo,

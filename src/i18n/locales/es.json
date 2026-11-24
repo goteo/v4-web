@@ -2364,7 +2364,8 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Boletín"
+          "newsletter": "Boletín",
+          "faqs": "FAQs"
         },
         "banners": {
           "title": "Anuncios",
@@ -2457,6 +2458,27 @@
             },
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntas frecuentes",
+          "description": "Aquí puedes crear, ordenar y traducir las preguntas frecuentes de la plataforma",
+          "editHelp": "Escribe directamente en cada pregunta y despliégala para editar su respuesta. Así se verán en el idioma seleccionado.",
+          "empty": "Todavía no hay preguntas frecuentes",
+          "add": "Añadir pregunta",
+          "saved": "Preguntas frecuentes guardadas",
+          "lastUpdated": "Última actualización: {{ date }}",
+          "unsaved": "Sin guardar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escribe la pregunta",
+            "answer": "Respuesta",
+            "answerPlaceholder": "Escribe la respuesta"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar las preguntas frecuentes.",
+            "missingText": "Falta la pregunta o la respuesta de alguna FAQ en el idioma principal.",
+            "incompleteTranslation": "Alguna FAQ tiene la pregunta traducida pero no la respuesta, o al revés."
           }
         }
       },
