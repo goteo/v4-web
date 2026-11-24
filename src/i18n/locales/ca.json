@@ -409,6 +409,8 @@
       "search": "Cercar",
       "createProject": "Crea el teu projecte",
       "goToProfile": "Anar al perfil",
+      "activity": "Activitat",
+      "goToSettings": "Anar a la configuració",
       "menu": "Menú",
       "admin": "Administració"
     },
@@ -743,9 +745,14 @@
         "minimum": "Mínim",
         "optimum": "Òptim",
         "daysRemaining": "Queden {{days}} dies",
-        "finished": "Finalitzada",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "Mínim superat!",
+        "status": {
+          "toMinimum": "A pel mínim!",
+          "toOptimum": "A per l'òptim!",
+          "funded": "Finançat",
+          "archived": "Arxivat",
+          "upcoming": "Properament"
+        },
         "userDonations": "Les teves donacions:"
       },
       "blog": {
@@ -963,6 +970,8 @@
           "modal": {
             "title": "Afegeix recompenses",
             "description": "Descriu la recompensa que ofereixes",
+            "loadError": "No s'han pogut carregar les traduccions d'aquesta recompensa. Tanca i torna-ho a intentar.",
+            "saveError": "No s'ha pogut desar la recompensa. Torna-ho a intentar.",
             "unitsExisting": "Nombre d'unitats existents",
             "form": {
               "titleLabel": "Títol de la recompensa",
@@ -2531,6 +2540,7 @@
     },
     "profile": {
       "share": "Comparteix",
+      "edit": "Editar el perfil",
       "shareModal": {
         "title": "Comparteix aquest perfil"
       },
@@ -2580,14 +2590,14 @@
         "activity": "Activitat",
         "wallet": "Moneder",
         "inbox": "Bústia",
-        "profile": "Perfil"
+        "profile": "Configuració"
       },
       "manage": {
-        "title": "Perfil d'impulsor",
-        "subtitle": "Presenta projectes o finança iniciatives. Completa el teu perfil amb una bona presentació, enllaços rellevants i una foto que t'identifiqui.",
+        "title": "Perfil públic",
+        "subtitle": "Així et veurà la comunitat de Goteo. Afegeix una foto que t'identifiqui, una bona presentació i els teus enllaços perquè qui visiti el teu perfil sàpiga qui ets i què impulses.",
         "sidebar": {
           "publicProfile": "Perfil públic",
-          "personalProfile": "Perfil personal",
+          "personalProfile": "Dades personals",
           "addresses": "Adreces"
         },
         "addresses": {
@@ -2606,8 +2616,8 @@
           "uploadImage": "Puja una imatge nova",
           "avatarAlt": "Imatge de perfil",
           "type": {
-            "individual": "Perfil impulsor · Persona física",
-            "organization": "Perfil impulsor · Persona jurídica"
+            "individual": "Persona física",
+            "organization": "Persona jurídica"
           }
         },
         "bio": {
@@ -2616,8 +2626,8 @@
           "placeholder": "Escriu una breu presentació"
         },
         "info": {
-          "title": "Informació de l'impulsor",
-          "subtitle": "Explica'ns alguna cosa sobre tu",
+          "title": "Informació bàsica",
+          "subtitle": "La teva identificació, ubicació i dades fiscals",
           "handle": "Nom d'usuari",
           "firstName": "Nom",
           "lastName": "Cognoms",
@@ -2686,8 +2696,8 @@
           "subtitle": "Indica el tipus de projectes que poden connectar amb els teus interessos per cofinançar-los i/o aportar-hi altres recursos, coneixements o habilitats. Aquestes categories són transversals, en pots seleccionar més d'una."
         },
         "personal": {
-          "title": "Perfil personal",
-          "subtitle": "Aquestes dades no es mostren al teu perfil públic. Només tu i el nostre equip les podeu veure, i les fem servir per gestionar els teus impostos, factures i certificats.",
+          "title": "Dades personals",
+          "subtitle": "El teu nom d'usuari, nom, cognoms i territori són públics. La resta només la fem servir per als teus impostos, factures i certificats.",
           "info": {
             "title": "Informació personal",
             "subtitle": "Tal com apareixen a la teva documentació.",
@@ -2717,7 +2727,7 @@
         },
         "preferences": {
           "title": "Preferències",
-          "subtitle": "Gestiona les teves preferències de perfil perquè tot flueixi al teu gust",
+          "subtitle": "Gestiona les teves preferències perquè tot flueixi al teu gust",
           "nav": {
             "preferences": "Preferències"
           },
