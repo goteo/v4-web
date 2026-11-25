@@ -160,7 +160,12 @@
         }
 
         if (issue.code === "custom") {
-            return $t(issue.message, issue.params);
+            const params = Object.entries(issue.params ?? {}).map(([key, value]) => [
+                key,
+                value instanceof Date ? formatDate(value, $locale) : value,
+            ]);
+
+            return $t(issue.message, Object.fromEntries(params));
         }
 
         if (issue.code === "invalid_format" && field === "title") {

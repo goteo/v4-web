@@ -1,12 +1,16 @@
 <script lang="ts">
+    import { PROFILE_PATHS } from "./meSections";
     import ProfileDonorType from "./ProfileDonorType.svelte";
     import ProfileInfo from "./ProfileInfo.svelte";
     import VerifiedBadge from "./VerifiedBadge.svelte";
+    import { session } from "../../auth/store";
     import { t } from "../../i18n/store";
     import { getDefaultCurrency } from "../../utils/consts";
     import { renderMarkdown } from "../../utils/renderMarkdown";
     import CampaignCard from "../home/CampaignCard.svelte";
+    import EditIcon from "../icons/actions/Edit.svelte";
     import DefaultAvatar from "../icons/DefaultAvatar.svelte";
+    import Button from "../library/buttons/Button.svelte";
     import Grid from "../library/layout/Grid.svelte";
     import Tabs from "../library/layout/Tabs.svelte";
     import ShareButton from "../library/share/ShareButton.svelte";
@@ -33,6 +37,10 @@
     }: Props = $props();
 
     const displayName = $derived(user.displayName ?? user.handle);
+
+    // The page is edge-cached for every visitor, so ownership is only known client-side once
+    // App.svelte has loaded the session.
+    const isOwnProfile = $derived($session?.user.id === user.id);
 
     let pageUrl = $state("");
     $effect(() => {
@@ -61,12 +69,30 @@
 <div class="flex w-full flex-col items-center">
     <!-- Hero: cover + avatar + action buttons -->
     <div class="bg-secondary relative h-100 w-full">
-        <div class="absolute right-6 bottom-6 flex gap-3">
+        <!--
+            Mobile: icon-only, one on each side of the avatar (w-72 = avatar + both buttons).
+            Desktop: full buttons in the bottom-right corner of the cover.
+        -->
+        <div
+            class="absolute bottom-0 left-1/2 z-10 flex w-72 -translate-x-1/2 translate-y-1/2 justify-between md:right-6 md:bottom-6 md:left-auto md:w-auto md:translate-x-0 md:translate-y-0 md:gap-3"
+        >
             <ShareButton
                 variant="profile"
                 url={pageUrl}
-                buttonClass="bg-variant1 text-secondary rounded-3xl px-6 py-4"
+                buttonClass="bg-variant1 text-secondary size-12 justify-center rounded-2xl p-0 hover:underline md:size-auto md:px-4 md:py-2"
+                labelClass="sr-only md:not-sr-only"
             />
+            {#if isOwnProfile}
+                <Button
+                    kind="primary"
+                    size="sm"
+                    href={PROFILE_PATHS.profile}
+                    class="size-12 p-0 md:size-auto md:px-4 md:py-2"
+                >
+                    <EditIcon width="24" height="24" />
+                    <span class="sr-only md:not-sr-only">{$t("pages.profile.edit")}</span>
+                </Button>
+            {/if}
             <!--
                 <Button kind="primary" size="sm">
                     {$t("pages.profile.subscribe")}

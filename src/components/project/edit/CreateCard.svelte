@@ -8,7 +8,6 @@
     import {
         apiProjectBudgetItemsPost,
         apiProjectCollaborationsPost,
-        apiProjectRewardsPost,
         type ProjectBudgetItem,
         type ProjectCollaboration,
         type ProjectReward,
@@ -52,22 +51,6 @@
         open = true;
 
         onClick?.();
-    }
-
-    async function handleReward(newReward: ProjectReward) {
-        const { error } = await apiProjectRewardsPost({
-            baseUrl: "/api/relay",
-            headers: { "Content-Language": $draft.lang },
-            body: newReward,
-        });
-
-        if (!error) {
-            open = false;
-            onSave?.(newReward);
-            return;
-        }
-
-        console.error(error);
     }
 
     async function handleCollab(newCollab: ProjectCollaboration) {
@@ -147,7 +130,7 @@
 {/if}
 
 {#if !disabled && variant === "reward"}
-    <RewardsModal bind:open {draft} onSave={handleReward} />
+    <RewardsModal bind:open {draft} {onSave} />
 {:else if !disabled && variant === "collab"}
     <CollabsModal bind:open {draft} onSave={handleCollab} />
 {:else if !disabled && variant === "budget"}

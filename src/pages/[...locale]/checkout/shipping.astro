@@ -33,7 +33,13 @@ const { data: addresses } = await apiAddressesGetCollection({
     title={t("pages.checkout.metadata.title")}
     description={t("pages.checkout.metadata.description")}
 >
-    <App client:load locale={lang} session={session} class="mb-20">
+    <App
+        headerLogo={Astro.locals.headerLogo}
+        client:load
+        locale={lang}
+        session={session}
+        class="mb-20"
+    >
         <div class="wrapper max-md:px-0">
             <BackButton client:idle />
             <div class="flex flex-col gap-8 pt-6 lg:flex-row">

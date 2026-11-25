@@ -16,7 +16,13 @@ if (session) {
 ---
 
 <Layout title={t("pages.register.title")} description={t("pages.register.description")}>
-    <App client:load locale={lang} session={session} class="mb-20">
+    <App
+        headerLogo={Astro.locals.headerLogo}
+        client:load
+        locale={lang}
+        session={session}
+        class="mb-20"
+    >
         <div class="wrapper pt-6">
             <div class="mx-auto max-w-2xl">
                 <Register client:load standalone callback={callback} />

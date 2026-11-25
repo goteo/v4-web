@@ -121,6 +121,7 @@
         "reviewType": "Review type",
         "project": "Project",
         "reviewer": "Advisor",
+        "reviewState": "Review status",
         "userTerritoryCountry": "Location"
       },
       "operator": {
@@ -269,6 +270,13 @@
         "low": "Low risk",
         "mid": "Medium risk",
         "high": "High risk"
+      },
+      "state": {
+        "pending": "Pending review",
+        "changesRequested": "Needs changes",
+        "changesDone": "Changes made",
+        "rejected": "Rejected",
+        "approved": "Approved for campaign"
       }
     },
     "tipping": {
@@ -484,6 +492,7 @@
     "500": {
       "title": "Something has gone terribly wrong",
       "subtitle": "Please wait a few seconds before trying again.",
+      "apiDown": "We couldn't connect to the Goteo API. Please wait a few seconds before trying again.",
       "meta": {
         "title": "Unexpected condition for the request",
         "description": "Internal server error."
@@ -1406,7 +1415,8 @@
         "label": "Project"
       },
       "status": {
-        "label": "Review status"
+        "label": "Review status",
+        "updated": "The review status has been updated."
       },
       "areas": {
         "title": "Risk areas",
@@ -1416,6 +1426,8 @@
         "seeChat": "View conversation",
         "changeRisk": "Change risk",
         "changeStatus": "Change status",
+        "decide": "Decide review",
+        "changesDone": "I have made the changes",
         "back": "Back to review"
       },
       "card": {
@@ -2456,6 +2468,22 @@
           "list": "Project list:",
           "totalizers": {
             "selected": "Selected projects:"
+          },
+          "decisions": {
+            "title": "Confirm decision",
+            "description": "“{{ project }}” will move to “{{ state }}”. Do you want to apply it?",
+            "confirm": "Apply"
+          },
+          "toasts": {
+            "statusUpdated": "The status of “{{ project }}” has been updated.",
+            "statusNotUpdated": "Could not update the status of “{{ project }}”.",
+            "advisorAssigned": "“{{ advisor }}” is now the advisor for “{{ project }}”.",
+            "advisorNotAssigned": "Could not assign the advisor for “{{ project }}”."
+          },
+          "filter": {
+            "tooMany": "Too many projects in this status to filter the table. Narrow the filter by date.",
+            "tooManyProjects": "There are {{ count }} projects in this status and the filter supports up to {{ max }}. Narrow the filter by date or use the project list.",
+            "failed": "Could not apply the status filter. Please try again."
           },
           "table": {
             "headers": {

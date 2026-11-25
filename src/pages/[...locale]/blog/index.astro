@@ -26,7 +26,7 @@ const { categories, themes } = await getTaxonomy(langs);
 ---
 
 <Layout title={t("pages.blog.title")} description={t("pages.blog.description")}>
-    <App client:load locale={lang}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang}>
         <!-- .wrapper sets padding and margin outside Tailwind's layers, so spacing goes inside. -->
         <section class="wrapper">
             <div class="flex flex-col gap-10 pt-10 pb-20">

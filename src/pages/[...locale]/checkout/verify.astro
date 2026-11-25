@@ -128,7 +128,7 @@ try {
 ---
 
 <Layout title={t("pages.checkout.verify.title")}>
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <div class="wrapper pt-6 md:px-0">
             {
                 error ? (

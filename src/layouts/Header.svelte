@@ -1,6 +1,5 @@
 <script lang="ts">
     import { clickOutside } from "flowbite-svelte";
-    import { onMount } from "svelte";
 
     import { session } from "../auth/store";
     import CartButton from "../components/checkout/CartButton.svelte";
@@ -12,31 +11,17 @@
     import { t } from "../i18n/store";
     import { cartCount } from "../stores/checkoutsStore";
 
+    import type { HeaderLogo } from "../repositories/headerLogo";
     import type { Snippet } from "svelte";
 
-    let { children, nav }: { children?: Snippet; nav?: Snippet } = $props();
-
-    interface HeaderLogo {
-        src: string;
-        alt: string;
+    interface Props {
+        children?: Snippet;
+        nav?: Snippet;
+        /** Logo managed from /admin/customize/logo; null shows the built-in one. */
+        logo?: HeaderLogo | null;
     }
 
-    // The logo is managed from /admin/customize/logo. Fetching it here keeps the
-    // pages that mount the header from passing it down as a prop, and falls back
-    // to the built-in logo while nothing is scheduled.
-    let logo = $state<HeaderLogo | null>(null);
-
-    onMount(async () => {
-        try {
-            const response = await fetch("/api/header-logo");
-
-            if (!response.ok) return;
-
-            logo = (await response.json()) as HeaderLogo | null;
-        } catch (e) {
-            console.error("Header logo fetch failed:", e);
-        }
-    });
+    let { children, nav, logo = null }: Props = $props();
 
     let menuOpen = $state(false);
 
@@ -130,10 +115,22 @@
                                             class:flex={userDropdownOpen}
                                         >
                                             <a
-                                                href="/me"
+                                                href="/me/activity"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.activity")}
+                                            </a>
+                                            <a
+                                                href="/user/{$session.user.handle}"
                                                 class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
                                             >
                                                 {$t("common.header.goToProfile")}
+                                            </a>
+                                            <a
+                                                href="/me/manage"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.goToSettings")}
                                             </a>
                                             {#if $session.user.roles?.includes("ROLE_ADMIN")}
                                                 <a

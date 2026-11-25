@@ -119,7 +119,7 @@ const [donatedCampaigns, ownedCampaigns] = await Promise.all([
 ---
 
 <Layout title={user.displayName ?? user.handle} description={user.handle}>
-    <App client:load locale={lang} class="mt-0 pb-20">
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} class="mt-0 pb-20">
         <User
             {user}
             {ownedCampaigns}

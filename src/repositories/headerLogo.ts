@@ -10,6 +10,12 @@ export interface HeaderLogoRecord {
     dateCreated: Date;
 }
 
+/** What the header needs to render the active logo. */
+export interface HeaderLogo {
+    src: string;
+    alt: string;
+}
+
 const COLUMNS = `id,
                  media_url    AS mediaUrl,
                  media_type   AS mediaType,
