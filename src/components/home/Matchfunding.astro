@@ -1,59 +1,11 @@
 ---
 // Matchfunding section derived from Figma design
 // Uses design tokens and Tailwind utility classes.
-// Later this could be powered by real API data.
-import hacenderaImage from "./hacendera-de-proyectos.png";
-import reeiximImage from "./reeixim-loesst.png";
-
+// The call cards and impact metrics that used to live here were hardcoded Goteo deployment
+// data: real call titles, invented figures, bundled images and Spanish-only strings. Power
+// them from apiMatchCalls* and point the buttons at real routes before re-enabling this
+// section on the home page.
 const { t } = Astro.locals;
-
-// Mock impact metrics (could be localized / formatted later)
-const impact = [
-    { label: t("pages.home.matchfunding.impact.matchers"), value: "2.192.716 €" },
-    { label: t("pages.home.matchfunding.impact.successfulProjects"), value: "255" },
-    { label: t("pages.home.matchfunding.impact.successRate"), value: "91%" },
-];
-
-// Mock active / past calls (simplified from Figma example)
-interface CallCardStat {
-    label: string;
-    value: string;
-}
-
-interface CallCard {
-    title: string;
-    stats: CallCardStat[]; // supports 2 or more stats depending on the card
-    cta: string;
-    tag?: string;
-    background: string; // temp image url
-    finished?: boolean;
-}
-
-const calls: CallCard[] = [
-    {
-        title: "Hacendera de proyectos",
-        stats: [
-            { label: t("pages.home.matchfunding.cards.grant"), value: "200.000€" },
-            { label: t("pages.home.matchfunding.cards.inscription"), value: "15/08/2025" },
-        ],
-        // Figma CTA copy
-        cta: "Inscríbete en la convocatoria",
-        background: hacenderaImage.src,
-    },
-    {
-        title: "Reeixim L`oesst",
-        stats: [
-            { label: t("pages.home.matchfunding.cards.grant"), value: "200.000€" },
-            { label: t("pages.home.matchfunding.cards.participants"), value: "15 proyectos" },
-            // TODO i18n: add proper key for "Proyectos acabados con éxito"
-            { label: "Proyectos acabados con éxito", value: "4 proyectos" },
-        ],
-        cta: "Ver las campañas de la convocatoria",
-        background: reeiximImage.src,
-        tag: `Finalizada 24/09/25`,
-        finished: true,
-    },
-];
 ---
 
 <section class="bg-secondary w-full text-white">
@@ -100,57 +52,7 @@ const calls: CallCard[] = [
                             {t("pages.home.matchfunding.impact.description")}
                         </p>
                     </div>
-                    <div class="flex flex-wrap items-start justify-between gap-8">
-                        {
-                            impact.map((item) => (
-                                <div class="flex flex-col gap-2" data-label={item.label}>
-                                    <span class="text-sm text-white">{item.label}</span>
-                                    <span class="text-4xl font-bold tracking-tight">
-                                        {item.value}
-                                    </span>
-                                </div>
-                            ))
-                        }
-                    </div>
                 </div>
-            </div>
-
-            <!-- Calls (cards) -->
-            <div class="flex flex-col gap-6 lg:flex-row">
-                {
-                    calls.map((card) => (
-                        <div
-                            class="relative flex w-full flex-col justify-between overflow-hidden rounded-3xl bg-cover bg-center text-white lg:w-1/2"
-                            style={`background-image:url(${card.background});`}
-                        >
-                            <div class="relative z-10 flex flex-col gap-10 p-10">
-                                <div class="flex flex-col gap-4">
-                                    <h4 class="text-3xl font-bold">{card.title}</h4>
-                                    <div class="flex gap-6">
-                                        {card.stats.map((s) => (
-                                            <div class="flex flex-col">
-                                                <span class="text-sm text-white">{s.label}</span>
-                                                <span class="text-2xl font-bold">{s.value}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <a
-                                    href="/convocatorias"
-                                    class="bg-purple-soft text-secondary w-fit rounded-3xl px-6 py-4 text-sm font-bold transition hover:opacity-90"
-                                >
-                                    {card.cta}
-                                </a>
-                            </div>
-                            {card.tag && (
-                                <div class="bg-tertiary absolute top-6 right-6 z-20 rounded px-2 py-1 text-xs font-medium text-white">
-                                    {card.tag}
-                                </div>
-                            )}
-                            <div class="pointer-events-none absolute inset-0 z-0 bg-gradient-to-r from-black/70 to-black/30" />
-                        </div>
-                    ))
-                }
             </div>
         </div>
     </div>

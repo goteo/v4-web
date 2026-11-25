@@ -4,14 +4,14 @@ import App from "../../layouts/App.svelte";
 import Hero from "../../components/hero/Hero.svelte";
 import Campaigns from "../../components/home/Campaigns.astro";
 import CampaignsTabs from "../../components/home/CampaignsTabs.astro";
-import Stats from "../../components/home/Stats.astro";
 import FeaturedUsers from "../../components/home/FeaturedUsers.svelte";
 import Blog from "../../components/home/Blog.astro";
-import Matchfunding from "../../components/home/Matchfunding.astro";
 import Banners from "../../components/home/HomeBanners.svelte";
 // Disabled sections, re-enable the import along with the component below:
 // import Stories from "../../components/home/Stories.svelte";
 // import Resources from "../../components/home/Resources.astro";
+// import Stats from "../../components/home/Stats.astro";
+// import Matchfunding from "../../components/home/Matchfunding.astro";
 import { isSupportedLocale } from "../../i18n/locales";
 import { bannerRepository } from "../../repositories/banners";
 import { blogPostRepository } from "../../repositories/blogPosts";
@@ -46,8 +46,15 @@ const featuredUsers = await getFeaturedUsers(lang);
         <Banners banners={activeBanners} client:visible />
         <Campaigns />
         {latestPost && <Blog post={latestPost} />}
-        <Stats />
-        <Matchfunding />
+        <!-- GOTEO-OC-HOME-STATS: the figures are deployment data hardcoded in the i18n
+             catalogues and the main button leaves the site for an external stats dashboard.
+             Re-enable once the numbers have a dynamic source. -->
+        <!-- <Stats /> -->
+        <!-- GOTEO-OC-HOME-MATCHFUNDING: the call cards and impact metrics used to be
+             hardcoded Goteo data, and both buttons point at routes (/matchfunding,
+             /convocatorias) that are not shipped. Re-enable once the section reads real
+             data from apiMatchCalls* and those routes exist. -->
+        <!-- <Matchfunding /> -->
         <!-- Uncomment the matching import at the top when enabling either of these. -->
         <!-- <Stories client:load /> -->
         <CampaignsTabs />
