@@ -15,24 +15,7 @@ export type BlogSection = (typeof BLOG_SECTIONS)[number];
  * @returns The texts, in the base language wherever the translation lacks one
  */
 export function textsIn(post: BlogPost, locale: string): BlogPostTexts {
-    const { title, subtitle, content } = post;
+    const { title, subtitle, content, excerpt } = post;
 
-    return { title, subtitle, content, ...post.translations[locale] };
-}
-
-/**
- * Plain-text summary of a Markdown body, for cards that cannot render it.
- * @param content The Markdown content
- * @param maxLength Maximum number of characters before truncating
- * @returns The text without Markdown syntax, truncated when needed
- */
-export function excerptFromMarkdown(content: string, maxLength = 180): string {
-    const text = content
-        .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
-        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
-        .replace(/[#>*_`~]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-    return text.length > maxLength ? `${text.slice(0, maxLength).trimEnd()}…` : text;
+    return { title, subtitle, content, excerpt, ...post.translations[locale] };
 }

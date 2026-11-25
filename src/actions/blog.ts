@@ -22,7 +22,12 @@ const translations = z
     .pipe(
         z.record(
             languageCode,
-            z.object({ title, subtitle: z.string().optional(), content: z.string().optional() }),
+            z.object({
+                title,
+                subtitle: z.string().optional(),
+                content: z.string().optional(),
+                excerpt: z.string().optional(),
+            }),
         ),
     );
 
@@ -77,6 +82,7 @@ export const saveBlogPost = defineAction({
         title,
         subtitle: optionalText,
         content: optionalText,
+        excerpt: optionalText,
         translations,
         author: optionalText,
         publishedAt: z.coerce.date().optional(),
@@ -97,6 +103,7 @@ export const saveBlogPost = defineAction({
                 title: input.title,
                 subtitle: input.subtitle || null,
                 content: input.content ?? "",
+                excerpt: input.excerpt ?? "",
                 author: input.author || null,
                 published: input.published,
                 publishedAt: input.publishedAt ?? null,

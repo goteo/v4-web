@@ -2,7 +2,6 @@
 import ResourceCard from "./ResourceCard.astro";
 import Arrow from "../../components/icons/navigation/Arrow.svelte";
 import { namesForIds } from "../../services/taxonomy";
-import { excerptFromMarkdown } from "../../utils/blog";
 import Grid from "../library/layout/Grid.svelte";
 
 import type { Category, Theme } from "../../openapi/client";
@@ -20,7 +19,7 @@ const { t, lang } = Astro.locals;
 const resources = posts.map((post) => ({
     id: post.id,
     title: post.title,
-    description: post.subtitle || excerptFromMarkdown(post.content),
+    description: post.subtitle || post.excerpt,
     image: post.headerMedia.find((media) => media.type.startsWith("image/"))?.url,
     href: `/${lang}/blog/${post.id}`,
     linkText: t("pages.home.resources.readMore"),

@@ -10,6 +10,11 @@
         getLanguageDisplayName,
         primaryLanguage as pickPrimaryLanguage,
     } from "../../../../utils/lang";
+    import {
+        loadMarkdown,
+        markdownToRichText,
+        richTextToPlainText,
+    } from "../../../../utils/richText";
     import Back from "../../../icons/navigation/Back.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
@@ -46,6 +51,7 @@
         title: string;
         subtitle: string;
         content: string;
+        excerpt: string;
     }
 
     const listHref = $derived(`/${$locale}/admin/comm/blog`);
@@ -75,7 +81,13 @@
     let errorMessage = $state("");
     let showError = $state(false);
 
-    const emptyTexts = (): Texts => ({ title: "", subtitle: "", content: "" });
+    const emptyTexts = (): Texts => ({ title: "", subtitle: "", content: "", excerpt: "" });
+
+    async function contentChanged(texts: Texts, value: string) {
+        texts.content = value;
+        await loadMarkdown();
+        texts.excerpt = richTextToPlainText(markdownToRichText(value)).trim();
+    }
 
     const defaultLanguage = getDefaultLanguage();
 
@@ -91,6 +103,7 @@
                           title: stored?.title ?? "",
                           subtitle: stored?.subtitle ?? "",
                           content: stored?.content ?? "",
+                          excerpt: stored?.excerpt ?? "",
                       },
                   ];
               }),
@@ -197,6 +210,7 @@
         data.set("title", primary.title.trim());
         data.set("subtitle", primary.subtitle.trim());
         data.set("content", primary.content.trim());
+        data.set("excerpt", primary.excerpt.trim());
         data.set(
             "translations",
             JSON.stringify(
@@ -209,6 +223,7 @@
                                 title: texts[code].title.trim(),
                                 subtitle: texts[code].subtitle.trim() || undefined,
                                 content: texts[code].content.trim() || undefined,
+                                excerpt: texts[code].excerpt.trim() || undefined,
                             },
                         ]),
                 ),
@@ -355,7 +370,7 @@
             <RichTextEditor
                 id={`${contentId}-${selectedLanguage}`}
                 value={active.content}
-                onChange={(value) => (active.content = value)}
+                onChange={(value) => contentChanged(active, value)}
                 format="markdown"
                 placeholder={$t("pages.admin.comm.blog.form.contentPlaceholder")}
             />

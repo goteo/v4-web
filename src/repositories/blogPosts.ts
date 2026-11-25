@@ -10,9 +10,10 @@ export interface BlogPostTexts {
     title: string;
     subtitle: string | null;
     content: string;
+    excerpt: string;
 }
 
-const TRANSLATABLE_COLUMNS = ["title", "subtitle", "content"] as const;
+const TRANSLATABLE_COLUMNS = ["title", "subtitle", "content", "excerpt"] as const;
 
 /** The stored texts of the languages other than the base one, keyed by locale. */
 export type BlogPostTranslations = Record<string, Partial<BlogPostTexts>>;
@@ -61,7 +62,7 @@ const META_COLUMNS = `p.id,
                  p.date_created   AS dateCreated,
                  p.date_updated   AS dateUpdated`;
 
-const COLUMNS = `p.title, p.subtitle, p.content, ${META_COLUMNS}`;
+const COLUMNS = `p.title, p.subtitle, p.content, p.excerpt, ${META_COLUMNS}`;
 
 interface BlogPostRow extends Omit<
     BlogPostRecord,
@@ -221,7 +222,8 @@ class BlogPostRepository {
                     `SELECT ${META_COLUMNS},
                             COALESCE(t_title.value, p.title)       AS title,
                             COALESCE(t_subtitle.value, p.subtitle) AS subtitle,
-                            COALESCE(t_content.value, p.content)   AS content
+                            COALESCE(t_content.value, p.content)   AS content,
+                            COALESCE(t_excerpt.value, p.excerpt)   AS excerpt
                      FROM blog_posts p
                      ${joins}
                      ${where}
@@ -291,6 +293,7 @@ class BlogPostRepository {
             post.title,
             post.subtitle,
             post.content,
+            post.excerpt,
             post.author,
             Number(post.published),
             post.publishedAt?.getTime() ?? null,
@@ -307,19 +310,20 @@ class BlogPostRepository {
                 ? this.db
                       .prepare(
                           `INSERT INTO blog_posts (
-                            language, title, subtitle, content, author, published, published_at,
-                            header_media, video_url, section, category_ids, theme_ids,
-                            date_updated, date_created
-                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            language, title, subtitle, content, excerpt, author, published,
+                            published_at, header_media, video_url, section, category_ids,
+                            theme_ids, date_updated, date_created
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                          RETURNING id`,
                       )
                       .bind(...values, now)
                 : this.db
                       .prepare(
                           `UPDATE blog_posts SET
-                            language = ?, title = ?, subtitle = ?, content = ?, author = ?,
-                            published = ?, published_at = ?, header_media = ?, video_url = ?,
-                            section = ?, category_ids = ?, theme_ids = ?, date_updated = ?
+                            language = ?, title = ?, subtitle = ?, content = ?, excerpt = ?,
+                            author = ?, published = ?, published_at = ?, header_media = ?,
+                            video_url = ?, section = ?, category_ids = ?, theme_ids = ?,
+                            date_updated = ?
                          WHERE id = ?
                          RETURNING id`,
                       )
