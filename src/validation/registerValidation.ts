@@ -9,7 +9,7 @@ const zRequiredField = () =>
         error: "pages.checkout.register.form.validation.required",
     });
 
-function taxIdIssue(
+export function taxIdIssue(
     country: string,
     type: "individual" | "organization",
     value: string,

@@ -1086,6 +1086,8 @@
           "taxId": "Indica el NIF del impulsor",
           "taxIdHelper": "Solo lo verá el impulsor. Esta información no será pública, solo se usará para formalizar los acuerdos y condiciones del proyecto.",
           "taxIdPlaceholder": "Indica el CIF",
+          "taxIdCountry": "País emisor del documento",
+          "taxIdCountryHelper": "País que emitió la identificación fiscal del impulsor",
           "location": "Lugar de actividad",
           "locationHelper": "Indica cuál es el ámbito geográfico de actuación del impulsor o grupo impulsor.",
           "territory": "Territorio de actuación",
@@ -1119,6 +1121,9 @@
             "bankCertificateHelper": "Adjunta el documento que acredita la titularidad de la cuenta bancaria.",
             "bankCertificateAriaLabel": "Subir certificado de titularidad",
             "ibanInvalid": "El formato del IBAN no es válido"
+          },
+          "validation": {
+            "emailInvalid": "El email introducido no es válido"
           },
           "continue": "Siguiente paso",
           "locationPlaceholder": "Ej: Calle Gran Vía 28, Madrid"
