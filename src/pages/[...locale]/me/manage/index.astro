@@ -41,7 +41,7 @@ if (user) {
 ---
 
 <Layout title={t("pages.me.manage.personal.title")}>
-    <App client:load locale={lang} session={session} me>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session} me>
         <WithSidebar client:idle {navItems} {activePath}>
             <ManagePersonalProfile
                 client:load

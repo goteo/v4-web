@@ -53,7 +53,7 @@ const isReviewer = isConsultant(session);
     title={t("pages.review.chat.title", { area: area.title, project: project?.title ?? "" })}
     description={t("pages.metadata.description")}
 >
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <ReviewChat
             client:load
             reviewId={review.id}
