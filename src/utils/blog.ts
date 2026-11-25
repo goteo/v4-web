@@ -15,7 +15,7 @@ export type BlogSection = (typeof BLOG_SECTIONS)[number];
  * @returns The texts, in the base language wherever the translation lacks one
  */
 export function textsIn(post: BlogPost, locale: string): BlogPostTexts {
-    const { title, subtitle, content } = post;
+    const { title, subtitle, content, excerpt } = post;
 
-    return { title, subtitle, content, ...post.translations[locale] };
+    return { title, subtitle, content, excerpt, ...post.translations[locale] };
 }

@@ -3,9 +3,10 @@ import Layout from "../../../layouts/Layout.astro";
 import App from "../../../layouts/App.svelte";
 import BlogPost from "../../../components/blog/BlogPost.svelte";
 import { blogPostRepository } from "../../../repositories/blogPosts";
+import { getTaxonomy, namesForIds } from "../../../services/taxonomy";
 import { textsIn } from "../../../utils/blog";
 
-const { lang } = Astro.locals;
+const { lang, langs } = Astro.locals;
 
 const id = Number(Astro.params.id);
 const post = Number.isInteger(id) && id > 0 ? await blogPostRepository.getById(id) : null;
@@ -15,10 +16,12 @@ if (!post?.published) {
 }
 
 const texts = textsIn(post, lang);
+const { categories, themes } = await getTaxonomy(langs);
+const tags = [...namesForIds(categories, post.categoryIds), ...namesForIds(themes, post.themeIds)];
 ---
 
 <Layout title={texts.title} description={texts.subtitle ?? undefined}>
     <App headerLogo={Astro.locals.headerLogo} client:load locale={lang}>
-        <BlogPost post={post} client:load />
+        <BlogPost post={post} {tags} client:load />
     </App>
 </Layout>

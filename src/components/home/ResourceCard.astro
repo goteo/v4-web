@@ -2,24 +2,38 @@
 export interface Props {
     title: string;
     description: string;
-    image: string;
+    image?: string;
     href?: string;
     linkText?: string;
+    tags?: string[];
 }
 
-const { title, description, image, href = "#", linkText = "Leer más" } = Astro.props;
+const {
+    title,
+    description,
+    image = undefined,
+    href = "#",
+    linkText = "Leer más",
+    tags = [],
+} = Astro.props;
 ---
 
 <article class="border-grey h-full rounded-3xl border bg-white p-6 shadow-sm">
     <div class="flex h-full flex-col gap-6 md:flex-row">
         <!-- Image -->
         <div class="shrink-0">
-            <img
-                src={image}
-                alt=""
-                class="h-48 w-full rounded-2xl object-cover md:h-56 md:w-56"
-                loading="lazy"
-            />
+            {
+                image ? (
+                    <img
+                        src={image}
+                        alt=""
+                        class="h-48 w-full rounded-2xl object-cover md:h-56 md:w-56"
+                        loading="lazy"
+                    />
+                ) : (
+                    <div class="bg-purple-soft h-48 w-full rounded-2xl md:h-56 md:w-56" />
+                )
+            }
         </div>
 
         <!-- Content -->
@@ -38,14 +52,25 @@ const { title, description, image, href = "#", linkText = "Leer más" } = Astro.
                 </p>
             </div>
 
-            <!-- Link -->
-            <div class="shrink-0">
+            <!-- Link and tags -->
+            <div class="flex shrink-0 items-center justify-between gap-4">
                 <a
                     href={href}
                     class="text-secondary text-sm leading-5 font-bold underline underline-offset-2 transition-opacity hover:opacity-80 md:text-base md:leading-6"
                 >
                     {linkText}
                 </a>
+                {
+                    tags.length > 0 && (
+                        <div class="flex flex-wrap justify-end gap-2">
+                            {tags.map((tag) => (
+                                <span class="bg-variant1 text-secondary rounded-sm px-2 py-1 text-xs font-bold">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )
+                }
             </div>
         </div>
     </div>

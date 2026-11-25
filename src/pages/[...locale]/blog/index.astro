@@ -3,11 +3,12 @@ import Layout from "../../../layouts/Layout.astro";
 import App from "../../../layouts/App.svelte";
 import BlogList from "../../../components/blog/BlogList.svelte";
 import { blogPostRepository } from "../../../repositories/blogPosts";
+import { getTaxonomy } from "../../../services/taxonomy";
 import { BLOG_SECTIONS } from "../../../utils/blog";
 
 import type { BlogSection } from "../../../utils/blog";
 
-const { t, lang } = Astro.locals;
+const { t, lang, langs } = Astro.locals;
 
 const PER_PAGE = 9;
 
@@ -21,6 +22,7 @@ const { posts, total } = await blogPostRepository.getPublished(lang, {
     page,
     perPage: PER_PAGE,
 });
+const { categories, themes } = await getTaxonomy(langs);
 ---
 
 <Layout title={t("pages.blog.title")} description={t("pages.blog.description")}>
@@ -42,6 +44,8 @@ const { posts, total } = await blogPostRepository.getPublished(lang, {
                     page={page}
                     perPage={PER_PAGE}
                     section={section}
+                    {categories}
+                    {themes}
                 />
             </div>
         </section>

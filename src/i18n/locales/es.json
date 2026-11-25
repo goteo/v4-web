@@ -2458,6 +2458,8 @@
             "videoSection": "Añade un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Añade el enlace del vídeo",
             "sectionSection": "Sección",
+            "categoriesSection": "Categorías relacionadas",
+            "themesSection": "Temas relacionados",
             "sections": {
               "news": "Novedades",
               "stories": "Historias",

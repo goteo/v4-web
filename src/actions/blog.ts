@@ -22,7 +22,12 @@ const translations = z
     .pipe(
         z.record(
             languageCode,
-            z.object({ title, subtitle: z.string().optional(), content: z.string().optional() }),
+            z.object({
+                title,
+                subtitle: z.string().optional(),
+                content: z.string().optional(),
+                excerpt: z.string().optional(),
+            }),
         ),
     );
 
@@ -33,6 +38,19 @@ const headerMedia = z
     .string()
     .transform((value) => JSON.parse(value))
     .pipe(z.array(z.object({ url: mediaUrl, type: z.string() })));
+
+// Identifiers of the API categories or themes linked to the post, sent as a JSON array.
+const taxonomyIds = z.preprocess((value) => {
+    if (typeof value !== "string" || value.length === 0) {
+        return [];
+    }
+
+    try {
+        return JSON.parse(value);
+    } catch {
+        return value;
+    }
+}, z.array(z.string()));
 
 const flag = z.enum(["0", "1"]).transform((value) => value === "1");
 
@@ -64,12 +82,15 @@ export const saveBlogPost = defineAction({
         title,
         subtitle: optionalText,
         content: optionalText,
+        excerpt: optionalText,
         translations,
         author: optionalText,
         publishedAt: z.coerce.date().optional(),
         headerMedia,
         videoUrl,
         section: z.enum(BLOG_SECTIONS),
+        categoryIds: taxonomyIds,
+        themeIds: taxonomyIds,
         published: flag,
     }),
     handler: async (input, context) => {
@@ -82,12 +103,15 @@ export const saveBlogPost = defineAction({
                 title: input.title,
                 subtitle: input.subtitle || null,
                 content: input.content ?? "",
+                excerpt: input.excerpt ?? "",
                 author: input.author || null,
                 published: input.published,
                 publishedAt: input.publishedAt ?? null,
                 headerMedia: input.headerMedia,
                 videoUrl: input.videoUrl || null,
                 section: input.section,
+                categoryIds: input.categoryIds,
+                themeIds: input.themeIds,
             },
             input.translations,
         );
