@@ -12,13 +12,10 @@
 
     interface Props {
         post: BlogPost;
-        backHref?: string;
         tags?: string[];
     }
 
-    let { post, backHref = undefined, tags = [] }: Props = $props();
-
-    const back = $derived(backHref ?? `/${$locale}/blog`);
+    let { post, tags = [] }: Props = $props();
 
     // Seeds the pick with the page language; the selector owns it from then on.
     let contentLocale = $state(
@@ -31,7 +28,7 @@
 <div class="wrapper">
     <div class="flex flex-col gap-6 pt-6 pb-20">
         <div class="flex items-center justify-between gap-4">
-            <BackButton href={back} />
+            <BackButton />
             {#if post.languages.length > 1}
                 <LanguagesDropdown
                     languages={post.languages}

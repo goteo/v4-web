@@ -2854,12 +2854,6 @@
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
       }
-    },
-    "resources": {
-      "filters": {
-        "categories": "Categorías",
-        "themes": "Temas"
-      }
     }
   }
 }

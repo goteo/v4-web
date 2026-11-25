@@ -1,10 +1,7 @@
 <script lang="ts">
-    import { untrack } from "svelte";
-
     import { locale, t } from "../../i18n/store";
     import { BLOG_SECTIONS } from "../../utils/blog";
     import { formatDate } from "../../utils/dates";
-    import CategorySelect from "../library/inputs/CategorySelect.svelte";
     import TabNavigation from "../library/layout/TabNavigation.svelte";
     import Pagination from "../library/paginations/Pagination.svelte";
     import Tag from "../library/tags/Tag.svelte";
@@ -20,40 +17,13 @@
         page: number;
         perPage: number;
         section: BlogSection | null;
-        /** Path segment the post pages live under, e.g. "blog" or "resources". */
-        basePath?: string;
-        showSectionTabs?: boolean;
         categories?: Category[];
         themes?: Theme[];
-        selectedCategoryIds?: string[];
-        selectedThemeIds?: string[];
-        showTaxonomyFilters?: boolean;
-        /** Server-translated filter headings, so SSR does not depend on the client locale. */
-        categoriesLabel?: string;
-        themesLabel?: string;
     }
 
-    let {
-        posts,
-        total,
-        page,
-        perPage,
-        section,
-        basePath = "blog",
-        showSectionTabs = true,
-        categories = [],
-        themes = [],
-        selectedCategoryIds = [],
-        selectedThemeIds = [],
-        showTaxonomyFilters = false,
-        categoriesLabel = undefined,
-        themesLabel = undefined,
-    }: Props = $props();
+    let { posts, total, page, perPage, section, categories = [], themes = [] }: Props = $props();
 
     const ALL = "all";
-
-    let categoryIds = $state<string[]>(untrack(() => [...selectedCategoryIds]));
-    let themeIds = $state<string[]>(untrack(() => [...selectedThemeIds]));
 
     const categoryNames = $derived(new Map(categories.map((item) => [item.id ?? "", item.name])));
     const themeNames = $derived(new Map(themes.map((item) => [item.id ?? "", item.name])));
@@ -71,23 +41,12 @@
         ].filter((name): name is string => typeof name === "string");
     }
 
-    // Filters and pages are server-rendered, so changing them is a navigation.
-    function navigate(changes: {
-        section?: string;
-        page?: number;
-        categoryIds?: string[];
-        themeIds?: string[];
-    }) {
+    // Sections and pages are server-rendered, so changing them is a navigation.
+    function navigate(changes: { section?: string; page?: number }) {
         const nextSection = changes.section ?? section ?? ALL;
         const query = new URLSearchParams();
 
-        if (showSectionTabs && nextSection !== ALL) query.set("section", nextSection);
-
-        const nextCategoryIds = changes.categoryIds ?? categoryIds;
-        const nextThemeIds = changes.themeIds ?? themeIds;
-
-        if (nextCategoryIds.length > 0) query.set("category", nextCategoryIds.join(","));
-        if (nextThemeIds.length > 0) query.set("theme", nextThemeIds.join(","));
+        if (nextSection !== ALL) query.set("section", nextSection);
         if (changes.page && changes.page > 1) query.set("page", String(changes.page));
 
         location.search = query.toString();
@@ -95,56 +54,15 @@
 </script>
 
 <div class="flex flex-col gap-10">
-    {#if showSectionTabs}
-        <TabNavigation
-            tabs={[ALL, ...BLOG_SECTIONS].map((id) => ({
-                id,
-                label:
-                    id === ALL
-                        ? $t("pages.blog.all")
-                        : $t(`pages.admin.comm.blog.form.sections.${id}`),
-            }))}
-            currentTab={section ?? ALL}
-            onTabClick={(id) => navigate({ section: id })}
-        />
-    {/if}
-
-    {#if showTaxonomyFilters}
-        <div class="flex flex-col gap-6">
-            <div class="flex flex-col gap-3">
-                <Title level={3} variant="field">
-                    {categoriesLabel ?? $t("pages.resources.filters.categories")}
-                </Title>
-                <CategorySelect
-                    options={categories}
-                    bind:selectedIds={categoryIds}
-                    onChange={(selected) =>
-                        navigate({
-                            categoryIds: selected
-                                .map(({ id }) => id)
-                                .filter((id): id is string => typeof id === "string"),
-                            page: 1,
-                        })}
-                />
-            </div>
-            <div class="flex flex-col gap-3">
-                <Title level={3} variant="field">
-                    {themesLabel ?? $t("pages.resources.filters.themes")}
-                </Title>
-                <CategorySelect
-                    options={themes}
-                    bind:selectedIds={themeIds}
-                    onChange={(selected) =>
-                        navigate({
-                            themeIds: selected
-                                .map(({ id }) => id)
-                                .filter((id): id is string => typeof id === "string"),
-                            page: 1,
-                        })}
-                />
-            </div>
-        </div>
-    {/if}
+    <TabNavigation
+        tabs={[ALL, ...BLOG_SECTIONS].map((id) => ({
+            id,
+            label:
+                id === ALL ? $t("pages.blog.all") : $t(`pages.admin.comm.blog.form.sections.${id}`),
+        }))}
+        currentTab={section ?? ALL}
+        onTabClick={(id) => navigate({ section: id })}
+    />
 
     {#if posts.length === 0}
         <p class="text-content py-12 text-center">{$t("pages.blog.empty")}</p>
@@ -155,7 +73,7 @@
                 {@const tags = tagNames(post)}
                 <li>
                     <a
-                        href={`/${$locale}/${basePath}/${post.id}`}
+                        href={`/${$locale}/blog/${post.id}`}
                         class="group border-grey flex h-full flex-col overflow-hidden rounded-4xl border bg-white shadow-sm"
                     >
                         {#if cover}
@@ -170,11 +88,9 @@
                         {/if}
                         <div class="flex flex-1 flex-col gap-3 p-6">
                             <div class="flex items-center justify-between gap-2">
-                                {#if showSectionTabs}
-                                    <Tag variant="bold">
-                                        {$t(`pages.admin.comm.blog.form.sections.${post.section}`)}
-                                    </Tag>
-                                {/if}
+                                <Tag variant="bold">
+                                    {$t(`pages.admin.comm.blog.form.sections.${post.section}`)}
+                                </Tag>
                                 {#if post.publishedAt}
                                     <time
                                         datetime={post.publishedAt.toISOString()}
