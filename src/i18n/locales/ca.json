@@ -2458,6 +2458,8 @@
             "videoSection": "Afegeix un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Afegeix l'enllaç del vídeo",
             "sectionSection": "Secció",
+            "categoriesSection": "Categories relacionades",
+            "themesSection": "Temes relacionats",
             "sections": {
               "news": "Novetats",
               "stories": "Històries",
