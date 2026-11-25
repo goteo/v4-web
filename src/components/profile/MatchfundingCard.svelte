@@ -172,7 +172,7 @@
             recentTitleKey="pages.me.matchfunding.card.recent"
             illustrationPath="/images/profile/ilustration-matchfunding.png"
             primaryActionLabel="pages.me.matchfunding.card.viewAll"
-            primaryActionHref="/me#matchfunding"
+            primaryActionHref="/me/activity#matchfunding"
             isEmpty={false}
         >
             {#if summary?.recentCalls}
