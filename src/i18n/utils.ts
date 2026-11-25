@@ -1,3 +1,4 @@
+import { getAppName } from "../utils/consts";
 import { labels } from "./locales/index";
 
 /**
@@ -44,12 +45,17 @@ export function useTranslations<T extends string>(lang: T) {
 
         const allowHTML = options?.allowHTML ?? false;
 
-        if (vars) {
+        // `appName` is available to every copy without callers passing it, resolved from the
+        // environment so a deployment can rename the application everywhere at once.
+        const allVars = { appName: getAppName(), ...vars };
+
+        if (text.includes("{{")) {
             const escape = allowHTML ? (v: string) => v : escapeHTML;
-            Object.entries(vars).forEach(([varKey, value]) => {
+            Object.entries(allVars).forEach(([varKey, value]) => {
                 text = text.replace(
                     new RegExp(`\\{\\{\\s*${varKey}\\s*\\}\\}`, "g"),
-                    escape(String(value)),
+                    // Function replacement so `$` sequences in the value are not read as patterns.
+                    () => escape(String(value)),
                 );
             });
         }

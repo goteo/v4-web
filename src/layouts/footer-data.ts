@@ -5,6 +5,7 @@ import Linkedin from "../components/icons/social/Linkedin.svelte";
 import X from "../components/icons/social/X.svelte";
 import { labels, type Locale } from "../i18n/locales";
 import { useTranslations } from "../i18n/utils";
+import { getAppName } from "../utils/consts";
 
 import type {
     FooterConfig,
@@ -17,7 +18,7 @@ import type {
 /** Not editable from the admin: the logo has its own /admin/customize tab. */
 export const FOOTER_BRAND = {
     backgroundImage: "/images/brand/path2.svg",
-    logo: { src: "/images/brand/goteo-white-logo.svg", alt: "Goteo logo" },
+    logo: { src: "/images/brand/goteo-white-logo.svg", alt: `${getAppName()} logo` },
     platoniq: { src: "/images/brand/platoniq.png", alt: "Platoniq Foundation logo" },
 };
 

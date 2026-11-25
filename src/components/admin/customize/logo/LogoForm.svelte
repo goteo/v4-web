@@ -2,6 +2,7 @@
     import { actions, isInputError } from "astro:actions";
 
     import { t } from "../../../../i18n/store";
+    import { getAppName } from "../../../../utils/consts";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Button from "../../../library/buttons/Button.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
@@ -22,7 +23,7 @@
     let formElement: HTMLFormElement;
 
     let media = $state<UploadedObject>();
-    let altText = $state("Goteo");
+    let altText = $state(getAppName());
     let isUploadOpen = $state(false);
 
     let fieldErrors: FieldErrors = $state({});
@@ -78,7 +79,7 @@
         }
 
         media = undefined;
-        altText = "Goteo";
+        altText = getAppName();
 
         onSaved?.();
     }
