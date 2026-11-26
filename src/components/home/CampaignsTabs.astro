@@ -3,8 +3,6 @@ import CampaignTabsCarousel from "./CampaignTabsCarousel.svelte";
 import type { Campaign } from "../../types/campaign";
 import { apiProjectsIdOrSlugGet, type Money, type Project } from "../../openapi/client";
 import { getLanguage } from "../../middleware/utils";
-import { fetchAccountingsByIds } from "../../utils/accountings";
-import { extractId } from "../../utils/extractId";
 import { proposedCampaignsRepository } from "../../repositories/proposedCampaigns";
 
 import type { ProposedCampaignTab } from "../../repositories/proposedCampaigns";
@@ -39,15 +37,9 @@ const resolved = (
     )
 ).filter((r): r is { slot: (typeof slots)[number]; project: Project } => r !== null);
 
-const accountingIds = resolved.map(({ project }) => extractId(project.accounting));
-const accountings = await fetchAccountingsByIds(accountingIds);
-
 const campaignsByTab: Partial<Record<ProposedCampaignTab, Campaign[]>> = {};
 
-resolved.forEach(({ slot, project }, index) => {
-    const accountingId = accountingIds[index];
-    const accounting = accountingId ? accountings.get(accountingId) : undefined;
-
+resolved.forEach(({ slot, project }) => {
     const campaign = {
         ...project,
         size: "small" as const,
@@ -58,7 +50,7 @@ resolved.forEach(({ slot, project }, index) => {
             project.cover ||
             project.video?.thumbnail!,
         minimum: project.budget?.minimum?.money!,
-        obtained: accounting!.balance as Money,
+        obtained: project.accounting!.balance as Money,
         optimum: project.budget?.optimum?.money,
     } satisfies Campaign;
 
