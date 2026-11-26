@@ -14,9 +14,18 @@ yarn-error.log*
 pnpm-debug.log*
 openapi-ts*.log
 
+# playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
 # environment variables
 .env*
 !env.example
+
+# local worker variables
+.dev.vars*
 
 # macOS-specific files
 .DS_Store

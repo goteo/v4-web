@@ -22,6 +22,11 @@ export default [
         files: ["*.config.{js,mjs,cjs,ts}"],
         languageOptions: { globals: globals.node },
     },
+    // The Playwright mock API and its launcher run in Node.
+    {
+        files: ["e2e/**/*.{js,mjs,cjs,ts}", "playwright.config.ts"],
+        languageOptions: { globals: globals.node },
+    },
     {
         ignores: [
             "node_modules/**",
