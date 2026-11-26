@@ -47,6 +47,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         subSections: [
             { href: "/admin/comm/blog", labelKey: "pages.admin.comm.tabs.blog" },
             { href: "/admin/comm/newsletter", labelKey: "pages.admin.comm.tabs.newsletter" },
+            { href: "/admin/comm/faqs", labelKey: "pages.admin.comm.tabs.faqs" },
         ],
     },
     {
@@ -67,7 +68,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         descriptionKey: "pages.admin.customize.description",
         subSections: [
             { href: "/admin/customize/logo", labelKey: "pages.admin.customize.tabs.logo" },
-            { href: "/admin/customize/colours", labelKey: "pages.admin.customize.tabs.colours" },
+            { href: "/admin/customize/colors", labelKey: "pages.admin.customize.tabs.colors" },
             { href: "/admin/customize/footer", labelKey: "pages.admin.customize.tabs.footer" },
         ],
     },

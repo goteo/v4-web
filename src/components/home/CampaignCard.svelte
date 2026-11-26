@@ -8,14 +8,12 @@ Converted from CampaignCard.astro to maintain exact functionality
 
     import Clock from "../../components/icons/Clock.svelte";
     import { t } from "../../i18n/store";
-    import { apiAccountingsIdGet, type Money } from "../../openapi/client";
+    import { type Money } from "../../openapi/client";
     import { getDaysRemaining } from "../../utils/campaign";
     import { formatCurrency } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import { gte } from "../../utils/money";
-    import { PUBLIC_STATUSES_TO_STATUSES } from "../../utils/projectStatus";
+    import { getCampaignPhase } from "../../utils/projectStatus";
     import Flames from "../icons/status/Flames.svelte";
-    import Ok from "../icons/status/Ok.svelte";
     import Button from "../library/buttons/Button.svelte";
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
@@ -40,7 +38,6 @@ Converted from CampaignCard.astro to maintain exact functionality
         size: CampaignSize;
         campaign: Campaign;
         showUserDonations?: boolean;
-        showOwnerActions?: boolean;
         ownedConfig?: OwnedCardConfig;
         class?: string;
     }
@@ -49,27 +46,15 @@ Converted from CampaignCard.astro to maintain exact functionality
         size,
         campaign,
         showUserDonations = false,
-        showOwnerActions = false,
         ownedConfig,
         class: className = "",
     }: Props = $props();
 
-    // Falls back to fetching the balance from the accounting IRI when the caller pre-loads no
-    // `obtained`. Derived, not assigned in the effect, because effects don't run during SSR: a card
-    // rendered statically (no `client:*` of its own) would ignore the pre-loaded value and show
-    // "loading" forever — those callers must pre-load it.
-    let fetched = $state<Money | undefined>(undefined);
-    const obtained = $derived(campaign.obtained ?? fetched);
-
-    $effect(() => {
-        if (fetched === undefined && !campaign.obtained && campaign.accounting) {
-            apiAccountingsIdGet({ path: { id: extractId(campaign.accounting)! } })
-                .then(({ data }) => {
-                    if (data?.balance) fetched = data.balance as Money;
-                })
-                .catch((error) => console.error("Error fetching campaign balance:", error));
-        }
-    });
+    // Falls back to the balance the project embeds in its accounting when the caller pre-loads
+    // no `obtained`.
+    const obtained = $derived(
+        campaign.obtained ?? (campaign.accounting?.balance as Money | undefined),
+    );
 
     // Large cards span 2 columns in md+, full width on mobile
     const sizeClasses = $derived(size === "large" ? "col-span-1 md:col-span-2" : "col-span-1");
@@ -78,12 +63,19 @@ Converted from CampaignCard.astro to maintain exact functionality
         obtained != null && campaign.minimum != null ? gte(obtained, campaign.minimum) : false,
     );
 
-    const isFinished = $derived(
-        [...PUBLIC_STATUSES_TO_STATUSES.funded, ...PUBLIC_STATUSES_TO_STATUSES.archived].includes(
-            campaign.status ?? "",
-        ),
-    );
-    const daysRemaining = $derived(getDaysRemaining(campaign.calendar));
+    const daysRemaining = $derived(getDaysRemaining(campaign));
+
+    // Lifecycle label (key under `pages.home.campaigns.status`). In campaign it waits for the
+    // balance so it doesn't flip from "minimum" to "optimum" once it loads.
+    const statusLabel = $derived.by(() => {
+        const status = campaign.status;
+        if (!status) return undefined;
+        if (status === "to_campaign") return "upcoming";
+        if (status === "in_campaign")
+            return obtained && (hasReachedMinimum ? "toOptimum" : "toMinimum");
+        if (status === "campaign.failed" || status === "campaign.cancelled") return "archived";
+        return getCampaignPhase(status) === "after" ? "funded" : undefined;
+    });
     const hasMatchfunding = $derived(
         campaign.hasMatchfunding ?? !!campaign.matchCallSubmissions?.length,
     );
@@ -118,23 +110,20 @@ Converted from CampaignCard.astro to maintain exact functionality
 >
     <a href="/project/{campaign.slug}">
         <div class="flex flex-col gap-6">
-            <div class="relative">
-                <img
-                    src={campaign.image}
-                    alt={campaign.title}
-                    class="h-80 w-full rounded-3xl object-cover md:h-97.25"
-                />
+            <div class="bg-grey relative h-80 rounded-3xl md:h-97.25">
+                {#if campaign.image}
+                    <img
+                        src={campaign.image}
+                        alt={campaign.title}
+                        class="size-full rounded-3xl object-cover"
+                    />
+                {/if}
 
-                <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+                <div class="absolute top-4 right-4 left-4 flex flex-wrap gap-2">
                     {#if ownedConfig?.tagLabel}
                         <Tag variant="bold">{ownedConfig.tagLabel}</Tag>
                     {/if}
-                    {#if isFinished}
-                        <Tag variant="bold">
-                            <Ok width={16} height={16} />
-                            <span>{$t("pages.home.campaigns.finished")}</span>
-                        </Tag>
-                    {:else if daysRemaining !== undefined}
+                    {#if daysRemaining !== undefined}
                         <Tag variant="bold">
                             <Clock width={16} height={16} />
                             <span>
@@ -153,11 +142,11 @@ Converted from CampaignCard.astro to maintain exact functionality
                     {/each}
                 </div>
 
-                {#if hasReachedMinimum}
+                {#if statusLabel}
                     <span
                         class="border-secondary text-secondary absolute bottom-4 left-4 rounded-lg border bg-white px-2 py-1 text-xs font-medium"
                     >
-                        {$t("pages.home.campaigns.minimumExceeded")}
+                        {$t(`pages.home.campaigns.status.${statusLabel}`)}
                     </span>
                 {/if}
             </div>
@@ -167,7 +156,7 @@ Converted from CampaignCard.astro to maintain exact functionality
                     level={3}
                     variant="subsection"
                     color="secondary"
-                    class="line-clamp-2 h-16 leading-8"
+                    class="line-clamp-2 h-16 leading-8 wrap-break-word"
                 >
                     {campaign.title}
                 </Title>
@@ -224,31 +213,18 @@ Converted from CampaignCard.astro to maintain exact functionality
                         </span>
                     </div>
                 {/if}
-
-                <!-- Owned project actions (status-based) -->
-                {#if ownedConfig?.actions}
-                    <div class="flex w-full flex-col gap-4 md:flex-row">
-                        {#each ownedConfig.actions as action}
-                            <Button kind={action.kind} href={action.href} class="flex-1">
-                                {action.label}
-                            </Button>
-                        {/each}
-                    </div>
-                {:else if showOwnerActions}
-                    <div class="flex w-full gap-4">
-                        <button
-                            class="border-secondary text-secondary hover:bg-secondary flex-1 rounded-3xl border px-4 py-4 text-base font-bold transition-colors hover:text-white"
-                        >
-                            {$t("pages.me.ownedProjects.messageToDonatorsButton")}
-                        </button>
-                        <button
-                            class="bg-variant1 text-secondary hover:bg-purple-soft flex-1 rounded-3xl px-4 py-4 text-base font-bold transition-colors"
-                        >
-                            {$t("pages.me.ownedProjects.uploadNewsButton")}
-                        </button>
-                    </div>
-                {/if}
             </div>
         </div>
     </a>
+
+    <!-- Owned project actions (status-based), outside the card link: anchors can't nest -->
+    {#if ownedConfig?.actions?.length}
+        <div class="mt-4 flex w-full flex-col gap-4 md:flex-row">
+            {#each ownedConfig.actions as action (action.key)}
+                <Button kind={action.kind} href={action.href} class="flex-1">
+                    {action.label}
+                </Button>
+            {/each}
+        </div>
+    {/if}
 </div>

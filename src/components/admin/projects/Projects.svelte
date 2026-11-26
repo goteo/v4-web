@@ -7,14 +7,13 @@
     import {
         apiProjectsGetCollection,
         apiProjectsIdPatch,
-        apiAccountingsIdGet,
         apiUsersIdOrHandleGet,
         apiProjectsGetCollectionUrl,
         apiProjectsmoneyTotalGetCollection,
         type Project,
-        type Accounting,
         type User,
     } from "../../../openapi/client/index.ts";
+    import { accountingIri } from "../../../utils/accountings";
     import { useAdminTableState } from "../../../utils/adminTableState.svelte";
     import { formatCurrency } from "../../../utils/currencies";
     import { extractId } from "../../../utils/extractId";
@@ -60,7 +59,6 @@
     let totalEarned = $state("—");
     let isTotalEarnedLoading = $state(false);
 
-    let accountingsCache = $state(new Map<string, Accounting>());
     let ownersCache = $state(new Map<string, User>());
 
     let userEmailById = $derived.by(() => {
@@ -176,59 +174,31 @@
             const loadedProjects = toCollectionItems<Project>(collection);
             table.totalItems = getCollectionTotalItems(collection, response);
 
-            const uniqueAccountingIris = [
-                ...new Set(loadedProjects.map((p) => p.accounting).filter(Boolean)),
-            ] as string[];
             const uniqueOwnerIris = [
                 ...new Set(loadedProjects.map((p) => p.owner).filter(Boolean)),
             ] as string[];
 
-            const missingAccountingIris = uniqueAccountingIris.filter(
-                (iri) => !accountingsCache.has(iri),
-            );
             const missingOwnerIris = uniqueOwnerIris.filter((iri) => !ownersCache.has(iri));
 
-            const [accountingResults, ownerResults] = await Promise.all([
-                Promise.all(
-                    missingAccountingIris.map(async (iri) => {
-                        const accId = extractId(iri);
-                        if (!accId) return null;
-                        const { data } = await apiAccountingsIdGet({
-                            baseUrl: "/api/relay",
-                            path: { id: accId },
-                        });
-                        return data ? ([iri, data] as const) : null;
-                    }),
-                ),
-                Promise.all(
-                    missingOwnerIris.map(async (iri) => {
-                        const ownerId = extractId(iri);
-                        if (!ownerId) return null;
-                        const { data } = await apiUsersIdOrHandleGet({
-                            baseUrl: "/api/relay",
-                            path: { idOrHandle: ownerId },
-                        });
-                        return data ? ([iri, data] as const) : null;
-                    }),
-                ),
-            ]);
+            const ownerResults = await Promise.all(
+                missingOwnerIris.map(async (iri) => {
+                    const ownerId = extractId(iri);
+                    if (!ownerId) return null;
+                    const { data } = await apiUsersIdOrHandleGet({
+                        baseUrl: "/api/relay",
+                        path: { idOrHandle: ownerId },
+                    });
+                    return data ? ([iri, data] as const) : null;
+                }),
+            );
 
-            for (const [iri, accounting] of accountingResults.filter(Boolean) as [
-                string,
-                Accounting,
-            ][]) {
-                accountingsCache.set(iri, accounting);
-            }
             for (const [iri, owner] of ownerResults.filter(Boolean) as [string, User][]) {
                 ownersCache.set(iri, owner);
             }
 
             projectRows = loadedProjects.map((project): ProjectRow => {
-                const accounting = project.accounting
-                    ? accountingsCache.get(project.accounting)
-                    : undefined;
                 const owner = project.owner ? ownersCache.get(project.owner) : undefined;
-                const balance = accounting?.balance;
+                const balance = project.accounting?.balance;
                 const calendar = project.calendar;
                 const min = project.budget?.minimum?.money;
                 const opt = project.budget?.optimum?.money;
@@ -253,7 +223,7 @@
                     remaining: "—",
                     annotationsCount: 0,
                     annotations: "",
-                    accounting: project.accounting ?? "",
+                    accounting: accountingIri(project.accounting),
                     owner: project.owner ?? "",
                 };
             });
@@ -263,7 +233,6 @@
     }
 
     function reloadProjects(): void {
-        accountingsCache = new Map();
         ownersCache = new Map();
         projectRows = [];
         loadProjects();

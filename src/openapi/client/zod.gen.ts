@@ -2551,7 +2551,7 @@ export const zMoneyOutputJsonld = z.object({
 export const zProject = z.object({
     id: z.int().readonly().optional(),
     slug: z.string().readonly().optional(),
-    accounting: z.string().readonly().optional(),
+    accounting: zAccounting.readonly().optional(),
     owner: z.string().readonly().optional(),
     title: z.string(),
     subtitle: z.string(),
@@ -2604,7 +2604,7 @@ export const zProject = z.object({
 export const zProjectCsv = z.object({
     id: z.int().readonly().optional(),
     slug: z.string().readonly().optional(),
-    accounting: z.string().readonly().optional(),
+    accounting: zAccountingCsv.readonly().optional(),
     owner: z.string().readonly().optional(),
     title: z.string(),
     subtitle: z.string(),
@@ -2657,7 +2657,7 @@ export const zProjectCsv = z.object({
 export const zProjectJsonld = zHydraItemBaseSchema.and(z.object({
     id: z.int().readonly().optional(),
     slug: z.string().readonly().optional(),
-    accounting: z.string().readonly().optional(),
+    accounting: zAccountingJsonld.readonly().optional(),
     owner: z.string().readonly().optional(),
     title: z.string(),
     subtitle: z.string(),

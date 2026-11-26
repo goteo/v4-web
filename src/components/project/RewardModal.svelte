@@ -4,6 +4,7 @@
 
     import { t } from "../../i18n/store";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
+    import { accountingIri } from "../../utils/accountings";
     import { formatCurrency } from "../../utils/currencies";
     import { lt } from "../../utils/money";
     import { renderMarkdown } from "../../utils/renderMarkdown";
@@ -46,7 +47,7 @@
             quantity: 1,
             recipient: reward.project,
             recipientDisplayName: project.title,
-            target: project.accounting!,
+            target: accountingIri(project.accounting),
             cover: reward.cover ?? project.cover,
             money,
         });

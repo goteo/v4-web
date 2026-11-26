@@ -4,7 +4,6 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import AdminHeader from "./AdminHeader.svelte";
-    import Footer from "./Footer.svelte";
     import Header from "./Header.svelte";
     import HeaderSubmenu from "./HeaderSubmenu.svelte";
     import MeHeader from "./MeHeader.svelte";
@@ -17,6 +16,7 @@
 
     import type { Session } from "../auth/types";
     import type { Locale } from "../i18n/locales";
+    import type { HeaderLogo } from "../repositories/headerLogo";
 
     interface AppState {
         locale: Locale;
@@ -29,6 +29,8 @@
          * separate dashboards and the admin one wins if a page ever asks for both.
          */
         me?: boolean;
+        /** Custom header logo, resolved by the middleware (`Astro.locals.headerLogo`). */
+        headerLogo?: HeaderLogo | null;
     }
 
     let {
@@ -38,6 +40,7 @@
         class: classes,
         admin = false,
         me = false,
+        headerLogo = null,
     }: AppState = $props();
 
     const HAD_SESSION_KEY = "goteo-had-session";
@@ -139,11 +142,11 @@
 </script>
 
 {#if admin}
-    <AdminHeader />
+    <AdminHeader logo={headerLogo} />
 {:else if me}
-    <MeHeader />
+    <MeHeader logo={headerLogo} />
 {:else}
-    <Header>
+    <Header logo={headerLogo}>
         <HeaderSubmenu />
     </Header>
 {/if}
@@ -155,4 +158,3 @@
 >
     {@render children?.()}
 </main>
-<Footer />

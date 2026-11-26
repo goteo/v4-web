@@ -1,14 +1,8 @@
 ---
 import CampaignTabsCarousel from "./CampaignTabsCarousel.svelte";
 import type { Campaign } from "../../types/campaign";
-import {
-    apiAccountingsIdGet,
-    apiProjectsIdOrSlugGet,
-    type Money,
-    type Project,
-} from "../../openapi/client";
+import { apiProjectsIdOrSlugGet, type Money, type Project } from "../../openapi/client";
 import { getLanguage } from "../../middleware/utils";
-import { extractId } from "../../utils/extractId";
 import { proposedCampaignsRepository } from "../../repositories/proposedCampaigns";
 
 import type { ProposedCampaignTab } from "../../repositories/proposedCampaigns";
@@ -45,29 +39,23 @@ const resolved = (
 
 const campaignsByTab: Partial<Record<ProposedCampaignTab, Campaign[]>> = {};
 
-await Promise.all(
-    resolved.map(async ({ slot, project }) => {
-        const { data: accounting } = await apiAccountingsIdGet({
-            path: { id: extractId(project.accounting)! },
-        });
+resolved.forEach(({ slot, project }) => {
+    const campaign = {
+        ...project,
+        size: "small" as const,
+        slug: project.slug!,
+        title: project.title!,
+        image:
+            chosenProjects[project.slug! as keyof typeof chosenProjects] ||
+            project.cover ||
+            project.video?.thumbnail!,
+        minimum: project.budget?.minimum?.money!,
+        obtained: project.accounting!.balance as Money,
+        optimum: project.budget?.optimum?.money,
+    } satisfies Campaign;
 
-        const campaign = {
-            ...project,
-            size: "small" as const,
-            slug: project.slug!,
-            title: project.title!,
-            image:
-                chosenProjects[project.slug! as keyof typeof chosenProjects] ||
-                project.cover ||
-                project.video?.thumbnail!,
-            minimum: project.budget?.minimum?.money!,
-            obtained: accounting!.balance as Money,
-            optimum: project.budget?.optimum?.money,
-        } satisfies Campaign;
-
-        (campaignsByTab[slot.tab] ??= []).push(campaign);
-    }),
-);
+    (campaignsByTab[slot.tab] ??= []).push(campaign);
+});
 ---
 
 <section class="wrapper flex flex-col gap-6">

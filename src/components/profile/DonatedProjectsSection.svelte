@@ -5,9 +5,9 @@
     import { t } from "../../i18n/store";
     import {
         apiGatewayChargesGetCollection,
-        apiAccountingsIdGet,
         apiProjectsIdOrSlugGet,
     } from "../../openapi/client/sdk.gen.ts";
+    import { fetchAccountingsByIds } from "../../utils/accountings";
     import { getDefaultCurrency } from "../../utils/consts";
     import { extractId } from "../../utils/extractId";
     import { toCollectionItems } from "../../utils/hydra.ts";
@@ -91,26 +91,24 @@
                     }
                 });
 
+                // Fetch the accountings of the donated projects in a single call
+                const accountingIRIs = projectAccountingIRIs.slice(0, 10);
+                const accountingIds = accountingIRIs.map((iri) => extractId(iri));
+                const accountings = await fetchAccountingsByIds(accountingIds, { headers });
+
                 // Fetch project details for each unique project
                 const campaigns = (
                     await Promise.all(
-                        projectAccountingIRIs.slice(0, 10).map(async (accountingIRI) => {
+                        accountingIRIs.map(async (accountingIRI, index) => {
                             try {
-                                // Fetch accounting to get project reference
-                                const accountingId = extractId(accountingIRI);
+                                // The accounting holds the project reference
+                                const accountingId = accountingIds[index];
                                 if (!accountingId) return null;
 
-                                const { data: accounting, error: accountingError } =
-                                    await apiAccountingsIdGet({
-                                        path: { id: accountingId },
-                                        headers,
-                                    });
+                                const accounting = accountings.get(accountingId);
 
-                                if (accountingError || !accounting?.owner) {
-                                    console.error(
-                                        `Failed to fetch accounting ${accountingIRI}:`,
-                                        accountingError,
-                                    );
+                                if (!accounting?.owner) {
+                                    console.error(`Failed to fetch accounting ${accountingIRI}:`);
                                     return null;
                                 }
 

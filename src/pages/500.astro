@@ -4,15 +4,15 @@ import ErrorPage from "../components/errorpage/ErrorPage.svelte";
 import EyeInLaptop from "../components/errorpage/EyeInLaptop.svelte";
 import Layout from "../layouts/Layout.astro";
 
-const { t, lang } = Astro.locals;
+const { t, lang, apiDown } = Astro.locals;
 ---
 
 <Layout title={t("pages.500.meta.title")} description={t("pages.500.meta.description")}>
-    <App locale={lang} client:load>
+    <App headerLogo={Astro.locals.headerLogo} locale={lang} client:load>
         <ErrorPage
             code={500}
             title={t("pages.500.title")}
-            subtitle={t("pages.500.subtitle")}
+            subtitle={t(apiDown ? "pages.500.apiDown" : "pages.500.subtitle")}
             ctaText={t("common.goHome")}
         >
             <EyeInLaptop />

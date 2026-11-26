@@ -1,5 +1,11 @@
+import { accountingIri } from "./accountings";
 import { toCollectionItems } from "./hydra";
-import { combineSearchers, createLocalSearcher, createSearcher } from "./resourceSearch";
+import {
+    DEFAULT_MIN_CHARS,
+    combineSearchers,
+    createLocalSearcher,
+    createSearcher,
+} from "./resourceSearch";
 import { withoutCache } from "../openapi/cacheInterceptor";
 import {
     apiCategoriesGetCollection,
@@ -138,7 +144,7 @@ export function createAccountingSearcher({
                 },
                 map: (project) => ({
                     id: `project-${project.id ?? project.slug}`,
-                    value: project.accounting ?? "",
+                    value: accountingIri(project.accounting),
                     label: project.title ?? project.slug ?? "",
                     detail: project.subtitle,
                     raw: project,
@@ -202,22 +208,96 @@ export const searchAccountings = createAccountingSearcher({
     itemsPerPage: { projects: 4, tipjars: 1, users: 5 },
 });
 
+function territoryLabel(
+    result: NominatimResult,
+    territory: { country?: string | null; subLvl1?: string | null; subLvl2?: string | null },
+): string {
+    const addr = result.address ?? {};
+    const id = territory.subLvl2 ?? territory.subLvl1 ?? territory.country ?? "";
+
+    if (territory.subLvl2) {
+        return String(
+            addr.county ??
+                addr.municipality ??
+                addr.city_district ??
+                addr.district ??
+                addr.province ??
+                addr.state_district ??
+                id,
+        );
+    }
+
+    if (territory.subLvl1) {
+        return String(addr.state ?? addr.region ?? addr.province ?? id);
+    }
+
+    return String(addr.country ?? id);
+}
+
+function normalizeTerritorySelection(
+    territory: { country?: string | null; subLvl1?: string | null; subLvl2?: string | null },
+    id: string,
+): { country: string | null; subLvl1: string | null; subLvl2: string | null } {
+    const country = territory.country ?? null;
+    const subLvl1 = territory.subLvl1 ?? null;
+    const subLvl2 = territory.subLvl2 ?? null;
+
+    if (id === country) {
+        return { country, subLvl1: null, subLvl2: null };
+    }
+
+    if (id === subLvl1) {
+        return { country, subLvl1, subLvl2: null };
+    }
+
+    return { country, subLvl1, subLvl2 };
+}
+
 /**
- * Places, via the external Nominatim geocoder. `raw` carries the Nominatim
- * result so callers can fold it into a `Territory` with `toTerritories`.
+ * Territories, via the external Nominatim geocoder. Places are collapsed into
+ * one selectable territory option (preferring region level when available) so
+ * different places in the same territory resolve to the same choice. `raw` keeps
+ * a Nominatim result for callers that need place details.
  */
-export const searchTerritories: ResourceSearcher<NominatimResult> = createSearcher<
-    NominatimResult,
-    NominatimResult
->({
-    fetch: (query, signal) => searchPlace(query, 6, false, signal),
-    map: (result) => ({
-        id: String(result.osm_id),
-        value: result.display_name,
-        label: result.display_name,
-        raw: result,
-    }),
-});
+export const searchTerritories: ResourceSearcher<NominatimResult> = async (query, signal) => {
+    const trimmed = query.trim();
+    if (trimmed.length < DEFAULT_MIN_CHARS) return [];
+
+    const places = await searchPlace(trimmed, 6, false, signal);
+    const byId = new Map<string, SearchResultItem<NominatimResult>>();
+
+    for (const place of places) {
+        if (signal?.aborted) return [];
+
+        const extracted = extractTerritory(place);
+        const selected = normalizeTerritorySelection(
+            extracted,
+            extracted.subLvl1 ?? extracted.country ?? "",
+        );
+        const id = selected.subLvl1 ?? selected.country;
+        if (!id || byId.has(id)) continue;
+
+        byId.set(id, {
+            id,
+            value: id,
+            label: territoryLabel(place, selected),
+            raw: place,
+        });
+    }
+
+    return [...byId.values()];
+};
+
+export function territoryFromSearchItem(item: SearchResultItem<NominatimResult>) {
+    if (!item.raw) {
+        return { country: null, subLvl1: null, subLvl2: null, address: null };
+    }
+
+    const extracted = extractTerritory(item.raw);
+    const selected = normalizeTerritorySelection(extracted, item.id || item.value);
+
+    return { ...selected, address: item.raw.display_name ?? null };
+}
 
 export interface Territories {
     countries: string[];
@@ -226,8 +306,8 @@ export interface Territories {
 }
 
 /**
- * Folds picked places into the API's territory filter shape, keeping only the
- * most specific administrative level each place resolves to.
+ * Folds picked territories into the API's territory filter shape, honoring the
+ * territory level represented by each selected item.
  */
 export function toTerritories(items: SearchResultItem<NominatimResult>[]): Territories {
     const countries = new Set<string>();
@@ -235,15 +315,15 @@ export function toTerritories(items: SearchResultItem<NominatimResult>[]): Terri
     const subLvl2 = new Set<string>();
 
     for (const item of items) {
-        if (!item.raw) continue;
-        const { country, subLvl1: lvl1, subLvl2: lvl2 } = extractTerritory(item.raw);
+        const territory = item.raw ? territoryFromSearchItem(item) : null;
+        if (!territory) continue;
 
-        if (lvl2) {
-            subLvl2.add(lvl2);
-        } else if (lvl1) {
-            subLvl1.add(lvl1);
-        } else if (country) {
-            countries.add(country);
+        if (territory.subLvl2) {
+            subLvl2.add(territory.subLvl2);
+        } else if (territory.subLvl1) {
+            subLvl1.add(territory.subLvl1);
+        } else if (territory.country) {
+            countries.add(territory.country);
         }
     }
 

@@ -20,7 +20,7 @@ const sections = ADMIN_SECTIONS.map((section) => ({
 ---
 
 <Layout title={t("pages.admin.landing.title")} description={t("pages.metadata.description")}>
-    <App client:load locale={lang} session={session} admin>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session} admin>
         <div class="wrapper">
             <div class="flex w-full flex-col gap-10 py-10">
                 <header class="flex flex-col gap-4">

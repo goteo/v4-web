@@ -1,11 +1,15 @@
 import { deleteBanner, saveBanner } from "./banners";
 import { saveBlogPost, setBlogPostPublished } from "./blog";
+import { saveFaqs } from "./faqs";
 import { saveFeaturedUsers } from "./featuredUsers";
+import { saveFooter } from "./footer";
+import { createHeaderLogo, deleteHeaderLogo, getHeaderLogoData } from "./headerLogo";
 import { createHomeHero, deleteHomeHero, getHomeHeroData, updateHomeHero } from "./hero";
 import { deleteHighlights, saveHighlights } from "./highlights";
 import { payment } from "./payment";
 import { updatePersonalProfile } from "./personalProfile";
 import {
+    assignReviewAdvisor,
     sendReviewAreaComment,
     updateReviewAreaRisk,
     updateReviewProjectStatus,
@@ -13,6 +17,7 @@ import {
 import { saveProposedCampaigns } from "./proposedCampaigns";
 import { updatePublicProfile } from "./publicProfile";
 import { register } from "./register";
+import { resetThemeColors, saveThemeColors } from "./themeColors";
 
 export const server = {
     register,
@@ -21,17 +26,25 @@ export const server = {
     deleteBanner,
     saveBlogPost,
     setBlogPostPublished,
+    saveFaqs,
     createHomeHero,
+    createHeaderLogo,
+    deleteHeaderLogo,
     deleteHomeHero,
+    getHeaderLogoData,
     getHomeHeroData,
     updateHomeHero,
     saveHighlights,
     deleteHighlights,
     saveFeaturedUsers,
+    saveFooter,
     updatePublicProfile,
     updatePersonalProfile,
     updateReviewAreaRisk,
     updateReviewProjectStatus,
+    assignReviewAdvisor,
     sendReviewAreaComment,
     saveProposedCampaigns,
+    saveThemeColors,
+    resetThemeColors,
 };

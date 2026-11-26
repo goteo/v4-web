@@ -22,7 +22,7 @@ export interface MeLink {
 
 export interface MeSection extends MeLink {
     /**
-     * Match the tab on this exact path only. Needed for `/me`, which prefixes every other tab and
+     * Match the tab on this exact path only. Needed for a tab whose path prefixes every other tab, which
      * would otherwise stay highlighted while a sub-section is open.
      */
     exact?: boolean;
@@ -31,7 +31,7 @@ export interface MeSection extends MeLink {
 }
 
 export const ME_SECTIONS: MeSection[] = [
-    { href: "/me", labelKey: "pages.me.nav.activity", exact: true },
+    { href: "/me/activity", labelKey: "pages.me.nav.activity", exact: true },
     // GOTEO-ME-WALLET / GOTEO-ME-INBOX: the wallet already exists as a checkout step
     // (`/checkout/wallet`) and there is no inbox route yet, so neither has a landing under `/me`
     // to send the tab to. Re-enable when those pages are built.

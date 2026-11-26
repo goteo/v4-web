@@ -6,10 +6,10 @@ import CampaignCard from "../../../components/home/CampaignCard.svelte";
 import {
     apiProjectsGetCollection,
     apiGatewayCheckoutsIdGet,
-    apiAccountingsIdGet,
     apiProjectsIdOrSlugGet,
 } from "../../../openapi/client";
 import type { Money, Project } from "../../../openapi/client";
+import { fetchAccountingsByIds } from "../../../utils/accountings";
 import { extractId } from "../../../utils/extractId";
 import { getDefaultCurrency } from "../../../utils/consts";
 import type { Campaign } from "../../../types/campaign";
@@ -31,20 +31,6 @@ const mapProjectToCard = (project: Project, obtained?: Money) =>
         territory: project.territory || "",
         size: "small",
     }) as unknown as Campaign;
-
-/** Reads a project's raised amount from its Accounting balance. */
-const fetchBalance = async (accountingIri?: string): Promise<Money | undefined> => {
-    const id = extractId(accountingIri);
-    if (!id) return undefined;
-
-    try {
-        const { data } = await apiAccountingsIdGet({ path: { id } });
-        return data?.balance as Money | undefined;
-    } catch (error) {
-        console.error("Error fetching accounting balance:", error);
-        return undefined;
-    }
-};
 
 let donatedProjects: Campaign[] = [];
 let suggestedProjects: Campaign[] = [];
@@ -72,16 +58,16 @@ if (session && checkoutId) {
                 ...new Set(checkout.charges.map((charge: any) => charge.target).filter(Boolean)),
             ] as string[];
 
-            const projectPromises = targetAccountingUrls.map(async (accountingUrl: string) => {
-                try {
-                    const accountingId = extractId(accountingUrl);
+            const targetAccountingIds = targetAccountingUrls.map((url) => extractId(url));
+            const accountings = await fetchAccountingsByIds(targetAccountingIds, {
+                headers: authHeaders,
+            });
+
+            const targets = targetAccountingIds
+                .map((accountingId) => {
                     if (!accountingId) return null;
 
-                    const { data: accounting } = await apiAccountingsIdGet({
-                        path: { id: accountingId },
-                        headers: authHeaders,
-                    });
-
+                    const accounting = accountings.get(accountingId);
                     if (!accounting) return null;
 
                     // Skips non-project recipients, such as the tipjar.
@@ -93,13 +79,8 @@ if (session && checkoutId) {
                     return projectId
                         ? { projectId, obtained: accounting.balance as Money | undefined }
                         : null;
-                } catch (error) {
-                    console.error("Error fetching accounting or extracting project ID:", error);
-                    return null;
-                }
-            });
-
-            const targets = (await Promise.all(projectPromises)).filter((t) => t !== null);
+                })
+                .filter((t) => t !== null);
 
             const projectDataPromises = targets.map(async ({ projectId, obtained }) => {
                 try {
@@ -134,10 +115,8 @@ try {
     });
 
     if (projects) {
-        suggestedProjects = await Promise.all(
-            projects.map(async (project) =>
-                mapProjectToCard(project, await fetchBalance(project.accounting)),
-            ),
+        suggestedProjects = projects.map((project) =>
+            mapProjectToCard(project, project.accounting?.balance as Money | undefined),
         );
     }
 } catch (error) {
@@ -152,7 +131,7 @@ try {
     title={t("pages.checkout.postPayment.title")}
     description={t("pages.checkout.postPayment.title")}
 >
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <section class="wrapper flex flex-col items-start gap-6 pb-16 md:gap-10 md:pb-20">
             <div class="flex w-full items-start self-stretch">
                 <div class="flex flex-1 flex-col items-start gap-4 self-stretch">

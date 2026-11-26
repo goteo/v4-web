@@ -3,10 +3,9 @@
     import { locale, t } from "../../i18n/store";
     import { client } from "../../openapi/client/client.gen.ts";
     import { apiUsersIdOrHandleGetUrl } from "../../openapi/client/operation-paths.gen.ts";
-    import { apiAccountingsIdGet, apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
+    import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
     import { getDefaultCurrency } from "../../utils/consts";
     import { formatAmountWithSymbol } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import { toCollectionItems } from "../../utils/hydra.ts";
     import { sumMoney } from "../../utils/money";
     import LoadingSpinner from "../search/LoadingSpinner.svelte";
@@ -72,56 +71,18 @@
         const projectsCount =
             collection.totalItems ?? collection["hydra:totalItems"] ?? projects.length;
 
-        // Sum the balance of each owned project's accounting
-        const accountingIds = Array.from(
-            new Set(
-                projects
-                    .map((project) => extractId(project.accounting))
-                    .filter((id): id is string => Boolean(id)),
-            ),
-        );
+        // Sum the balance each owned project embeds in its accounting
+        const projectBalances = projects
+            .map((project) => project.accounting?.balance)
+            .filter((b): b is MoneyOutput => b != null && typeof b.amount === "number");
 
         let projectsTotalAmount = 0;
         let projectsTotalCurrency: string | null = null;
 
-        if (accountingIds.length > 0) {
-            const accountingResults = await Promise.all(
-                accountingIds.map(async (accountingId) => {
-                    try {
-                        const { data, error } = await apiAccountingsIdGet({
-                            baseUrl: "/api/relay",
-                            path: { id: accountingId },
-                            headers,
-                        });
-
-                        if (error) {
-                            console.warn("Failed to fetch accounting", {
-                                accountingId,
-                                error,
-                            });
-                            return null;
-                        }
-
-                        return data ?? null;
-                    } catch (accountingError) {
-                        console.warn("Error fetching accounting", {
-                            accountingId,
-                            accountingError,
-                        });
-                        return null;
-                    }
-                }),
-            );
-
-            const projectBalances = accountingResults
-                .map((a) => a?.balance)
-                .filter((b): b is MoneyOutput => b != null && typeof b.amount === "number");
-
-            if (projectBalances.length > 0) {
-                const total = sumMoney(projectBalances);
-                projectsTotalAmount = total.amount ?? 0;
-                projectsTotalCurrency = total.currency ?? getDefaultCurrency();
-            }
+        if (projectBalances.length > 0) {
+            const total = sumMoney(projectBalances);
+            projectsTotalAmount = total.amount ?? 0;
+            projectsTotalCurrency = total.currency ?? getDefaultCurrency();
         }
 
         // Map projects to recent projects
@@ -184,7 +145,7 @@
             recentTitleKey="pages.me.projects.recent"
             illustrationPath="/images/profile/ilustration-project.png"
             primaryActionLabel="pages.me.projects.viewAll"
-            primaryActionHref="/me#owned-projects"
+            primaryActionHref="/me/activity#owned-projects"
             secondaryActionLabel="pages.me.projects.createNew"
             secondaryActionHref="/create/project"
             isEmpty={!summary || summary.count === 0}

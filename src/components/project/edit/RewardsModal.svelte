@@ -1,13 +1,23 @@
 <script lang="ts">
     import { Modal } from "flowbite-svelte";
+    import { untrack } from "svelte";
 
     import RewardItemsSelector from "./RewardItemsSelector.svelte";
     import { t } from "../../../i18n/store";
+    import { withoutCache } from "../../../openapi/cacheInterceptor";
+    import {
+        apiProjectRewardsIdDelete,
+        apiProjectRewardsIdGet,
+        apiProjectRewardsIdPatch,
+        apiProjectRewardsPost,
+    } from "../../../openapi/client";
     import { client } from "../../../openapi/client/client.gen";
     import { apiProjectsIdOrSlugGetUrl } from "../../../openapi/client/operation-paths.gen";
     import { zApiProjectRewardsPostBody } from "../../../openapi/client/zod.gen";
     import { DEFAULT_CURRENCY } from "../../../utils/currencies";
+    import { primaryLanguage } from "../../../utils/lang";
     import { zCreateRewardForm, zUpdateRewardForm } from "../../../validation/rewardValidation";
+    import LanguagesDropdown from "../../header/LanguagesDropdown.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import DeleteModal from "../../library/feedback/DeleteModal.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
@@ -74,6 +84,27 @@
 
     let validation: Partial<Record<keyof typeof data, string>> = $state({});
 
+    /** The translatable fields of the Reward. `data` holds the ones shared by every language. */
+    interface Texts {
+        title: string;
+        description: string;
+    }
+
+    const emptyTexts = (): Texts => ({ title: "", description: "" });
+
+    let languages = $state($draft.languages);
+    let selectedLanguage = $state($draft.lang);
+    let texts = $state<Record<string, Texts>>({});
+
+    let isLoading = $state(false);
+    let isSaving = $state(false);
+    let errorMessage = $state("");
+
+    // Set once a new Reward exists, so retrying a failed translation doesn't create it twice.
+    let createdId: number | undefined;
+
+    const active = $derived(texts[selectedLanguage] ?? emptyTexts());
+
     const descriptionError = $derived(getValidationMessage("description"));
 
     function getValidationMessage(field: keyof typeof data): string {
@@ -83,6 +114,58 @@
 
         return $t(validation[field]);
     }
+
+    /**
+     * Starts the form over from the remote Reward, in the project's languages plus any other the
+     * Reward already has. Reading only `reward.locales` skips the API's fallback content, which
+     * would otherwise show up as a translation of the languages the Reward lacks.
+     */
+    async function resetForm() {
+        const locales = reward?.locales ?? [];
+
+        data = initialData();
+        validation = {};
+        errorMessage = "";
+        createdId = undefined;
+        languages = [...new Set([...$draft.languages, ...locales])];
+        selectedLanguage = $draft.lang;
+        texts = Object.fromEntries(languages.map((code) => [code, emptyTexts()]));
+
+        if (!reward) return;
+
+        isLoading = true;
+
+        try {
+            const loaded = await Promise.all(
+                locales.map(async (code): Promise<[string, Texts]> => {
+                    const { data: translated } = await withoutCache(() =>
+                        apiProjectRewardsIdGet({
+                            baseUrl: "/api/relay",
+                            headers: { "Accept-Language": code },
+                            path: { id: String(reward.id) },
+                            throwOnError: true,
+                        }),
+                    );
+
+                    return [
+                        code,
+                        { title: translated.title, description: translated.description ?? "" },
+                    ];
+                }),
+            );
+
+            texts = { ...texts, ...Object.fromEntries(loaded) };
+            isLoading = false;
+        } catch (error) {
+            // Stays loading: saving would delete the translations that couldn't be read.
+            console.error(error);
+            errorMessage = $t("pages.project.edit.rewards.modal.loadError");
+        }
+    }
+
+    $effect(() => {
+        if (open) untrack(resetForm);
+    });
 
     function handleTitle(newTitle: string) {
         const result = zApiProjectRewardsPostBody.shape.title.safeParse(newTitle);
@@ -95,7 +178,7 @@
     }
 
     function handleDescription(newDescription: string) {
-        data.description = newDescription;
+        active.description = newDescription;
 
         const result = zApiProjectRewardsPostBody.shape.description.safeParse(newDescription);
 
@@ -125,24 +208,92 @@
         validation["money"] = result.error.issues[0].message;
     }
 
-    function handleSubmit(event: SubmitEvent) {
+    async function handleSubmit(event: SubmitEvent) {
         event.preventDefault();
 
-        const rewardValidation = reward ? zUpdateRewardForm : zCreateRewardForm;
-        const result = rewardValidation.safeParse(data);
+        validation = {};
+        errorMessage = "";
 
-        if (result.success) {
-            onSave?.(data);
+        // The project's languages are preloaded, not mandatory: blank ones stay untranslated.
+        const filled = languages.filter((code) =>
+            Object.values(texts[code]).some((text) => text.trim()),
+        );
+        const base = primaryLanguage(filled.length > 0 ? filled : languages);
+        const schema = reward ? zUpdateRewardForm : zCreateRewardForm;
+
+        for (const code of new Set([...filled, base])) {
+            const result = schema.safeParse({ ...data, ...texts[code] });
+
+            if (result.success) continue;
+
+            selectedLanguage = code;
+
+            for (const issue of result.error.issues) {
+                if (issue.code === "too_small" && issue.path[0] === "money") {
+                    validation["money"] = "pages.project.edit.rewards.validation.amount";
+                    continue;
+                }
+
+                validation[issue.path[0] as keyof typeof data] = issue.message;
+            }
+
             return;
         }
 
-        for (const issue of result.error.issues) {
-            if (issue.code === "too_small" && issue.path[0] === "money") {
-                validation["money"] = "pages.project.edit.rewards.validation.amount";
-                continue;
-            }
+        const body = { ...data, ...texts[base] };
 
-            validation[issue.path[0] as keyof typeof data] = issue.message;
+        isSaving = true;
+
+        try {
+            await save(body, base, filled);
+
+            open = false;
+            onSave?.(body);
+        } catch (error) {
+            console.error(error);
+            errorMessage = $t("pages.project.edit.rewards.modal.saveError");
+        } finally {
+            isSaving = false;
+        }
+    }
+
+    /** One request per language: the API takes a single Content-Language per request. */
+    async function save(body: RewardForm, base: string, filled: string[]) {
+        let id = reward?.id ?? createdId;
+        let pending = filled;
+
+        if (id === undefined) {
+            const { data: created } = await apiProjectRewardsPost({
+                baseUrl: "/api/relay",
+                headers: { "Content-Language": base },
+                body,
+                throwOnError: true,
+            });
+
+            id = createdId = created.id!;
+            pending = filled.filter((code) => code !== base);
+        }
+
+        const path = { id: String(id) };
+
+        for (const code of pending) {
+            await apiProjectRewardsIdPatch({
+                baseUrl: "/api/relay",
+                headers: { "Content-Language": code },
+                path,
+                body: { ...body, ...texts[code] },
+                throwOnError: true,
+            });
+        }
+
+        // After saving: the API refuses to delete a Reward's last language.
+        for (const code of reward?.locales?.filter((code) => !filled.includes(code)) ?? []) {
+            await apiProjectRewardsIdDelete({
+                baseUrl: "/api/relay",
+                headers: { "Content-Language": code },
+                path,
+                throwOnError: true,
+            });
         }
     }
 
@@ -173,9 +324,17 @@
         <p class="text-content line-clamp-1 overflow-hidden text-base font-normal text-ellipsis">
             {$t("pages.project.edit.rewards.modal.description")}
         </p>
-        <div class="flex flex-col gap-4 pt-2">
+        <LanguagesDropdown
+            {languages}
+            selected={selectedLanguage}
+            onSelect={(code) => {
+                selectedLanguage = code;
+                validation = {};
+            }}
+        />
+        <div class="flex flex-col gap-4 pt-2 inert:opacity-50" inert={isLoading}>
             <TextInput
-                bind:value={data.title}
+                bind:value={() => active.title, (title) => (active.title = String(title))}
                 labelText={$t("pages.project.edit.rewards.modal.form.titleLabel")}
                 helperText={$t("pages.project.edit.rewards.modal.form.titleHelper")}
                 placeholder={$t("pages.project.edit.rewards.modal.form.titlePlaceholder")}
@@ -186,7 +345,7 @@
                 <RichTextEditor
                     id="description"
                     format="markdown"
-                    value={data.description!}
+                    value={active.description}
                     onChange={handleDescription}
                     placeholder={$t("pages.project.edit.rewards.modal.form.descriptionPlaceholder")}
                     labelText={$t("pages.project.edit.rewards.modal.form.descriptionLabel")}
@@ -225,6 +384,9 @@
                 </div>
             </div>
         </div>
+        {#if errorMessage}
+            <p class="text-semantic-error text-sm">{errorMessage}</p>
+        {/if}
         <div class="flex items-center justify-end gap-4">
             {#if reward && onDelete}
                 <Button kind="secondary" onclick={() => (openDeleteModal = true)} class="w-fit">
@@ -237,7 +399,7 @@
                     onclick={() => handleDeleteClick()}
                 />
             {/if}
-            <Button type="submit" class="w-fit">
+            <Button type="submit" class="w-fit" disabled={isLoading || isSaving}>
                 {$t("common.save")}
             </Button>
         </div>

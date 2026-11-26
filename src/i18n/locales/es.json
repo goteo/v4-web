@@ -121,6 +121,7 @@
         "reviewType": "Tipo de revisión",
         "project": "Proyecto",
         "reviewer": "Asesor",
+        "reviewState": "Estado de revisión",
         "userTerritoryCountry": "Ubicación"
       },
       "operator": {
@@ -269,6 +270,13 @@
         "low": "Riesgo bajo",
         "mid": "Riesgo medio",
         "high": "Riesgo alto"
+      },
+      "state": {
+        "pending": "Pendiente de revisión",
+        "changesRequested": "Necesita cambios",
+        "changesDone": "Cambios realizados",
+        "rejected": "Rechazado",
+        "approved": "Aprobado para campaña"
       }
     },
     "tipping": {
@@ -345,6 +353,9 @@
         "title": "¿Eliminar todas las traducciones?",
         "description": "Solo se conservará el texto en {{language}}. Las demás traducciones se eliminarán al guardar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}."
     }
   },
   "common": {
@@ -400,7 +411,9 @@
     "header": {
       "search": "Buscar",
       "createProject": "Crea tu proyecto",
-      "goToProfile": "Ir a Perfil",
+      "goToProfile": "Ir al Perfil",
+      "activity": "Actividad",
+      "goToSettings": "Ir a Ajustes",
       "menu": "Menú",
       "admin": "Administración"
     },
@@ -484,6 +497,7 @@
     "500": {
       "title": "Algo ha salido terriblemente mal",
       "subtitle": "Por favor, espera unos segundos antes de volver a intentarlo.",
+      "apiDown": "No hemos podido conectar con la API de Goteo. Por favor, espera unos segundos antes de volver a intentarlo.",
       "meta": {
         "title": "Condición inesperada para la solicitud",
         "description": "Error interno del servidor."
@@ -734,9 +748,14 @@
         "minimum": "Mínimo",
         "optimum": "Óptimo",
         "daysRemaining": "Faltan {{days}} días",
-        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "¡Mínimo superado!",
+        "status": {
+          "toMinimum": "¡A por el mínimo!",
+          "toOptimum": "¡A por el óptimo!",
+          "funded": "Financiado",
+          "archived": "Archivado",
+          "upcoming": "Próximamente"
+        },
         "userDonations": "Tus donaciones:"
       },
       "blog": {
@@ -954,6 +973,8 @@
           "modal": {
             "title": "Añade recompensas",
             "description": "Describe la recompensa que ofreces",
+            "loadError": "No se han podido cargar las traducciones de esta recompensa. Cierra y vuelve a intentarlo.",
+            "saveError": "No se ha podido guardar la recompensa. Inténtalo de nuevo.",
             "unitsExisting": "Número de unidades existentes",
             "form": {
               "titleLabel": "Título de la recompensa",
@@ -1479,7 +1500,8 @@
         "label": "Proyecto"
       },
       "status": {
-        "label": "Estado de la revisión"
+        "label": "Estado de la revisión",
+        "updated": "El estado de la revisión se ha actualizado."
       },
       "areas": {
         "title": "Áreas de riesgo",
@@ -1489,6 +1511,8 @@
         "seeChat": "Ver detalle",
         "changeRisk": "Cambiar riesgo",
         "changeStatus": "Cambiar estado",
+        "decide": "Decidir la revisión",
+        "changesDone": "He realizado los cambios",
         "back": "Volver a la revisión"
       },
       "card": {
@@ -1853,8 +1877,141 @@
         "description": "Elige qué partes del sitio se pueden editar desde aquí.",
         "tabs": {
           "footer": "Pie de página",
-          "colours": "Colores",
+          "colors": "Colores",
           "logo": "Logotipo"
+        },
+        "colors": {
+          "title": "Colores",
+          "description": "Personaliza la paleta de colores de la plataforma. Puedes escribir un valor hexadecimal o usar el selector de color.",
+          "save": "Guardar colores",
+          "picker": "Seleccionar {{ color }}",
+          "themes": {
+            "generic": "Genéricos",
+            "light": "Tema claro",
+            "dark": "Tema oscuro",
+            "genericDescription": "Estos colores se comparten entre el tema claro y el tema oscuro.",
+            "lightDescription": "Estos colores sólo se utilizan cuando el tema claro está activo.",
+            "darkDescription": "Estos colores sólo se utilizan cuando el tema oscuro está activo. El resto se configuran en la pestaña Genéricos."
+          },
+          "contrast": {
+            "title": "Accesibilidad y contraste",
+            "description": "Comprobamos el contraste WCAG AA entre los colores de texto y los fondos habituales. El mínimo recomendado es {{ minimum }}:1. Los avisos no impiden guardar: puedes aplicar cualquier combinación bajo tu responsabilidad.",
+            "warning": "Contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1).",
+            "warningWithTheme": "{{ theme }}: contraste bajo entre {{ text }} y {{ background }}: {{ ratio }}:1 (mínimo {{ minimum }}:1)."
+          },
+          "reset": {
+            "button": "Restaurar valores",
+            "confirm": "¿Restaurar la paleta original? Se eliminarán todas las personalizaciones de color de ambos temas."
+          },
+          "feedback": {
+            "saved": "Colores guardados correctamente.",
+            "reset": "Paleta original restaurada correctamente."
+          },
+          "errors": {
+            "forbidden": "No tienes permisos para personalizar los colores.",
+            "invalid": "Revisa los colores marcados antes de guardar.",
+            "hex": "Usa el formato #RRGGBB o #RRGGBBAA."
+          },
+          "tokens": {
+            "primary": "Primario",
+            "secondary": "Secundario",
+            "tertiary": "Acento",
+            "content": "Texto de contenido",
+            "white": "Fondo principal",
+            "black": "Titulares",
+            "grey": "Gris de fondo",
+            "purple-soft": "Morado suave",
+            "purple-med": "Morado medio",
+            "overlay": "Superposición",
+            "variant1": "Variante 1",
+            "variant2": "Variante 2",
+            "variant3": "Variante 3",
+            "variant4": "Variante 4",
+            "semantic-error": "Fondo de error",
+            "semantic-success": "Fondo de éxito",
+            "semantic-notification": "Fondo de notificación",
+            "semantic-warning": "Fondo de advertencia"
+          }
+        },
+        "logo": {
+          "title": "Logotipo de la cabecera",
+          "description": "Sube el logo que se muestra en la cabecera de todas las páginas. Si no hay ninguno activo se usa el logo por defecto.",
+          "errors": {
+            "forbidden": "No tienes permisos para gestionar el logo de la cabecera",
+            "mediaRequired": "Sube una imagen para el logo"
+          },
+          "tabs": {
+            "new": "Nuevo",
+            "history": "Histórico"
+          },
+          "fields": {
+            "mediaTitle": "Logo",
+            "mediaLabel": "Imagen del logo",
+            "mediaHint": "Sube una imagen PNG, JPG o WebP, mejor con fondo transparente.",
+            "mediaAdd": "Añade el logo",
+            "altTextLabel": "Texto alternativo",
+            "altTextPlaceholder": "Describe el logo, por ejemplo «Goteo»"
+          },
+          "history": {
+            "title": "Histórico de logos",
+            "description": "Aquí puedes ver los logos subidos y eliminar los que ya no quieras usar. Al borrar el logo activo, la cabecera vuelve al anterior.",
+            "noData": "Todavía no has subido ningún logo. La cabecera usa el logo por defecto.",
+            "headers": {
+              "id": "ID",
+              "image": "Logo",
+              "altText": "Texto alternativo",
+              "status": "Estado"
+            },
+            "status": {
+              "active": "Actual",
+              "past": "Pasado"
+            },
+            "deleteModal": {
+              "title": "¿Borrar este logo?",
+              "description": "El logo se eliminará de forma permanente y dejará de mostrarse en la cabecera. Esta acción no se puede deshacer."
+            }
+          }
+        },
+        "footer": {
+          "title": "Pie de página",
+          "saved": "Pie de página guardado",
+          "sections": {
+            "preview": "Vista previa",
+            "partners": "Logos",
+            "navigation": "Columnas de navegación",
+            "legal": "Enlaces legales",
+            "social": "Redes sociales"
+          },
+          "fields": {
+            "labelPlaceholder": "Texto del enlace",
+            "hrefPlaceholder": "/ruta o https://...",
+            "socialPlaceholder": "https://... o mailto:...",
+            "altPlaceholder": "Nombre de la organización",
+            "partnerHrefPlaceholder": "https://... (opcional)",
+            "titlePlaceholder": "Título"
+          },
+          "actions": {
+            "addColumn": "Añadir columna",
+            "addLink": "Añadir enlace",
+            "addSocial": "Añadir red social",
+            "addPartner": "Añadir logo",
+            "changeImage": "Cambiar imagen",
+            "moveUp": "Subir",
+            "moveDown": "Bajar",
+            "addGroup": "Añadir grupo de logos"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar el pie de página.",
+            "invalidUrl": "Hay un enlace no válido: usa una ruta (/...), https:// o mailto:.",
+            "missingText": "Falta algún texto en el idioma principal.",
+            "missingImage": "Falta la imagen de algún logo."
+          },
+          "previewHelp": "Así se verá el pie de página en el idioma seleccionado. Pulsa cualquier elemento para editarlo.",
+          "editColumn": "Editar columna",
+          "linkCount": "Enlaces: {{ count }}",
+          "editGroup": "Editar grupo de logos",
+          "logoCount": "Logos: {{ count }}",
+          "hideSection": "Ocultar en el pie de página"
         }
       },
       "slotCard": {
@@ -2291,7 +2448,8 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Boletín"
+          "newsletter": "Boletín",
+          "faqs": "FAQs"
         },
         "banners": {
           "title": "Anuncios",
@@ -2376,6 +2534,8 @@
             "videoSection": "Añade un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Añade el enlace del vídeo",
             "sectionSection": "Sección",
+            "categoriesSection": "Categorías relacionadas",
+            "themesSection": "Temas relacionados",
             "sections": {
               "news": "Novedades",
               "stories": "Historias",
@@ -2384,6 +2544,27 @@
             },
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntas frecuentes",
+          "description": "Aquí puedes crear, ordenar y traducir las preguntas frecuentes de la plataforma",
+          "editHelp": "Escribe directamente en cada pregunta y despliégala para editar su respuesta. Así se verán en el idioma seleccionado.",
+          "empty": "Todavía no hay preguntas frecuentes",
+          "add": "Añadir pregunta",
+          "saved": "Preguntas frecuentes guardadas",
+          "lastUpdated": "Última actualización: {{ date }}",
+          "unsaved": "Sin guardar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escribe la pregunta",
+            "answer": "Respuesta",
+            "answerPlaceholder": "Escribe la respuesta"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar las preguntas frecuentes.",
+            "missingText": "Falta la pregunta o la respuesta de alguna FAQ en el idioma principal.",
+            "incompleteTranslation": "Alguna FAQ tiene la pregunta traducida pero no la respuesta, o al revés."
           }
         }
       },
@@ -2395,6 +2576,22 @@
           "list": "Listado de proyectos:",
           "totalizers": {
             "selected": "Proyectos seleccionados:"
+          },
+          "decisions": {
+            "title": "Confirmar decisión",
+            "description": "«{{ project }}» pasará a «{{ state }}». ¿Quieres aplicarlo?",
+            "confirm": "Aplicar"
+          },
+          "toasts": {
+            "statusUpdated": "El estado de «{{ project }}» se ha actualizado.",
+            "statusNotUpdated": "No se ha podido actualizar el estado de «{{ project }}».",
+            "advisorAssigned": "«{{ advisor }}» es ahora asesor de «{{ project }}».",
+            "advisorNotAssigned": "No se ha podido asignar el asesor de «{{ project }}»."
+          },
+          "filter": {
+            "tooMany": "Demasiados proyectos en este estado para filtrar la tabla. Acota el filtro con fechas.",
+            "tooManyProjects": "Hay {{ count }} proyectos en este estado y el filtro admite hasta {{ max }}. Acota el filtro con fechas o usa el listado de proyectos.",
+            "failed": "No se ha podido aplicar el filtro de estado. Vuelve a intentarlo."
           },
           "table": {
             "headers": {
@@ -2442,6 +2639,7 @@
     },
     "profile": {
       "share": "Compartir",
+      "edit": "Editar perfil",
       "shareModal": {
         "title": "Comparte este perfil"
       },
@@ -2491,14 +2689,14 @@
         "activity": "Actividad",
         "wallet": "Monedero",
         "inbox": "Buzón",
-        "profile": "Perfil"
+        "profile": "Ajustes"
       },
       "manage": {
-        "title": "Perfil de impulsor",
-        "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "title": "Perfil público",
+        "subtitle": "Así te verá la comunidad de Goteo. Añade una foto que te identifique, una buena presentación y tus enlaces para que quien visite tu perfil sepa quién eres y qué impulsas.",
         "sidebar": {
           "publicProfile": "Perfil público",
-          "personalProfile": "Perfil personal",
+          "personalProfile": "Datos personales",
           "addresses": "Direcciones"
         },
         "addresses": {
@@ -2517,8 +2715,8 @@
           "uploadImage": "Sube nueva imagen",
           "avatarAlt": "Imagen de perfil",
           "type": {
-            "individual": "Perfil impulsor · Persona física",
-            "organization": "Perfil impulsor · Persona jurídica"
+            "individual": "Persona física",
+            "organization": "Persona jurídica"
           }
         },
         "bio": {
@@ -2527,8 +2725,8 @@
           "placeholder": "Escribe una breve presentación"
         },
         "info": {
-          "title": "Información del impulsor",
-          "subtitle": "Cuéntanos algo sobre ti",
+          "title": "Información básica",
+          "subtitle": "Tu identificación, ubicación y datos fiscales",
           "handle": "Nombre de usuario",
           "firstName": "Nombre",
           "lastName": "Apellidos",
@@ -2597,8 +2795,8 @@
           "subtitle": "Indica el tipo de proyectos que pueden conectar con tus intereses para cofinanciarlos y/o aportar con otros recursos, conocimientos o habilidades. Estas categorías son transversales, puedes seleccionar más de una."
         },
         "personal": {
-          "title": "Perfil personal",
-          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y nuestro equipo pueden verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "title": "Datos personales",
+          "subtitle": "Tu nombre de usuario, nombre, apellidos y territorio son públicos. El resto solo lo usamos para tus impuestos, facturas y certificados.",
           "info": {
             "title": "Información personal",
             "subtitle": "Tal y como aparecen en tu documentación.",
@@ -2628,7 +2826,7 @@
         },
         "preferences": {
           "title": "Preferencias",
-          "subtitle": "Gestiona tus preferencias de perfil para que todo fluya a tu gusto",
+          "subtitle": "Gestiona tus preferencias para que todo fluya a tu gusto",
           "nav": {
             "preferences": "Preferencias"
           },
@@ -2763,6 +2961,11 @@
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntas frecuentes",
+      "description": "Encuentra respuestas a tus preguntas sobre Goteo, crowdfunding, matchfunding, y cómo impulsar proyectos con impacto social y cultural.",
+      "empty": "Todavía no hay preguntas frecuentes publicadas."
     }
   }
 }

@@ -7,6 +7,7 @@
     import Tag from "../library/tags/Tag.svelte";
     import Title from "../library/typography/Title.svelte";
 
+    import type { Category, Theme } from "../../openapi/client";
     import type { BlogPostRecord } from "../../repositories/blogPosts";
     import type { BlogSection } from "../../utils/blog";
 
@@ -16,13 +17,31 @@
         page: number;
         perPage: number;
         section: BlogSection | null;
+        categories?: Category[];
+        themes?: Theme[];
     }
 
-    let { posts, total, page, perPage, section }: Props = $props();
+    let { posts, total, page, perPage, section, categories = [], themes = [] }: Props = $props();
 
     const ALL = "all";
 
-    // Filters and pages are server-rendered, so changing them is a navigation.
+    const categoryNames = $derived(new Map(categories.map((item) => [item.id ?? "", item.name])));
+    const themeNames = $derived(new Map(themes.map((item) => [item.id ?? "", item.name])));
+
+    /**
+     * Names of the categories and themes a post is linked to, skipping identifiers that
+     * no longer exist in the API.
+     * @param post The post
+     * @returns The names, categories first
+     */
+    function tagNames(post: BlogPostRecord): string[] {
+        return [
+            ...post.categoryIds.map((id) => categoryNames.get(id)),
+            ...post.themeIds.map((id) => themeNames.get(id)),
+        ].filter((name): name is string => typeof name === "string");
+    }
+
+    // Sections and pages are server-rendered, so changing them is a navigation.
     function navigate(changes: { section?: string; page?: number }) {
         const nextSection = changes.section ?? section ?? ALL;
         const query = new URLSearchParams();
@@ -51,6 +70,7 @@
         <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {#each posts as post (post.id)}
                 {@const cover = post.headerMedia.find((media) => media.type.startsWith("image/"))}
+                {@const tags = tagNames(post)}
                 <li>
                     <a
                         href={`/${$locale}/blog/${post.id}`}
@@ -90,6 +110,13 @@
                             </Title>
                             {#if post.subtitle}
                                 <p class="text-content line-clamp-3">{post.subtitle}</p>
+                            {/if}
+                            {#if tags.length > 0}
+                                <div class="mt-auto flex flex-wrap gap-2 pt-2">
+                                    {#each tags as name (name)}
+                                        <Tag class="bg-variant1 text-secondary">{name}</Tag>
+                                    {/each}
+                                </div>
                             {/if}
                         </div>
                     </a>

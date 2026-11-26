@@ -1,8 +1,7 @@
-import { apiAccountingsIdGet, apiProjectsGetCollection } from "../openapi/client";
+import { apiProjectsGetCollection } from "../openapi/client";
 import { client } from "../openapi/client/client.gen";
 import { apiUsersIdOrHandleGetUrl } from "../openapi/client/operation-paths.gen";
 import { getBaseUrl, getDefaultCurrency } from "../utils/consts";
-import { extractId } from "../utils/extractId";
 import { toCollectionItems } from "../utils/hydra";
 import { sumMoney } from "../utils/money";
 import { RAISED_STATUSES } from "../utils/projectStatus";
@@ -64,37 +63,14 @@ export async function summarizeOwnerProjects(
         (collection?.["hydra:totalItems"] as number | undefined) ??
         projects.length;
 
-    const raisedAccountingIds = Array.from(
-        new Set(
-            projects
-                .filter(
-                    (project) =>
-                        project.status !== undefined && RAISED_STATUSES.has(project.status),
-                )
-                .map((project) => extractId(project.accounting))
-                .filter((id): id is string => Boolean(id)),
-        ),
-    );
+    const valid = projects
+        .filter((project) => project.status !== undefined && RAISED_STATUSES.has(project.status))
+        .map((project) => project.accounting?.balance)
+        .filter((balance): balance is MoneyOutput => typeof balance?.amount === "number");
 
-    if (raisedAccountingIds.length === 0) {
+    if (valid.length === 0) {
         return { totalProjects, capitalRaised: { amount: 0, currency: getDefaultCurrency() } };
     }
-
-    const balances = await Promise.all(
-        raisedAccountingIds.map(async (id) => {
-            const { data } = await apiAccountingsIdGet({
-                baseUrl: getBaseUrl(),
-                path: { id },
-                headers: { "Accept-Language": acceptLanguage },
-            });
-
-            return data?.balance ?? null;
-        }),
-    );
-
-    const valid = balances.filter(
-        (balance): balance is MoneyOutput => typeof balance?.amount === "number",
-    );
 
     const total = sumMoney(valid);
 

@@ -11,9 +11,17 @@
     import { t } from "../i18n/store";
     import { cartCount } from "../stores/checkoutsStore";
 
+    import type { HeaderLogo } from "../repositories/headerLogo";
     import type { Snippet } from "svelte";
 
-    let { children, nav }: { children?: Snippet; nav?: Snippet } = $props();
+    interface Props {
+        children?: Snippet;
+        nav?: Snippet;
+        /** Logo managed from /admin/customize/logo; null shows the built-in one. */
+        logo?: HeaderLogo | null;
+    }
+
+    let { children, nav, logo = null }: Props = $props();
 
     let menuOpen = $state(false);
 
@@ -57,7 +65,17 @@
                     id="header-main"
                 >
                     <div class="flex items-center gap-2 md:gap-4">
-                        <a href="/" class="shrink-0"><Logo /></a>
+                        <a href="/" class="shrink-0">
+                            {#if logo}
+                                <img
+                                    src={logo.src}
+                                    alt={logo.alt}
+                                    class="h-6 w-auto max-w-50 object-contain"
+                                />
+                            {:else}
+                                <Logo />
+                            {/if}
+                        </a>
                         <div class="hidden lg:block">
                             <HeaderButtons />
                         </div>
@@ -97,10 +115,22 @@
                                             class:flex={userDropdownOpen}
                                         >
                                             <a
-                                                href="/me"
+                                                href="/me/activity"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.activity")}
+                                            </a>
+                                            <a
+                                                href="/user/{$session.user.handle}"
                                                 class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
                                             >
                                                 {$t("common.header.goToProfile")}
+                                            </a>
+                                            <a
+                                                href="/me/manage"
+                                                class="border-grey text-secondary hover:bg-grey block w-full overflow-hidden border-b px-4 py-2 font-bold text-ellipsis"
+                                            >
+                                                {$t("common.header.goToSettings")}
                                             </a>
                                             {#if $session.user.roles?.includes("ROLE_ADMIN")}
                                                 <a

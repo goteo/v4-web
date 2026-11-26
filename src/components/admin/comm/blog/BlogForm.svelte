@@ -10,9 +10,15 @@
         getLanguageDisplayName,
         primaryLanguage as pickPrimaryLanguage,
     } from "../../../../utils/lang";
+    import {
+        loadMarkdown,
+        markdownToRichText,
+        richTextToPlainText,
+    } from "../../../../utils/richText";
     import Back from "../../../icons/navigation/Back.svelte";
     import ActionableButton from "../../../library/buttons/ActionableButton.svelte";
     import Toast from "../../../library/feedback/Toast.svelte";
+    import CategorySelect from "../../../library/inputs/CategorySelect.svelte";
     import DateInput from "../../../library/inputs/DateInput.svelte";
     import FileUpload from "../../../library/inputs/FileUpload.svelte";
     import RadioButton from "../../../library/inputs/RadioButton.svelte";
@@ -21,15 +27,18 @@
     import Title from "../../../library/typography/Title.svelte";
     import TranslationLanguages from "../../TranslationLanguages.svelte";
 
+    import type { Category, Theme } from "../../../../openapi/client";
     import type { BlogPost } from "../../../../repositories/blogPosts";
     import type { BlogSection } from "../../../../utils/blog";
     import type { UploadedObject } from "../../../../utils/media/objectStorage.types";
 
     interface Props {
         post?: BlogPost | null;
+        categories: Category[];
+        themes: Theme[];
     }
 
-    let { post = null }: Props = $props();
+    let { post = null, categories, themes }: Props = $props();
 
     // The form edits its own copy of the post; showing another one is a page load.
     const initial = untrack(() => post);
@@ -42,6 +51,7 @@
         title: string;
         subtitle: string;
         content: string;
+        excerpt: string;
     }
 
     const listHref = $derived(`/${$locale}/admin/comm/blog`);
@@ -53,6 +63,8 @@
     let section = $state<BlogSection>(initial?.section ?? "news");
     let author = $state(initial?.author ?? "");
     let videoUrl = $state(initial?.videoUrl ?? "");
+    let categoryIds = $state<string[]>(initial?.categoryIds ?? []);
+    let themeIds = $state<string[]>(initial?.themeIds ?? []);
 
     // Only URL and type are stored, so rebuild what FileUpload needs to list the current header.
     let header = $state<UploadedObject[]>(
@@ -69,7 +81,13 @@
     let errorMessage = $state("");
     let showError = $state(false);
 
-    const emptyTexts = (): Texts => ({ title: "", subtitle: "", content: "" });
+    const emptyTexts = (): Texts => ({ title: "", subtitle: "", content: "", excerpt: "" });
+
+    async function contentChanged(texts: Texts, value: string) {
+        texts.content = value;
+        await loadMarkdown();
+        texts.excerpt = richTextToPlainText(markdownToRichText(value)).trim();
+    }
 
     const defaultLanguage = getDefaultLanguage();
 
@@ -85,6 +103,7 @@
                           title: stored?.title ?? "",
                           subtitle: stored?.subtitle ?? "",
                           content: stored?.content ?? "",
+                          excerpt: stored?.excerpt ?? "",
                       },
                   ];
               }),
@@ -117,6 +136,8 @@
         section,
         author,
         videoUrl,
+        categoryIds,
+        themeIds,
         header: header.map(({ url, type }) => ({ url, type })),
     }));
 
@@ -145,6 +166,14 @@
 
         if (restored.videoUrl !== undefined) {
             videoUrl = restored.videoUrl;
+        }
+
+        if (restored.categoryIds) {
+            categoryIds = restored.categoryIds;
+        }
+
+        if (restored.themeIds) {
+            themeIds = restored.themeIds;
         }
 
         if (restored.header) {
@@ -181,6 +210,7 @@
         data.set("title", primary.title.trim());
         data.set("subtitle", primary.subtitle.trim());
         data.set("content", primary.content.trim());
+        data.set("excerpt", primary.excerpt.trim());
         data.set(
             "translations",
             JSON.stringify(
@@ -193,11 +223,15 @@
                                 title: texts[code].title.trim(),
                                 subtitle: texts[code].subtitle.trim() || undefined,
                                 content: texts[code].content.trim() || undefined,
+                                excerpt: texts[code].excerpt.trim() || undefined,
                             },
                         ]),
                 ),
             ),
         );
+
+        data.set("categoryIds", JSON.stringify(categoryIds));
+        data.set("themeIds", JSON.stringify(themeIds));
 
         if (publish) {
             data.set("published", "1");
@@ -336,7 +370,7 @@
             <RichTextEditor
                 id={`${contentId}-${selectedLanguage}`}
                 value={active.content}
-                onChange={(value) => (active.content = value)}
+                onChange={(value) => contentChanged(active, value)}
                 format="markdown"
                 placeholder={$t("pages.admin.comm.blog.form.contentPlaceholder")}
             />
@@ -369,6 +403,20 @@
                 />
             {/each}
         </div>
+    </fieldset>
+
+    <fieldset class="flex min-w-0 flex-col gap-6">
+        <Title level={3} variant="subsection">
+            {$t("pages.admin.comm.blog.form.categoriesSection")}
+        </Title>
+        <CategorySelect options={categories} bind:selectedIds={categoryIds} />
+    </fieldset>
+
+    <fieldset class="flex min-w-0 flex-col gap-6">
+        <Title level={3} variant="subsection">
+            {$t("pages.admin.comm.blog.form.themesSection")}
+        </Title>
+        <CategorySelect options={themes} bind:selectedIds={themeIds} />
     </fieldset>
 
     <div class="flex flex-wrap gap-4">

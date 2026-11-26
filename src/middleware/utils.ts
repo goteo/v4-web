@@ -1,6 +1,35 @@
 import { isSupportedLocale } from "../i18n/locales/index";
+import { apiPingGet } from "../openapi/client/sdk.gen";
 
 import type { APIContext } from "astro";
+
+const API_HEALTHY_TTL = 30_000;
+const API_PING_TIMEOUT = 3_000;
+
+let apiHealthyUntil = 0;
+
+/**
+ * Whether the API answers its health endpoint.
+ *
+ * Pages read from the API while their HTML is already streaming, so a dead API cannot be
+ * turned into an error page from there. Asking before rendering starts is what lets the
+ * middleware serve the 500 page instead.
+ *
+ * Only a healthy answer is remembered, so an outage is noticed within the TTL and a
+ * recovery on the very next request.
+ */
+// ponytail: per-isolate memo. Move to the Cache API if isolates churn enough to matter.
+export async function isApiUp(): Promise<boolean> {
+    if (Date.now() < apiHealthyUntil) return true;
+
+    const { response } = await apiPingGet({ signal: AbortSignal.timeout(API_PING_TIMEOUT) });
+
+    if (!response?.ok) return false;
+
+    apiHealthyUntil = Date.now() + API_HEALTHY_TTL;
+
+    return true;
+}
 
 const PREFERRED_LANGUAGE_COOKIE = "preferred-lang";
 const PREFERRED_LANGUAGE_HEADER = "accept-language";
