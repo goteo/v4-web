@@ -95,7 +95,7 @@
                 aria-selected={activeTab === tab.id}
                 aria-controls={`tab-${tab.id}`}
                 id={`tab-button-${tab.id}`}
-                class="text-secondary lg:border-variant1 inline-flex shrink-0 items-center rounded-t-lg px-6 py-2 font-bold whitespace-nowrap transition-colors duration-100 ease-in-out lg:border-t lg:border-r lg:border-l"
+                class="text-secondary lg:border-variant1 inline-flex shrink-0 cursor-pointer items-center rounded-t-lg px-6 py-2 font-bold whitespace-nowrap transition-colors duration-100 ease-in-out lg:border-t lg:border-r lg:border-l"
                 class:bg-variant1={activeTab === tab.id}
                 onclick={() => selectTab(tab.id)}
             >
