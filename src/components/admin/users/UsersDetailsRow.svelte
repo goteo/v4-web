@@ -9,6 +9,7 @@
         apiUsersIdPatch,
         type GatewayCharge,
     } from "../../../openapi/client/index.ts";
+    import { USER_ROLES } from "../../../types/userRole";
     import { formatCurrency } from "../../../utils/currencies";
     import { formatDate } from "../../../utils/dates";
     import Close from "../../icons/navigation/Close.svelte";
@@ -20,6 +21,7 @@
     import DetailsRow, { type DetailsField } from "../DetailsRow.svelte";
 
     import type { UserRow } from "./UsersTable.svelte";
+    import type { UserRole } from "../../../types/userRole";
     import type { DropdownOption } from "../../library/dropdown/dropdown.types";
 
     let {
@@ -27,7 +29,7 @@
         onRolesUpdated,
     }: {
         user: UserRow;
-        onRolesUpdated?: (id: number, roles: string[]) => void;
+        onRolesUpdated?: (id: number, roles: UserRole[]) => void;
     } = $props();
 
     let totalCollected = $state<string>("—");
@@ -76,35 +78,15 @@
         rolesModal = true;
     }
 
-    /** Free text typed by the admin becomes a role id, e.g. "project reviewer" → ROLE_PROJECT_REVIEWER. */
-    function toRoleId(text: string): string {
-        const normalized = text
-            .trim()
-            .toUpperCase()
-            .replace(/[^A-Z0-9]+/g, "_")
-            .replace(/^_+|_+$/g, "");
-        if (!normalized) return "";
-        return normalized.startsWith("ROLE_") ? normalized : `ROLE_${normalized}`;
-    }
-
     function searchRoles(query: string): DropdownOption[] {
         const search = query.toLowerCase();
-        const all = [...new Set([...user.roles, ...selectedRoles.map((o) => o.id)])].map(
-            toRoleOption,
-        );
-        const matches = all.filter((o) => o.id.toLowerCase().includes(search));
-
-        const custom = toRoleId(query);
-        if (custom && !all.some((o) => o.id === custom)) {
-            matches.push(toRoleOption(custom));
-        }
-
-        return matches;
+        return USER_ROLES.filter((role) => role.toLowerCase().includes(search)).map(toRoleOption);
     }
 
     async function saveRoles() {
         savingRoles = true;
-        const roles = selectedRoles.map((o) => o.id);
+        // Options only come from USER_ROLES, so every id is a UserRole.
+        const roles = selectedRoles.map((o) => o.id as UserRole);
 
         const { error, response } = await apiUsersIdPatch({
             baseUrl: "/api/relay",

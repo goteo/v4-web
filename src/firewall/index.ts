@@ -84,7 +84,7 @@ export function allowsCachedSession(pathname: string): boolean {
  * @param roles The roles of the current user
  * @returns True if the user is authorized, false otherwise
  */
-export function isAuthorized(control: ControlItem, roles: string[]): boolean {
+export function isAuthorized(control: ControlItem, roles: ControlItem["roles"]): boolean {
     if (control.roles.length === 0) {
         return true;
     }
