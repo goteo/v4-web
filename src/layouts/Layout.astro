@@ -3,6 +3,7 @@ import { Font } from "astro:assets";
 
 import "../styles/global.css";
 import { themeColorsRepository } from "../repositories/themeColors";
+import { getAppName } from "../utils/consts";
 import { buildThemeColorStyleAttribute } from "../utils/themeColors";
 import Footer from "./Footer.astro";
 import Metatags from "./Metatags.astro";
@@ -10,6 +11,12 @@ import Metatags from "./Metatags.astro";
 import type { FontPreloadFilter } from "astro:assets";
 
 const { title, description, keywords } = Astro.props;
+
+const appName = getAppName();
+const fullTitle =
+    !title || title === appName || title.endsWith(appName)
+        ? title || appName
+        : `${title} - ${appName}`;
 
 const savedThemeColors = await themeColorsRepository.get();
 const themeColorStyleAttribute = savedThemeColors
@@ -39,9 +46,9 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
-        <title>{title}</title>
+        <title>{fullTitle}</title>
         <Font cssVariable="--font-karla" preload={preloadedFaces} />
-        <Metatags {title} {description} {keywords} />
+        <Metatags title={fullTitle} {description} {keywords} />
     </head>
     <body class="bg-white">
         <slot />

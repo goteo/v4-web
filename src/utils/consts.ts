@@ -42,6 +42,10 @@ export function getFacebookAppId(): string {
     return getEnvVar("PUBLIC_FACEBOOK_APP_ID");
 }
 
+export function getAppName(): string {
+    return getEnvVar("PUBLIC_APP_NAME");
+}
+
 export function getDefaultCurrency(): string {
     return getEnvVar("PUBLIC_DEFAULT_CURRENCY");
 }

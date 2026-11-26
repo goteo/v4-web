@@ -436,9 +436,9 @@
           "taxCalculator": "Calculadora fiscal"
         },
         "aboutGoteo": {
-          "title": "Sobre Goteo",
+          "title": "Sobre {{ appName }}",
           "whoWeAre": "¿Quiénes somos?",
-          "goteoBenefits": "Ventajas de Goteo",
+          "goteoBenefits": "Ventajas de {{ appName }}",
           "foundationImpact": "Impacto de la fundación",
           "platoniqFoundation": "Fundación Platoniq"
         },
@@ -506,8 +506,8 @@
     "_": "Contenido específico de páginas (/home, /search, /project/[id], etc.)",
     "register": {
       "title": "Crea tu cuenta",
-      "description": "Regístrate en Goteo para apoyar proyectos y crear los tuyos.",
-      "existUserInfo": "Si ya eres usuario de Goteo, inicia sesión con tu cuenta.",
+      "description": "Regístrate en {{ appName }} para apoyar proyectos y crear los tuyos.",
+      "existUserInfo": "Si ya eres usuario de {{ appName }}, inicia sesión con tu cuenta.",
       "submit": "Crear cuenta",
       "organization": {
         "taxIdHelper": "CIF de la empresa"
@@ -608,7 +608,7 @@
           "formGoal": {
             "title": "Si la campaña no logra su objetivo",
             "options": {
-              "1": "Ingresar en mi monedero de Goteo para poder destinarlo a otros proyectos.",
+              "1": "Ingresar en mi monedero de {{ appName }} para poder destinarlo a otros proyectos.",
               "2": "Devolverlo a mi medio de pago"
             }
           },
@@ -652,7 +652,7 @@
         "registerBtnLabel": "Regístrate",
         "forgotPassword": "¿Olvidaste tu contraseña?",
         "welcome": {
-          "title": "Bienvenid@ al nuevo Goteo.",
+          "title": "Bienvenid@ al nuevo {{ appName }}.",
           "subtitle": "Estamos estrenando una nueva etapa y queremos compartirla contigo desde el principio. La plataforma irá creciendo poco a poco: activaremos secciones y funcionalidades a medida que estén listas y validadas con nuestra comunidad. De momento puedes acceder con tu mismo correo y contraseña y explorar el archivo de proyectos. Gracias por acompañarnos en este camino."
         },
         "formDescription": "Si ya eres usuario identifícate.",
@@ -727,7 +727,7 @@
         "description": "Necesitamos saber quién eres antes de pagar.",
         "registerOr": "Regístrate o",
         "loginBtnLabel": "Entra con tu cuenta",
-        "existUserInfo": "Si ya eres usuario de Goteo identifícate. Podrás hacer uso de tu monedero para realizar estas donaciones.",
+        "existUserInfo": "Si ya eres usuario de {{ appName }} identifícate. Podrás hacer uso de tu monedero para realizar estas donaciones.",
         "otherAccessMethods": "o accede con"
       }
     },
@@ -763,7 +763,7 @@
       },
       "matchfunding": {
         "title": "Matchfunding",
-        "description": "El efecto match sólo lo verás en Goteo. Desde el 2013 buscamos organizaciones que quieran multiplicar el impacto del crowdfunding. Por cada euro que una persona aporta a una campaña de Goteo, una institución colaboradora (fundación, administración pública, empresa…) aporta la misma cantidad, o incluso más.",
+        "description": "El efecto match sólo lo verás en {{ appName }}. Desde el 2013 buscamos organizaciones que quieran multiplicar el impacto del crowdfunding. Por cada euro que una persona aporta a una campaña de {{ appName }}, una institución colaboradora (fundación, administración pública, empresa…) aporta la misma cantidad, o incluso más.",
         "actions": {
           "learnMore": "Quiero saber más",
           "viewCalls": "Ver convocatorias activas"
@@ -848,7 +848,7 @@
       }
     },
     "index": {
-      "title": "Goteo"
+      "title": "{{ appName }}"
     },
     "project": {
       "edit": {
@@ -1106,7 +1106,7 @@
           "teamDescriptionHelper": "Cuéntanos a qué se dedica la entidad impulsora, qué tipo de actividades lleva a cabo en el día a día y cuáles son sus objetivos.",
           "teamDescriptionPlaceholder": "Describe brevemente la actividad del impulsor",
           "privateContacts": "Datos de contacto privados",
-          "privateContactsHelper": "Completa al menos un dato de contacto. La información no será pública, solo lo podrá usar Goteo para comunicarse sobre usos relacionados con el proyecto que estás preparando.",
+          "privateContactsHelper": "Completa al menos un dato de contacto. La información no será pública, solo lo podrá usar {{ appName }} para comunicarse sobre usos relacionados con el proyecto que estás preparando.",
           "email": "Mail",
           "phone": "Teléfono",
           "addContact": "Añadir contacto",
@@ -1333,20 +1333,20 @@
       }
     },
     "about": {
-      "title": "Sobre Goteo",
+      "title": "Sobre {{ appName }}",
       "hero": {
         "title": "Conoce nuestra manera de hacer crowdfunding",
-        "description": "En Goteo creemos que la financiación colectiva es más que dinero: es confianza, comunidad y compromiso social. Nuestro modelo de crowdfunding se basa en el impulso de proyectos que generan impacto positivo y en el acompañamiento cercano a las personas y organizaciones que los hacen posibles.",
+        "description": "En {{ appName }} creemos que la financiación colectiva es más que dinero: es confianza, comunidad y compromiso social. Nuestro modelo de crowdfunding se basa en el impulso de proyectos que generan impacto positivo y en el acompañamiento cercano a las personas y organizaciones que los hacen posibles.",
         "cta": "Impulsa tu proyecto"
       },
       "whatIs": {
         "title": "Qué es crowdfunding",
         "subtitle": "Un impacto social de verdad.",
-        "description": "El crowdfunding es una forma de financiación que une a muchas personas que creen en una idea y deciden apoyarla con pequeñas (o grandes) aportaciones. En Goteo lo entendemos como un espacio donde no solo se busca recaudar fondos, sino también crear redes de apoyo, visibilidad y aprendizaje."
+        "description": "El crowdfunding es una forma de financiación que une a muchas personas que creen en una idea y deciden apoyarla con pequeñas (o grandes) aportaciones. En {{ appName }} lo entendemos como un espacio donde no solo se busca recaudar fondos, sino también crear redes de apoyo, visibilidad y aprendizaje."
       },
       "advisory": {
         "title": "Asesoría y acompañamiento de nuestro equipo",
-        "description": "En Goteo no estás sola. Nuestro equipo te acompaña paso a paso, desde la definición de tu proyecto hasta la gestión de la campaña. Ofrecemos asesoría gratuita que te ayudará a preparar tu proyecto. Si necesitas más ayuda puedes solicitar una asesoría personalizada premium, con materiales de apoyo y una metodología probada para aumentar tus posibilidades de éxito."
+        "description": "En {{ appName }} no estás sola. Nuestro equipo te acompaña paso a paso, desde la definición de tu proyecto hasta la gestión de la campaña. Ofrecemos asesoría gratuita que te ayudará a preparar tu proyecto. Si necesitas más ayuda puedes solicitar una asesoría personalizada premium, con materiales de apoyo y una metodología probada para aumentar tus posibilidades de éxito."
       },
       "phases": {
         "title": "Entiende las fases y mecánica",
@@ -1374,7 +1374,7 @@
         "description": "Periódicamente organizamos talleres, webinars y encuentros donde compartimos aprendizajes, tendencias y experiencias reales de crowdfunding. Son espacios para formarte, inspirarte y conectar con otras personas que, como tú, quieren transformar ideas en realidades. Suscríbete para recibir información actualizada desde nuestro boletín."
       },
       "advantages": {
-        "title": "Ventajas de Goteo",
+        "title": "Ventajas de {{ appName }}",
         "items": {
           "taxDeductions": {
             "title": "Desgravaciones fiscales",
@@ -1394,15 +1394,15 @@
           },
           "loyalCommunity": {
             "title": "Comunidad fidelizada",
-            "description": "Contamos con una base de donantes recurrentes que confían en Goteo y vuelven a apoyar campañas porque valoran el impacto social y cultural. Esto da a los proyectos más oportunidades de alcanzar sus metas."
+            "description": "Contamos con una base de donantes recurrentes que confían en {{ appName }} y vuelven a apoyar campañas porque valoran el impacto social y cultural. Esto da a los proyectos más oportunidades de alcanzar sus metas."
           },
           "matchfunding": {
             "title": "Cofinanciación institucional (matchfunding)",
-            "description": "A través de alianzas con instituciones, multiplicamos las aportaciones ciudadanas con fondos públicos o privados. Este modelo híbrido es único en Goteo y no existe en la mayoría de plataformas."
+            "description": "A través de alianzas con instituciones, multiplicamos las aportaciones ciudadanas con fondos públicos o privados. Este modelo híbrido es único en {{ appName }} y no existe en la mayoría de plataformas."
           },
           "socialImpact": {
             "title": "Foco en impacto social transformador",
-            "description": "No todos los proyectos son aceptados. En Goteo priorizamos aquellos alineados con la Economía Social y los valores democráticos, ya sea en forma de conocimiento abierto, mejoras comunitarias o impacto ambiental y social."
+            "description": "No todos los proyectos son aceptados. En {{ appName }} priorizamos aquellos alineados con la Economía Social y los valores democráticos, ya sea en forma de conocimiento abierto, mejoras comunitarias o impacto ambiental y social."
           },
           "transparency": {
             "title": "Transparencia y confianza",
@@ -1571,7 +1571,7 @@
     "admin": {
       "newsletter": {
         "title": "Boletín",
-        "description": "Recibe en tu buzón las últimas noticias, análisis detallados y recursos exclusivos de Goteo. Entérate de todo sobre crowdfunding, innovación social y tecnología.",
+        "description": "Recibe en tu buzón las últimas noticias, análisis detallados y recursos exclusivos de {{ appName }}. Entérate de todo sobre crowdfunding, innovación social y tecnología.",
         "tabs": {
           "send": "Enviar boletín",
           "templates": "Plantillas",
@@ -1877,7 +1877,7 @@
             "mediaHint": "Sube una imagen PNG, JPG o WebP, mejor con fondo transparente.",
             "mediaAdd": "Añade el logo",
             "altTextLabel": "Texto alternativo",
-            "altTextPlaceholder": "Describe el logo, por ejemplo «Goteo»"
+            "altTextPlaceholder": "Describe el logo, por ejemplo «{{ appName }}»"
           },
           "history": {
             "title": "Histórico de logos",
@@ -2562,7 +2562,7 @@
       }
     },
     "static": {
-      "title": "Goteo"
+      "title": "{{ appName }}"
     },
     "profile": {
       "share": "Compartir",
@@ -2591,7 +2591,7 @@
           "description": "Sigue donando para subir de nivel"
         }
       },
-      "title": "Goteo",
+      "title": "{{ appName }}",
       "notFound": "Usuario no encontrado"
     },
     "login": {
@@ -2878,7 +2878,7 @@
     },
     "blog": {
       "title": "Blog",
-      "description": "Noticias, historias y recursos sobre crowdfunding, matchfunding y las campañas de Goteo.",
+      "description": "Noticias, historias y recursos sobre crowdfunding, matchfunding y las campañas de {{ appName }}.",
       "all": "Todas",
       "empty": "Todavía no hay entradas publicadas",
       "by": "Por: {{ author }}",

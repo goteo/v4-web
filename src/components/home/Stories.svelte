@@ -1,5 +1,6 @@
 <script lang="ts">
     import { t } from "../../i18n/store";
+    import { getAppName } from "../../utils/consts";
     import Title from "../library/typography/Title.svelte";
 </script>
 
@@ -46,7 +47,7 @@
             <div
                 class="absolute top-1/2 left-1/2 h-50 w-70 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-cover bg-center bg-no-repeat shadow-lg md:h-75 md:w-100 lg:h-109 lg:w-109"
                 style="background-image: url('/images/home/stories-main.png')"
-                aria-label="Goteo community members"
+                aria-label={`${getAppName()} community members`}
             ></div>
 
             <!-- Top right smaller image -->
