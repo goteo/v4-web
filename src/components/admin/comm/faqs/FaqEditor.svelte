@@ -110,7 +110,7 @@
         onTabClick={(id) => (language = id as Locale)}
     />
     <p class="text-content text-sm">
-        {$t("pages.admin.customize.footer.languageHelp", {
+        {$t("domain.language.defaultRequiredHelp", {
             language: languagesList[defaultLanguage],
         })}
     </p>

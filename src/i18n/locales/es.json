@@ -353,6 +353,9 @@
         "title": "¿Eliminar todas las traducciones?",
         "description": "Solo se conservará el texto en {{language}}. Las demás traducciones se eliminarán al guardar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}."
     }
   },
   "common": {
@@ -1889,7 +1892,6 @@
         },
         "footer": {
           "title": "Pie de página",
-          "languageHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}.",
           "saved": "Pie de página guardado",
           "sections": {
             "preview": "Vista previa",
