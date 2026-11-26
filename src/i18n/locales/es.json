@@ -353,6 +353,9 @@
         "title": "¿Eliminar todas las traducciones?",
         "description": "Solo se conservará el texto en {{language}}. Las demás traducciones se eliminarán al guardar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}."
     }
   },
   "common": {
@@ -408,7 +411,9 @@
     "header": {
       "search": "Buscar",
       "createProject": "Crea tu proyecto",
-      "goToProfile": "Ir a Perfil",
+      "goToProfile": "Ir al Perfil",
+      "activity": "Actividad",
+      "goToSettings": "Ir a Ajustes",
       "menu": "Menú",
       "admin": "Administración"
     },
@@ -743,9 +748,14 @@
         "minimum": "Mínimo",
         "optimum": "Óptimo",
         "daysRemaining": "Faltan {{days}} días",
-        "finished": "Finalizada",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "¡Mínimo superado!",
+        "status": {
+          "toMinimum": "¡A por el mínimo!",
+          "toOptimum": "¡A por el óptimo!",
+          "funded": "Financiado",
+          "archived": "Archivado",
+          "upcoming": "Próximamente"
+        },
         "userDonations": "Tus donaciones:"
       },
       "blog": {
@@ -963,6 +973,8 @@
           "modal": {
             "title": "Añade recompensas",
             "description": "Describe la recompensa que ofreces",
+            "loadError": "No se han podido cargar las traducciones de esta recompensa. Cierra y vuelve a intentarlo.",
+            "saveError": "No se ha podido guardar la recompensa. Inténtalo de nuevo.",
             "unitsExisting": "Número de unidades existentes",
             "form": {
               "titleLabel": "Título de la recompensa",
@@ -1889,7 +1901,6 @@
         },
         "footer": {
           "title": "Pie de página",
-          "languageHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}.",
           "saved": "Pie de página guardado",
           "sections": {
             "preview": "Vista previa",
@@ -2364,7 +2375,8 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Boletín"
+          "newsletter": "Boletín",
+          "faqs": "FAQs"
         },
         "banners": {
           "title": "Anuncios",
@@ -2449,6 +2461,8 @@
             "videoSection": "Añade un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Añade el enlace del vídeo",
             "sectionSection": "Sección",
+            "categoriesSection": "Categorías relacionadas",
+            "themesSection": "Temas relacionados",
             "sections": {
               "news": "Novedades",
               "stories": "Historias",
@@ -2457,6 +2471,27 @@
             },
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntas frecuentes",
+          "description": "Aquí puedes crear, ordenar y traducir las preguntas frecuentes de la plataforma",
+          "editHelp": "Escribe directamente en cada pregunta y despliégala para editar su respuesta. Así se verán en el idioma seleccionado.",
+          "empty": "Todavía no hay preguntas frecuentes",
+          "add": "Añadir pregunta",
+          "saved": "Preguntas frecuentes guardadas",
+          "lastUpdated": "Última actualización: {{ date }}",
+          "unsaved": "Sin guardar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escribe la pregunta",
+            "answer": "Respuesta",
+            "answerPlaceholder": "Escribe la respuesta"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar las preguntas frecuentes.",
+            "missingText": "Falta la pregunta o la respuesta de alguna FAQ en el idioma principal.",
+            "incompleteTranslation": "Alguna FAQ tiene la pregunta traducida pero no la respuesta, o al revés."
           }
         }
       },
@@ -2531,6 +2566,7 @@
     },
     "profile": {
       "share": "Compartir",
+      "edit": "Editar perfil",
       "shareModal": {
         "title": "Comparte este perfil"
       },
@@ -2580,14 +2616,14 @@
         "activity": "Actividad",
         "wallet": "Monedero",
         "inbox": "Buzón",
-        "profile": "Perfil"
+        "profile": "Ajustes"
       },
       "manage": {
-        "title": "Perfil de impulsor",
-        "subtitle": "Presenta proyectos o financia iniciativas. Completa tu perfil con una buena presentación, enlaces relevantes y una foto que te identifique.",
+        "title": "Perfil público",
+        "subtitle": "Así te verá la comunidad de Goteo. Añade una foto que te identifique, una buena presentación y tus enlaces para que quien visite tu perfil sepa quién eres y qué impulsas.",
         "sidebar": {
           "publicProfile": "Perfil público",
-          "personalProfile": "Perfil personal",
+          "personalProfile": "Datos personales",
           "addresses": "Direcciones"
         },
         "addresses": {
@@ -2606,8 +2642,8 @@
           "uploadImage": "Sube nueva imagen",
           "avatarAlt": "Imagen de perfil",
           "type": {
-            "individual": "Perfil impulsor · Persona física",
-            "organization": "Perfil impulsor · Persona jurídica"
+            "individual": "Persona física",
+            "organization": "Persona jurídica"
           }
         },
         "bio": {
@@ -2616,8 +2652,8 @@
           "placeholder": "Escribe una breve presentación"
         },
         "info": {
-          "title": "Información del impulsor",
-          "subtitle": "Cuéntanos algo sobre ti",
+          "title": "Información básica",
+          "subtitle": "Tu identificación, ubicación y datos fiscales",
           "handle": "Nombre de usuario",
           "firstName": "Nombre",
           "lastName": "Apellidos",
@@ -2686,8 +2722,8 @@
           "subtitle": "Indica el tipo de proyectos que pueden conectar con tus intereses para cofinanciarlos y/o aportar con otros recursos, conocimientos o habilidades. Estas categorías son transversales, puedes seleccionar más de una."
         },
         "personal": {
-          "title": "Perfil personal",
-          "subtitle": "Estos datos no se muestran en tu perfil público. Solo tú y nuestro equipo pueden verlos, y los usamos para gestionar tus impuestos, facturas y certificados.",
+          "title": "Datos personales",
+          "subtitle": "Tu nombre de usuario, nombre, apellidos y territorio son públicos. El resto solo lo usamos para tus impuestos, facturas y certificados.",
           "info": {
             "title": "Información personal",
             "subtitle": "Tal y como aparecen en tu documentación.",
@@ -2717,7 +2753,7 @@
         },
         "preferences": {
           "title": "Preferencias",
-          "subtitle": "Gestiona tus preferencias de perfil para que todo fluya a tu gusto",
+          "subtitle": "Gestiona tus preferencias para que todo fluya a tu gusto",
           "nav": {
             "preferences": "Preferencias"
           },
@@ -2852,6 +2888,11 @@
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntas frecuentes",
+      "description": "Encuentra respuestas a tus preguntas sobre Goteo, crowdfunding, matchfunding, y cómo impulsar proyectos con impacto social y cultural.",
+      "empty": "Todavía no hay preguntas frecuentes publicadas."
     }
   }
 }

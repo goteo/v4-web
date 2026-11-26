@@ -6,14 +6,16 @@
     import LanguagesDropdown from "../header/LanguagesDropdown.svelte";
     import BackButton from "../library/buttons/BackButton.svelte";
     import BodyBlog from "../library/layout/BodyBlog.svelte";
+    import Tag from "../library/tags/Tag.svelte";
 
     import type { BlogPost } from "../../repositories/blogPosts";
 
     interface Props {
         post: BlogPost;
+        tags?: string[];
     }
 
-    let { post }: Props = $props();
+    let { post, tags = [] }: Props = $props();
 
     // Seeds the pick with the page language; the selector owns it from then on.
     let contentLocale = $state(
@@ -26,7 +28,7 @@
 <div class="wrapper">
     <div class="flex flex-col gap-6 pt-6 pb-20">
         <div class="flex items-center justify-between gap-4">
-            <BackButton href={`/${$locale}/blog`} />
+            <BackButton />
             {#if post.languages.length > 1}
                 <LanguagesDropdown
                     languages={post.languages}
@@ -35,6 +37,14 @@
                 />
             {/if}
         </div>
+
+        {#if tags.length > 0}
+            <div class="flex flex-wrap gap-2">
+                {#each tags as name (name)}
+                    <Tag class="bg-variant1 text-secondary">{name}</Tag>
+                {/each}
+            </div>
+        {/if}
 
         <BodyBlog
             class="min-h-0"

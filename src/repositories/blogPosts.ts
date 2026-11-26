@@ -10,9 +10,10 @@ export interface BlogPostTexts {
     title: string;
     subtitle: string | null;
     content: string;
+    excerpt: string;
 }
 
-const TRANSLATABLE_COLUMNS = ["title", "subtitle", "content"] as const;
+const TRANSLATABLE_COLUMNS = ["title", "subtitle", "content", "excerpt"] as const;
 
 /** The stored texts of the languages other than the base one, keyed by locale. */
 export type BlogPostTranslations = Record<string, Partial<BlogPostTexts>>;
@@ -33,6 +34,10 @@ export interface BlogPostRecord extends BlogPostTexts {
     headerMedia: BlogPostMedia[];
     videoUrl: string | null;
     section: BlogSection;
+    /** Identifiers of the API categories the post is linked to. */
+    categoryIds: string[];
+    /** Identifiers of the API themes the post is linked to. */
+    themeIds: string[];
     dateCreated: Date;
     dateUpdated: Date;
 }
@@ -52,18 +57,28 @@ const META_COLUMNS = `p.id,
                  p.header_media   AS headerMedia,
                  p.video_url      AS videoUrl,
                  p.section,
+                 p.category_ids   AS categoryIds,
+                 p.theme_ids      AS themeIds,
                  p.date_created   AS dateCreated,
                  p.date_updated   AS dateUpdated`;
 
-const COLUMNS = `p.title, p.subtitle, p.content, ${META_COLUMNS}`;
+const COLUMNS = `p.title, p.subtitle, p.content, p.excerpt, ${META_COLUMNS}`;
 
 interface BlogPostRow extends Omit<
     BlogPostRecord,
-    "published" | "publishedAt" | "headerMedia" | "dateCreated" | "dateUpdated"
+    | "published"
+    | "publishedAt"
+    | "headerMedia"
+    | "categoryIds"
+    | "themeIds"
+    | "dateCreated"
+    | "dateUpdated"
 > {
     published: number;
     publishedAt: number | null;
     headerMedia: string;
+    categoryIds: string;
+    themeIds: string;
     dateCreated: number;
     dateUpdated: number;
 }
@@ -86,6 +101,8 @@ function fromRow(row: BlogPostRow): BlogPostRecord {
         published: Boolean(row.published),
         publishedAt: row.publishedAt === null ? null : new Date(row.publishedAt),
         headerMedia: JSON.parse(row.headerMedia),
+        categoryIds: JSON.parse(row.categoryIds),
+        themeIds: JSON.parse(row.themeIds),
         dateCreated: new Date(row.dateCreated),
         dateUpdated: new Date(row.dateUpdated),
     };
@@ -148,14 +165,48 @@ class BlogPostRepository {
      * One page of published posts, newest first, with their texts in the given locale
      * where translated and in their base language otherwise.
      * @param locale The locale to show the texts in
-     * @param options Section to filter by, 1-based page and page size
+     * @param options Section and API taxonomy identifiers to filter by, 1-based page and page size
      * @returns The page of posts and the total of published posts matching
      */
     public async getPublished(
         locale: string,
-        { section, page, perPage }: { section: BlogSection | null; page: number; perPage: number },
+        {
+            section,
+            page,
+            perPage,
+            categoryIds = [],
+            themeIds = [],
+        }: {
+            section: BlogSection | null;
+            page: number;
+            perPage: number;
+            categoryIds?: string[];
+            themeIds?: string[];
+        },
     ): Promise<{ posts: BlogPostRecord[]; total: number }> {
-        const where = "WHERE p.published = 1 AND (?1 IS NULL OR p.section = ?1)";
+        const categories = JSON.stringify(categoryIds);
+        const themes = JSON.stringify(themeIds);
+
+        // Filters match any of the selected taxonomy identifiers.
+        const where = `WHERE p.published = 1 AND (?1 IS NULL OR p.section = ?1)
+            AND (json_array_length(?6) = 0 OR EXISTS (
+                SELECT 1 FROM json_each(p.category_ids) jc
+                WHERE jc.value IN (SELECT value FROM json_each(?6))
+            ))
+            AND (json_array_length(?7) = 0 OR EXISTS (
+                SELECT 1 FROM json_each(p.theme_ids) jt
+                WHERE jt.value IN (SELECT value FROM json_each(?7))
+            ))`;
+
+        const countWhere = `WHERE p.published = 1 AND (?1 IS NULL OR p.section = ?1)
+            AND (json_array_length(?2) = 0 OR EXISTS (
+                SELECT 1 FROM json_each(p.category_ids) jc
+                WHERE jc.value IN (SELECT value FROM json_each(?2))
+            ))
+            AND (json_array_length(?3) = 0 OR EXISTS (
+                SELECT 1 FROM json_each(p.theme_ids) jt
+                WHERE jt.value IN (SELECT value FROM json_each(?3))
+            ))`;
 
         // One join per translatable column; each falls back to the row's own text.
         const joins = TRANSLATABLE_COLUMNS.map(
@@ -171,15 +222,26 @@ class BlogPostRepository {
                     `SELECT ${META_COLUMNS},
                             COALESCE(t_title.value, p.title)       AS title,
                             COALESCE(t_subtitle.value, p.subtitle) AS subtitle,
-                            COALESCE(t_content.value, p.content)   AS content
+                            COALESCE(t_content.value, p.content)   AS content,
+                            COALESCE(t_excerpt.value, p.excerpt)   AS excerpt
                      FROM blog_posts p
                      ${joins}
                      ${where}
                      ORDER BY p.published_at DESC, p.id DESC
                      LIMIT ?4 OFFSET ?5`,
                 )
-                .bind(section, BLOG_POSTS_TABLE, locale, perPage, (page - 1) * perPage),
-            this.db.prepare(`SELECT COUNT(*) AS total FROM blog_posts p ${where}`).bind(section),
+                .bind(
+                    section,
+                    BLOG_POSTS_TABLE,
+                    locale,
+                    perPage,
+                    (page - 1) * perPage,
+                    categories,
+                    themes,
+                ),
+            this.db
+                .prepare(`SELECT COUNT(*) AS total FROM blog_posts p ${countWhere}`)
+                .bind(section, categories, themes),
         ]);
 
         return {
@@ -231,12 +293,15 @@ class BlogPostRepository {
             post.title,
             post.subtitle,
             post.content,
+            post.excerpt,
             post.author,
             Number(post.published),
             post.publishedAt?.getTime() ?? null,
             JSON.stringify(post.headerMedia),
             post.videoUrl,
             post.section,
+            JSON.stringify(post.categoryIds),
+            JSON.stringify(post.themeIds),
             now,
         ];
 
@@ -245,19 +310,20 @@ class BlogPostRepository {
                 ? this.db
                       .prepare(
                           `INSERT INTO blog_posts (
-                            language, title, subtitle, content, author, published, published_at,
-                            header_media, video_url, section, date_updated,
-                            date_created
-                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            language, title, subtitle, content, excerpt, author, published,
+                            published_at, header_media, video_url, section, category_ids,
+                            theme_ids, date_updated, date_created
+                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                          RETURNING id`,
                       )
                       .bind(...values, now)
                 : this.db
                       .prepare(
                           `UPDATE blog_posts SET
-                            language = ?, title = ?, subtitle = ?, content = ?, author = ?,
-                            published = ?, published_at = ?, header_media = ?, video_url = ?,
-                            section = ?, date_updated = ?
+                            language = ?, title = ?, subtitle = ?, content = ?, excerpt = ?,
+                            author = ?, published = ?, published_at = ?, header_media = ?,
+                            video_url = ?, section = ?, category_ids = ?, theme_ids = ?,
+                            date_updated = ?
                          WHERE id = ?
                          RETURNING id`,
                       )

@@ -31,7 +31,7 @@ const addresses = toCollectionItems<Address>(data);
 ---
 
 <Layout title={t("pages.me.manage.addresses.title")}>
-    <App client:load locale={lang} session={session} me>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session} me>
         <WithSidebar client:idle navItems={PROFILE_NAV_ITEMS} activePath={PROFILE_PATHS.addresses}>
             <ManageAddresses client:load {addresses} {userIri} />
         </WithSidebar>

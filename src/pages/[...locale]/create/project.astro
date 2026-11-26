@@ -25,7 +25,7 @@ const themes = toCollectionItems<Theme>(themesRaw);
 ---
 
 <Layout title={t("pages.project.create.title")}>
-    <App client:load locale={lang} session={session}>
+    <App headerLogo={Astro.locals.headerLogo} client:load locale={lang} session={session}>
         <CreateProjectForm client:load {categories} {themes} />
     </App>
 </Layout>

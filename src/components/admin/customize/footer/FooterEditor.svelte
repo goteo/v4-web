@@ -333,7 +333,7 @@
     <div class="space-y-2">
         {@render languageTabsNav()}
         <p class="text-content text-sm">
-            {$t("pages.admin.customize.footer.languageHelp", {
+            {$t("domain.language.defaultRequiredHelp", {
                 language: languagesList[defaultLanguage],
             })}
         </p>

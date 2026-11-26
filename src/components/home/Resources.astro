@@ -1,45 +1,30 @@
 ---
 import ResourceCard from "./ResourceCard.astro";
 import Arrow from "../../components/icons/navigation/Arrow.svelte";
+import { namesForIds } from "../../services/taxonomy";
 import Grid from "../library/layout/Grid.svelte";
 
-const { t } = Astro.locals;
+import type { Category, Theme } from "../../openapi/client";
+import type { BlogPostRecord } from "../../repositories/blogPosts";
 
-// Mock data for resources - would typically come from an API
-const resources = [
-    {
-        id: 1,
-        title: t("pages.home.resources.articles.firstCampaign.title"),
-        description: t("pages.home.resources.articles.firstCampaign.description"),
-        image: "/images/home/resource-1.png",
-        href: "/recursos/primera-campana",
-        linkText: t("pages.home.resources.readMore"),
-    },
-    {
-        id: 2,
-        title: t("pages.home.resources.articles.testimonials.title"),
-        description: t("pages.home.resources.articles.testimonials.description"),
-        image: "/images/home/resource-2.png",
-        href: "/recursos/testimonios",
-        linkText: t("pages.home.resources.readMore"),
-    },
-    {
-        id: 3,
-        title: t("pages.home.resources.articles.testimonials.title"),
-        description: t("pages.home.resources.articles.testimonials.description"),
-        image: "/images/home/resource-2.png",
-        href: "/recursos/testimonios-2",
-        linkText: t("pages.home.resources.readMore"),
-    },
-    {
-        id: 4,
-        title: t("pages.home.resources.articles.firstCampaign.title"),
-        description: t("pages.home.resources.articles.firstCampaign.description"),
-        image: "/images/home/resource-1.png",
-        href: "/recursos/primera-campana-2",
-        linkText: t("pages.home.resources.readMore"),
-    },
-];
+interface Props {
+    posts: BlogPostRecord[];
+    categories?: Category[];
+    themes?: Theme[];
+}
+
+const { posts, categories = [], themes = [] } = Astro.props;
+const { t, lang } = Astro.locals;
+
+const resources = posts.map((post) => ({
+    id: post.id,
+    title: post.title,
+    description: post.subtitle || post.excerpt,
+    image: post.headerMedia.find((media) => media.type.startsWith("image/"))?.url,
+    href: `/${lang}/blog/${post.id}`,
+    linkText: t("pages.home.resources.readMore"),
+    tags: [...namesForIds(categories, post.categoryIds), ...namesForIds(themes, post.themeIds)],
+}));
 ---
 
 <section class="wrapper py-16">
@@ -54,12 +39,11 @@ const resources = [
                 {t("pages.home.resources.title")}
             </h2>
             <a
-                href="/recursos"
+                href={`/${lang}/blog?section=resources`}
                 class="bg-variant1 text-secondary hover:bg-secondary flex items-center gap-2 rounded-3xl px-4 py-3 text-sm leading-5 font-bold transition-all duration-200 hover:text-white md:px-6 md:py-4 md:text-base md:leading-6"
             >
                 <Arrow />
-                <span class="hidden sm:inline">{t("pages.home.resources.viewAll")}</span>
-                <span class="sm:hidden">Ver más</span>
+                <span>{t("pages.home.resources.viewAll")}</span>
             </a>
         </div>
 
@@ -73,6 +57,7 @@ const resources = [
                         image={resource.image}
                         href={resource.href}
                         linkText={resource.linkText}
+                        tags={resource.tags}
                     />
                 ))
             }

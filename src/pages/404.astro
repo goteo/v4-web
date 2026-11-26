@@ -8,7 +8,7 @@ const { t, lang } = Astro.locals;
 ---
 
 <Layout title={t("pages.404.meta.title")} description={t("pages.404.meta.description")}>
-    <App locale={lang} client:load>
+    <App headerLogo={Astro.locals.headerLogo} locale={lang} client:load>
         <ErrorPage
             code={404}
             title={t("pages.404.title")}

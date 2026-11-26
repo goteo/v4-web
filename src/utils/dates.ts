@@ -89,12 +89,6 @@ export function parseDate(raw: string | undefined, now: Date = new Date()): Date
     return new Date(year, month - 1, day);
 }
 
-/**
- * Latest date a project may start its campaign, as configured by the platform owner.
- * Calculated from `PUBLIC_CAMPAIGN_MAX_END_DATE`. Leave empty to disable the limit.
- */
-export const CAMPAIGN_MAX_END_DATE = parseDate(import.meta.env.PUBLIC_CAMPAIGN_MAX_END_DATE);
-
 function getMinStartDate() {
     const minStartDate = getDateInFuture(
         86400000 * parseInt(import.meta.env.PUBLIC_CAMPAIGN_MIN_REV_DAYS || 1),
@@ -110,3 +104,21 @@ function getMinStartDate() {
  * Calculated from `PUBLIC_CAMPAIGN_MIN_REV_DAYS`. When empty will default to 1 day from now.
  */
 export const CAMPAIGN_MIN_START_DATE = getMinStartDate();
+
+function getMaxStartDate() {
+    const raw = import.meta.env.PUBLIC_CAMPAIGN_MAX_END_DATE;
+    const maxStartDate = parseDate(raw);
+
+    if (maxStartDate && raw?.startsWith("*") && maxStartDate < CAMPAIGN_MIN_START_DATE) {
+        maxStartDate.setFullYear(maxStartDate.getFullYear() + 1);
+    }
+
+    return maxStartDate;
+}
+
+/**
+ * Latest date a project may start its campaign, as configured by the platform owner.
+ * Calculated from `PUBLIC_CAMPAIGN_MAX_END_DATE`. Leave empty to disable the limit.
+ * A wildcard year rolls over to next year once this year's date is earlier than `CAMPAIGN_MIN_START_DATE`.
+ */
+export const CAMPAIGN_MAX_END_DATE = getMaxStartDate();
