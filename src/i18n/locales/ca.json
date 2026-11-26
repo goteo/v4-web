@@ -353,6 +353,9 @@
         "title": "Vols eliminar totes les traduccions?",
         "description": "Només es conservarà el text en {{language}}. Les altres traduccions s’eliminaran en desar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Els textos en {{ language }} són obligatoris; si un idioma queda buit es mostra el text en {{ language }}."
     }
   },
   "common": {
@@ -409,6 +412,8 @@
       "search": "Cercar",
       "createProject": "Crea el teu projecte",
       "goToProfile": "Anar al perfil",
+      "activity": "Activitat",
+      "goToSettings": "Anar a la configuració",
       "menu": "Menú",
       "admin": "Administració"
     },
@@ -743,9 +748,14 @@
         "minimum": "Mínim",
         "optimum": "Òptim",
         "daysRemaining": "Queden {{days}} dies",
-        "finished": "Finalitzada",
         "matchfunding": "Matchfunding",
-        "minimumExceeded": "Mínim superat!",
+        "status": {
+          "toMinimum": "A pel mínim!",
+          "toOptimum": "A per l'òptim!",
+          "funded": "Finançat",
+          "archived": "Arxivat",
+          "upcoming": "Properament"
+        },
         "userDonations": "Les teves donacions:"
       },
       "blog": {
@@ -963,6 +973,8 @@
           "modal": {
             "title": "Afegeix recompenses",
             "description": "Descriu la recompensa que ofereixes",
+            "loadError": "No s'han pogut carregar les traduccions d'aquesta recompensa. Tanca i torna-ho a intentar.",
+            "saveError": "No s'ha pogut desar la recompensa. Torna-ho a intentar.",
             "unitsExisting": "Nombre d'unitats existents",
             "form": {
               "titleLabel": "Títol de la recompensa",
@@ -1889,7 +1901,6 @@
         },
         "footer": {
           "title": "Peu de pàgina",
-          "languageHelp": "Els textos en {{ language }} són obligatoris; si un idioma queda buit es mostra el text en {{ language }}.",
           "saved": "Peu de pàgina desat",
           "sections": {
             "preview": "Vista prèvia",
@@ -2364,7 +2375,8 @@
         "description": "Administra la comunicació de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Butlletí"
+          "newsletter": "Butlletí",
+          "faqs": "PMF"
         },
         "banners": {
           "title": "Anuncis",
@@ -2449,6 +2461,8 @@
             "videoSection": "Afegeix un vídeo (Youtube, Vimeo)",
             "videoPlaceholder": "Afegeix l'enllaç del vídeo",
             "sectionSection": "Secció",
+            "categoriesSection": "Categories relacionades",
+            "themesSection": "Temes relacionats",
             "sections": {
               "news": "Novetats",
               "stories": "Històries",
@@ -2457,6 +2471,27 @@
             },
             "saveAndExit": "Desa i surt",
             "publish": "Publica l'entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntes freqüents",
+          "description": "Aquí pots crear, ordenar i traduir les preguntes freqüents de la plataforma",
+          "editHelp": "Escriu directament a cada pregunta i desplega-la per editar-ne la resposta. Així es veuran en l'idioma seleccionat.",
+          "empty": "Encara no hi ha preguntes freqüents",
+          "add": "Afegir pregunta",
+          "saved": "Preguntes freqüents desades",
+          "lastUpdated": "Última actualització: {{ date }}",
+          "unsaved": "Sense desar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escriu la pregunta",
+            "answer": "Resposta",
+            "answerPlaceholder": "Escriu la resposta"
+          },
+          "errors": {
+            "forbidden": "No tens permís per editar les preguntes freqüents.",
+            "missingText": "Falta la pregunta o la resposta d'alguna PMF en l'idioma principal.",
+            "incompleteTranslation": "Alguna PMF té la pregunta traduïda però no la resposta, o a l'inrevés."
           }
         }
       },
@@ -2531,6 +2566,7 @@
     },
     "profile": {
       "share": "Comparteix",
+      "edit": "Editar el perfil",
       "shareModal": {
         "title": "Comparteix aquest perfil"
       },
@@ -2580,14 +2616,14 @@
         "activity": "Activitat",
         "wallet": "Moneder",
         "inbox": "Bústia",
-        "profile": "Perfil"
+        "profile": "Configuració"
       },
       "manage": {
-        "title": "Perfil d'impulsor",
-        "subtitle": "Presenta projectes o finança iniciatives. Completa el teu perfil amb una bona presentació, enllaços rellevants i una foto que t'identifiqui.",
+        "title": "Perfil públic",
+        "subtitle": "Així et veurà la comunitat de Goteo. Afegeix una foto que t'identifiqui, una bona presentació i els teus enllaços perquè qui visiti el teu perfil sàpiga qui ets i què impulses.",
         "sidebar": {
           "publicProfile": "Perfil públic",
-          "personalProfile": "Perfil personal",
+          "personalProfile": "Dades personals",
           "addresses": "Adreces"
         },
         "addresses": {
@@ -2606,8 +2642,8 @@
           "uploadImage": "Puja una imatge nova",
           "avatarAlt": "Imatge de perfil",
           "type": {
-            "individual": "Perfil impulsor · Persona física",
-            "organization": "Perfil impulsor · Persona jurídica"
+            "individual": "Persona física",
+            "organization": "Persona jurídica"
           }
         },
         "bio": {
@@ -2616,8 +2652,8 @@
           "placeholder": "Escriu una breu presentació"
         },
         "info": {
-          "title": "Informació de l'impulsor",
-          "subtitle": "Explica'ns alguna cosa sobre tu",
+          "title": "Informació bàsica",
+          "subtitle": "La teva identificació, ubicació i dades fiscals",
           "handle": "Nom d'usuari",
           "firstName": "Nom",
           "lastName": "Cognoms",
@@ -2686,8 +2722,8 @@
           "subtitle": "Indica el tipus de projectes que poden connectar amb els teus interessos per cofinançar-los i/o aportar-hi altres recursos, coneixements o habilitats. Aquestes categories són transversals, en pots seleccionar més d'una."
         },
         "personal": {
-          "title": "Perfil personal",
-          "subtitle": "Aquestes dades no es mostren al teu perfil públic. Només tu i el nostre equip les podeu veure, i les fem servir per gestionar els teus impostos, factures i certificats.",
+          "title": "Dades personals",
+          "subtitle": "El teu nom d'usuari, nom, cognoms i territori són públics. La resta només la fem servir per als teus impostos, factures i certificats.",
           "info": {
             "title": "Informació personal",
             "subtitle": "Tal com apareixen a la teva documentació.",
@@ -2717,7 +2753,7 @@
         },
         "preferences": {
           "title": "Preferències",
-          "subtitle": "Gestiona les teves preferències de perfil perquè tot flueixi al teu gust",
+          "subtitle": "Gestiona les teves preferències perquè tot flueixi al teu gust",
           "nav": {
             "preferences": "Preferències"
           },
@@ -2852,6 +2888,11 @@
           "description": "Pots copiar l'enllaç per enviar-lo i també compartir-lo a Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntes freqüents",
+      "description": "Troba respostes a les teves preguntes sobre Goteo, el micromecenatge, el matchfunding i com impulsar projectes amb impacte social i cultural.",
+      "empty": "Encara no hi ha preguntes freqüents publicades."
     }
   }
 }
