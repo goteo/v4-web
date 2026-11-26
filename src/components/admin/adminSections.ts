@@ -47,6 +47,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
         subSections: [
             { href: "/admin/comm/blog", labelKey: "pages.admin.comm.tabs.blog" },
             { href: "/admin/comm/newsletter", labelKey: "pages.admin.comm.tabs.newsletter" },
+            { href: "/admin/comm/faqs", labelKey: "pages.admin.comm.tabs.faqs" },
         ],
     },
     {

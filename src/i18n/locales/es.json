@@ -353,6 +353,9 @@
         "title": "¿Eliminar todas las traducciones?",
         "description": "Solo se conservará el texto en {{language}}. Las demás traducciones se eliminarán al guardar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}."
     }
   },
   "common": {
@@ -1898,7 +1901,6 @@
         },
         "footer": {
           "title": "Pie de página",
-          "languageHelp": "Los textos en {{ language }} son obligatorios; si un idioma queda vacío se muestra el texto en {{ language }}.",
           "saved": "Pie de página guardado",
           "sections": {
             "preview": "Vista previa",
@@ -2373,7 +2375,8 @@
         "description": "Administra la comunicación de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Boletín"
+          "newsletter": "Boletín",
+          "faqs": "FAQs"
         },
         "banners": {
           "title": "Anuncios",
@@ -2468,6 +2471,27 @@
             },
             "saveAndExit": "Guardar y salir",
             "publish": "Publicar entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntas frecuentes",
+          "description": "Aquí puedes crear, ordenar y traducir las preguntas frecuentes de la plataforma",
+          "editHelp": "Escribe directamente en cada pregunta y despliégala para editar su respuesta. Así se verán en el idioma seleccionado.",
+          "empty": "Todavía no hay preguntas frecuentes",
+          "add": "Añadir pregunta",
+          "saved": "Preguntas frecuentes guardadas",
+          "lastUpdated": "Última actualización: {{ date }}",
+          "unsaved": "Sin guardar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escribe la pregunta",
+            "answer": "Respuesta",
+            "answerPlaceholder": "Escribe la respuesta"
+          },
+          "errors": {
+            "forbidden": "No tienes permiso para editar las preguntas frecuentes.",
+            "missingText": "Falta la pregunta o la respuesta de alguna FAQ en el idioma principal.",
+            "incompleteTranslation": "Alguna FAQ tiene la pregunta traducida pero no la respuesta, o al revés."
           }
         }
       },
@@ -2864,6 +2888,11 @@
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntas frecuentes",
+      "description": "Encuentra respuestas a tus preguntas sobre Goteo, crowdfunding, matchfunding, y cómo impulsar proyectos con impacto social y cultural.",
+      "empty": "Todavía no hay preguntas frecuentes publicadas."
     }
   }
 }

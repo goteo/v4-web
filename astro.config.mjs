@@ -53,6 +53,7 @@ const apiOrigins = [env.PUBLIC_API_URL, env.OBJECT_STORAGE_ENDPOINT].map(originO
 const cacheableRoutes = {
     "": { maxAge: 60, swr: 300 },
     "/about": { maxAge: 3600, swr: 86400 },
+    "/faqs": { maxAge: 60, swr: 300 },
     "/project/[idOrSlug]": { maxAge: 60, swr: 300, tags: ["projects"] },
     "/static/[fileName]": { maxAge: 3600, swr: 86400 },
     "/user/[idOrHandle]": { maxAge: 300, swr: 600, tags: ["users"] },

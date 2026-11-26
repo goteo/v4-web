@@ -1,0 +1,72 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import App from "../../layouts/App.svelte";
+import Chevron from "../../components/icons/navigation/Chevron.svelte";
+import BackButton from "../../components/library/buttons/BackButton.svelte";
+import { localized } from "../../layouts/footer-data";
+import { faqRepository } from "../../repositories/faqs";
+
+import type { Locale } from "../../i18n/locales";
+
+const { t, lang } = Astro.locals;
+
+const faqs = (await faqRepository.getAll()).map((faq) => ({
+    id: faq.id,
+    question: localized(faq.question, lang as Locale),
+    answer: localized(faq.answer, lang as Locale),
+}));
+---
+
+<Layout title={t("pages.faqs.title")} description={t("pages.faqs.description")}>
+    <App client:load locale={lang}>
+        <!-- .wrapper sets padding and margin outside Tailwind's layers, so spacing goes inside. -->
+        <section class="wrapper">
+            <div class="flex flex-col gap-10 pt-10 pb-20">
+                <div class="flex flex-col gap-10">
+                    <!-- Label from the server: $t only knows the page locale once hydrated. -->
+                    <BackButton client:idle>{t("common.back")}</BackButton>
+                    <div class="flex max-w-225 flex-col gap-6">
+                        <h1 class="text-secondary text-4xl leading-12 font-bold">
+                            {t("pages.faqs.title")}
+                        </h1>
+                        <p class="text-content text-base">{t("pages.faqs.description")}</p>
+                    </div>
+                </div>
+
+                <!-- Native <details>: works without JS and keeps the answers indexable. Its height animates
+                     where `interpolate-size` is supported and opens instantly elsewhere. -->
+                {
+                    faqs.length === 0 ? (
+                        <p class="text-content">{t("pages.faqs.empty")}</p>
+                    ) : (
+                        <ul class="space-y-4">
+                            {faqs.map((faq) => (
+                                <li>
+                                    <details
+                                        id={`faq-${faq.id}`}
+                                        class="group border-grey open:bg-purple-soft rounded-2xl border bg-white shadow-sm transition-[background-color,box-shadow] duration-300 [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-hidden details-content:transition-[height,content-visibility] details-content:[transition-behavior:allow-discrete] details-content:duration-300 open:shadow-md open:details-content:h-auto motion-reduce:details-content:transition-none"
+                                    >
+                                        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 [&::-webkit-details-marker]:hidden">
+                                            <h2 class="text-lg font-bold text-black lg:text-2xl">
+                                                {faq.question}
+                                            </h2>
+                                            <Chevron
+                                                direction="down"
+                                                width="24"
+                                                height="24"
+                                                class="shrink-0 transition-transform duration-300 group-open:rotate-180"
+                                            />
+                                        </summary>
+                                        <p class="text-content max-w-225 px-6 pt-2 pb-6 text-base whitespace-pre-line">
+                                            {faq.answer}
+                                        </p>
+                                    </details>
+                                </li>
+                            ))}
+                        </ul>
+                    )
+                }
+            </div>
+        </section>
+    </App>
+</Layout>
