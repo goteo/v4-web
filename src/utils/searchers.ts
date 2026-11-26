@@ -55,7 +55,7 @@ function usersBy(field: "handle" | "email"): ResourceSearcher<User> {
         fetch: async (query, signal) => {
             const { data } = await apiUsersGetCollection({
                 baseUrl: "/api/relay",
-                query: { [field]: query },
+                query: { q: query },
                 signal,
             });
             return toCollectionItems<User>(data);
@@ -64,6 +64,7 @@ function usersBy(field: "handle" | "email"): ResourceSearcher<User> {
             id: String(user.id ?? user.handle ?? ""),
             value: user[field] ?? "",
             label: user[field] ?? "",
+            detail: user.displayName ?? undefined,
             raw: user,
         }),
     });
