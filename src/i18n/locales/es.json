@@ -772,7 +772,7 @@
         }
       },
       "stats": {
-        "title": "Estadísticas de {{ appName }}",
+        "title": "Estadísticas de Goteo",
         "theoryToAction": {
           "title": "De la teoría a la acción",
           "subtitle": "Las cifras que revelan nuestra huella real. Datos a fecha de diciembre de 2024.",
@@ -788,10 +788,10 @@
             "value": "83%",
             "label": "Tasa de éxito"
           },
-          "button": "Ver Stats de {{ appName }}"
+          "button": "Ver Stats de Goteo"
         },
         "whyGoteo": {
-          "title": "¿Por qué {{ appName }}?",
+          "title": "¿Por qué Goteo?",
           "subtitle": "Tenemos valores y los datos nos avalan. Datos a fecha de diciembre de 2024.",
           "community": {
             "value": "384.341",
@@ -832,7 +832,7 @@
           },
           "testimonials": {
             "title": "Testimonios de nuestros impulsores",
-            "description": "¿Quién puede contarte mejor como es impulsar campañas exitosas? Nuestros impulsores nos cuentan de primera mano como es gestionar una campaña con {{ appName }}."
+            "description": "¿Quién puede contarte mejor como es impulsar campañas exitosas? Nuestros impulsores nos cuentan de primera mano como es gestionar una campaña con Goteo."
           }
         }
       }
@@ -1366,7 +1366,7 @@
         "items": {
           "taxDeductions": {
             "title": "Desgravaciones fiscales",
-            "description": "Las donaciones en {{ appName }} tienen ventajas fiscales tanto para particulares como para empresas, gracias a que gestionamos las aportaciones a través de una fundación. Esto es algo que la mayoría de plataformas no ofrecen."
+            "description": "Las donaciones en Goteo tienen ventajas fiscales tanto para particulares como para empresas, gracias a que gestionamos las aportaciones a través de una fundación. Esto es algo que la mayoría de plataformas no ofrecen."
           },
           "allOrNothing": {
             "title": "Todo o nada",
