@@ -1,0 +1,75 @@
+name: E2E (informational)
+
+# Failing tests turn the job red on the PR. It does not block the merge until it is made a
+# required check in the branch protection of develop and main.
+
+on:
+    pull_request:
+        branches:
+            - main
+            - develop
+
+jobs:
+    e2e:
+        runs-on: ubuntu-latest
+        environment: e2e
+
+        env:
+            PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+            PUBLIC_API_VERSION: ${{ vars.PUBLIC_API_VERSION }}
+            PUBLIC_DEFAULT_CURRENCY: ${{ vars.PUBLIC_DEFAULT_CURRENCY }}
+            PUBLIC_DEFAULT_LANGUAGE: ${{ vars.PUBLIC_DEFAULT_LANGUAGE }}
+            CLOUDFLARE_INCLUDE_PROCESS_ENV: ${{ vars.CLOUDFLARE_INCLUDE_PROCESS_ENV }}
+            OAUTH2_CLIENT_ID: ${{ secrets.OAUTH2_CLIENT_ID }}
+            OAUTH2_CLIENT_SECRET: ${{ secrets.OAUTH2_CLIENT_SECRET }}
+            E2E_USER_EMAIL: ${{ secrets.E2E_USER_EMAIL }}
+            E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
+            E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+            E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # Without the `e2e` environment set up (or on PRs from forks) there is nothing to test against
+            - name: Check configuration
+              id: config
+              run: echo "ready=$([ -n "$PUBLIC_API_URL" ] && [ -n "$OAUTH2_CLIENT_ID" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+            - name: Setup pnpm
+              if: steps.config.outputs.ready == 'true'
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Setup Node.js
+              if: steps.config.outputs.ready == 'true'
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              if: steps.config.outputs.ready == 'true'
+              run: pnpm install
+
+            - name: Prepare local D1 database
+              if: steps.config.outputs.ready == 'true'
+              # db/seed.sql has no statements yet; the migrations create every table the pages read
+              run: pnpm db:migrate
+
+            - name: Install Chromium
+              if: steps.config.outputs.ready == 'true'
+              run: pnpm exec playwright install --with-deps chromium
+
+            - name: Run E2E tests
+              if: steps.config.outputs.ready == 'true'
+              run: pnpm test:e2e
+
+            - name: Upload report
+              if: steps.config.outputs.ready == 'true' && always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 14

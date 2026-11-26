@@ -17,6 +17,8 @@
     "format:eslint": "eslint --fix . ",
     "format:prettier": "prettier --write .",
     "sdk": "openapi-ts",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "preview": "astro preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
@@ -66,6 +68,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260719.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "@storybook/addon-a11y": "^10.5.2",
     "@storybook/addon-docs": "^10.5.2",
     "@storybook/addon-svelte-csf": "^5.1.2",
@@ -87,7 +90,9 @@
     "flowbite-svelte": "1.5.2",
     "flowbite-svelte-icons": "^2.3.0",
     "globals": "^17.7.0",
-    "playwright": "^1.61.1",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^3.0.3",
+    "playwright": "^1.64.1",
     "prettier": "3.9.5",
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-svelte": "^4.1.1",

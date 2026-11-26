@@ -5,7 +5,8 @@ import type { StorybookConfig } from "@storybook/svelte-vite";
 
 const config: StorybookConfig = {
     stories: ["../src/**/*.stories.@(js|ts|svelte)"],
-    staticDirs: ["../public"],
+    // `./public` holds the MSW service worker (`pnpm exec msw init .storybook/public`)
+    staticDirs: ["../public", "./public"],
     addons: [
         "@storybook/addon-svelte-csf",
         "@storybook/addon-docs",

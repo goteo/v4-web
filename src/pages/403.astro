@@ -5,6 +5,9 @@ import EyeInLaptop from "../components/errorpage/EyeInLaptop.svelte";
 import ErrorPage from "../components/errorpage/ErrorPage.svelte";
 
 const { t, lang } = Astro.locals;
+
+// Astro only sets the status of 404 and 500 pages by itself; every rewrite to /403 needs it too
+Astro.response.status = 403;
 ---
 
 <Layout title={t("pages.403.meta.title")} description={t("pages.403.meta.description")}>

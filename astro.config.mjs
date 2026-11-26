@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import cloudflare from "@astrojs/cloudflare";
 import { cacheCloudflare } from "@astrojs/cloudflare/cache";
 import svelte from "@astrojs/svelte";
@@ -6,6 +8,7 @@ import { defineConfig, fontProviders, logHandlers } from "astro/config";
 import { loadEnv } from "vite";
 
 import { labels } from "./src/i18n/locales";
+import { headerHeightScript } from "./src/layouts/headerHeightScript";
 
 const locales = Object.keys(labels);
 
@@ -76,9 +79,9 @@ export default defineConfig({
 
         /**
          * Port the workerd inspector listens on in `astro dev`, and what
-         * `.vscode/launch.json` attaches to.
+         * `.vscode/launch.json` attaches to. Off for the E2E server, so it can run next to `astro dev`.
          */
-        inspectorPort: 9229,
+        inspectorPort: process.env.E2E ? false : 9229,
     }),
 
     cache: {
@@ -179,6 +182,14 @@ export default defineConfig({
                  * document when a project video comes from a PeerTube instance.
                  */
                 resources: ["'self'", "https://unpkg.com"],
+                /**
+                 * Astro hashes the scripts it bundles, but not `is:inline` ones. The header
+                 * height script has to run inline, before first paint, so its hash is computed
+                 * here from the same text `Layout.astro` renders.
+                 */
+                hashes: [
+                    `sha256-${createHash("sha256").update(headerHeightScript).digest("base64")}`,
+                ],
             },
         },
     },

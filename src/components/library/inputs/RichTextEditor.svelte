@@ -304,6 +304,8 @@
     function createEditor(element: HTMLDivElement) {
         return new Editor({
             element,
+            // Base styles are in src/styles/prosemirror.css: an injected <style> breaks the CSP
+            injectCSS: false,
             extensions: [...richTextExtensions, Placeholder.configure({ placeholder })],
             content: parseRichText(value, format),
             editorProps: { attributes: editorAttributes },
