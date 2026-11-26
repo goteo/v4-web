@@ -18,7 +18,7 @@ import type {
 /** Not editable from the admin: the logo has its own /admin/customize tab. */
 export const FOOTER_BRAND = {
     backgroundImage: "/images/brand/path2.svg",
-    logo: { src: "/images/brand/goteo-white-logo.svg", alt: `${getAppName()} logo` },
+    logo: { src: "/images/brand/goteo-white-logo.svg", alt: `Goteo logo` },
     platoniq: { src: "/images/brand/platoniq.png", alt: "Platoniq Foundation logo" },
 };
 
