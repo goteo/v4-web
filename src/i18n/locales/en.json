@@ -353,6 +353,9 @@
         "title": "Remove all translations?",
         "description": "Only the text in {{language}} will be kept. The other translations will be removed when you save."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Texts in {{ language }} are required; if a language is left empty, the text in {{ language }} is shown."
     }
   },
   "common": {
@@ -1898,7 +1901,6 @@
         },
         "footer": {
           "title": "Footer",
-          "languageHelp": "Texts in {{ language }} are required; if a language is left blank, the text in {{ language }} is displayed.",
           "saved": "Footer saved",
           "sections": {
             "preview": "Preview",
@@ -2373,7 +2375,8 @@
         "description": "Manage platform communication",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Newsletter"
+          "newsletter": "Newsletter",
+          "faqs": "Frequently asked questions"
         },
         "banners": {
           "title": "Announcements",
@@ -2468,6 +2471,27 @@
             },
             "saveAndExit": "Save and exit",
             "publish": "Publish post"
+          }
+        },
+        "faqs": {
+          "title": "Frequently Asked Questions",
+          "description": "Here you can create, sort, and translate the platform's frequently asked questions",
+          "editHelp": "Write directly in each question and expand it to edit its answer. This is how they will appear in the selected language.",
+          "empty": "There are no frequently asked questions yet",
+          "add": "Add question",
+          "saved": "Frequently asked questions saved",
+          "lastUpdated": "Last updated: {{ date }}",
+          "unsaved": "Unsaved",
+          "fields": {
+            "question": "Question",
+            "questionPlaceholder": "Enter the question",
+            "answer": "Answer",
+            "answerPlaceholder": "Enter the answer"
+          },
+          "errors": {
+            "forbidden": "You do not have permission to edit the frequently asked questions.",
+            "missingText": "The question or answer is missing for one of the FAQs in the main language.",
+            "incompleteTranslation": "One of the FAQs has the question translated but not the answer, or vice versa."
           }
         }
       },
@@ -2864,6 +2888,11 @@
           "description": "You can copy the link to send it and also share it on Facebook or X."
         }
       }
+    },
+    "faqs": {
+      "title": "Frequently Asked Questions",
+      "description": "Find answers to your questions about Goteo, crowdfunding, matchfunding, and how to promote projects with social and cultural impact.",
+      "empty": "No frequently asked questions have been published yet."
     }
   }
 }
