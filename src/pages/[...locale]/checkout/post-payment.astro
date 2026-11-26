@@ -115,15 +115,9 @@ try {
     });
 
     if (projects) {
-        const accountingIds = projects.map((project) => extractId(project.accounting));
-        const accountings = await fetchAccountingsByIds(accountingIds);
-
-        suggestedProjects = projects.map((project, index) => {
-            const accountingId = accountingIds[index];
-            const balance = accountingId ? accountings.get(accountingId)?.balance : undefined;
-
-            return mapProjectToCard(project, balance as Money | undefined);
-        });
+        suggestedProjects = projects.map((project) =>
+            mapProjectToCard(project, project.accounting?.balance as Money | undefined),
+        );
     }
 } catch (error) {
     console.error("Error loading suggested projects:", error);

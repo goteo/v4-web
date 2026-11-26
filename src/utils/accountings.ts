@@ -8,8 +8,23 @@ import { getBaseUrl } from "./consts";
 import { extractId } from "./extractId";
 import { toCollectionItems } from "./hydra";
 import { apiAccountingsGetCollection } from "../openapi/client";
+import { apiAccountingsIdGetUrl } from "../openapi/client/operation-paths.gen";
 
 import type { Accounting } from "../openapi/client/types.gen";
+
+/**
+ * IRI of an accounting embedded in a resource (e.g. `Project.accounting`), for the API fields and
+ * filters that take a reference (`target`, `origin`, `accounting`) instead of the object.
+ * Relative (`/v4/accountings/42`), like the IRIs the API returns.
+ *
+ * @param accounting The embedded accounting
+ * @returns Its IRI, or an empty string when there is no accounting
+ */
+export function accountingIri(accounting?: Accounting): string {
+    if (accounting?.id === undefined) return "";
+
+    return apiAccountingsIdGetUrl.replace("{id}", String(accounting.id));
+}
 
 /**
  * Maximum number of accountings the API returns in a single page (`itemsPerPage` max is 100),

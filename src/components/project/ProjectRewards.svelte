@@ -3,6 +3,7 @@
     import { t } from "../../i18n/store";
     import { apiProjectRewardsGetCollection } from "../../openapi/client/index";
     import { cart, checkoutReady } from "../../stores/checkoutsStore";
+    import { accountingIri } from "../../utils/accountings";
     import { DEFAULT_CURRENCY } from "../../utils/currencies";
     import Spinner from "../icons/status/Spinner.svelte";
     import Button from "../library/buttons/Button.svelte";
@@ -80,9 +81,9 @@
             type: "single",
             quantity: 1,
             title: $t("common.donate"),
-            recipient: accounting.owner ?? project.owner ?? project.accounting!,
+            recipient: accounting.owner ?? project.owner ?? accountingIri(project.accounting),
             recipientDisplayName: project.title,
-            target: project.accounting!,
+            target: accountingIri(project.accounting),
             cover: project.cover,
             money,
         });

@@ -2388,7 +2388,7 @@ export type Project = {
     /**
      * The Accounting holding the funds raised by this Project.
      */
-    readonly accounting?: string;
+    readonly accounting?: Accounting;
     /**
      * The User who owns this Project.
      */
@@ -2620,7 +2620,7 @@ export type ProjectCsv = {
     /**
      * The Accounting holding the funds raised by this Project.
      */
-    readonly accounting?: string;
+    readonly accounting?: AccountingCsv;
     /**
      * The User who owns this Project.
      */
@@ -2729,7 +2729,7 @@ export type ProjectJsonld = HydraItemBaseSchema & {
     /**
      * The Accounting holding the funds raised by this Project.
      */
-    readonly accounting?: string;
+    readonly accounting?: AccountingJsonld;
     /**
      * The User who owns this Project.
      */

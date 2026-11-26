@@ -4,10 +4,8 @@
     import { client } from "../../openapi/client/client.gen.ts";
     import { apiUsersIdOrHandleGetUrl } from "../../openapi/client/operation-paths.gen.ts";
     import { apiProjectsGetCollection } from "../../openapi/client/sdk.gen.ts";
-    import { fetchAccountingsByIds } from "../../utils/accountings";
     import { getDefaultCurrency } from "../../utils/consts";
     import { formatAmountWithSymbol } from "../../utils/currencies";
-    import { extractId } from "../../utils/extractId";
     import { toCollectionItems } from "../../utils/hydra.ts";
     import { sumMoney } from "../../utils/money";
     import LoadingSpinner from "../search/LoadingSpinner.svelte";
@@ -73,33 +71,18 @@
         const projectsCount =
             collection.totalItems ?? collection["hydra:totalItems"] ?? projects.length;
 
-        // Sum the balance of each owned project's accounting
-        const accountingIds = Array.from(
-            new Set(
-                projects
-                    .map((project) => extractId(project.accounting))
-                    .filter((id): id is string => Boolean(id)),
-            ),
-        );
+        // Sum the balance each owned project embeds in its accounting
+        const projectBalances = projects
+            .map((project) => project.accounting?.balance)
+            .filter((b): b is MoneyOutput => b != null && typeof b.amount === "number");
 
         let projectsTotalAmount = 0;
         let projectsTotalCurrency: string | null = null;
 
-        if (accountingIds.length > 0) {
-            const accountings = await fetchAccountingsByIds(accountingIds, {
-                baseUrl: "/api/relay",
-                headers,
-            });
-
-            const projectBalances = accountingIds
-                .map((accountingId) => accountings.get(accountingId)?.balance)
-                .filter((b): b is MoneyOutput => b != null && typeof b.amount === "number");
-
-            if (projectBalances.length > 0) {
-                const total = sumMoney(projectBalances);
-                projectsTotalAmount = total.amount ?? 0;
-                projectsTotalCurrency = total.currency ?? getDefaultCurrency();
-            }
+        if (projectBalances.length > 0) {
+            const total = sumMoney(projectBalances);
+            projectsTotalAmount = total.amount ?? 0;
+            projectsTotalCurrency = total.currency ?? getDefaultCurrency();
         }
 
         // Map projects to recent projects

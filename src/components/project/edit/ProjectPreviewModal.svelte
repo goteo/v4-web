@@ -3,7 +3,7 @@
     so the owner can review the project before publishing it.
 
     The draft only carries the project itself; the extra datasets the public view
-    needs (accounting, owner, supports and balance points) are fetched here, the
+    needs (owner, supports and balance points) are fetched here, the
     same way `pages/[...locale]/project/[idOrSlug]/index.astro` does server-side.
 -->
 <script lang="ts">
@@ -14,10 +14,10 @@
     import { t } from "../../../i18n/store";
     import {
         apiAccountingBalancePointsGetCollection,
-        apiAccountingsIdGet,
         apiProjectSupportsGetCollection,
         apiUsersIdOrHandleGet,
     } from "../../../openapi/client";
+    import { accountingIri } from "../../../utils/accountings";
     import { extractId } from "../../../utils/extractId";
     import Loader from "../../library/feedback/Loader.svelte";
     import SingleProject from "../SingleProject.svelte";
@@ -64,15 +64,11 @@
 
         try {
             const ownerId = extractId(snapshot.owner);
-            const accountingId = extractId(snapshot.accounting);
+            const ownerResult = ownerId
+                ? await apiUsersIdOrHandleGet({ path: { idOrHandle: ownerId } })
+                : undefined;
 
-            const [ownerResult, accountingResult] = await Promise.all([
-                ownerId ? apiUsersIdOrHandleGet({ path: { idOrHandle: ownerId } }) : undefined,
-                accountingId ? apiAccountingsIdGet({ path: { id: accountingId } }) : undefined,
-            ]);
-
-            const unauthorized =
-                ownerResult?.response?.status === 401 || accountingResult?.response?.status === 401;
+            const unauthorized = ownerResult?.response?.status === 401;
 
             if (unauthorized) {
                 // The token is cached in the browser when the page loads. A tab left open
@@ -88,9 +84,8 @@
             }
 
             const owner = ownerResult?.data;
-            const accounting = accountingResult?.data;
 
-            if (!owner || !accounting) {
+            if (!owner || !snapshot.accounting) {
                 failure = "unknown";
                 return;
             }
@@ -109,7 +104,12 @@
                 (supportsResult?.data as unknown as { totalItems?: number } | undefined)
                     ?.totalItems ?? 0;
 
-            preview = { owner, accounting, totalSupports, balancePoints: balancePoints ?? [] };
+            preview = {
+                owner,
+                accounting: snapshot.accounting,
+                totalSupports,
+                balancePoints: balancePoints ?? [],
+            };
         } catch (error) {
             console.error(error);
             failure = "unknown";
@@ -134,7 +134,7 @@
 
         const { data } = await apiAccountingBalancePointsGetCollection({
             query: {
-                accounting: snapshot.accounting,
+                accounting: accountingIri(snapshot.accounting),
                 start: release,
                 end: deadline.toISOString(),
                 aggregate: true,

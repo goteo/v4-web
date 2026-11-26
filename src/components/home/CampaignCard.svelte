@@ -9,7 +9,6 @@ Converted from CampaignCard.astro to maintain exact functionality
     import Clock from "../../components/icons/Clock.svelte";
     import { t } from "../../i18n/store";
     import { type Money } from "../../openapi/client";
-    import { fetchAccounting } from "../../utils/accountings";
     import { getDaysRemaining } from "../../utils/campaign";
     import { formatCurrency } from "../../utils/currencies";
     import { gte } from "../../utils/money";
@@ -51,22 +50,11 @@ Converted from CampaignCard.astro to maintain exact functionality
         class: className = "",
     }: Props = $props();
 
-    // Falls back to fetching the balance from the accounting IRI when the caller pre-loads no
-    // `obtained`. Derived, not assigned in the effect, because effects don't run during SSR: a card
-    // rendered statically (no `client:*` of its own) would ignore the pre-loaded value and show
-    // "loading" forever — those callers must pre-load it.
-    let fetched = $state<Money | undefined>(undefined);
-    const obtained = $derived(campaign.obtained ?? fetched);
-
-    $effect(() => {
-        if (fetched === undefined && !campaign.obtained && campaign.accounting) {
-            fetchAccounting(campaign.accounting)
-                .then((accounting) => {
-                    if (accounting?.balance) fetched = accounting.balance as Money;
-                })
-                .catch((error) => console.error("Error fetching campaign balance:", error));
-        }
-    });
+    // Falls back to the balance the project embeds in its accounting when the caller pre-loads
+    // no `obtained`.
+    const obtained = $derived(
+        campaign.obtained ?? (campaign.accounting?.balance as Money | undefined),
+    );
 
     // Large cards span 2 columns in md+, full width on mobile
     const sizeClasses = $derived(size === "large" ? "col-span-1 md:col-span-2" : "col-span-1");
