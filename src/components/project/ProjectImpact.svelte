@@ -2,66 +2,40 @@
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
     import SdgIcon from "./SdgIcon.svelte";
-    import { locale, t } from "../../i18n/store";
-    import { apiThemesIdOrSlugGet } from "../../openapi/client";
-    import { extractId } from "../../utils/extractId";
-    import { sdgsForThemes } from "../../utils/sdgs";
+    import { t } from "../../i18n/store";
 
-    import type { Project, Theme } from "../../openapi/client";
+    import type { Project } from "../../openapi/client";
 
     interface Props {
-        project: Project;
+        // ponytail: `sdgs` is not in the SDK yet (v4-api will add it); drop it once `pnpm sdk` brings it.
+        project: Project & { sdgs?: number[] };
         class?: ClassNameValue;
     }
 
     let { project, class: classes = "" }: Props = $props();
-
-    async function getThemes(iris: string[]): Promise<Theme[]> {
-        const responses = await Promise.all(
-            iris.map((iri) =>
-                apiThemesIdOrSlugGet({
-                    headers: { "Accept-Language": $locale },
-                    path: { idOrSlug: extractId(iri)! },
-                }),
-            ),
-        );
-
-        return responses.flatMap(({ data }) => (data ? [data] : []));
-    }
 </script>
 
-{#if project.themes?.length}
-    {#await getThemes(project.themes) then themes}
-        {@const goals = sdgsForThemes(themes.map((theme) => theme.slug ?? ""))}
+{#if project.sdgs?.length}
+    <section class={twMerge("w-full rounded-lg border border-black/30 bg-white p-6", classes)}>
+        <h2 class="text-base font-bold text-black uppercase">
+            {$t("pages.project.view.tabs.project.sdg.title")}
+        </h2>
 
-        {#if goals.length}
-            <section
-                class={twMerge("w-full rounded-lg border border-black/30 bg-white p-6", classes)}
-            >
-                <h2 class="text-primary text-lg font-bold uppercase">
-                    {$t("pages.project.view.tabs.project.sdg.title")}
-                </h2>
-
-                <div class="mt-6 flex flex-col gap-6">
-                    {#each goals as goal (goal)}
-                        {@const title = $t(
-                            `pages.project.view.tabs.project.sdg.goals.${goal}.title`,
-                        )}
-
-                        <div class="flex items-start gap-6">
-                            <SdgIcon {goal} />
-                            <div class="flex flex-col gap-2">
-                                <h3 class="text-2xl font-medium text-black">{title}</h3>
-                                <p class="text-content">
-                                    {$t(
-                                        `pages.project.view.tabs.project.sdg.goals.${goal}.description`,
-                                    )}
-                                </p>
-                            </div>
-                        </div>
-                    {/each}
+        <div class="mt-4 flex flex-col gap-4">
+            {#each project.sdgs as goal (goal)}
+                <div class="flex items-start gap-4">
+                    <!-- Three lines tall: title (leading-7) + gap-1 + two description lines (leading-5). -->
+                    <SdgIcon {goal} class="size-18" />
+                    <div class="flex flex-col gap-1">
+                        <h3 class="text-xl leading-7 font-medium text-black">
+                            {$t(`pages.project.view.tabs.project.sdg.goals.${goal}.title`)}
+                        </h3>
+                        <p class="text-content text-sm leading-5">
+                            {$t(`pages.project.view.tabs.project.sdg.goals.${goal}.description`)}
+                        </p>
+                    </div>
                 </div>
-            </section>
-        {/if}
-    {/await}
+            {/each}
+        </div>
+    </section>
 {/if}

@@ -3,33 +3,14 @@
 
     import ProjectImpact from "./ProjectImpact.svelte";
 
-    const themes = { education: "Educación", culture: "Cultura" };
-
     const { Story } = defineMeta({
         component: ProjectImpact,
         title: "Project/ProjectImpact",
         tags: ["autodocs"],
-        args: {
-            project: { themes: ["/v4/themes/education", "/v4/themes/culture"] },
-        },
-        // The SDK reads globalThis.fetch per request: answer theme lookups locally.
-        beforeEach: () => {
-            const realFetch = globalThis.fetch;
-
-            globalThis.fetch = async (input, init) => {
-                const url = new URL(input instanceof Request ? input.url : input, location.href);
-                const slug = url.pathname.match(/\/v4\/themes\/([^/]+)$/)?.[1];
-
-                if (!slug) return realFetch(input, init);
-
-                return Response.json({ id: slug, slug, name: themes[slug] ?? slug });
-            };
-
-            return () => {
-                globalThis.fetch = realFetch;
-            };
-        },
+        args: { project: { sdgs: [4, 11, 13] } },
     });
 </script>
 
-<Story name="Education and culture" />
+<Story name="Three goals" />
+
+<Story name="No goals (renders nothing)" args={{ project: { sdgs: [] } }} />
