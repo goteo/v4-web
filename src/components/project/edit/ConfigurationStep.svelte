@@ -12,6 +12,7 @@
 -->
 <script lang="ts">
     import RoundSelector from "./RoundSelector.svelte";
+    import SdgSelect from "./SdgSelect.svelte";
     import CategorySelect from "../../../components/library/inputs/CategorySelect.svelte";
     import DateInput from "../../../components/library/inputs/DateInput.svelte";
     import { locale, t } from "../../../i18n/store";
@@ -25,7 +26,10 @@
     import Title from "../../library/typography/Title.svelte";
 
     import type { Category, Project } from "../../../openapi/client";
+    import type { ProjectDraft as ProjectDraftData } from "../../../repositories/drafts";
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
+
+    type ProjectDraftPatch = ProjectDraftData["patch"];
 
     interface ConfigurationStepProps {
         draft: ProjectDraftStore;
@@ -73,6 +77,17 @@
                 });
             }),
         });
+    }
+
+    // ponytail: v4-api has no SDG field yet. Until `pnpm sdk` brings `sdgs` (and its max), they
+    // only live in the local draft: the PATCH carries them and the API ignores unknown fields.
+    // Then drop these casts and read the max from the SDK schema.
+    const MAX_SDGS = 3;
+
+    let sdgs = $derived(($draft.latest as Project & { sdgs?: number[] }).sdgs ?? []);
+
+    function handleSdgsChange(selected: number[]) {
+        draft.patch({ sdgs: selected } as ProjectDraftPatch);
     }
 
     let release = $derived(new Date($draft.latest.calendar?.release || new Date()));
@@ -142,6 +157,19 @@
             </div>
         {/if}
     {/await}
+
+    <!-- SDGs Section -->
+    <div class="space-y-4">
+        <div class="space-y-4">
+            <Title level={2} variant="subsection">
+                {$t("pages.project.edit.configuration.sdgs.title")}
+            </Title>
+            <p class="text-content text-base font-normal">
+                {$t("pages.project.edit.configuration.sdgs.subtitle", { max: MAX_SDGS })}
+            </p>
+        </div>
+        <SdgSelect selected={sdgs} max={MAX_SDGS} onChange={handleSdgsChange} />
+    </div>
 
     <!-- Release Date Section -->
     <div class="space-y-4">

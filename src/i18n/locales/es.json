@@ -900,6 +900,11 @@
             "option1": "1 Ronda",
             "option2": "2 Rondas"
           },
+          "sdgs": {
+            "title": "Objetivos de Desarrollo Sostenible",
+            "subtitle": "Elige hasta {{ max }} Objetivos de Desarrollo Sostenible a los que contribuye tu proyecto",
+            "counter": "{{ count }} de {{ max }} seleccionados"
+          },
           "continue": "Continuar con info del proyecto",
           "geography": {
             "scopeLabel": "Ámbito de actuación",
