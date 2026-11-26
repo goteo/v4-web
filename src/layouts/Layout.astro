@@ -33,6 +33,8 @@ const preloadedFaces: FontPreloadFilter = [{ style: "normal", subset: "latin" }]
         <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
         <title>{title}</title>
         <Font cssVariable="--font-karla" preload={preloadedFaces} />
+        <!-- Not preloaded: the browser only downloads it on pages that show SDG icons. -->
+        <Font cssVariable="--font-oswald" />
         <Metatags {title} {description} {keywords} />
     </head>
     <body class="bg-white">

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { twMerge, type ClassNameValue } from "tailwind-merge";
 
+    import SdgIcon from "./SdgIcon.svelte";
     import { locale, t } from "../../i18n/store";
     import { apiThemesIdOrSlugGet } from "../../openapi/client";
     import { extractId } from "../../utils/extractId";
@@ -48,14 +49,7 @@
                         )}
 
                         <div class="flex items-start gap-6">
-                            <img
-                                src={`/images/sdg/sdg-${goal}.png`}
-                                alt={title}
-                                width="96"
-                                height="96"
-                                loading="lazy"
-                                class="size-24 shrink-0"
-                            />
+                            <SdgIcon {goal} />
                             <div class="flex flex-col gap-2">
                                 <h3 class="text-2xl font-medium text-black">{title}</h3>
                                 <p class="text-content">

@@ -42,6 +42,7 @@
 
     /* Declared by the `<Font>` component in Layout.astro; already carries its own fallbacks. */
     --font-body: var(--font-karla);
+    --font-condensed: var(--font-oswald);
     --text-body-small: 0.875rem;
     --text-double: 2rem;
 }
