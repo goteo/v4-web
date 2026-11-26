@@ -1,99 +1,159 @@
+<script module lang="ts">
+    import type { OwnerInfoForm } from "../../../validation/ownerInfoValidation";
+
+    /** Owner info forms by project id, kept in memory only for as long as the page lives. */
+    const forms = new Map<number | undefined, OwnerInfoForm>();
+</script>
+
 <script lang="ts">
-    import { t } from "../../../i18n/store";
+    import { locale, t } from "../../../i18n/store";
+    import { getDefaultCountry } from "../../../utils/consts";
+    import { getCountries } from "../../../utils/countries";
+    import { useFormDraft, restoreFields } from "../../../utils/forms/useFormDraft.svelte";
+    import { zOwnerInfoForm } from "../../../validation/ownerInfoValidation";
     import Close from "../../icons/navigation/Close.svelte";
     import Button from "../../library/buttons/Button.svelte";
     import Checkbox from "../../library/inputs/Checkbox.svelte";
     import FileUpload from "../../library/inputs/FileUpload.svelte";
     import RadioButton from "../../library/inputs/RadioButton.svelte";
+    import Select from "../../library/inputs/Select.svelte";
     import TerritoryInput from "../../library/inputs/TerritoryInput.svelte";
     import TextInput from "../../library/inputs/TextInput.svelte";
     import ToggleSwitch from "../../library/inputs/ToggleSwitch.svelte";
     import Title from "../../library/typography/Title.svelte";
 
     import type { ProjectDraftStore } from "../../../stores/drafts/draftsStore";
-    import type { UploadedObject } from "../../../utils/media/objectStorage.types";
+    import type { z } from "zod";
 
     let { draft, onPublish }: { draft: ProjectDraftStore; onPublish?: () => void } = $props();
 
-    type ContactEntry = {
-        id: string;
-        type: "email" | "phone" | "text";
-        value: string;
-        preferred: boolean;
-    };
+    type FieldName = keyof typeof zOwnerInfoForm.shape;
 
-    let legalEntityType = $state<"individual" | "organization">("individual");
-    let name = $state("");
-    let taxId = $state("");
-    let privateContacts = $state<ContactEntry[]>([
-        { id: crypto.randomUUID(), type: "email", value: "", preferred: true },
-        { id: crypto.randomUUID(), type: "phone", value: "", preferred: false },
-    ]);
-    let preferredIndex = $state(0);
-    let iban = $state("");
-    let bankCertificateFiles = $state<UploadedObject[]>([]);
-    // let publicLinks = $state({
-    //     website: "",
-    //     email: "",
-    //     instagram: "",
-    //     facebook: "",
-    //     twitter: "",
-    //     linkedin: "",
-    // });
-    let termsAccepted = $state(false);
-    let touched = $state<Set<string>>(new Set());
+    const projectId = $draft.actual.id;
 
-    function touch(field: string) {
-        touched = new Set([...touched, field]);
+    /**
+     * None of these fields are part of the project draft, so the step is the only place that
+     * holds them. The cached form outlives the remount caused by switching steps or the
+     * project's language; a UI language switch is a full navigation and goes through
+     * `useFormDraft` instead.
+     */
+    const cached = forms.get(projectId);
+
+    let form = $state<OwnerInfoForm>(
+        cached ?? {
+            legalEntityType: "individual",
+            name: "",
+            taxId: "",
+            taxIdCountry: getDefaultCountry(),
+            contacts: [
+                { id: crypto.randomUUID(), type: "email", value: "", preferred: true },
+                { id: crypto.randomUUID(), type: "phone", value: "", preferred: false },
+            ],
+            iban: "",
+            bankCertificate: [],
+            termsAccepted: false,
+        },
+    );
+
+    forms.set(projectId, form);
+
+    /**
+     * The tax id, the IBAN and the bank certificate are left out on purpose: they are
+     * sensitive, and the visitor can type them again.
+     */
+    const { restored } = useFormDraft(`project-owner-info-${projectId}`, () => ({
+        legalEntityType: form.legalEntityType,
+        name: form.name,
+        taxIdCountry: form.taxIdCountry,
+        contacts: form.contacts,
+        termsAccepted: form.termsAccepted,
+    }));
+
+    if (!cached) {
+        restoreFields(form, restored, [
+            "legalEntityType",
+            "name",
+            "taxIdCountry",
+            "contacts",
+            "termsAccepted",
+        ]);
     }
 
-    function setPreferred(i: number) {
-        preferredIndex = i;
-        privateContacts = privateContacts.map((c, idx) => ({ ...c, preferred: idx === i }));
+    let validation = $state<Partial<Record<FieldName, z.core.$ZodIssue[]>>>({});
+
+    let preferredIndex = $derived(form.contacts.findIndex((c) => c.preferred));
+
+    let countries = $derived(getCountries($locale));
+
+    function validate(field: FieldName) {
+        // taxId validity depends on country and legal entity type, so it is checked by the schema refinement
+        if (field === "taxId") {
+            const result = zOwnerInfoForm.safeParse(form);
+
+            validation.taxId = result.error?.issues.filter((issue) => issue.path[0] === "taxId");
+            return;
+        }
+
+        const result = zOwnerInfoForm.shape[field].safeParse(form[field]);
+
+        validation[field] = result.error?.issues;
     }
 
-    function addContact() {
-        privateContacts = [
-            ...privateContacts,
-            { id: crypto.randomUUID(), type: "text", value: "", preferred: false },
-        ];
-    }
-
-    function deleteContact(i: number) {
-        if (privateContacts[i]?.type === "email") return;
-        const wasPreferred = i === preferredIndex;
-        privateContacts = privateContacts.filter((_, idx) => idx !== i);
-        if (wasPreferred) {
-            preferredIndex = 0;
-            privateContacts = privateContacts.map((c, idx) => ({ ...c, preferred: idx === 0 }));
-        } else if (i < preferredIndex) {
-            preferredIndex = preferredIndex - 1;
+    /** A country or legal entity change only rechecks a tax id that was already checked. */
+    function revalidateTaxId() {
+        if (validation.taxId) {
+            validate("taxId");
         }
     }
 
-    function ibanValid(value: string): boolean {
-        const normalized = value.replace(/\s/g, "").toUpperCase();
-        return /^[A-Z]{2}[0-9]{2}[A-Z0-9]{10,30}$/.test(normalized);
+    function getValidationMessage(field: FieldName): string | undefined {
+        const issue = validation[field]?.[0];
+
+        return issue && $t(issue.message);
     }
 
-    let errors = $derived({
-        name: !name.trim() ? $t("system.validation.missingRequiredFields") : undefined,
-        taxId: !taxId.trim() ? $t("system.validation.missingRequiredFields") : undefined,
-        contacts: !privateContacts[preferredIndex]?.value.trim()
-            ? $t("system.validation.missingRequiredFields")
-            : undefined,
-        iban: !iban.trim()
-            ? $t("system.validation.missingRequiredFields")
-            : !ibanValid(iban)
-              ? $t("pages.project.edit.aboutYou.paymentData.ibanInvalid")
-              : undefined,
-        bankCertificate:
-            bankCertificateFiles.length === 0
-                ? $t("system.validation.missingRequiredFields")
-                : undefined,
-    });
+    function getContactError(index: number): string | undefined {
+        const issue = validation.contacts?.find((issue) => issue.path[0] === index);
 
-    let isValid = $derived(Object.values(errors).every((e) => e === undefined) && termsAccepted);
+        return issue && $t(issue.message);
+    }
+
+    function setPreferred(index: number) {
+        form.contacts = form.contacts.map((c, i) => ({ ...c, preferred: i === index }));
+        validate("contacts");
+    }
+
+    function addContact() {
+        form.contacts.push({ id: crypto.randomUUID(), type: "text", value: "", preferred: false });
+    }
+
+    function deleteContact(index: number) {
+        const [removed] = form.contacts.splice(index, 1);
+
+        if (removed?.preferred && form.contacts[0]) {
+            form.contacts[0].preferred = true;
+        }
+
+        validate("contacts");
+    }
+
+    function handleContinue() {
+        const result = zOwnerInfoForm.safeParse(form);
+
+        validation = {};
+
+        if (result.success) {
+            onPublish?.();
+            return;
+        }
+
+        for (const issue of result.error.issues) {
+            const field = issue.path[0] as FieldName;
+            const rest = { ...issue, path: issue.path.slice(1) };
+
+            validation[field] = [...(validation[field] ?? []), rest];
+        }
+    }
 </script>
 
 <div class="w-1/2">
@@ -123,7 +183,8 @@
                 {$t("pages.project.edit.aboutYou.legalEntityHelper")}
             </p>
             <ToggleSwitch
-                bind:value={legalEntityType}
+                bind:value={form.legalEntityType}
+                onchange={revalidateTaxId}
                 options={[
                     { value: "individual", label: $t("pages.project.edit.aboutYou.individual") },
                     {
@@ -140,14 +201,13 @@
                 {$t("pages.project.edit.aboutYou.name")}
             </Title>
             <p class="text-content text-base">{$t("pages.project.edit.aboutYou.nameHelper")}</p>
-            <div onfocusout={() => touch("name")}>
-                <TextInput
-                    bind:value={name}
-                    placeholder={$t("pages.project.edit.aboutYou.namePlaceholder")}
-                    name="name"
-                    error={touched.has("name") ? errors.name : undefined}
-                />
-            </div>
+            <TextInput
+                bind:value={form.name}
+                placeholder={$t("pages.project.edit.aboutYou.namePlaceholder")}
+                name="name"
+                error={getValidationMessage("name")}
+                onInput={() => validate("name")}
+            />
         </div>
 
         <!-- NIF -->
@@ -156,14 +216,24 @@
                 {$t("pages.project.edit.aboutYou.taxId")}
             </Title>
             <p class="text-content text-base">{$t("pages.project.edit.aboutYou.taxIdHelper")}</p>
-            <div onfocusout={() => touch("taxId")}>
-                <TextInput
-                    bind:value={taxId}
-                    placeholder={$t("pages.project.edit.aboutYou.taxIdPlaceholder")}
-                    name="taxId"
-                    error={touched.has("taxId") ? errors.taxId : undefined}
-                />
-            </div>
+            <Select
+                name="taxIdCountry"
+                bind:value={form.taxIdCountry}
+                labelText={$t("pages.project.edit.aboutYou.taxIdCountry")}
+                helperText={$t("pages.project.edit.aboutYou.taxIdCountryHelper")}
+                onChange={revalidateTaxId}
+            >
+                {#each countries as { code, name } (code)}
+                    <option value={code}>{name}</option>
+                {/each}
+            </Select>
+            <TextInput
+                bind:value={form.taxId}
+                placeholder={$t("pages.project.edit.aboutYou.taxIdPlaceholder")}
+                name="taxId"
+                error={getValidationMessage("taxId")}
+                onInput={() => validate("taxId")}
+            />
         </div>
 
         <!-- Location/Territory -->
@@ -209,9 +279,9 @@
                 </p>
             </div>
             <div class="flex flex-col gap-3">
-                {#each privateContacts as contact, i (contact.id)}
+                {#each form.contacts as contact, i (contact.id)}
                     <div class="flex items-center gap-3">
-                        <div class="flex-1" onfocusout={() => touch(contact.id)}>
+                        <div class="flex-1">
                             <TextInput
                                 bind:value={contact.value}
                                 type={contact.type === "email"
@@ -225,13 +295,12 @@
                                       ? $t("pages.project.edit.aboutYou.phone")
                                       : $t("common.textPlaceholder")}
                                 name={`contact-${i}`}
-                                error={contact.preferred && touched.has(contact.id)
-                                    ? errors.contacts
-                                    : undefined}
+                                error={getContactError(i)}
+                                onInput={() => validate("contacts")}
                             />
                         </div>
                         <RadioButton
-                            bind:group={preferredIndex}
+                            group={preferredIndex}
                             value={i}
                             label={$t("pages.project.edit.aboutYou.preferred")}
                             onchange={() => setPreferred(i)}
@@ -346,16 +415,15 @@
                 </p>
             </div>
             <div class="flex flex-col gap-3">
-                <div onfocusout={() => touch("iban")}>
-                    <TextInput
-                        bind:value={iban}
-                        labelText={$t("pages.project.edit.aboutYou.paymentData.iban")}
-                        helperText={$t("pages.project.edit.aboutYou.paymentData.ibanHelper")}
-                        placeholder={$t("pages.project.edit.aboutYou.paymentData.ibanPlaceholder")}
-                        name="iban"
-                        error={touched.has("iban") ? errors.iban : undefined}
-                    />
-                </div>
+                <TextInput
+                    bind:value={form.iban}
+                    labelText={$t("pages.project.edit.aboutYou.paymentData.iban")}
+                    helperText={$t("pages.project.edit.aboutYou.paymentData.ibanHelper")}
+                    placeholder={$t("pages.project.edit.aboutYou.paymentData.ibanPlaceholder")}
+                    name="iban"
+                    error={getValidationMessage("iban")}
+                    onInput={() => validate("iban")}
+                />
                 <div class="flex flex-col gap-2">
                     <p class="text-base font-bold text-black">
                         {$t("pages.project.edit.aboutYou.paymentData.bankCertificate")}
@@ -364,7 +432,9 @@
                         {$t("pages.project.edit.aboutYou.paymentData.bankCertificateHelper")}
                     </p>
                     <FileUpload
-                        bind:files={bankCertificateFiles}
+                        bind:files={form.bankCertificate}
+                        onUpload={() => validate("bankCertificate")}
+                        error={getValidationMessage("bankCertificate")}
                         accept={["application/pdf", "image/jpeg", "image/png"]}
                         maxSizeMB={10}
                         ariaLabel={$t(
@@ -375,14 +445,17 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
-            <Checkbox bind:checked={termsAccepted}>
+        <div class="flex flex-col gap-2">
+            <Checkbox bind:checked={form.termsAccepted}>
                 <span class="text-secondary">
                     <a href="/src/pages/[...locale]/about/legal/terms" class="underline"
                         >{$t("pages.project.create.terms.label")}</a
                     >
                 </span>
             </Checkbox>
+            {#if !form.termsAccepted && validation.termsAccepted}
+                <p class="text-tertiary text-sm">{getValidationMessage("termsAccepted")}</p>
+            {/if}
         </div>
 
         <div class="mt-10 flex">
@@ -390,8 +463,7 @@
                 kind="primary"
                 size="md"
                 class="min-w-50 disabled:pointer-events-none disabled:opacity-24"
-                onclick={onPublish}
-                disabled={!isValid}
+                onclick={handleContinue}
             >
                 {$t("pages.project.edit.aboutYou.continue")}
             </Button>
