@@ -353,6 +353,9 @@
         "title": "Vols eliminar totes les traduccions?",
         "description": "Només es conservarà el text en {{language}}. Les altres traduccions s’eliminaran en desar."
       }
+    },
+    "language": {
+      "defaultRequiredHelp": "Els textos en {{ language }} són obligatoris; si un idioma queda buit es mostra el text en {{ language }}."
     }
   },
   "common": {
@@ -1898,7 +1901,6 @@
         },
         "footer": {
           "title": "Peu de pàgina",
-          "languageHelp": "Els textos en {{ language }} són obligatoris; si un idioma queda buit es mostra el text en {{ language }}.",
           "saved": "Peu de pàgina desat",
           "sections": {
             "preview": "Vista prèvia",
@@ -2373,7 +2375,8 @@
         "description": "Administra la comunicació de la plataforma",
         "tabs": {
           "blog": "Blog",
-          "newsletter": "Butlletí"
+          "newsletter": "Butlletí",
+          "faqs": "PMF"
         },
         "banners": {
           "title": "Anuncis",
@@ -2468,6 +2471,27 @@
             },
             "saveAndExit": "Desa i surt",
             "publish": "Publica l'entrada"
+          }
+        },
+        "faqs": {
+          "title": "Preguntes freqüents",
+          "description": "Aquí pots crear, ordenar i traduir les preguntes freqüents de la plataforma",
+          "editHelp": "Escriu directament a cada pregunta i desplega-la per editar-ne la resposta. Així es veuran en l'idioma seleccionat.",
+          "empty": "Encara no hi ha preguntes freqüents",
+          "add": "Afegir pregunta",
+          "saved": "Preguntes freqüents desades",
+          "lastUpdated": "Última actualització: {{ date }}",
+          "unsaved": "Sense desar",
+          "fields": {
+            "question": "Pregunta",
+            "questionPlaceholder": "Escriu la pregunta",
+            "answer": "Resposta",
+            "answerPlaceholder": "Escriu la resposta"
+          },
+          "errors": {
+            "forbidden": "No tens permís per editar les preguntes freqüents.",
+            "missingText": "Falta la pregunta o la resposta d'alguna PMF en l'idioma principal.",
+            "incompleteTranslation": "Alguna PMF té la pregunta traduïda però no la resposta, o a l'inrevés."
           }
         }
       },
@@ -2864,6 +2888,11 @@
           "description": "Pots copiar l'enllaç per enviar-lo i també compartir-lo a Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntes freqüents",
+      "description": "Troba respostes a les teves preguntes sobre Goteo, el micromecenatge, el matchfunding i com impulsar projectes amb impacte social i cultural.",
+      "empty": "Encara no hi ha preguntes freqüents publicades."
     }
   }
 }
