@@ -2876,6 +2876,11 @@
           "description": "Puedes copiar el enlace para enviarlo y también compartirla en Facebook o X."
         }
       }
+    },
+    "faqs": {
+      "title": "Preguntas frecuentes",
+      "description": "Encuentra respuestas a tus preguntas sobre Goteo, crowdfunding, matchfunding, y cómo impulsar proyectos con impacto social y cultural.",
+      "empty": "Todavía no hay preguntas frecuentes publicadas."
     }
   }
 }
