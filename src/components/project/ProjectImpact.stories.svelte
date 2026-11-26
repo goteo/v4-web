@@ -11,8 +11,6 @@
         tags: ["autodocs"],
         args: {
             project: { themes: ["/v4/themes/education", "/v4/themes/culture"] },
-            socialCommitmentDescription:
-                "Texto de prueba. Este proyecto acerca la educación y la cultura a su barrio, ofreciendo talleres abiertos y gratuitos para todas las edades y colaborando con las entidades locales para que nadie se quede fuera.",
         },
         // The SDK reads globalThis.fetch per request: answer theme lookups locally.
         beforeEach: () => {

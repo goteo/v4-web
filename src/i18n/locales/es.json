@@ -1168,7 +1168,6 @@
             "descAbout": "Descripción del proyecto. Características, fortalezas y diferencias.",
             "descGoal": "Motivación y a quién va dirigido el proyecto.",
             "descTeam": "Experiencia previa y equipo.",
-            "socialCommitment": "Compromiso social",
             "sdg": {
               "title": "Objetivos de Desarrollo Sostenible",
               "goals": {
