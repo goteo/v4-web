@@ -5,12 +5,12 @@ import App from "../../../../layouts/App.svelte";
 
 import {
     apiAccountingBalancePointsGetCollection,
-    apiAccountingsIdGet,
     apiProjectsIdOrSlugGet,
     apiProjectSupportsGetCollection,
     apiUsersIdOrHandleGet,
     type Project,
 } from "../../../../openapi/client";
+import { accountingIri } from "../../../../utils/accountings";
 import { extractId } from "../../../../utils/extractId";
 import { NotFound } from "../../../../utils/responses";
 
@@ -36,10 +36,6 @@ if (error) {
     return Astro.rewrite("/500");
 }
 
-const { data: accounting } = await apiAccountingsIdGet({
-    path: { id: extractId(project.accounting)! },
-});
-
 const { data: owner } = await apiUsersIdOrHandleGet({
     path: { idOrHandle: extractId(project.owner)! },
 });
@@ -58,7 +54,7 @@ deadline.setDate(deadline.getDate() + 1);
 
 const { data: balancePoints } = await apiAccountingBalancePointsGetCollection({
     query: {
-        accounting: project?.accounting ?? "",
+        accounting: accountingIri(project.accounting),
         start: project?.calendar?.release ?? "",
         end: deadline.toISOString(),
         aggregate: true,
@@ -70,7 +66,7 @@ const { data: balancePoints } = await apiAccountingBalancePointsGetCollection({
     <App headerLogo={Astro.locals.headerLogo} client:load locale={lang}>
         <SingleProject
             {project}
-            accounting={accounting!}
+            accounting={project.accounting!}
             owner={owner!}
             {totalSupports}
             balancePoints={balancePoints!}

@@ -1,3 +1,4 @@
+import { accountingIri } from "./accountings";
 import { toCollectionItems } from "./hydra";
 import {
     DEFAULT_MIN_CHARS,
@@ -143,7 +144,7 @@ export function createAccountingSearcher({
                 },
                 map: (project) => ({
                     id: `project-${project.id ?? project.slug}`,
-                    value: project.accounting ?? "",
+                    value: accountingIri(project.accounting),
                     label: project.title ?? project.slug ?? "",
                     detail: project.subtitle,
                     raw: project,

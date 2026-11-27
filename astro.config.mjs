@@ -139,7 +139,7 @@ export default defineConfig({
                  */
                 "img-src 'self' data: blob: https:",
                 "media-src 'self' data: blob: https:",
-                // Karla is self-hosted through the fonts API — nothing else is needed.
+                // Karla and Oswald are self-hosted through the fonts API — nothing else is needed.
                 "font-src 'self'",
                 /**
                  * The tight one, and the reason for the whole exercise: this is what data
@@ -202,6 +202,15 @@ export default defineConfig({
             cssVariable: "--font-karla",
             weights: ["200 800"],
             styles: ["normal", "italic"],
+            subsets: ["latin", "latin-ext"],
+        },
+        // Condensed face of the UN SDG icons, for their number and translated title.
+        {
+            provider: fontProviders.google(),
+            name: "Oswald",
+            cssVariable: "--font-oswald",
+            weights: ["500 700"],
+            styles: ["normal"],
             subsets: ["latin", "latin-ext"],
         },
     ],
