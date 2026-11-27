@@ -1698,6 +1698,7 @@ export const zProjectProjectCreationDto = z.object({
     subtitle: z.string(),
     categories: z.array(z.string()).min(1).max(2),
     themes: z.array(z.string()).max(1).optional(),
+    sdgs: z.array(z.int().gte(1).lte(17)).max(3).optional(),
     territory: zTerritory,
     calendar: zProjectCalendar,
     status: z.enum([
@@ -1732,6 +1733,7 @@ export const zProjectProjectUpdationDtoJsonMergePatch = z.object({
     cover: z.url().optional(),
     categories: z.array(z.string()).min(1).max(2).optional(),
     themes: z.array(z.string()).max(1).optional(),
+    sdgs: z.array(z.int().gte(1).lte(17)).max(3).optional(),
     territory: zTerritory.optional(),
     descBrief: z.string().min(20).optional(),
     descAbout: z.string().min(20).optional(),
@@ -2593,6 +2595,7 @@ export const zProject = z.object({
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLink).readonly().optional(),
+    sdgs: z.array(z.int()).optional(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
@@ -2646,6 +2649,7 @@ export const zProjectCsv = z.object({
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLinkCsv).readonly().optional(),
+    sdgs: z.array(z.int()).optional(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()
@@ -2699,6 +2703,7 @@ export const zProjectJsonld = zHydraItemBaseSchema.and(z.object({
     updates: z.array(z.string()).readonly().optional(),
     matchCallSubmissions: z.array(z.string()).readonly().optional(),
     links: z.array(zLinkJsonld).readonly().optional(),
+    sdgs: z.array(z.int()).optional(),
     locales: z.array(z.string()).readonly().optional(),
     dateCreated: z.iso.datetime().readonly().optional(),
     dateUpdated: z.iso.datetime().readonly().optional()

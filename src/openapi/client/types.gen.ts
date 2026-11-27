@@ -2478,6 +2478,10 @@ export type Project = {
      */
     readonly links?: Array<Link>;
     /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     */
+    sdgs?: Array<number>;
+    /**
      * List of the available content locales.
      */
     readonly locales?: Array<string>;
@@ -2505,6 +2509,10 @@ export type ProjectProjectCreationDto = {
      * List of Themes.
      */
     themes?: Array<string>;
+    /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     */
+    sdgs?: Array<number>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -2541,6 +2549,10 @@ export type ProjectProjectUpdationDtoJsonMergePatch = {
      * List of Themes.
      */
     themes?: Array<string>;
+    /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     */
+    sdgs?: Array<number>;
     /**
      * ISO 3166 data about the Project's territory of interest.
      */
@@ -2710,6 +2722,10 @@ export type ProjectCsv = {
      */
     readonly links?: Array<LinkCsv>;
     /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     */
+    sdgs?: Array<number>;
+    /**
      * List of the available content locales.
      */
     readonly locales?: Array<string>;
@@ -2818,6 +2834,10 @@ export type ProjectJsonld = HydraItemBaseSchema & {
      * e.g: social profiles, project website.
      */
     readonly links?: Array<LinkJsonld>;
+    /**
+     * UN Sustainable Development Goals (1 to 17) the Project contributes to.
+     */
+    sdgs?: Array<number>;
     /**
      * List of the available content locales.
      */
